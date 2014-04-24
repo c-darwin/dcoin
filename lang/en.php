@@ -88,7 +88,8 @@ $lng['race_2'] = 'Europid';
 $lng['race_3'] = 'Negroid';
 $lng['change_key_pass'] = 'Change<br>key/password';
 $lng['login_text'] = 'Enter key and password, and then - click "Sign"';
-$lng['new_version'] = 'Please, install the new version of the engine! <button class="btn" id="btn_install">install [ver]</button><br>Or fill scripts manually and press <button class="btn" id="btn_upgrade">Upgrade to [ver]</button';
+$lng['new_version'] = 'Please, install the new version of the engine! <button class="btn" id="btn_install">install [ver]</button><br>Or fill scripts manually and press <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
+$lng['new_version_wo_block'] = 'Uploaded new version of the engine. Press <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
 $lng['attention_title'] = 'Attention!';
 $lng['alert_time'] = 'Time on your server differs from the exact time of [sec] seconds. Necessary to establish the exact time';
 

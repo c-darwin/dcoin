@@ -27,17 +27,25 @@ $new_ver =  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 		FROM `".DB_PREFIX."new_version`
 		WHERE `alert` = 1
 		", 'array');
-$new_max_ver = 0;
+$new_max_ver = '0';
 for ($i=0; $i<sizeof($new_ver); $i++) {
 	if (version_compare($new_ver[$i], $new_max_ver) == 1)
 		$new_max_ver = $new_ver[$i];
 }
 
-// если версия в файле не сотвествует тоё, которая выдана юзеру в алерте
-if ($new_max_ver != $file_ver)
-	die('version error');
+// если версия в файле не сотвествует той, которая в блоке
+if ($new_max_ver != $file_ver) {
 
-if ($file_ver > $cur_ver) {
+	// Версия в файле больше нашей?
+	if (version_compare($file_ver, $cur_ver) == 1) {
+		$new_max_ver = $file_ver;
+	}
+}
+if (!$new_max_ver) {
+	die('bad version');
+}
+
+if (version_compare($file_ver, $cur_ver) == 1) {
 	// возможно есть какие-то задания
 	require_once( ABSPATH . 'ajax/upd_tasks.php' );
 }

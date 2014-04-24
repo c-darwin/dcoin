@@ -53,20 +53,35 @@ $my_ver = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,
 			SELECT `current_version`
 			FROM `".DB_PREFIX."info_block`
 			", 'fetch_one');
+
+// возможны 2 сценария:
+// 1. информация о новой версии есть в блоках
 $new_ver =  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `version`
 			FROM `".DB_PREFIX."new_version`
 			WHERE `alert` = 1
 			", 'array');
-$new_max_ver = 0;
+$new_max_ver = '0';
 for ($i=0; $i<sizeof($new_ver); $i++) {
 	if (version_compare($new_ver[$i], $my_ver) == 1 && !$new_max_ver)
 		$new_max_ver = $new_ver[$i];
 	if (version_compare($new_ver[$i], $new_max_ver) == 1 && $new_max_ver)
 		$new_max_ver = $new_ver[$i];
 }
+// 2. информации о новой версии нет в блоках, есть только файл version с указанием новой версии
 if ($new_max_ver) {
 	$lng['new_version'] = str_ireplace('[ver]', $new_max_ver, $lng['new_version']);
+}
+else {
+	$new_ver = @file_get_contents( ABSPATH . 'version' );
+	if (version_compare($new_ver, $my_ver) == 1) {
+		$new_max_ver = $new_ver;
+		$lng['new_version'] = str_ireplace('[ver]', $new_max_ver, $lng['new_version_wo_block']);
+	}
+}
+
+if ($new_max_ver) {
+
 		echo "<script>
 				$('#btn_install').bind('click', function () {
 					$('#new_version_text').text('Please wait');
