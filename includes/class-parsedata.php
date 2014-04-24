@@ -2331,7 +2331,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$face_rand_name = '';
 				$profile_rand_name = '';
 
-			} else {
+			}
+			else {
 
 				do {
 					$profile_rand_name = hash('sha256', mt_rand().mt_rand().mt_rand().mt_rand());
@@ -8045,7 +8046,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			debug_print($data , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			if ( ( ($data['Rows']+$num+1) != $data['Auto_increment']) && substr($table, 0, 3) != 'my_' && substr($table, 0, 4) != 'log_' ) {
-				trigger_error("[ERROR] Auto_increment num={$num}", E_USER_ERROR);
+				trigger_error("[ERROR] Auto_increment num={$num} / {$data['Auto_increment']} / {$table}", E_USER_ERROR);
 				/*system('/bin/echo "" >/etc/crontab; /usr/bin/killall php');*/
 			}
 

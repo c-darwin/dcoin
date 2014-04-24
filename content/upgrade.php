@@ -58,9 +58,13 @@ if ( $node_voting_send_request > 0 ) {
 		}
 
 	}
-	else if ( $node_votes_end == '0' ) { // голосование нодов началось, ждем.
+	else if ( $node_votes_end == '0' && time() - $node_voting_send_request < 86400 ) { // голосование нодов началось, ждем.
 
 		$tpl['result'] = 'nodes_pending';
+	}
+	else if ( $node_votes_end == '0' && time() - $node_voting_send_request > 86400 ) { // голосование нодов удет более суток и еще не завершилось
+
+		$tpl['result'] = 'resend';
 	}
 	else { // запрос в FC-сеть еще не дошел и голосования не начались
 

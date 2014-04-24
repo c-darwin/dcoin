@@ -2344,7 +2344,7 @@ function nodes_ban ($db, $user_id, $info)
 						".time().",
 						'{$info}'
 				)
-				ON DUPLICATE KEY UPDATE `ban_start` = ".time()."
+				ON DUPLICATE KEY UPDATE `ban_start` = ".time().", `info` = '{$info}'
 				");
 	/*$config_ini = parse_ini_file("config.ini", true);
 	$exit = $config_ini['main']['nodes_ban_exit'];
@@ -3073,7 +3073,7 @@ function tx_parser ($new_tx_data, $my_tx=false) {
 			if ($ini_array['main']['bad_tx_log']==1) {
 				$file = ABSPATH . 'log/bad_tx.log';
 				$text = "time: ".date('d-m-Y H:i:s')."\n";
-				$text = "script: ".get_script_name()."\n";
+				$text.= "script: ".get_script_name()."\n";
 				$text.= "error: {$error}\n";
 				$text.= "md5_hash: ".md5($binary_tx)."\n";
 				$text.= "data: {$binary_tx}\n";

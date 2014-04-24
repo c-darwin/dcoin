@@ -273,7 +273,7 @@ do {
 			debug_print( $result, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			//main_lock();
 			if ($result) {
-				nodes_ban ($db, $max_block_id_user_id, $result."\n".__FILE__.', '.__LINE__.', '. __FUNCTION__.', '.__CLASS__.', '. __METHOD__);
+				nodes_ban ($db, $max_block_id_user_id, 'block_id='.$block_id."\n".$result."\n".__FILE__.', '.__LINE__.', '. __FUNCTION__.', '.__CLASS__.', '. __METHOD__);
 				main_unlock();
 				continue 2;
 			}
@@ -337,7 +337,7 @@ do {
 		// начинаем всё с начала уже с другими нодами. Но у нас уже могут быть новые блоки до $block_id, взятые от нода, которого с в итоге мы баним
 		if ($error) {
 			//$block_id--;
-			nodes_ban ($db, $max_block_id_user_id, __FILE__.', '.__LINE__.', '. __FUNCTION__.', '.__CLASS__.', '. __METHOD__);
+			nodes_ban ($db, $max_block_id_user_id, '$block_id='.$block_id."\n".$error."\n". __FILE__.', '.__LINE__.', '. __FUNCTION__.', '.__CLASS__.', '. __METHOD__);
 			debug_print("[[error]] ## пробуем взять этот же блок у другого нода ParseDataFull error={$error}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			//ob_save();
 			main_unlock();

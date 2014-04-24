@@ -727,6 +727,11 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				encode_length(strlen($user_id)) . $user_id .
 				$bin_signatures;
 
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."my_table`
+				SET `node_voting_send_request` = {$time}
+				");
+
 			break;
 
 		case 'admin_add_currency' :

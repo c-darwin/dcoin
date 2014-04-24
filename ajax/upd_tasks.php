@@ -3,13 +3,13 @@
 if (!defined('DC'))
 	die('!DC');
 
-/*
- * Пример отката до опредленного блока
- *  */
-/*
-if (version_compare($cur_ver, '0.1.1b60') == -1) {
+if (version_compare($cur_ver, '0.0.1b2') == -1) {
 
-	$last_block_id = 3;
+	/*
+	 * Пример отката до опредленного блока
+	 *  */
+
+	$last_block_id = 600;
 
 	// на всякий случай пометим, что работаем
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -17,7 +17,7 @@ if (version_compare($cur_ver, '0.1.1b60') == -1) {
 			SET `script_name` = 'cleaning_db'
 			");
 
-	$bad_blocks = json_encode(array(4=>'21fcc24efcd96ba781ef3666a2b7bb30daaad53dd7ae4c75da80880c2cdba6352b183c3a6b5c82fb97150ee44dec400dee3ddad7e029b0d0116c413d96249495493dcfb8ed21f635ff4e3311b493f8c37c59191316e53fb2891ce2afbe1627061d606810184a0daf1d9a431e1e76d37bed2847c312e0af4961141e8a757294bc'));
+	$bad_blocks = json_encode(array(601=>'1003ee2ee3ab7cb0ec84d87962cc0481abf0adf623efd669d3cc617ab9e3aa4010fd1dc77ca405c5ae3e8346132eadac5122ae7adc25a6347f39210950f58d542b3ffb905c7de0c4d4cb124aaf50f7e375dbed7b97839816b090309c22ba6f428e803285bac022ac3898de40a820c983e2a02c80f6766c4ced5c74b95b39b3af'));
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."my_table`
 			SET `bad_blocks` = '{$bad_blocks}'
@@ -76,7 +76,6 @@ if (version_compare($cur_ver, '0.1.1b60') == -1) {
 	}
 
 }
-*/
 
 
 ?>
