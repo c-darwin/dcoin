@@ -33,7 +33,8 @@ if (!preg_match('/^https?:\/\/[0-9a-z\_\.\-\/:]{1,100}[\/]$/iD', $host))
 
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $host.'gate_tx.php');
-curl_setopt($ch, CURLOPT_TIMEOUT, 60);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'data='.urlencode($encrypted_data));
 curl_exec($ch);

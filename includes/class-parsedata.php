@@ -9576,7 +9576,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		// Всегда есть, что логировать, т.к. это обновление ключа
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT * FROM `".DB_PREFIX."miners_data`
+				SELECT *
+				FROM `".DB_PREFIX."miners_data`
 				WHERE `user_id` = {$this->tx_data['user_id']}
 				", 'fetch_array');
 
@@ -9592,7 +9593,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					0x{$log_data['node_public_key']},
 					{$this->block_data['block_id']},
 					{$log_data['log_id']}
-				)" );
+				)");
 
 		$log_id = $this->db->getInsertId();
 

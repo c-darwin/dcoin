@@ -3,7 +3,7 @@
 if (!defined('DC'))
 	die('!DC');
 
-if (version_compare($cur_ver, '0.0.1b2') == -1) {
+if (version_compare($cur_ver, '0.0.1b3') == -1) {
 
 	/*
 	 * Пример отката до опредленного блока

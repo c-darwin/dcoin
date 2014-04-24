@@ -189,7 +189,8 @@ if ($new_testblock['mrkl_root'] != $my_testblock['mrkl_root']) {
 
 	// шлем набор хэшей тр-ий, которые есть у нас
 	$ch = curl_init();
-	curl_setopt($ch, CURLOPT_TIMEOUT, 10);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+	curl_setopt($ch, CURLOPT_TIMEOUT, 20);
 	curl_setopt($ch, CURLOPT_POST, 1);
 	curl_setopt($ch, CURLOPT_URL, "{$host}/get_testblock_transactions.php");
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);

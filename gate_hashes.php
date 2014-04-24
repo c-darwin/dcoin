@@ -181,6 +181,7 @@ debug_print($url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 // загружаем сами тр-ии
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
 curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 curl_setopt($ch, CURLOPT_POST, 1);
 curl_setopt($ch, CURLOPT_POSTFIELDS, 'data='.urlencode($encrypted_data));

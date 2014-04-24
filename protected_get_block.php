@@ -15,6 +15,8 @@ if (!preg_match('/^[0-9]{1,10}$/iD', $block_id))
 $url = "{$host}get_block.php?id={$block_id}";
 $ch = curl_init();
 curl_setopt($ch, CURLOPT_URL, $url);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+curl_setopt($ch, CURLOPT_TIMEOUT, 600);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
 $answer = curl_exec($ch);
 curl_close($ch);

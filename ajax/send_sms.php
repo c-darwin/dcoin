@@ -24,6 +24,8 @@ $sms_http_get_request = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS_
 $ch = curl_init($sms_http_get_request.$_REQUEST['text']);
 curl_setopt($ch, CURLOPT_NOBODY, 1);
 curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 curl_exec($ch);
 curl_close($ch);
 print $sms_http_get_request.$_REQUEST['text'];

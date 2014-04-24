@@ -116,10 +116,11 @@ $last_block_bin = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __M
 ParseData::string_shift( $last_block_bin, 5 );
 $block_time = ParseData::binary_dec_string_shift( $last_block_bin, 4 );
 // дождемся загрузки свежих блоков
-if (time() - $block_time < 600) {
+// if (time() - $block_time < 600) { закомменчено, т.к. при ручном откате до какого-то блока время будет старое
 	$my_node_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `private_key`
 			FROM `".DB_PREFIX."my_node_keys`
+			WHERE `block_id` > 0
 			LIMIT 1
 			", 'fetch_one');
 	if (!$my_node_key && $my_miner_id>0) {
@@ -130,6 +131,6 @@ if (time() - $block_time < 600) {
 			    </div>
 			    </div>";
 	}
-}
+//}
 
 ?>

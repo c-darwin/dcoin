@@ -454,6 +454,7 @@ function m_curl ($urls, $_data, $db, $type='data', $timeout=10, $answer=false, $
 		//// print $urls[$i];
 		curl_setopt($ch[$i], CURLOPT_URL, $urls[$i]['url']);
 		//curl_setopt($ch[$i], CURLOPT_FAILONERROR, 1);
+		curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT , 10); // timeout in seconds
 		curl_setopt($ch[$i], CURLOPT_TIMEOUT, $timeout);
 		if ($post) {
 			curl_setopt($ch[$i], CURLOPT_POST, 1);
@@ -686,6 +687,8 @@ function send_sms($sms_http_get_request, $text) {
 	$ch = curl_init($sms_http_get_request.$text);
 	curl_setopt($ch, CURLOPT_NOBODY, 1);
 	curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
+	curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10); // timeout in seconds
+	curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 	curl_exec($ch);
 	curl_close($ch);
 
@@ -1623,7 +1626,8 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 
 		debug_print($url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$ch = curl_init();
-		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 		$binary_block = curl_exec($ch);
@@ -1642,6 +1646,18 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 		$block_data = parse_block_header ($binary_block);
 		debug_print('$block_data:', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		//print_r_hex($block_data);
+
+		// если существуют глючная цепочка, тот тут мы её проигнорируем
+		$bad_blocks = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+				SELECT `bad_blocks` FROM `".DB_PREFIX."my_table`
+				" , 'fetch_one');
+		$bad_blocks = json_decode($bad_blocks, true);
+		debug_print('$bad_blocks='.print_r_hex($bad_blocks), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		if (@$bad_blocks[$block_data['block_id']] == bin2hex($block_data['sign'])) {
+			clear_tmp($blocks);
+			return "bad_block = {$block_data['block_id']}=>{$bad_blocks[$block_data['block_id']]}";
+		}
+
 
 		// размер блока не может быть более чем max_block_size
 		if ( strlen($binary_block) > $variables['max_block_size'] ) {

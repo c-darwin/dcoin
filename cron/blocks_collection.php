@@ -111,6 +111,8 @@ do {
 		curl_setopt($ch, CURLOPT_URL, $url);
 		debug_print('$url='.$url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 30);
 		$id = intval(curl_exec($ch));
 		if ($id > $max_block_id || $i==0) {
 			$max_block_id = $id;
@@ -119,6 +121,10 @@ do {
 		}
 		curl_close($ch);
 		debug_print('$max_block_id='.$max_block_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		upd_deamon_time($db);
+		if (check_deamon_restart($db)){
+			exit;
+		}
 	}
 	
 	// получим наш текущий имеющийся номер блока
@@ -160,12 +166,14 @@ do {
 		$ch = curl_init();
 		$url = "{$max_block_id_host}/{$get_block_script_name}?id={$block_id}{$add_node_host}";
 		debug_print($url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-
 		curl_setopt($ch, CURLOPT_URL, $url);
 		curl_setopt($ch, CURLOPT_RETURNTRANSFER,1);
+		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
+		curl_setopt($ch, CURLOPT_TIMEOUT, 120);
 		$binary_block = curl_exec($ch);
 		curl_close($ch);
 		debug_print('$block_data:'.$binary_block, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		upd_deamon_time($db);
 
 		if (!$binary_block) {
 			// баним на 1 час хост, который дал нам пустой блок, хотя должен был дать все до максимального
