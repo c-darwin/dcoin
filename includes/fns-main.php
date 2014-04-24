@@ -1439,7 +1439,8 @@ function lock_ ($table) {
 				INSERT IGNORE INTO `".DB_PREFIX."{$table}_lock` (
 					`lock_time`,
 					`script_name`
-				) VALUES (
+				)
+				VALUES (
 					".time().",
 					'".get_script_name()."'
 				)");

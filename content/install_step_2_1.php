@@ -56,6 +56,8 @@ if ( !isset($tpl['error']) ) {
 				0
 			)");
 
+	include ABSPATH.'includes/bad_blocks.php';
+
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			INSERT IGNORE INTO `".$tpl['mysql_prefix']."my_notifications` (`name`, `email`, `sms`)
 			VALUES ('admin_messages',1,1),('change_in_status',1,0),('fc_came_from',1,0),('fc_sent',1,0),('incoming_cash_requests',1,1),('new_version',1,1),('node_time',1,1),('system_error',1,1),('update_email',1,0),('update_primary_key',1,0),('update_sms_request',1,0),('voting_results',1,0),('voting_time',1,0)

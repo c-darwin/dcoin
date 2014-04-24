@@ -76,8 +76,6 @@ if ($tpl_name && @$_SESSION['DC_ADMIN']==1) {
 	if (isset($db))
 		require_once( ABSPATH . 'content/alert_message.php' );
 	require_once( ABSPATH . 'content/'.$tpl_name.'.php' );
-
-
 }
 else if ($tpl_name) {
 	require_once( ABSPATH . 'content/'.$tpl_name.'.php' );

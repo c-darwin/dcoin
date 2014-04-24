@@ -1521,14 +1521,5 @@ CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."my_comments` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Чтобы было проще понять причину отказов';
 ";
 
-/*
-$queries[] = "DROP TABLE IF EXISTS `".$db_name."`.`".$prefix."log_time_testblock_generator`;
-CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."log_time_testblock_generator` (
-  `type` enum('ptc','reduction','cash_requests') NOT NULL,
-  `time` int(11) NOT NULL
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='В testblock_generator есть 3 типа тр-ий, которые генерятся прямо там, без фронтальной проверки. Нужно не допустить генерации одного и того же 2 раза';
-
-";
-*/
 
 ?>
