@@ -1817,7 +1817,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 				$LOG_MARKER.="int2_block_id={$int2_block_id}";
 				debug_print("int2_block_id={$int2_block_id}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				if ($int2_block_id>=$int_block_id)
-					break;
+					continue;
 				$binary_block = file_get_contents($tmp_file_name);
 				$parsedata = new ParseData($binary_block, $db);
 				$parsedata->ParseDataRollback();

@@ -515,8 +515,7 @@ CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."log_time_change_host` (
 $queries[] = "DROP TABLE IF EXISTS `".$db_name."`.`".$prefix."log_time_new_miner`;
 CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."log_time_new_miner` (
   `user_id` bigint(20) NOT NULL,
-  `time` int(10) unsigned NOT NULL,
-  PRIMARY KEY (`user_id`)
+  `time` int(10) unsigned NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 ";
