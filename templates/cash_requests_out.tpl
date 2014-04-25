@@ -62,7 +62,7 @@ $('#send_to_net').bind('click', function () {
 			'code' : $('#code').val(),
 			'comment' : $('#comment_encrypted').val(),
 			'comment_text' : $('#comment').val(),
-						'signature1': $('#signature1').val(),
+			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 			}, function (data) { } );

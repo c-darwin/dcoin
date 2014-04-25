@@ -24,6 +24,7 @@ $lng['promised_amounts'] = 'Обещанные суммы';
 $lng['reg_users'] = 'Регистрация пользователей';
 $lng['start_stop'] = 'Start/stop';
 $lng['db_info'] = 'Инфа из БД';
+$lng['exchange'] = 'Биржа';
 
 // периоды
 $lng['day'] = 'день';
@@ -413,5 +414,16 @@ $lng['alert_change_node_key'] = 'Необходимо <a href="#" onclick="fc_na
 
 $lng['pct'] = 'Проценты';
 $lng['pct_year'] = '%/год';
+
+// currency exchange
+$lng['currency_exchange'] = 'Валютная биржа';
+$lng['sell'] = 'Продать';
+$lng['buy'] = 'Купить';
+$lng['amount_currency'] = 'Количество';
+$lng['price_per'] = 'Цена за';
+$lng['total'] = 'Всего';
+$lng['sell_orders'] = 'Ордеры на продажу';
+$lng['buy_orders'] = 'Ордеры на покупку';
+$lng['price'] = 'Цена';
 
 ?>

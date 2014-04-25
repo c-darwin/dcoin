@@ -25,6 +25,7 @@ $lng['reg_users'] = 'User registration';
 $lng['start_stop'] = 'Start/stop';
 $lng['demons'] = 'Demons';
 $lng['db_info'] = 'Db info';
+$lng['exchange'] = 'Exchange';
 
 // periods
 $lng['day'] = 'day';
@@ -407,5 +408,18 @@ $lng['alert_change_node_key'] = 'Need <a href="#" onclick="fc_navigate(\'change_
 
 $lng['pct'] = 'Interest';
 $lng['pct_year'] = '%/year';
+
+// currency exchange
+$lng['currency_exchange'] = 'Currency exchange';
+$lng['sell'] = 'Sell';
+$lng['buy'] = 'Buy';
+$lng['amount_currency'] = 'Amount';
+$lng['price_per'] = 'Price per';
+$lng['total'] = 'Total';
+$lng['sell_orders'] = 'Sell orders';
+$lng['buy_orders'] = 'Buy orders';
+$lng['price'] = 'Price';
+
+
 
 ?>

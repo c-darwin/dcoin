@@ -1579,6 +1579,58 @@ function parse_block_header (&$binary_block)
 
 }
 
+function rollback_to_block_id($block_id, $db)
+{
+	rollback_transactions($db);
+	rollback_transactions_testblock($db, true);
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			TRUNCATE TABLE `".DB_PREFIX."testblock`
+			");
+
+	// откатываем наши блоки
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+			SELECT *
+			FROM `".DB_PREFIX."block_chain`
+			WHERE `id` > {$block_id}
+			ORDER BY `id` DESC
+			");
+	while ( $row = $db->fetchArray( $res ) ) {
+		debug_print($row, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$LOG_MARKER =  "Откатываем наши блоки до блока {$block_id}";
+		$parsedata = new ParseData($row['data'], $db);
+		$parsedata->ParseDataRollback();
+		unset($parsedata);
+
+		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+				DELETE
+				FROM `".DB_PREFIX."block_chain`
+				WHERE `id` = {$row['id']}
+				");
+	}
+
+	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+			SELECT *
+			FROM `".DB_PREFIX."block_chain`
+			WHERE `id` = {$block_id}
+			LIMIT 1
+			", 'fetch_array');
+
+	ParseData::string_shift($data['data'], 1);
+	$block_data['block_id'] = ParseData::binary_dec_string_shift($data['data'], 4);
+	$block_data['time'] = ParseData::binary_dec_string_shift($data['data'], 4);
+	$block_data['user_id'] = ParseData::binary_dec_string_shift($data['data'], 5);
+	$block_data['level'] = ParseData::binary_dec_string_shift($data['data'], 1);
+
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+			UPDATE `".DB_PREFIX."info_block`
+			SET  `hash` = 0x".bin2hex($data['hash']).",
+					`head_hash` = 0x".bin2hex($data['head_hash']).",
+					`block_id` = {$block_data['block_id']},
+					`time` = {$block_data['time']},
+					`level` = {$block_data['level']}
+			");
+}
+
 /*
  * $get_block_script_name, $add_node_host используется только при работе в защищенном режиме и только из blocks_collection.php
  * */

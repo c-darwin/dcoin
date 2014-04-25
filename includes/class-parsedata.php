@@ -629,7 +629,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				//$new[] = array($time - $old_time, $old_pct);
 				if ($time > $time_finish)
 					$time = $time_finish;
-				debug_print( "(end) old_time=$old_time - time=$time ($old_pct_and_amount)\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				debug_print( "(end) old_time=$old_time - time=$time (".print_r_hex($old_pct_and_amount).")\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$to_new = array( 'num_sec'=>($time-$old_time), 'pct'=>$old_pct_and_amount['pct'], 'amount'=>$old_pct_and_amount['amount'] );
 				debug_print($to_new, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$new[] = $to_new;
@@ -666,7 +666,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$pct = 1+$new[$i]['pct'];
 			$num = $new[$i]['num_sec'];
 			$amount_and_profit = $profit +$new[$i]['amount'];
-			$profit = ( floor( round( $amount_and_profit*pow($pct, $num), 3)*100 ) / 100 ) - $new[$i]['amount'];
+			//$profit = ( floor( round( $amount_and_profit*pow($pct, $num), 3)*100 ) / 100 ) - $new[$i]['amount'];
+			// из-за того, что в front был подсчет без обновления points, а в рабочем методе уже с обновлением points, выходило, что в рабочем методе было больше мелких временных промежуток, и получалось profit <0.01, из-за этгого было расхождение в front и попадение минуса в БД
+			$profit =  $amount_and_profit*pow($pct, $num) - $new[$i]['amount'];
 			debug_print( "num={$num} pct={$pct} amount={$new[$i]['amount']} profit={$profit}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		}
 
@@ -1075,7 +1077,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 			$log_id = $this->db->getInsertId ();
 
-			$points_status = self::getPointsStatus($to_user_id, $this->db, true, $this->variables['points_update_time']);
+			//$points_status = self::getPointsStatus($to_user_id, $this->db, true, $this->variables['points_update_time']);
+			$points_status = array(0=>'user');
 			// holidays не нужны, т.к. это не TDC, а DC
 			// то, что вырасло на кошельке
 			$new_DC_sum = $wallet_data['amount'] + self::calc_profit ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'],	$this->pct[$currency_id], $points_status );
@@ -1190,7 +1193,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				)" );
 		$log_id = $this->db->getInsertId();
 
-		$points_status = self::getPointsStatus($from_user_id, $this->db, true, $this->variables['points_update_time']);
+		//$points_status = self::getPointsStatus($from_user_id, $this->db, true, $this->variables['points_update_time']);
+		$points_status = array(0=>'user');
 		// пересчитаем DC на кошельке отправителя
 		// обновим сумму и дату на кошельке отправителя.
 		// holidays не нужны, т.к. это не TDC, а DC.
@@ -5592,10 +5596,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
         debug_print("new_tdc=$new_tdc", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-        if ($new_tdc < $this->tx_data['amount'])
+        if ($new_tdc < $this->tx_data['amount']+0.01) // запас 0.01 на всяк случай
             return "error amount ({$new_tdc}<{$this->tx_data['amount']}) promised_amount_id={$this->tx_data['promised_amount_id']} \ user_id = {$this->tx_data['user_id']}";
 
-        if ($this->tx_data['amount']<0.02)
+        if ($this->tx_data['amount'] < 0.02)
             return "error amount ({$this->tx_data['amount']}<0.02)";
 
 		// юзер может создавать не более X запросов в день на снятие DC с банкнот
@@ -7423,9 +7427,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							LIMIT 1
 							", 'fetch_array' );
 
-		$points_status = self::getPointsStatus($this->tx_data['user_id'], $this->db, false, $this->variables['points_update_time']);
-		$user_status = $this->getUserStatus($this->tx_data['user_id']);
-
+		//$points_status = self::getPointsStatus($this->tx_data['user_id'], $this->db, false, $this->variables['points_update_time']);
+		//$user_status = $this->getUserStatus($this->tx_data['user_id']);
+		$points_status = array(0=>'user');
 		// getTotalAmount используется только на front, значит используем время из тр-ии - $this->tx_data['time']
 		return $data['amount'] + self::calc_profit( $data['amount'], $data['last_update'], $this->tx_data['time'], $this->pct[$this->tx_data['currency_id']], $points_status );
 	}

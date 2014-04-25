@@ -26,7 +26,7 @@ if (file_exists(ABSPATH.'config_stend.ini')) {
 	$daemons[] = '_tx/_tmp_new_user.php';
 	$daemons[] = '_tx/_tmp_new_miner.php';
 	$daemons[] = '_tx/_tmp_voting_for_miner.php';
-	/*$daemons[] = '_tx/_tmp_send_dc.php';
+	$daemons[] = '_tx/_tmp_send_dc.php';
 	$daemons[] = '_tx/_tmp_unban_miner.php';
 	$daemons[] = '_tx/_tmp_ban_miner.php';
 	$daemons[] = '_tx/_tmp_write_abuse.php';
@@ -42,8 +42,8 @@ if (file_exists(ABSPATH.'config_stend.ini')) {
 	$daemons[] = '_tx/_tmp_del_promised_amount.php';
 	$daemons[] = '_tx/_tmp_change_geolocation.php';
 	$daemons[] = '_tx/_tmp_change_commission.php';
-	$daemons[] = '_tx/_tmp_new_miner_update.php';*/
-	$daemons[] = '_tx/_tmp_admin_variables.php';/*
+	$daemons[] = '_tx/_tmp_new_miner_update.php';
+	$daemons[] = '_tx/_tmp_admin_variables.php';
 	$daemons[] = '_tx/_tmp_admin_spots.php';
 	$daemons[] = '_tx/_tmp_admin_message.php';
 	//$daemons[] = '_tx/_tmp_admin_new_version.php';
@@ -52,6 +52,6 @@ if (file_exists(ABSPATH.'config_stend.ini')) {
 	$daemons[] = '_tx/_tmp_admin_blog.php';
 	$daemons[] = '_tx/_tmp_new_forex_order.php';
 	$daemons[] = '_tx/_tmp_del_forex_order.php';
-	*/
+
 }
 ?>

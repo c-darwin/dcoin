@@ -29,8 +29,9 @@
 						<li><a href="#" onclick="fc_navigate('pct')"><?php echo $lng['pct']?></a></li>
 					</ul>
 				</li>
-              
-              <li><a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['tasks']?></a></li>
+
+	            <li><a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['tasks']?></a></li>
+	            <li><a href="#" onclick="fc_navigate('currency_exchange')"><?php echo $lng['exchange']?></a></li>
 
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#"><?php echo $lng['settings']?><b class="caret"></b></a>
