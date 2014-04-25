@@ -50,6 +50,7 @@ else {
 						 `block_id`
 			FROM `".DB_PREFIX."info_block`
 			", 'fetch_array');
+	$all_counts['time'] = time();
 	$all_counts['block_id'] = $data['block_id'];
 	$all_counts['db_version'] = $data['current_version'];
 	$all_counts['file_version'] = file_get_contents( ABSPATH . 'version' );

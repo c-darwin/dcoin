@@ -9963,7 +9963,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if ( !check_input_data ($this->tx_data['sell_currency_id'], 'int') )
 			return 'sell_currency_id';
-		if ( !check_input_data ($this->tx_data['sell_rate'], 'amount') )
+		if ( !check_input_data ($this->tx_data['sell_rate'], 'sell_rate') )
 			return 'sell_rate';
 		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
 			return 'amount';

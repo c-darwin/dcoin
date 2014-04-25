@@ -45,7 +45,7 @@ if ($tpl['user_id']) {
 		$row['amount']+= ParseData::calc_profit( $row['amount'], $row['last_update'], time(), $pct_array, $points_status_array );
 */
 		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $tpl['user_id'], $db, $row['last_update'], time(), 'wallet');
-
+		$row['amount'] = floor( round( $row['amount'], 3)*100 ) / 100;
 		$tpl['wallets'][] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount']);
 
 		//print_r($row);

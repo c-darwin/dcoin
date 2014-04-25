@@ -883,6 +883,28 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
+		case 'new_forex_order' :
+
+			$sell_currency_id = $_REQUEST['sell_currency_id'];
+			$sell_rate = $_REQUEST['sell_rate'];
+			$amount = $_REQUEST['amount'];
+			$buy_currency_id = $_REQUEST['buy_currency_id'];
+			$commission = $_REQUEST['commission'];
+
+			print_R($_REQUEST);
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				encode_length(strlen($user_id)) . $user_id .
+				ParseData::encode_length_plus_data($sell_currency_id) .
+				ParseData::encode_length_plus_data($sell_rate) .
+				ParseData::encode_length_plus_data($amount) .
+				ParseData::encode_length_plus_data($buy_currency_id) .
+				ParseData::encode_length_plus_data($commission) .
+				$bin_signatures;
+
+			break;
+
 		case 'for_repaid_fix' :
 
 			$data = dec_binary ($type, 1) .

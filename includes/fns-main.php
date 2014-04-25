@@ -242,6 +242,12 @@ function check_input_data ($data, $type, $info='') {
 				return true;
 			break;
 
+		case 'sell_rate':
+
+			if (preg_match('/^[0-9]{0,10}(\.[0-9]{0,6})?$/D', $data))
+				return true;
+			break;
+
 		case 'coordinate':
 
 			if (preg_match('/^\-?[0-9]{1,3}(\.[0-9]{1,5})?$/D', $data))

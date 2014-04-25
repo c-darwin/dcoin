@@ -17,12 +17,12 @@
 		$("#sign").css("display", "block");
 
 		var buy_price = Number($("#buy_price").val());
-		var sell_currency_id = $("#sell_currency_id").val();
-		var sell_rate = 1/buy_price;
+		sell_currency_id = $("#sell_currency_id").val();
+		sell_rate = 1/buy_price;
 		sell_rate = sell_rate.toFixed(6);
-		var sell_amount = Number($("#buy_amount").val()) * buy_price;
-		var buy_currency_id = $("#buy_currency_id").val();
-		var commission = $("#buy_commission").val();
+		sell_amount = Number($("#buy_amount").val()) * buy_price;
+		buy_currency_id = $("#buy_currency_id").val();
+		commission = $("#buy_commission").val();
 
 		$("#confirm").html('sell_currency_id: '+sell_currency_id+'<br>'+'sell_rate: '+sell_rate+'<br>'+'sell_amount: '+sell_amount+'<br>'+'buy_currency_id: '+buy_currency_id+'<br>'+'commission: '+commission+'<br><br>');
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+sell_currency_id+','+sell_rate+','+sell_amount+','+buy_currency_id+','+commission);
@@ -37,12 +37,12 @@
 		$("#sign").css("display", "block");
 
 		var sell_price = Number($("#sell_price").val());
-		var sell_currency_id = $("#buy_currency_id").val();
-		var sell_rate = sell_price;
+		sell_currency_id = $("#buy_currency_id").val();
+		sell_rate = sell_price;
 		sell_rate = sell_rate.toFixed(6);
-		var sell_amount =  Number($("#sell_amount").val()) ;
-		var buy_currency_id = $("#sell_currency_id").val();
-		var commission = $("#sell_commission").val();
+		sell_amount =  Number($("#sell_amount").val()) ;
+		buy_currency_id = $("#sell_currency_id").val();
+		commission = $("#sell_commission").val();
 
 		$("#confirm").html('sell_currency_id: '+sell_currency_id+'<br>'+'sell_rate: '+sell_rate+'<br>'+'sell_amount: '+sell_amount+'<br>'+'buy_currency_id: '+buy_currency_id+'<br>'+'commission: '+commission+'<br><br>');
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+sell_currency_id+','+sell_rate+','+sell_amount+','+buy_currency_id+','+commission);
