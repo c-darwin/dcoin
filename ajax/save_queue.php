@@ -268,20 +268,34 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 						$bin_signatures;
 
 			break;
-			
+
 		case 'del_promised_amount' :
 
 			$promised_amount_id = $_REQUEST['promised_amount_id'];
-			
+
 
 			print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
-						dec_binary ($time, 4) .
-						encode_length(strlen($user_id)) . $user_id .
-						encode_length(strlen($promised_amount_id)) . $promised_amount_id .
-						$bin_signatures;
-		
+				dec_binary ($time, 4) .
+				encode_length(strlen($user_id)) . $user_id .
+				encode_length(strlen($promised_amount_id)) . $promised_amount_id .
+				$bin_signatures;
+
+			break;
+
+		case 'del_forex_order' :
+
+			$order_id= $_REQUEST['order_id'];
+
+			print_R($_REQUEST);
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				encode_length(strlen($user_id)) . $user_id .
+				encode_length(strlen($order_id)) . $order_id .
+				$bin_signatures;
+
 			break;
 			
 		case 'send_dc' :

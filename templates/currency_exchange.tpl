@@ -141,12 +141,19 @@
 			<button class="btn" id="buy_button"><?php echo "{$lng['buy']} {$tpl['buy_currency_name']}"?></button>
 				<br><br>
 
-			<table class="table-bordered" style="width: 330px"><caption><?php echo $lng['sell_orders']?></caption>
+			<div style="width: 330px; height: 500px; overflow: auto;">
+			<table class="table" style="width: 330px"><caption><?php echo $lng['sell_orders']?></caption>
 				<thead><tr><th><?php echo $lng['price']?></th><th><?php echo $tpl['buy_currency_name']?></th><th><?php echo $tpl['sell_currency_name']?></th></tr></thead>
 				<tbody>
-					<tr><td>111</td><td>222</td><td>333</td></tr>
+					<?php
+					if ($tpl['sell_orders'])
+					foreach ($tpl['sell_orders'] as $data) {
+						echo "<tr><td>".($data['sell_rate'])."</td><td>{$data['amount']}</td><td>".($data['amount']*$data['sell_rate'])."</td></tr>";
+					}
+					?>
 				</tbody>
 			</table>
+			</div>
 
 		</td>
 		<td style="vertical-align: top">
@@ -160,15 +167,35 @@
 			<button class="btn" id="sell_button"><?php echo "{$lng['sell']} {$tpl['buy_currency_name']}"?></button>
 			<br><br>
 
-			<table class="table-bordered" style="width: 330px"><caption><?php echo $lng['buy_orders']?></caption>
+			<div style="width: 330px; height: 500px; overflow: auto;">
+			<table class="table" style="width: 330px"><caption><?php echo $lng['buy_orders']?></caption>
 				<thead><tr><th><?php echo $lng['price']?></th><th><?php echo $tpl['buy_currency_name']?></th><th><?php echo $tpl['sell_currency_name']?></th></tr></thead>
 				<tbody>
-				<tr><td>111</td><td>222</td><td>333</td></tr>
+				<?php
+				if ($tpl['buy_orders'])
+					foreach ($tpl['buy_orders'] as $data) {
+						echo "<tr><td>".(1/$data['sell_rate'])."</td><td>".($data['amount']*$data['sell_rate'])."</td><td>{$data['amount']}</td></tr>";
+				}
+				?>
 				</tbody>
 			</table>
+			</div>
 
 		</td></tr>
 	</table>
+		<h2>My orders</h2>
+		<table class="table">
+			<thead><tr><th>Order id</th><th>Sell_currency_id</th><th>sell_rate</th><th>amount</th><th>buy_currency_id</th><th>commission</th><th>del</th></tr></thead>
+			<tbody>
+			<?php
+			if ($tpl['my_orders'])
+			foreach ($tpl['my_orders'] as $data) {
+				echo "<tr><td>{$data['id']}</td><td>{$data['sell_currency_id']}</td><td>{$data['sell_rate']}</td><td>{$data['amount']}</td><td>{$data['buy_currency_id']}</td><td>{$data['commission']}</td><td><a href='#' onclick=\"fc_navigate('currency_exchange_delete', {'del_id':'".$data['id']."'})\">Del</a></td></tr>";
+			}
+			?>
+
+			</tbody>
+		</table>
 	</div>
 
 	<div id="confirm" style="display:none">

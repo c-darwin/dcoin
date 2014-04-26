@@ -10013,7 +10013,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// обратный курс. нужен для поиска по ордерам
 		$reverse_rate = 1 / $this->tx_data['sell_rate'];
 		// сколько хотим купить валюты buy_currency_id
-		$total_buy_amount = $this->tx_data['amount'] * $reverse_rate;
+		//$total_buy_amount = $this->tx_data['amount'] * $reverse_rate;
+		$total_buy_amount = $this->tx_data['amount'] * $this->tx_data['sell_rate'];
 
 		// прежде всего начислим комисию ноду-генератору
 		if ($this->tx_data['commission']>0.01) {
@@ -10072,7 +10073,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						`amount`,
 						`to_user_id`,
 						`block_id`
-					) VALUES (
+					)
+					VALUES (
 						{$main_id},
 						{$row['id']},
 						{$debit},
@@ -10126,7 +10128,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// если после прохода по всем имеющимся ордерам мы не набрали нужную сумму, то создаем свой ордер
-		if($total_buy_amount>0) {
+		if ($total_buy_amount > 0) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO `".DB_PREFIX."forex_orders` (
 						`user_id`,
@@ -10135,7 +10137,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						`amount`,
 						`buy_currency_id`,
 						`commission`
-					) VALUES (
+					)
+					VALUES (
 						{$this->tx_data['user_id']},
 						{$this->tx_data['sell_currency_id']},
 						{$this->tx_data['sell_rate']},
@@ -10152,7 +10155,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						`order_id`,
 						`new`,
 						`block_id`
-					) VALUES (
+					)
+					VALUES (
 						{$main_id},
 						{$order_id},
 						1,
