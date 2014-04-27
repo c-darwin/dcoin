@@ -20,7 +20,7 @@ if (version_compare($cur_ver, '0.0.1b11') == -1) {
 
 	 // Пример отката с нуля до опредленного блока
 
-	$last_block_id = 24470;
+	$last_block_id = 3000;
 
 	// на всякий случай пометим, что работаем
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -34,7 +34,7 @@ if (version_compare($cur_ver, '0.0.1b11') == -1) {
 			) ON DUPLICATE KEY UPDATE `lock_time` = ".time().", `script_name` = 'cleaning_db'
 			");
 
-	$bad_blocks = json_encode(array(24471=>'9ee8d7cb58b2d8e2986105e319e72129e6c6a738f55cffcca32c3857a404d099e50956f27e6b5bf873fb689ad0606571b884ff2203b62328e96ac9659d0096747de23b42c454e1073f9bfec89960e4aa0463452d6479dd0ccb14a0f359d27f701353e8564995e3e7177bc8e09159ab536f163ab772fab4f791be28bbb16a23b228b4887bccc40c0c25fd4ddae140496cd5b37fdb37b6da7cb72ad66f04bcdc1e6a3eda68409bf498f5f2afb9a76ef44ae99fd9b4158e3b5b2e6b0f5e12bc4abfd5b3e84b84598f440ece0cd9dc09ed7f0de05b49599ee2ec59a08dcdeb5e5f4ca36c06b1025c8c720134a586c2d71244af3a4fe15ae3a61e0ffefb5faf2e0c68'));
+	$bad_blocks = json_encode(array(3002=>'79a3c86939d364497aebe0f97f2e902702ed9bbed897129fdb17de499768c42860541e08b2365ac77e25b96525663427ce665f6150c9c6492d6147c609942ad4f3e63b72f6b823bebdff14da19b43bc336f5286138470964e3249001561330ce79e1e0a0a700adffc93d08510958046c0205c6e225a9e55be2eab6489fbfb447'));
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."my_table`
 			SET `bad_blocks` = '{$bad_blocks}'
