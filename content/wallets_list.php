@@ -24,8 +24,11 @@ if ($user_id)
 if ($tpl['user_id']) {
 
 	// получаем список кошельков, на которых есть FC
-	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SELECT * FROM `".DB_PREFIX."wallets` WHERE `user_id` = {$tpl['user_id']}" );
-	//print $db->printsql();
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT *
+			FROM `".DB_PREFIX."wallets`
+			WHERE `user_id` = {$tpl['user_id']}
+			");
 	while ( $row = $db->fetchArray($res) ) {
 /*
 		$pct_array = array();

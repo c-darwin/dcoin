@@ -9972,6 +9972,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['commission'], 'amount') )
 			return 'commission';
 
+		if ( $this->tx_data['sell_currency_id'] == $this->tx_data['buy_currency_id'] )
+			return 'sell_currency_id == buy_currency_id';
+
 		// если ли нужная сумма на кошельке
 		$this->tx_data['currency_id'] = $this->tx_data['sell_currency_id'];
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];

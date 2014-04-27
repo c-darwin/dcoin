@@ -139,6 +139,7 @@
 				<tr><td><?php echo "{$lng['price_per']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="buy_price" class="input-mini"> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr style="height: 40px"><td><?php echo $lng['total']?>: </td><td><span id="buy_total">0</span> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr><td><?php echo $lng['commission']?>: </td><td><input type="text" id="buy_commission" class="input-mini"> <?php echo $tpl['sell_currency_name']?></td></tr>
+				<tr style="height: 40px"><td>Your balance: </td><td><?php echo @$tpl['wallets_amounts'][$tpl['sell_currency_id']].' '.$tpl['sell_currency_name']?></td></tr>
 			</table>
 			<button class="btn" id="buy_button"><?php echo "{$lng['buy']} {$tpl['buy_currency_name']}"?></button>
 				<br><br>
@@ -165,6 +166,7 @@
 				<tr><td><?php echo "{$lng['price_per']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="sell_price" class="input-mini"> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr style="height: 40px"><td><?php echo $lng['total']?>: </td><td><span id="sell_total">0</span> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr><td><?php echo $lng['commission']?>: </td><td><input type="text" id="sell_commission" class="input-mini"> <?php echo $tpl['buy_currency_name']?></td></tr>
+				<tr style="height: 40px"><td>Your balance: </td><td><?php echo @$tpl['wallets_amounts'][$tpl['buy_currency_id']].' '.$tpl['buy_currency_name']?></td></tr>
 			</table>
 			<button class="btn" id="sell_button"><?php echo "{$lng['sell']} {$tpl['buy_currency_name']}"?></button>
 			<br><br>
@@ -176,7 +178,7 @@
 				<?php
 				if ($tpl['buy_orders'])
 					foreach ($tpl['buy_orders'] as $data) {
-						echo "<tr><td>".(1/$data['sell_rate'])."</td><td>".($data['amount']*$data['sell_rate'])."</td><td>{$data['amount']}</td></tr>";
+						echo "<tr><td>".round(1/$data['sell_rate'], 6)."</td><td>".round($data['amount']*$data['sell_rate'], 2)."</td><td>{$data['amount']}</td></tr>";
 				}
 				?>
 				</tbody>

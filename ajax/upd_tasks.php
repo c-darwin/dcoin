@@ -3,14 +3,9 @@
 if (!defined('DC'))
 	die('!DC');
 
-if (version_compare($cur_ver, '0.0.1b14') == -1) {
+if (version_compare($cur_ver, '0.0.1b15') == -1) {
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			ALTER TABLE `".DB_PREFIX."my_admin_messages`
-			CHANGE `status` `status` ENUM('approved','my_pending') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'my_pending'
-			");
-	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			ALTER TABLE `".DB_PREFIX."_my_admin_messages`
-			CHANGE `status` `status` ENUM('approved','my_pending') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'my_pending'
+			ALTER TABLE `".DB_PREFIX."forex_orders` CHANGE `sell_rate` `sell_rate` DECIMAL(20,10) NOT NULL COMMENT 'По какому курсу к buy_currency_id';
 			");
 }
 
