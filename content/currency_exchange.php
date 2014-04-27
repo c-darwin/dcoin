@@ -8,14 +8,21 @@ $tpl['data']['user_id'] = $user_id;
 
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `id`,
-					 `name`,
-					 `full_name`,
-					 `max_other_currencies`
+					 `full_name`
 		FROM `'.DB_PREFIX.'currency`
 		ORDER BY `full_name`
 		');
 while ($row = $db->fetchArray($res)) {
 	$tpl['currency_list'][$row['id']] = $row;
+}
+
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT `id`,
+					 `name`
+		FROM `'.DB_PREFIX.'currency`
+		ORDER BY `name`
+		');
+while ($row = $db->fetchArray($res)) {
 	$tpl['currency_list_name'][$row['id']] = $row['name'];
 }
 

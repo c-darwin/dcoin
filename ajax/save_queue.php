@@ -906,7 +906,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$commission = $_REQUEST['commission'];
 
 			print_R($_REQUEST);
-
+//			$error = $this->get_tx_data(array('sell_currency_id', 'sell_rate', 'amount', 'buy_currency_id', 'commission', 'sign'));
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
 				encode_length(strlen($user_id)) . $user_id .

@@ -10055,13 +10055,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			debug_print("debit = {$debit}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			$add_sql = '';
-			if (($row['amount'] - $debit) == 0)
+			if (($row['amount'] - $debit) == 0) // ордер опустошили
 				$add_sql = ", `empty_block_id` = {$this->block_data['block_id']}";
 
 			// вычитаем забранную сумму из ордера
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."forex_orders`
-					SET `amount` = `amount` - {$debit} {$add_sql}
+					SET `amount` = `amount` - {$debit}
+							{$add_sql}
 					WHERE `id` = {$row['id']}
 					");
 
@@ -10142,7 +10143,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						{$this->tx_data['user_id']},
 						{$this->tx_data['sell_currency_id']},
 						{$this->tx_data['sell_rate']},
-						{$this->tx_data['amount']},
+						".($total_buy_amount * (1 / $this->tx_data['sell_rate'])).",
 						{$this->tx_data['buy_currency_id']},
 						{$this->tx_data['commission']}
 					)");
@@ -10293,6 +10294,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				");
 		$this->rollbackAI('log_forex_orders_main');
+
+		// может захватится несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."my_dc_transactions`
+				WHERE `block_id` = {$this->block_data['block_id']}
+				");
+		$this->rollbackAI('my_dc_transactions');
 
 		/*// для тестов
 		$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "

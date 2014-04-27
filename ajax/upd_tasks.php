@@ -4,21 +4,19 @@ if (!defined('DC'))
 	die('!DC');
 
 
-if (version_compare($cur_ver, '0.0.1b7') == -1) {
+if (version_compare($cur_ver, '0.0.1b10') == -1) {
 
-	/*
-	 * Пример отката с конца до опредленного блока
-	 *  */
+	// Пример отката с конца до опредленного блока
+
 	main_lock();
-	rollback_to_block_id(9890, $db);
+	rollback_to_block_id(24470, $db);
 	main_unlock();
 }
 
+/*
 if (version_compare($cur_ver, '0.0.1b4') == -1) {
 
-	/*
-	 * Пример отката с нуля до опредленного блока
-	 *  */
+	 // Пример отката с нуля до опредленного блока
 
 	$last_block_id = 600;
 
@@ -93,6 +91,6 @@ if (version_compare($cur_ver, '0.0.1b4') == -1) {
 	}
 
 }
-
+*/
 
 ?>
