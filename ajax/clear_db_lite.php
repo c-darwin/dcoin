@@ -21,7 +21,7 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 				1,
 				'nulling'
 		)
-		ON DUPLICATE KEY UPDATE `lock_time` = 1, `script_name` = 'nullign'
+		ON DUPLICATE KEY UPDATE `lock_time` = 1, `script_name` = 'nulling'
 		");
 
 ?>
