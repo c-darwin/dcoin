@@ -49,6 +49,14 @@ if ($tpl['user_id']) {
 */
 		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $tpl['user_id'], $db, $row['last_update'], time(), 'wallet');
 		$row['amount'] = floor( round( $row['amount'], 3)*100 ) / 100;
+		$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT sum(`amount`)
+				FROM `".DB_PREFIX."forex_orders`
+				WHERE `user_id` = {$tpl['user_id']} AND
+							 `sell_currency_id` = {$row['currency_id']} AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+		$row['amount'] -= $forex_orders_amount;
 		$tpl['wallets'][] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount']);
 
 		//print_r($row);

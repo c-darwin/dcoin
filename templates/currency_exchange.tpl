@@ -189,7 +189,7 @@
 	</table>
 		<h2>My orders</h2>
 		<table class="table">
-			<thead><tr><th>Order id</th><th>Sell_currency_id</th><th>sell_rate</th><th>amount</th><th>buy_currency_id</th><th>commission</th><th>del</th></tr></thead>
+			<thead><tr><th>Order id</th><th>Order id</th><th>Sell_currency_id</th><th>sell_rate</th><th>amount</th><th>buy_currency_id</th><th>commission</th><th>del</th></tr></thead>
 			<tbody>
 			<?php
 			if ($tpl['my_orders'])
