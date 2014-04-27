@@ -21,6 +21,7 @@
 		sell_rate = 1/buy_price;
 		sell_rate = sell_rate.toFixed(6);
 		sell_amount = Number($("#buy_amount").val()) * buy_price;
+		sell_amount = sell_amount.toFixed(2);
 		buy_currency_id = $("#buy_currency_id").val();
 		commission = $("#buy_commission").val();
 
@@ -41,6 +42,7 @@
 		sell_rate = sell_price;
 		sell_rate = sell_rate.toFixed(6);
 		sell_amount =  Number($("#sell_amount").val()) ;
+		sell_amount = sell_amount.toFixed(2);
 		buy_currency_id = $("#sell_currency_id").val();
 		commission = $("#sell_commission").val();
 

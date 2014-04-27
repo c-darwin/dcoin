@@ -17,9 +17,9 @@
 				'message_type' : 0,
 				'message_subtype' : subtype,
 				'encrypted_message' : $('#encrypted_message').val(),
-							'signature1': $('#signature1').val(),
-			'signature2': $('#signature2').val(),
-			'signature3': $('#signature3').val()
+				'signature1': $('#signature1').val(),
+				'signature2': $('#signature2').val(),
+				'signature3': $('#signature3').val()
 			}, function(data){
 				//alert(data);
 				fc_navigate ('bug_reporting', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
@@ -105,7 +105,7 @@
 				}
 				else if ( ($data['parent_id']!=0 || $data['id']==$tpl['parent_id']) && $data['decrypted']==1 ) {
 					// выводим сами сообщения из ветки parent_id
-					echo "<tr><td> {$data['type']} {$data['status']} {$data['message']}</td></tr>";
+					echo "<tr><td>Type: {$data['type']}<br>Status: {$data['status']}<br>Message: {$data['message']}</td></tr>";
 				}
 				else {
 					echo "<tr><td><a onclick=\"decrypt_admin_message({$data['id']})\">encrypted</a><input type=\"hidden\" id=\"encrypt_message_{$data['id']}\" value=\"".bin2hex($data['encrypted'])."\"></td></tr>";

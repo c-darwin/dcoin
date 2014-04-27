@@ -702,7 +702,7 @@ CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."miners_data` (
   `reg_users` tinyint(3) NOT NULL COMMENT 'Сколько юзеров зарегал майнер',
   `log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`user_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Просто отделили от users';
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 ";
 
@@ -719,7 +719,7 @@ CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."my_admin_messages` (
   `message_subtype` tinyint(1) NOT NULL,
   `encrypted` blob NOT NULL,
   `decrypted` tinyint(1) NOT NULL,
-  `status` enum('tmp','approved','my_pending') NOT NULL DEFAULT 'tmp',
+  `status` enum('approved','my_pending') NOT NULL DEFAULT 'my_pending',
   `type` enum('from_admin','to_admin') NOT NULL DEFAULT 'to_admin',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Общение с админом, баг-репорты и пр.';
@@ -1505,7 +1505,7 @@ CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."_my_admin_messages` (
   `message` text CHARACTER SET utf8 NOT NULL,
   `message_type` tinyint(1) NOT NULL,
   `message_subtype` tinyint(1) NOT NULL,
-  `status` enum('tmp','my_pending','approved') NOT NULL DEFAULT 'tmp',
+  `status` enum('my_pending','approved') NOT NULL DEFAULT 'my_pending',
   `close` tinyint(1) NOT NULL COMMENT 'Воспрос закрыли, чтобы больше не маячил',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Эта табла видна только админу';

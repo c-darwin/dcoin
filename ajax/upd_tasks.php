@@ -3,6 +3,17 @@
 if (!defined('DC'))
 	die('!DC');
 
+if (version_compare($cur_ver, '0.0.1b14') == -1) {
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			ALTER TABLE `".DB_PREFIX."my_admin_messages`
+			CHANGE `status` `status` ENUM('approved','my_pending') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'my_pending'
+			");
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			ALTER TABLE `".DB_PREFIX."_my_admin_messages`
+			CHANGE `status` `status` ENUM('approved','my_pending') CHARACTER SET latin1 COLLATE latin1_swedish_ci NOT NULL DEFAULT 'my_pending'
+			");
+}
+
 /*
 if (version_compare($cur_ver, '0.0.1b10') == -1) {
 
@@ -15,7 +26,7 @@ if (version_compare($cur_ver, '0.0.1b10') == -1) {
 }
 */
 
-
+/*
 if (version_compare($cur_ver, '0.0.1b13') == -1) {
 
 	 // Пример отката с нуля до опредленного блока
@@ -93,6 +104,6 @@ if (version_compare($cur_ver, '0.0.1b13') == -1) {
 	}
 
 }
-
+*/
 
 ?>

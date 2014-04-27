@@ -1036,7 +1036,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	/*
 	 * Начисляем новые DC юзеру, пересчитав ему % от того, что уже было на кошельке
 	 * */
-	private function update_recipient_wallet ( $to_user_id, $currency_id, $amount, $from='', $from_id='', $comment='' )
+	private function update_recipient_wallet ( $to_user_id, $currency_id, $amount, $from='', $from_id='', $comment='', $comment_status='encrypted' )
 	{
 
 		$from_id = intval($from_id);
@@ -1122,7 +1122,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->get_my_user_id();
 		if ( $to_user_id == $this->my_user_id && $this->my_block_id < $this->block_data['block_id']) {
 
-			if ($from == 'from_user' && $comment) { // Перевод между юзерами
+			if ($from == 'from_user' && $comment && $comment_status!='decrypted') { // Перевод между юзерами
 				$comment_status = 'encrypted';
 				$comment = bin2hex($comment);
 			}
@@ -10054,17 +10054,23 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			debug_print("total_buy_amount = {$total_buy_amount}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			debug_print("debit = {$debit}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-			$add_sql = '';
-			if (($row['amount'] - $debit) == 0) // ордер опустошили
-				$add_sql = ", `empty_block_id` = {$this->block_data['block_id']}";
+			if (($row['amount'] - $debit) < 0.01) { // ордер опустошили
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."forex_orders`
+						SET `amount` = 0,
+							   `empty_block_id` = {$this->block_data['block_id']}
+						WHERE `id` = {$row['id']}
+						");
+			}
+			else {
+				// вычитаем забранную сумму из ордера
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."forex_orders`
+						SET `amount` = `amount` - {$debit}
+						WHERE `id` = {$row['id']}
+						");
+			}
 
-			// вычитаем забранную сумму из ордера
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."forex_orders`
-					SET `amount` = `amount` - {$debit}
-							{$add_sql}
-					WHERE `id` = {$row['id']}
-					");
 
 			// логируем данную операцию
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -10104,7 +10110,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$LOG_MARKER = 'new_forex_order - update_recipient_wallet - $row[user_id]';
 			// возможно нужно обновить таблицу points_status
 			$this->points_update_main($row['user_id']);
-			$this -> update_recipient_wallet( $row['user_id'], $row['buy_currency_id'], $seller_buy_amount, 'from_user', $this->tx_data['user_id'], "order # {$row['id']}");
+			$this -> update_recipient_wallet( $row['user_id'], $row['buy_currency_id'], $seller_buy_amount, 'from_user', $this->tx_data['user_id'], "order # {$row['id']}", 'decrypted');
 			debug_print("update_recipient_wallet ok", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			# Покупатель валюты (наш юзер)
@@ -10119,50 +10125,56 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$LOG_MARKER = 'new_forex_order - update_recipient_wallet - tx_data[user_id]';
 			// возможно нужно обновить таблицу points_status
 			$this->points_update_main($this->tx_data['user_id']);
-			$this -> update_recipient_wallet( $this->tx_data['user_id'], $row['sell_currency_id'], $seller_sell_amount, 'from_user', $row['user_id'], "order # {$row['id']}");
+			$this -> update_recipient_wallet( $this->tx_data['user_id'], $row['sell_currency_id'], $seller_sell_amount, 'from_user', $row['user_id'], "order # {$row['id']}", 'decrypted');
 			debug_print("update_recipient_wallet ok2", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+			$total_buy_amount-=$row['amount'];
 
 			if ($row['amount'] >= $total_buy_amount)
 				break; // проход по ордерам прекращаем, т.к. наш запрос удовлетворен
-			else
-				$total_buy_amount-=$row['amount'];
+			///else
+			//	$total_buy_amount-=$row['amount'];
 		}
 
 		// если после прохода по всем имеющимся ордерам мы не набрали нужную сумму, то создаем свой ордер
 		if ($total_buy_amount > 0) {
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."forex_orders` (
-						`user_id`,
-						`sell_currency_id`,
-						`sell_rate`,
-						`amount`,
-						`buy_currency_id`,
-						`commission`
-					)
-					VALUES (
-						{$this->tx_data['user_id']},
-						{$this->tx_data['sell_currency_id']},
-						{$this->tx_data['sell_rate']},
-						".($total_buy_amount * (1 / $this->tx_data['sell_rate'])).",
-						{$this->tx_data['buy_currency_id']},
-						{$this->tx_data['commission']}
-					)");
-			$order_id = $this->db->getInsertId ();
 
-			// логируем данную операцию. amount не указывается, т.к. при откате будет просто удалена запись из forex_orders
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."log_forex_orders` (
-						`main_id`,
-						`order_id`,
-						`new`,
-						`block_id`
-					)
-					VALUES (
-						{$main_id},
-						{$order_id},
-						1,
-						{$this->block_data['block_id']}
-					)");
+			$new_order_amount = $total_buy_amount * (1 / $this->tx_data['sell_rate']);
+			if ($new_order_amount >= 0.01) {
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."forex_orders` (
+							`user_id`,
+							`sell_currency_id`,
+							`sell_rate`,
+							`amount`,
+							`buy_currency_id`,
+							`commission`
+						)
+						VALUES (
+							{$this->tx_data['user_id']},
+							{$this->tx_data['sell_currency_id']},
+							{$this->tx_data['sell_rate']},
+							{$new_order_amount},
+							{$this->tx_data['buy_currency_id']},
+							{$this->tx_data['commission']}
+						)");
+				$order_id = $this->db->getInsertId ();
+
+				// логируем данную операцию. amount не указывается, т.к. при откате будет просто удалена запись из forex_orders
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."log_forex_orders` (
+							`main_id`,
+							`order_id`,
+							`new`,
+							`block_id`
+						)
+						VALUES (
+							{$main_id},
+							{$order_id},
+							1,
+							{$this->block_data['block_id']}
+						)");
+			}
 		}
 
 		/*// для тестов
