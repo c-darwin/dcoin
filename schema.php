@@ -772,7 +772,7 @@ CREATE TABLE IF NOT EXISTS `".$db_name."`.`".$prefix."my_dc_transactions` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `status` enum('pending','approved') NOT NULL DEFAULT 'approved' COMMENT 'pending - только при отправки DC с нашего кошелька, т.к. нужно показать юзеру, что запрос принят',
   `notification` tinyint(1) NOT NULL COMMENT 'Уведомления по sms и email',
-  `type` enum('cash_request','from_mining_id','repaid_banknote','from_user','node_commission','system_commission') NOT NULL,
+  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission') NOT NULL,
   `type_id` bigint(20) NOT NULL,
   `to_user_id` bigint(20) NOT NULL,
   `amount` decimal(15,2) NOT NULL,

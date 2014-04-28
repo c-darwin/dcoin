@@ -85,7 +85,7 @@ $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 
-$names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','repaid_banknote'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission');
+$names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','from_repaid'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission');
 
 require_once( ABSPATH . 'templates/wallets_list.tpl' );
 

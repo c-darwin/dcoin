@@ -175,7 +175,7 @@ $('#amount').keyup(function(e) {
 if (isset($tpl['my_dc_transactions']))
 	if ($tpl['my_dc_transactions']) {
 		echo '<h3>'.$lng['transactions'].'</h3><table class="table" style="width:500px">';
-		echo '<tr><th></th><th>'.$lng['time'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['type'].'</th><th>'.$lng['recipient'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['commission'].'</th><th>'.$lng['note'].'</th><th>'.$lng['status'].'</th></tr>';
+		echo '<tr><th></th><th>'.$lng['time'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['type'].'</th><th>'.$lng['recipient'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['commission'].'</th><th>'.$lng['note'].'</th><th>'.$lng['status'].'</th><th>Block_id</th></tr>';
 		foreach ($tpl['my_dc_transactions'] as $key => $data) {
 			print "<tr>";
 			if ($data['to_user_id']==$tpl['user_id'])
@@ -191,7 +191,7 @@ if (isset($tpl['my_dc_transactions']))
 				print "<td>{$data['comment']}</td>";
 			else
 				print "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
-			print "<td>{$data['status']}</td></tr>";
+			print "<td>{$data['status']}</td><td>{$data['block_id']}</td></tr>";
 		}
 		echo '</table>';
 	}
