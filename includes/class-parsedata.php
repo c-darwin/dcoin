@@ -2071,7 +2071,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET  `del_block_id` = {$this->block_data['block_id']}
 				WHERE `currency_id` = {$this->tx_data['currency_id']} AND
 							`status` = 'pending' AND
-							`time` > ".($this->block_data['time'] - $this->variables['cash_request_wait'])."
+							`time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
 				");
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -2080,7 +2080,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					`currency_id`,
 					`pct`,
 					`block_id`
-				) VALUES (
+				)
+				VALUES (
 					{$this->block_data['time']},
 					{$this->tx_data['currency_id']},
 					{$this->tx_data['pct']},
@@ -3812,7 +3813,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 21
 	private function admin_variables_front()
 	{
-		$VARIABLES_COUNT = 75;
+		$VARIABLES_COUNT = 72;
 
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -3873,7 +3874,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				case 'limit_new_user_period' :
 				case 'max_block_size' :
 				case 'max_block_user_transactions' :
-				case 'max_day_points' :
 				case 'max_day_votes' :
 				case 'max_tx_count' :
 				case 'max_tx_size' :
@@ -3893,15 +3893,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				case 'rollback_blocks_1' :
 				case 'rollback_blocks_2' :
 				case 'system_commission' :
-				case 'max_video_blocks' :
 				case 'limit_change_host' :
 				case 'limit_change_host_period' :
-				case 'currency_limit' :
 				case 'min_miners_of_voting' :
 				case 'min_hold_time_promise_amount' :
 				case 'min_promised_amount' :
 				case 'points_update_time' :
-				case 'cash_request_wait' :
 				case 'reduction_period' :
 				case 'new_pct_period' :
 				case 'new_max_promised_amount' :
