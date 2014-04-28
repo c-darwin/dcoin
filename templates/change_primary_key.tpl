@@ -70,7 +70,7 @@ $('#send_to_net').bind('click', function () {
 		<form>
 			<fieldset>
 				<label><?php echo $lng['new_pass_for_key']?></label>
-				<input type="text" placeholder="" id="new_password">
+				<input type="password" placeholder="" id="new_password">
 				<label class="checkbox">
 					<input type="checkbox" id="save_private_key"> <?php echo $lng['save_key']?>
 				</label>
