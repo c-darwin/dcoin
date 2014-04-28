@@ -174,6 +174,7 @@ switch ($task_type) {
 				             `".DB_PREFIX."faces`.`status` = 'used' AND
 				             `".DB_PREFIX."miners_data`.`user_id` != {$tpl['user_info']['user_id']}
 				LIMIT 0, 100" );
+		//print  '<pre>'.$db->printsql().'</pre>';
 		while ( $row = $db->fetchArray($res) ) {
 			// майнеры, у которых можно получить фото нужного нам юзера
 			$miners_ids = ParseData::get_miners_keepers($row['photo_block_id'], $row['photo_max_miner_id'], $row['miners_keepers'], true);

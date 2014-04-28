@@ -150,7 +150,7 @@ function check_input_data ($data, $type, $info='') {
 
 		case 'tolerances' :
 
-			$r1 = '"\d{1,2}":"\d{1,2}"';
+			$r1 = '"\d{1,2}":"0\.\d{1,2}"';
 			$face = "\"face\":\{({$r1}\,){1,50}{$r1}\}";
 			$profile = "\"profile\":\{({$r1}\,){1,50}{$r1}\}";
 
