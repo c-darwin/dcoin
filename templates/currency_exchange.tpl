@@ -19,7 +19,7 @@
 		var buy_price = Number($("#buy_price").val());
 		sell_currency_id = $("#sell_currency_id").val();
 		sell_rate = 1/buy_price;
-		sell_rate = sell_rate.toFixed(6);
+		sell_rate = sell_rate.toFixed(10);
 		sell_amount = Number($("#buy_amount").val()) * buy_price;
 		sell_amount = sell_amount.toFixed(2);
 		buy_currency_id = $("#buy_currency_id").val();
@@ -40,7 +40,7 @@
 		var sell_price = Number($("#sell_price").val());
 		sell_currency_id = $("#buy_currency_id").val();
 		sell_rate = sell_price;
-		sell_rate = sell_rate.toFixed(6);
+		sell_rate = sell_rate.toFixed(10);
 		sell_amount =  Number($("#sell_amount").val()) ;
 		sell_amount = sell_amount.toFixed(2);
 		buy_currency_id = $("#sell_currency_id").val();
@@ -189,7 +189,7 @@
 	</table>
 		<h2>My orders</h2>
 		<table class="table">
-			<thead><tr><th>Order id</th><th>Order id</th><th>Sell_currency_id</th><th>sell_rate</th><th>amount</th><th>buy_currency_id</th><th>commission</th><th>del</th></tr></thead>
+			<thead><tr><th>Order id</th><th>Sell_currency_id</th><th>sell_rate</th><th>amount</th><th>buy_currency_id</th><th>commission</th><th>del</th></tr></thead>
 			<tbody>
 			<?php
 			if ($tpl['my_orders'])

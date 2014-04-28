@@ -244,7 +244,7 @@ function check_input_data ($data, $type, $info='') {
 
 		case 'sell_rate':
 
-			if (preg_match('/^[0-9]{0,10}(\.[0-9]{0,6})?$/D', $data))
+			if (preg_match('/^[0-9]{0,10}(\.[0-9]{0,10})?$/D', $data))
 				return true;
 			break;
 

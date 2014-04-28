@@ -42,6 +42,7 @@
 		<p>Status: <?php echo $tpl['demons_status']?></p>
 		<p><?php echo $lng['number_of_blocks']?>: <span id="cur_block_id"><?php echo $tpl['my_notice']['number_of_blocks']?></span></p>
 		<p>Connections: <span id="connections"><?php echo $tpl['my_notice']['connections']?></span></p>
+		<p>User_id: <span id="user_id"><?php echo $user_id?></span></p>
 		<p><?php echo $lng['time_last_block']?>: <span id="time_last_block"><?php echo $tpl['my_notice']['time_last_block']?></span></p>
 
 		<?php if (@$_SESSION['ADMIN']==1) {?>

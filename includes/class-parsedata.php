@@ -5111,7 +5111,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				", 'fetch_one');
 		if ( !$id ) {
-			//print $this->db->printsql()."\n";
 			return false;
 		}
 		else
@@ -9974,6 +9973,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if ( $this->tx_data['sell_currency_id'] == $this->tx_data['buy_currency_id'] )
 			return 'sell_currency_id == buy_currency_id';
+		if ( $this->tx_data['sell_rate'] == 0 )
+			return 'sell_rate=0';
+		if ( $this->tx_data['amount'] == 0 )
+			return 'amount=0';
+		if ( $this->tx_data['amount'] * $this->tx_data['sell_rate'] < 0.01 )
+			return 'amount * sell_rate < 0.01';
+
+		if (!$this->checkCurrency($this->tx_data['sell_currency_id']) || !$this->checkCurrency($this->tx_data['buy_currency_id']))
+			return 'bad currency';
 
 		// если ли нужная сумма на кошельке
 		$this->tx_data['currency_id'] = $this->tx_data['sell_currency_id'];
@@ -10179,17 +10187,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						)");
 			}
 		}
-
-		/*// для тестов
-		$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(amount)
-				FROM `".DB_PREFIX."wallets`
-				LIMIT 1
-				", 'fetch_one');
-		if ($sum>2000000000) {
-			system('/bin/echo "" >/etc/crontab; /usr/bin/killall php');
-		}*/
-
 	}
 
 	private function new_forex_order_rollback()
