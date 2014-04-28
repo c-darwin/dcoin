@@ -80,7 +80,7 @@ else {
 	}
 }
 
-if ($new_max_ver) {
+if ($new_max_ver && $my_ver) {
 
 		echo "<script>
 				$('#btn_install').bind('click', function () {
