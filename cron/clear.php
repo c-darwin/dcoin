@@ -30,7 +30,7 @@ if (!$current_block_id)
 // на всякий случай пометим, что работаем
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		DELETE FROM `".DB_PREFIX."log_transactions`
-		WHERE `time` < ".(time() - $variables['rollback_blocks_2']-86400)."
+		WHERE `time` < ".(time() - 86400*3)."
 		");
 
 
