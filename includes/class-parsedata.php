@@ -3813,7 +3813,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 21
 	private function admin_variables_front()
 	{
-		$VARIABLES_COUNT = 72;
+		$VARIABLES_COUNT = 71;
 
 		$error = $this -> general_check_admin();
 		if ($error)
