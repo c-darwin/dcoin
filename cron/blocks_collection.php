@@ -50,15 +50,15 @@ do {
 
 		$new_block = file_get_contents(ABSPATH . '1block.bin');
 		$parsedata = new ParseData($new_block, $db);
-		$parsedata->current_version = file_get_contents(ABSPATH . 'version');
+		$parsedata->current_version = trim(file_get_contents(ABSPATH . 'version'));
 		$error = $parsedata->ParseDataFull();
 		$parsedata->insert_into_blockchain();
 
-		$version = file_get_contents( ABSPATH . 'version' );
+		/*$version = file_get_contents( ABSPATH . 'version' );
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."info_block`
 				SET `current_version` = '{$version}'
-				");
+				");*/
 
 		main_unlock();
 		sleep(1);

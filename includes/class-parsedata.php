@@ -1190,7 +1190,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					{$wallet_data['last_update']},
 					{$this->block_data['block_id']},
 					{$wallet_data['log_id']}
-				)" );
+				)");
 		$log_id = $this->db->getInsertId();
 
 		//$points_status = self::getPointsStatus($from_user_id, $this->db, true, $this->variables['points_update_time']);
@@ -1215,7 +1215,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `amount` = {$new_DC_sum},
 				       `last_update` = {$this->block_data['time']},
 				       `log_id` = {$log_id}
-				WHERE {$wallet_where}" );
+				WHERE {$wallet_where}");
 		//debug_print($this->db->printsql()."\nAffectedRows=".$this->db->getAffectedRows() , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$this->get_my_user_id();
@@ -2934,7 +2934,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						'{$this->tx_data['longitude']}',
 						{$this->tx_data['country']},
 						'{$this->tx_data['host']}'
-				)" );
+				)");
 		}
 
 		$this->get_my_user_id();
@@ -3511,7 +3511,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						DELETE FROM `".DB_PREFIX."log_promised_amount`
 						WHERE `log_id` =  {$row['log_id']}
 						LIMIT 1
-						" );
+						");
 				$this->rollbackAI('log_promised_amount');
 			}
 		}
@@ -3761,7 +3761,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					DELETE FROM `".DB_PREFIX."log_miners_data`
 					WHERE `log_id` =  {$log_id}
 					LIMIT 1
-					" );
+					");
 			$this->rollbackAI('log_miners_data');
 
 			// Откатываем обещанные суммы в обратном прядке
@@ -3796,7 +3796,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						DELETE FROM `".DB_PREFIX."log_promised_amount`
 						WHERE `log_id` =  {$row['log_id']}
 						LIMIT 1
-						" );
+						");
 				$this->rollbackAI('log_promised_amount');
 			}
 		}
@@ -3973,7 +3973,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				DELETE FROM `".DB_PREFIX."log_variables`
 				WHERE `log_id` = {$log_data['log_id']}
 				LIMIT 1
-				" );
+				");
 		$this->rollbackAI('log_variables');
 
 	}
@@ -4075,7 +4075,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					'{$log_data['tolerances']}',
 					{$this->block_data['block_id']},
 					{$log_data['log_id']}
-				)" );
+				)");
 
 		$log_id = $this->db->getInsertId();
 
@@ -4131,7 +4131,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					DELETE FROM `".DB_PREFIX."log_spots_compatibility`
 					WHERE `log_id` = {$log_id}
 					LIMIT 1
-					" );
+					");
 			$this->rollbackAI('log_spots_compatibility');
 		}
 	}
@@ -4592,7 +4592,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	private function admin_new_version_rollback() {
 
-		unlink( ABSPATH . "public/{$this->tx_data['version']}.zip" );
+		unlink( ABSPATH . "public/{$this->tx_data['version']}.zip");
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM`".DB_PREFIX."new_version`
@@ -4894,7 +4894,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							'{$log_data['commission']}',
 							{$this->block_data['block_id']},
 							{$log_data['log_id']}
-					)" );
+					)");
 
 			$log_id = $this->db->getInsertId();
 
@@ -4903,7 +4903,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					SET  `commission` = '{$this->tx_data['commission']}',
 							`log_id` = {$log_id}
 					WHERE `user_id` = {$this->tx_data['user_id']}
-					" );
+					");
 		}
 		else {
 
@@ -4915,7 +4915,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					VALUES (
 						{$this->tx_data['user_id']},
 						'{$this->tx_data['commission']}'
-					)" );
+					)");
 		}
 	}
 
@@ -5044,7 +5044,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					'{$this->tx_data['video_type']}',
 					'{$this->tx_data['video_url_id']}',
 					'{$this->tx_data['host']}'
-			" );
+			");
 		}
 	}
 */
@@ -5060,7 +5060,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		            `user_id` = {$this->tx_data['user_id']} AND
 		            `time` = {$time}
 				LIMIT 1
-		        " );
+		        ");
 		//print $this->db->printsql();
 
 	}
@@ -5305,7 +5305,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				DELETE FROM `".DB_PREFIX."log_promised_amount`
 				WHERE `log_id` = {$log_id}
 				LIMIT 1
-				" );
+				");
 		$this->rollbackAI('log_promised_amount');
 	}
 
@@ -5715,7 +5715,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						`tdc_amount_update`= {$log_data['tdc_amount_update']},
 						`log_id` = {$log_data['prev_log_id']}
 		       WHERE `id` = {$this->tx_data['promised_amount_id']}
-		       " );
+		       ");
 
 		// подчищаем _log
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -5779,7 +5779,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `user_id` = {$this->tx_data['user_id']} AND
 							 `time` = $time
 				LIMIT 1
-				" );
+				");
 	}
 
 	private function max_day_votes() {
@@ -6401,7 +6401,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					VALUES (
 						{$add_sql_values},
 						{$this->block_data['block_id']}
-					)" );
+					)");
 			$log_id = $this->db->getInsertId();
 
 			$add_sql_update= '';
@@ -6501,7 +6501,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							{$data['votes_1']},
 							{$this->block_data['block_id']},
 							{$data['log_id']}
-					)" );
+					)");
 			$log_id = $this->db->getInsertId();
 
 			if ($data['status'] == 'mining') {
@@ -6598,7 +6598,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					DELETE FROM `".DB_PREFIX."log_promised_amount`
 					WHERE `log_id` = {$data['log_id']}
 					LIMIT 1
-					" );
+					");
 			$this->rollbackAI('log_promised_amount');
 		}
 
@@ -6801,7 +6801,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						DELETE FROM `".DB_PREFIX."log_points`
 						WHERE `log_id` = {$log_id}
 						LIMIT 1
-						" );
+						");
 			$this->rollbackAI('log_points');
 		}
 		else {
@@ -8352,7 +8352,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							'{$this->tx_data['hash_code']}',
 							'pending',
 							{$cash_request_id}
-						)" );
+						)");
 			}
 
 			$my_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8371,7 +8371,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						SET  `type_id`={$cash_request_id},
 								`time` = {$this->block_data['time']}
 						WHERE `id` = {$my_id}
-						" );
+						");
 			}
 			else {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9268,12 +9268,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		// Всегда есть, что логировать, т.к. это обновление ключа
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT * FROM `".DB_PREFIX."users`
+				SELECT *
+				FROM `".DB_PREFIX."users`
 				WHERE `user_id` = {$this->tx_data['user_id']}
 				", 'fetch_array');
 		$log_data['public_key_0'] = bin2hex($log_data['public_key_0']);
 		$log_data['public_key_1'] = $log_data['public_key_1']?'0x'.bin2hex($log_data['public_key_1']):'""';
-		$log_data['public_key_2'] = $log_data['public_key_2']?'0x'.bin2hex($log_data['public_key_1']):'""';
+		$log_data['public_key_2'] = $log_data['public_key_2']?'0x'.bin2hex($log_data['public_key_2']):'""';
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."log_users` (
@@ -9289,9 +9290,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					{$log_data['public_key_2']},
 					{$this->block_data['block_id']},
 					{$log_data['log_id']}
-				)" );
-		////print $this->db->printsql();
-
+				)");
 		$log_id = $this->db->getInsertId();
 
 		$sql_public_key_1 = $this->new_public_keys_hex[1]?'0x'.$this->new_public_keys_hex[1]:'""';
@@ -9303,7 +9302,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					   `public_key_2` = {$sql_public_key_2},
 					   `log_id` = {$log_id}
 				WHERE `user_id` = {$this->tx_data['user_id']}
-				" );
+				");
 
 		// проверим, не наш ли это user_id или не наш ли это паблик-ключ
 		$this->get_my_user_id();
@@ -9404,7 +9403,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								'".bin2hex($row['hash_code'])."',
 								'{$row['status']}',
 								{$row['id']}
-							)" );
+							)");
 					/*
 					// если отправитель я
 					if ($row['from_user_id'] == $my_user_id) {
@@ -9450,7 +9449,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								{$row['start_time']},
 								{$row['end_time']},
 								{$row['id']}
-							)" );
+							)");
 				}
 			}
 		}
@@ -9463,8 +9462,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 16
-	private function change_primary_key_rollback() {
-
+	private function change_primary_key_rollback()
+	{
 		// получим log_id, по которому можно найти данные, которые были до этого
 		// $log_id всегда больше нуля, т.к. это откат обновления ключа
 		$log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9472,7 +9471,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."users`
 				WHERE `user_id` = {$this->tx_data['user_id']}
 				", 'fetch_one' );
-		//print $this->db->printsql()."\n";
 
 		// данные, которые восстановим
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9494,14 +9492,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		                `public_key_2` = {$log_data['public_key_2']},
 		                `log_id` = {$log_data['prev_log_id']}
 				WHERE `user_id` = {$this->tx_data['user_id']}
-				" );
+				");
 
 		// подчищаем _log
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."log_users`
 				WHERE `log_id` = {$log_id}
 				LIMIT 1
-				" );
+				");
 		$this->rollbackAI('log_users');
 
 		// проверим, не наш ли это user_id
@@ -9603,7 +9601,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `node_public_key` = 0x{$this->tx_data['new_node_public_key']},
 					   `log_id` = {$log_id}
 				WHERE `user_id` = {$this->tx_data['user_id']}
-				" );
+				");
 
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id();
@@ -9655,7 +9653,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			    SET `node_public_key` =0x{$data['node_public_key']},
 			            `log_id` = {$data['prev_log_id']}
 				WHERE `user_id` = {$this->tx_data['user_id']}
-				" );
+				");
 		//print $this->db->printsql()."\n";
 
 		// подчищаем _log
@@ -9663,7 +9661,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					DELETE FROM `".DB_PREFIX."log_miners_data`
 					WHERE `log_id` = {$log_id}
 					LIMIT 1
-					" );
+					");
 		$this->rollbackAI('log_miners_data');
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id();
@@ -9799,7 +9797,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						{$this->tx_data['user_id']},
 						{$this->tx_data['start_time']},
 						{$this->tx_data['end_time']}
-					)" );
+					)");
 		$holidays_id = $this->db->getInsertId();
 
 		// проверим, не наш ли это user_id
@@ -10893,7 +10891,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."transactions`
 				WHERE `used`=1
-				" );
+				");
 
 		$count_transactions = array();
 
@@ -11508,7 +11506,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."transactions`
 					WHERE `used`=1
-					" );
+					");
 
 			##################################################
 			## 				type=0 - Разбор блока
