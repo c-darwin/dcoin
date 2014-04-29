@@ -7,7 +7,7 @@ $('#save').bind('click', function () {
 	
 	$.post( 'ajax/generate_new_primary_key.php', { 'password' : $("#new_password").val() }, function (data) {
 
-			$("#public_key").val( data.public_key );
+			$("#public_key_1").val( data.public_key );
 			if ($("#save_private_key").prop("checked")) {
 				$("#password_hash").val( data.password_hash );
 			}
@@ -34,7 +34,7 @@ $('#save3').bind('click', function () {
 	$("#public_keys").css("display", "none");
 	$("#show_key").css("display", "none");
 	$("#sign").css("display", "block");
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key").val()+','+$("#public_key_1").val()+','+$("#public_key_2").val() );
+	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key_1").val()+','+$("#public_key_2").val()+','+$("#public_key_3").val() );
 
 } );
 
@@ -45,9 +45,9 @@ $('#send_to_net').bind('click', function () {
 			'type' : '<?php echo $tpl['data']['type']?>',
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
-			'public_key' : $('#public_key').val(),
 			'public_key_1' : $('#public_key_1').val(),
 			'public_key_2' : $('#public_key_2').val(),
+			'public_key_3' : $('#public_key_3').val(),
 			'private_key' : $('#private_key').val(),
 			'password_hash' : $('#password_hash').val(),
 			'signature1': $('#signature1').val(),
@@ -115,6 +115,8 @@ $('#send_to_net').bind('click', function () {
 		<textarea rows="5" id="public_key_1" style="width:600px;text-align: justify"></textarea>
 		<label><?php echo $lng['your_public_keys_2']?></label>
 		<textarea rows="5" id="public_key_2" style="width:600px;text-align: justify"></textarea>
+		<label><?php echo $lng['your_public_keys_3']?></label>
+		<textarea rows="5" id="public_key_3" style="width:600px;text-align: justify"></textarea>
 		<br>
 		<button class="btn" type="button" id="save3"><?php echo $lng['next']?></button>
 	</div>
@@ -122,7 +124,6 @@ $('#send_to_net').bind('click', function () {
 
 	<?php require_once( 'signatures.tpl' );?>
 
-	<input type="hidden" id="public_key">
 	<input type="hidden" id="password_hash">
 
 </div>

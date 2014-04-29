@@ -251,8 +251,9 @@ $lng['block'] = 'Block';
 $lng['change_primary_key_limits_text'] = 'Changing the master key is permissible - no more than [limit] times [period].';
 $lng['your_new_key'] = 'Your new master key';
 $lng['your_new_key_rules'] = 'The new key will enter into force only after it will DC-network until the act is either the old master key.';
-$lng['your_public_keys_1'] = 'If you have one, enter 1 public_key';
+$lng['your_public_keys_1'] = 'Your public_key 1';
 $lng['your_public_keys_2'] = 'If you have one, enter 2 public_key';
+$lng['your_public_keys_3'] = 'If you have one, enter 3 public_key';
 
 // change node key
 $lng['change_node_key_title'] = 'Change node key';

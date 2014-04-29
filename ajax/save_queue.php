@@ -587,9 +587,9 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'change_primary_key' :
 
-			$public_key = $_REQUEST['public_key'];
 			$public_key_1 = $_REQUEST['public_key_1'];
 			$public_key_2 = $_REQUEST['public_key_2'];
+			$public_key_3 = $_REQUEST['public_key_3'];
 			$private_key = $_REQUEST['private_key'];
 			$password_hash = $_REQUEST['password_hash'];
 			
@@ -601,17 +601,17 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 							`password_hash`
 						)
 						VALUES (
-							0x{$public_key},
+							0x{$public_key_1},
 							'{$private_key}',
 							'{$password_hash}'
 						)");
 
-			$bin_public_key = hextobin($public_key);
 			$bin_public_key_1 = hextobin($public_key_1);
 			$bin_public_key_2 = hextobin($public_key_2);
-			$bin_public_key_pack =  ParseData::encode_length_plus_data($bin_public_key) .
-				ParseData::encode_length_plus_data($bin_public_key_1) .
-				ParseData::encode_length_plus_data($bin_public_key_2);
+			$bin_public_key_3 = hextobin($public_key_3);
+			$bin_public_key_pack =  ParseData::encode_length_plus_data($bin_public_key_1) .
+				ParseData::encode_length_plus_data($bin_public_key_2) .
+				ParseData::encode_length_plus_data($bin_public_key_3);
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .

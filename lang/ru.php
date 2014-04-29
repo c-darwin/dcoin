@@ -253,8 +253,9 @@ $lng['block'] = 'Блок';
 $lng['change_primary_key_limits_text'] = 'Смена праймари ключа допустима - не более [limit] раза в [period].';
 $lng['your_new_key'] = 'Ваш новый праймари ключ';
 $lng['your_new_key_rules'] = 'Новый ключ вступит в силу только после того, как его примет DC-сеть, до того момента будет действовать Ваш старый праймари-ключ.';
-$lng['your_public_keys_1'] = 'Если есть, введите public_key 1';
+$lng['your_public_keys_1'] = 'Ваш public_key 1';
 $lng['your_public_keys_2'] = 'Если есть, введите public_key 2';
+$lng['your_public_keys_3'] = 'Если есть, введите public_key 3';
 
 // change node key
 $lng['change_node_key_title'] = 'Смена node ключа';
