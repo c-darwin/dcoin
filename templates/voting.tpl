@@ -145,6 +145,9 @@ ArraySort = function(array, sortFunc){
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
 <div id="voting">
+	<?php
+	if (isset($tpl['promised_amount_currency_list'])) {
+	?>
 	<?php echo $lng['voting_message']?>
 	<table class="table" style="width: 500px">
 		<tr><th><?php echo $lng['currency']?></th><th><?php echo $lng['voting_miner_pct']?></th><th><?php echo $lng['voting_user_pct']?></th><th><?php echo $lng['voting_max_promised_amount']?></th><th><?php echo $lng['voting_max_other_currencies']?></th><th><?php echo $lng['voting_reduction']?></th></tr>
@@ -171,6 +174,11 @@ ArraySort = function(array, sortFunc){
 			<button class="btn" type="button" id="next"><?php echo $lng['next']?></button>
 		</div>
 	</div>
+	<?php
+	}
+	else
+		print 'empty';
+	?>
 </div>
 
 	<?php require_once( 'signatures.tpl' );?>

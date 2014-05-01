@@ -9,6 +9,8 @@ $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 
+$variables = ParseData::get_all_variables($db);
+
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `currency_id`,
 					  `name`,
@@ -17,11 +19,39 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
         LEFT JOIN `currency` ON `currency`.`id` = `promised_amount`.`currency_id`
 		WHERE `user_id` = {$user_id} AND
 					 `status` IN ('mining', 'repaid') AND
+					 `start_time` < ".(time() - $variables['min_hold_time_promise_amount'])." AND
+					 `start_time` > 0 AND
 					 `del_block_id` = 0
 		GROUP BY `currency_id`
 		");
-while ($row = $db->fetchArray($res))
+while ($row = $db->fetchArray($res)){
+	// если по данной валюте еще не набралось >1000 майнеров, то за неё голосовать нельзя.
+	$count_miners = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT count(`user_id`)
+			FROM `".DB_PREFIX."promised_amount`
+			WHERE `start_time` < ".(time() - $variables['min_hold_time_promise_amount'])." AND
+						 `del_block_id` = 0 AND
+						 `status` IN ('mining', 'repaid') AND
+						 `currency_id` = {$row['currency_id']} AND
+						 `del_block_id` = 0
+			GROUP BY  `user_id`
+			", 'fetch_one' );
+	if ($count_miners < $variables['min_miners_of_voting'])
+		continue;
+
+	// голосовать можно не чаще 1 раза в 2 недели
+	$num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`time`)
+				FROM `".DB_PREFIX."log_time_votes_complex`
+				WHERE `user_id` = {$user_id} AND
+							 `time` > ".(time() - $variables['limit_votes_complex_period'])."
+				LIMIT 1
+				", 'fetch_one' );
+	if ($num >= $variables['limit_votes_complex'])
+		continue;
+
 	$tpl['promised_amount_currency_list'][$row['currency_id']] =  array('name'=>$row['name']);
+}
 
 $tpl['max_currency_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT max(`id`)
