@@ -55,13 +55,8 @@ function hextobin ($hexstr) {
 }
 
     
-
-// функция проверки входящих данных, в зависимости от их типа, кроме тех, где нужно применить mysql_real_escape и тех, где проверять ничего не надо.
+// функция проверки входящих данных
 function check_input_data ($data, $type, $info='') {
-
-	// !!!!!!!!!!!!!!!!!!!! учесть, что \n - это конец строки - $
-
-	// сделать защиту от XSS при выводе у юзероа
 
 	switch ($type) {
 
@@ -1215,8 +1210,8 @@ class testblock {
 	 * @param string $ctx Энтропия
 	 * @return int ID майнера
 	 */
-	static function get_block_generator_miner_id ($max_miner_id, $ctx) {
-
+	static function get_block_generator_miner_id ($max_miner_id, $ctx)
+	{
 		$hi = $ctx / 127773;
 		$lo = $ctx % 127773;
 		$x = 16807 * $lo - 2836 * $hi;
@@ -1226,7 +1221,6 @@ class testblock {
 		$rez = ($rez==0)?1:$rez;
 
 		return $rez;
-
 	}
 	/**
 	 * Получаем уровни и диапазоны, начиная от начального $cur_miner_id.

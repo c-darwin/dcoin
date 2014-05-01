@@ -398,7 +398,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	/**
-	 * криво, наворочено, но работает
+	 *
 	Вычисляем, какой получится профит от суммы $amount
 	$pct_array = array(
 		1394308460=>array('user'=>0.05, 'miner'=>0.10),
@@ -9096,8 +9096,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 15
-	private function votes_complex() {
-
+	private function votes_complex()
+	{
 		$json_data = json_decode($this->tx_data['json_data'], true);
 
 		foreach ($json_data as $currency_id=>$data) {
