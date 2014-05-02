@@ -3,7 +3,7 @@
 if (!defined('DC'))
 	die('!DC');
 
-// время в тр-ии может бежать не более чем на 10 сек от времени в блоке
+// время в тр-ии может бежать не более, чем на 10 сек от времени в блоке
 // т.к. время тр-ии используется для подсчета TDC, то ставим пока 0, позже надо еще подумать, если будут проблемы
 define('MAX_TX_FORW', 0);
 // тр-ия может блуждать по сети сутки и потом попасть в блок
@@ -131,7 +131,7 @@ class ParseData {
 		return $all;
 	}
 
-	// массив, в котором будет искаться максимальное кол-во голосов должен быть стандартизирован
+	// массив, в котором будет искаться максимальное кол-во голосов, должен быть стандартизирован
 	// входные данные уже были ранее проверены
 	static function makeMaxPromisedAmount($amounts)
 	{
@@ -191,7 +191,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $arr;
 	}
 
-	// массив, в котором будет искаться максимальное кол-во голосов должен быть стандартизирован
+	// массив, в котором будет искаться максимальное кол-во голосов, должен быть стандартизирован
 	// входные данные уже были ранее проверены
 	static function makePctArray($pct_array)
 	{
@@ -232,7 +232,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	static function fillMainArray() {
 
 		self::$MainArray = array(
-			// новый юзер по инвату
+			// новый юзер
 			1 => 'new_user',
 			// новый майнер
 			2 => 'new_miner',
@@ -245,7 +245,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			7 => 'del_forex_order',
 			//  новый набор max_other_currencies от нода-генератора блока
 			8 => 'new_max_other_currencies',
-			// geolocation. Майнер отметился на карте.
+			// geolocation. Майнер изменил свои координаты
 			9 => 'change_geolocation',
 			// votes_promised_amount.
 			10 => 'votes_promised_amount',
@@ -262,13 +262,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			18 => 'for_repaid_fix',
 			// занесение в БД данных из первого блока
 			19 => 'admin_1block',
-			// админ разжаловал майнера в юзеры
+			// админ разжаловал майнеров в юзеры
 			20 => 'admin_ban_miners',
 			// админ изменил variables
 			21 => 'admin_variables',
 			// админ обновил набор точек для проверки лиц
 			22 => 'admin_spots',
-			// админ вернлу майнерам звание "майнер"
+			// админ вернул майнерам звание "майнер"
 			24 => 'admin_unban_miners',
 			// админ отправил alert message
 			25 => 'admin_message',
@@ -291,9 +291,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			35=>'____________',
 			// новая версия, которая кладется каждому в диру public
 			36=>'admin_new_version',
-			// после того, как новая версия протестируется, выдаем сообщение, что необходимо обновится
+			// после того, как новая версия протестируется, выдаем сообщение, что необходимо обновиться
 			37=>'admin_new_version_alert',
-			// любой юзер модет написать 30 сообщений в день админу
+			// баг репорты
 			38=>'message_to_admin',
 			// админ может ответить юзеру
 			39=>'admin_answer',
@@ -305,7 +305,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// майнер меняет комиссию, которую он хочет получать с тр-ий
 			43=>'change_commission',
 			44=>'_________________',
-			// запуск уполовинивания на основе голосования. генерит нод-генератор блока
+			// запуск урезания на основе голосования. генерит нод-генератор блока
 			45=>'new_reduction'
 		);
 
@@ -452,7 +452,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		### $points_status_array + $pct_array = $pct_array
 
 		$last_status = false;
-		// нужно получить массив вида time=>pct совместив $pct_array и $points_status_array
+		// нужно получить массив вида time=>pct, совместив $pct_array и $points_status_array
 		foreach ($pct_array as $time=>$status_pct_array) {
 			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$find_min_array = self::find_min_points_status($time, $points_status_array, 'status');
@@ -513,14 +513,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if (!$max_promised_amount_array)
 			$last_amount = $amount;
-		// нужно получить массив вида time=>pct совместив $pct_array и $max_promised_amount_array
+		// нужно получить массив вида time=>pct, совместив $pct_array и $max_promised_amount_array
 		foreach ($pct_array as $time=>$pct) {
 			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$find_min_array = self::find_min_points_status($time, $max_promised_amount_array, 'amount');
 			debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			for ($i=0; $i<sizeof($find_min_array); $i++) {
 				debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-				// добавляем новый элемент только если наша сумма больше чем максимально допустимая ($find_min_array[$i]['amount'])
+				// добавляем новый элемент, только если наша сумма больше, чем максимально допустимая ($find_min_array[$i]['amount'])
 				if ($amount+$repaid_amount > $find_min_array[$i]['amount'])
 					$amount_ = $find_min_array[$i]['amount'] - $repaid_amount;
 				// для WOC разрешено брать max_promised_amount вместо promised_amount, если promised_amount < max_promised_amount
@@ -667,7 +667,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$num = $new[$i]['num_sec'];
 			$amount_and_profit = $profit +$new[$i]['amount'];
 			//$profit = ( floor( round( $amount_and_profit*pow($pct, $num), 3)*100 ) / 100 ) - $new[$i]['amount'];
-			// из-за того, что в front был подсчет без обновления points, а в рабочем методе уже с обновлением points, выходило, что в рабочем методе было больше мелких временных промежуток, и получалось profit <0.01, из-за этгого было расхождение в front и попадение минуса в БД
+			// из-за того, что в front был подсчет без обновления points, а в рабочем методе уже с обновлением points, выходило, что в рабочем методе было больше мелких временных промежуток, и получалось profit <0.01, из-за этого было расхождение в front и попадание минуса в БД
 			$profit =  $amount_and_profit*pow($pct, $num) - $new[$i]['amount'];
 			debug_print( "num={$num} pct={$pct} amount={$new[$i]['amount']} profit={$profit}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		}
@@ -686,7 +686,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($block_id)
 			$add_sql = " OR `ban_block_id`={$block_id}";
 
-		// когда админ разжаловывает майнера у него пропадет miner_id
+		// когда админ разжаловывает майнера, у него пропадет miner_id
 		$miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
 				FROM `".DB_PREFIX."miners_data`
@@ -694,7 +694,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 (`miner_id`>0 {$add_sql})
 				LIMIT 1
 				", 'fetch_one');
-		// если есть бан в этом же блоке, то будет miner_id = 0, но условно считаем что проверка пройдена
+		// если есть бан в этом же блоке, то будет miner_id = 0, но условно считаем, что проверка пройдена
 		if ( $miner_id > 0 || ($miner_id == '0' && $block_id > 0))
 			return true;
 
@@ -807,8 +807,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return ($user_status=='passive_miner'?'user':'miner');
 	}
 
-	static function download_and_save ($url, $file) {
-
+	static function download_and_save ($url, $file)
+	{
 		////print '$url='.$url."=\n";
 		////print '$file='.$file."=\n";
 		debug_print('$url:'.$url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -852,7 +852,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$i=0;
 		foreach($public_keys_array as $public_key) {
 
-			// если вдруг пошлют 1 подпись, в то время когда нужно 2-3
+			// если вдруг пошлют 1 подпись в то время, когда нужно 2-3
 			if (!@$signs_array[$i])
 				return '!$signs_array['.$i.']';
 			debug_print('$sign='.bin2hex($signs_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -881,7 +881,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						", 'fetch_one' );
 	}
 
-	// получаем псевдо-случайное значение от 1 до $max_miner_id включительно.
+	// получаем псевдослучайное значение от 1 до $max_miner_id включительно.
 	// $ctx задает seeding
 	// $miners_keepers - задается админом в variables. Скольким майнерам копируем фото юзера. По дефолту = 10
 	static function get_miners_keepers ($ctx, $max_miner_id, $miners_keepers, $arr0=false) {
@@ -1003,7 +1003,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$add_sql = '';
 			foreach ( $data as $k => $v ) {
 
-				// block_id т.к. в log_ он нужен для удаления страых данных, а в обычной табле не нужен
+				// block_id т.к. в log_ он нужен для удаления старых данных, а в обычной табле не нужен
 				if ( $k == 'log_id' || $k == 'prev_log_id'  || $k == 'block_id' )
 					continue;
 				if ($k=='node_public_key')
@@ -1080,7 +1080,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			//$points_status = self::getPointsStatus($to_user_id, $this->db, true, $this->variables['points_update_time']);
 			$points_status = array(0=>'user');
 			// holidays не нужны, т.к. это не TDC, а DC
-			// то, что вырасло на кошельке
+			// то, что выросло на кошельке
 			$new_DC_sum = $wallet_data['amount'] + self::calc_profit ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'],	$this->pct[$currency_id], $points_status );
 			debug_print( '$new_DC_sum='.$new_DC_sum, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -1175,7 +1175,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_array' );
 		debug_print( $wallet_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// перед тем, как менять значения на кошельках юзеров нужно залогировать текущие значения для юзера from_user_id
+		// перед тем, как менять значения на кошельках юзеров, нужно залогировать текущие значения для юзера from_user_id
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."log_wallets` (
 						`amount`,
@@ -1309,7 +1309,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	// общая проверка для всех _front, кроме new_user_front
+	// общая проверка для всех _front кроме new_user_front
 	private function general_check()
 	{
 		debug_print( $this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -1351,7 +1351,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	 * обновляем номер блока photo_block_id и кол-во майнеров photo_max_miner_id,
 	 * чтобы получить новый набор майнеров,
 	 * которые должны сохранить фото у себя
-	 * эту транзакцию генерит нод со своим ключем
 	 */
 	private function new_miner_update_init()
 	{
@@ -1373,7 +1372,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
-		//  на всяк случай не даем начать нодовское, если идет юзерское голосование
+		//  на всякий случай не даем начать нодовское, если идет юзерское голосование
 		$user_voting = $this ->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
 				FROM `".DB_PREFIX."votes_miners`
@@ -1392,8 +1391,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !$user_id)
 			return 'null miners_data';
 
-		// (не актуально) проверим, не является ли юзер майнером
-		/* юзер может быть майнером, в этом случае мы просто не запустим юзерское голосование по завершении нодовского
+		// (неактуально) проверим, не является ли юзер майнером
+		/* юзер может быть майнером- в этом случае мы просто не запустим юзерское голосование по завершении нодовского
 		 * $miner_id = $this ->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
 				FROM `".DB_PREFIX."miners_data`
@@ -1467,7 +1466,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				             `end_block_id` = {$this->block_data['block_id']}
 				");
 
-		// оменяем новое голосование
+		// отменяем новое голосование
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."votes_miners`
 				WHERE `type` = 'node_voting' AND
@@ -1789,7 +1788,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// Эту транзакцию имеет право генерить только нод, который генерит данный блок
-	// подписана нодовским ключем
+	// подписана нодовским ключом
 	// 33
 	private function new_pct_init()
 	{
@@ -1949,7 +1948,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// Эту транзакцию имеет право генерить только нод, который генерит данный блок
-	// подписана нодовским ключем. Отдельно от блока тр-ия существовать не может
+	// подписана нодовским ключом.
 	// 45
 	private function new_reduction_init()
 	{
@@ -2047,7 +2046,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$d = (100 - $this->tx_data['pct']) / 100;
 
 		 // т.к. невозможо 2 отката подряд из-за промежутка в 14 дней между reduction,
-		// то можем использовать только бекап на 1 уровень назад, вместо _log
+		// то можем использовать только бекап на 1 уровень назад вместо _log
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."wallets`
 				SET  `amount_backup` = `amount`,
@@ -2055,7 +2054,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `currency_id` = {$this->tx_data['currency_id']}
 				");
 
-		// если бы не узрели amount то пришелось бы делать пересчет tdc по всем у кого есть данная валюта
+		// если бы не урезали amount, то пришлось бы делать пересчет tdc по всем, у кого есть данная валюта
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."promised_amount`
 				SET  `tdc_amount_backup` = `tdc_amount`,
@@ -2095,8 +2094,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 45
-	private function new_reduction_rollback() {
-
+	private function new_reduction_rollback()
+	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."wallets`
 				SET  `amount` = `amount_backup`,
@@ -2126,9 +2125,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 
-	// голосвания нодов, которые должны сохранить фото у себя.
+	// голосования нодов, которые должны сохранить фото у себя.
 	// если смог загрузить фото к себе и хэш сошелся - 1, если нет - 0
-	// эту транзакцию генерит нод со своим ключем
+	// эту транзакцию генерит нод со своим ключом
 	// 30
 	private function votes_node_new_miner_init()
 	{
@@ -2169,7 +2168,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
-		// проверим, верно ли указан ID и не закончилось ли голосвание
+		// проверим, верно ли указан ID и не закончилось ли голосование
 		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
 				FROM `".DB_PREFIX."votes_miners`
@@ -2199,17 +2198,16 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 	}
 
-	private function miners_check_my_miner_id_and_votes_0 ($data) {
-
+	private function miners_check_my_miner_id_and_votes_0 ($data)
+	{
 		if ( in_array ($data['my_miner_id'], $data['miners_ids']) && ( $data[ 'votes_0'] > $data['min_miners_keepers'] || $data[ 'votes_0'] == sizeof($data['miners_ids']) ) )
 			return true;
 		else
 			return false;
-
 	}
 
-	private function miners_check_votes_1 ($data) {
-
+	private function miners_check_votes_1 ($data)
+	{
 		if ( $data[ 'votes_1'] >= $data['min_miners_keepers'] || $data[ 'votes_1'] == sizeof($data['miners_ids']) /*|| $this->tx_data['user_id'] == 1*/ )
 			return true;
 		else
@@ -2217,8 +2215,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 30
-	private function votes_node_new_miner() {
-
+	private function votes_node_new_miner()
+	{
 		$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id` FROM `".DB_PREFIX."my_table`", 'fetch_one');
 
@@ -2270,7 +2268,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// ID майнеров, у которых сохраняются фотки
 		$miners_ids = $this->get_miners_keepers( $miners_data['photo_block_id'], $miners_data['photo_max_miner_id'], $miners_data['miners_keepers'], true );
 
-		// данные для проверки окончания голосвания
+		// данные для проверки окончания голосования
 		$data['my_miner_id'] = $my_miner_id;
 		$data['miners_ids'] = $miners_ids;
 		$data['votes_0'] = $votes_data[ 'votes_0'];
@@ -2290,7 +2288,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					LIMIT 1
 					");
 
-			// отметим del_block_id всем, кто голосвовал за данного юзера,
+			// отметим del_block_id всем, кто голосовал за данного юзера,
 			// чтобы через N блоков по крону удалить бесполезные записи
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."log_votes`
@@ -2301,7 +2299,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		}
 		// если набрано >=X голосов "за", то пишем в БД, что юзер готов к проверке людьми
-		// либо если = кол-ву майнеров (актуально в самом начале запуска проекта)
+		// либо если набранное кол-во голосов= кол-ву майнеров (актуально в самом начале запуска проекта)
 		if ( $this->miners_check_votes_1($data) ) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -2315,7 +2313,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						{$this->block_data['time']}
 					)");
 
-			// и отмечаем лицо, как готовое участвовать в поиске дублей
+			// и отмечаем лицо как готовое участвовать в поиске дублей
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."faces`
 					SET `status` = 'used'
@@ -2324,13 +2322,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 
 		} // если набрано >5 голосов "против" и мы среди тех X майнеров, которые копировали фото к себе
-		  // либо если = кол-ву майнеров (актуально в самом начале запуска проекта)
+		  // либо если набранное кол-во голосов = кол-ву майнеров (актуально в самом начале запуска проекта)
 		else if ( $this->miners_check_my_miner_id_and_votes_0 ($data) ) {
 
 			$profile_path = ABSPATH."public/profile_{$votes_data['user_id']}.jpg";
 			$face_path = ABSPATH."public/face_{$votes_data['user_id']}.jpg";
 
-			// возможно фото к нам не было скопировано, т.к. хост был не доступен.
+			// возможно фото к нам не было скопировано, т.к. хост был недоступен.
 			if ( !file_exists(ABSPATH."recycle_bin/".$profile_path) || !file_exists(ABSPATH."recycle_bin/".$face_path)) {
 
 				$face_rand_name = '';
@@ -2356,7 +2354,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 
 			// если в корзине что-то есть, то логируем
-			// отстутвие файлов также логируем, т.к. больше негде, а при откате эти данные очень важны.
+			// отсутствие файлов также логируем, т.к. больше негде, а при откате эти данные очень важны.
 			$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT *
 					FROM `".DB_PREFIX."recycle_bin`
@@ -2408,15 +2406,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 30
-	private function votes_node_new_miner_rollback_front() {
-
+	private function votes_node_new_miner_rollback_front()
+	{
 		$this -> limit_requests_rollback('votes_nodes');
-
 	}
 
 	// 30
-	private function votes_node_new_miner_rollback() {
-
+	private function votes_node_new_miner_rollback()
+	{
 		$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
 				FROM `".DB_PREFIX."my_table`
@@ -2442,7 +2439,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				",	'fetch_array');
 
-		// запомним голоса, пригодится чуть ниже
+		// запомним голоса- пригодится чуть ниже
 		$data['votes_0'] = $votes_data[ 'votes_0'];
 		$data['votes_1'] = $votes_data[ 'votes_1'];
 
@@ -2485,7 +2482,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					LIMIT 1
 					");
 
-			// убираем всем, кому ставили del_block_id, т.е. отменяем будущее удаление по крону
+			// всем, кому ставили del_block_id, его убираем, т.е. отменяем будущее удаление по крону
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."log_votes`
 					SET `del_block_id` = 0
@@ -2509,7 +2506,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 			$this->rollbackAI('votes_miners');
 
-			// и отмечаем лицо, как неучаствующее в поиске клонов
+			// и отмечаем лицо как неучаствующее в поиске клонов
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."faces`
 					SET `status` = 'pending'
@@ -2608,7 +2605,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( $num >= $this->variables['miner_votes_attempt'] )
 			return 'miner_votes_attempt';
 
-		//  на всяк случай не даем начать нодовское, если идет юзерское голосование
+		//  на всякий случай не даем начать нодовское, если идет юзерское голосование
 		$user_voting = $this ->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
 				FROM `".DB_PREFIX."votes_miners`
@@ -2718,7 +2715,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// 1. край уха - край носа
 			// 2. глаз - край носа
 			// 3. подбородок - низ уха
-			// 4. верх-уха - низ уха
+			// 4. верх уха - низ уха
 			$profile_relations[$num] = round ( ( $this->pp_length($profile_coords[$spots[0]], $profile_coords[$spots[1]]) / $profile_relations[0]) , 4);
 		}
 
@@ -2803,7 +2800,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 		else {
 
-			// это первая запись в таблицу и лог писать не с чего
+			// это первая запись в таблицу, и лог писать не с чего
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO `".DB_PREFIX."faces` (
 						`user_id`,
@@ -2900,7 +2897,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 		else {
 
-			// это первая запись в таблицу и лог писать не с чего
+			// это первая запись в таблицу, и лог писать не с чего
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO `".DB_PREFIX."miners_data` (
 						`user_id`,
@@ -3032,7 +3029,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					", 'fetch_one' );
 			if ( $my_public_key ) {
 
-				// теперь у нас полноценный юзерский акк и его можно апргрейдить до майнерского
+				// теперь у нас полноценный юзерский акк, и его можно апргрейдить до майнерского
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."my_table`
 						SET  `user_id` = {$new_user_id},
@@ -3425,7 +3422,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						WHERE `id` = {$row['id']}
 						");
                 }
-                // если нет log_id, значит promised_amount были добавлены при помощи cash_request_in со статусом suspended уже после того как было admin_ban_miner
+                // если нет log_id, значит promised_amount были добавлены при помощи cash_request_in со статусом suspended уже после того, как было admin_ban_miner
                 else {
                     $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						    UPDATE `".DB_PREFIX."promised_amount`
@@ -3471,7 +3468,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->get_my_user_id();
 			if ($users_ids[$i] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 				// обновим статус в нашей локальной табле.
-				// sms/email не трогаем, т.к. скорее всего, данные чуть позже вернутся
+				// sms/email не трогаем, т.к. скорее всего данные чуть позже вернутся
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."my_table`
 						SET  `status` = 'suspended_miner',
@@ -3747,7 +3744,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->get_my_user_id();
 			if ($users_ids[$i] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 				// обновим статус в нашей локальной табле.
-				// sms/email не трогаем, т.к. скорее всего, данные чуть позже вернутся
+				// sms/email не трогаем, т.к. скорее всего данные чуть позже вернутся
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."my_table`
 						SET  `status` = '{$log_data['status']}',
@@ -4418,7 +4415,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `status` = 'approved'
 					");
 		}
-		// !!!!!!!!!!!!!!!!!!!!!!!!! потом убрать в админский модуль
+
 		if ($this->my_user_id==1) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -4467,7 +4464,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}*/
 
 		/*
-		 * Для теста обработки старых блоков содержащих баги
+		 * Для теста обработки старых блоков, содержащих баги
 		 * */
 		/*
 		if ( !isset($this->block_data['block_id']) || $this->block_data['block_id'] > 1500 ) {*/
@@ -4548,7 +4545,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return ' soft_type';
 
 		/*
-		 * Для теста обработки старых блоков содержащих баги
+		 * Для теста обработки старых блоков, содержащих баги
 		 * */
 		/*if ( !isset($this->block_data['block_id']) || $this->block_data['block_id'] > 1500 ) {*/
 			// не было ли уже такой же тр-ии
@@ -4847,10 +4844,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// % от 0 до 10
 			if ( !check_input_data ($data[0], 'currency_commission') || $data[0]>10)
 				return 'bad pct';
-			// минимальная коммисия от 0. При 0% будет = 0
+			// минимальная комиссия от 0. При 0% будет = 0
 			if ( !check_input_data ($data[1], 'currency_commission') )
 				return 'bad currency_min_commission';
-			// макс. коммисия. 0 - значит считается по %
+			// макс. комиссия. 0 - значит, считается по %
 			if ( !check_input_data ($data[2], 'currency_commission') )
 				return 'bad currency_max_commission';
 			if ($data[1]>$data[2] && $data[2])
@@ -5025,7 +5022,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 		else {
 
-			// это первая запись в таблицу и лог писать не с чего
+			// это первая запись в таблицу, и лог писать не с чего
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "INSERT INTO `".DB_PREFIX."miners_data` (
 					`votes_start_time`,
 					`face_hash`,
@@ -5158,11 +5155,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
 			return 'error amount';
 
-		// юзер должен быть или miner или passive_miner, т.е. иметь miner_id. не даем майнерам, которых забанил админ изменять обещанные суммы.
+		// юзер должен быть или miner, или passive_miner, т.е. иметь miner_id. не даем майнерам, которых забанил админ, изменять обещанные суммы.
 		if ( !$this->check_miner($this->tx_data['user_id']) )
 			return 'not miner';
 
-		// верный ли id. менять сумму можно только когда статус mining
+		// верный ли id. менять сумму можно, только когда статус mining
 		// нельзя изменить woc (currency_id=1)
 		$promised_amount_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`,
@@ -5178,7 +5175,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		$max_promised_amount = $this->get_max_promised_amount($promised_amount_data['currency_id']);
 
-		// т.к. можно перевести из mining в repaid, где нет лимитов и так проделать много раз, то
+		// т.к. можно перевести из mining в repaid, где нет лимитов, и так проделать много раз, то
 		// нужно жестко лимитировать ОБЩУЮ сумму по всем promised_amount данной валюты
 		$repaid_amount = $this->get_repaid_amount($promised_amount_data['currency_id'], $this->tx_data['user_id']);
 		if ( $this->tx_data['amount'] + $repaid_amount > $max_promised_amount )
@@ -5187,12 +5184,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -5311,7 +5308,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 3
-	// если из-за смены местоположения или изначально после new_promised_amount получили rejected
+	// если из-за смены местоположения или изначально после new_promised_amount получили rejected,
 	// то просто шлем новый запрос. возможно был косяк с видео-файлом.
 	// Если было delete=1, то перезаписываем
 	private function new_promised_amount_init()
@@ -5342,11 +5339,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !$this->checkCurrency($this->tx_data['currency_id']) )
 			return 'error 2 currency_id';
 
-		// юзер должен быть или miner или passive_miner, т.е. иметь miner_id. не даем майнерам, которых забанил админ добавлять новые обещанные суммы.
+		// юзер должен быть или miner, или passive_miner, т.е. иметь miner_id. не даем майнерам, которых забанил админ, добавлять новые обещанные суммы.
 		if ( !$this->check_miner($this->tx_data['user_id']) )
 			return 'not miner';
 
-		// проверим статус. должно  вообще не быть записей. всё что rejected/change_geo и пр. юзер должен вначале удалить
+		// проверим статус. должно  вообще не быть записей. всё, что rejected/change_geo и пр. юзер должен вначале удалить
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `status`,
 							 `currency_id`
@@ -5375,7 +5372,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_one');
 		debug_print($new_max_other_currencies, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// т.к. можно перевести из mining в repaid, где нет лимитов и так проделать много раз, то
+		// т.к. можно перевести из mining в repaid, где нет лимитов, и так проделать много раз, то
 		// нужно жестко лимитировать ОБЩУЮ сумму по всем promised_amount данной валюты
 		if ( $this->tx_data['amount'] + $this->get_repaid_amount($this->tx_data['currency_id'], $this->tx_data['user_id']) > $new_max_promised_amount )
 			return 'max_promised_amount';
@@ -5434,12 +5431,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -5524,7 +5521,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function get_tdc ($promised_amount_id, $user_id)
 	{
-		// используем $this->tx_data['time'], оно всегда меньше времени блока, а значит TDC будет тут чуть меньше. В блоке (не фронт. проверке) уже будет использовать time из блока
+		// используем $this->tx_data['time'], оно всегда меньше времени блока, а значит TDC будет тут чуть меньше. В блоке (не фронт. проверке) уже будет использоваться time из блока
 		if (isset($this->block_data['time']))
 			$time = $this->block_data['time'];
 		else
@@ -5575,7 +5572,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
-		// статус может быть любым, кроме pending, т.к. то, что набежало в tdc_amount доступо для перевода на кошелек всегда
+		// статус может быть любым кроме pending, т.к. то, что набежало в tdc_amount доступо для перевода на кошелек всегда
 		$num = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
 				FROM `".DB_PREFIX."promised_amount`
@@ -5729,7 +5726,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// откатим транзакцию в локальных отчетах, по которой нам начисляются DC
-			// могут захватится другие тр-ии, но это не страшно, всё равно их откатывать надо
+			// могут захватится другие тр-ии, но это не страшно: всё равно их откатывать надо
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."my_dc_transactions`
 					WHERE `block_id` = {$this->block_data['block_id']}
@@ -5753,7 +5750,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'miners_data.cash_request_status = for_repaid';*/
 	}
 
-	// наличие cash_requests с pending означате, что у юзера все общенные суммы в for_repaid. Возможно временно, если это свежий запрос и юзер еще не успел послать cash_requests_in
+	// наличие cash_requests с pending означает, что у юзера все обещанные суммы в for_repaid. Возможно, временно, если это свежий запрос и юзер еще не успел послать cash_requests_in
 	static function check_cash_requests ($user_id, $db)
 	{
 		$cash_request_status = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -5843,7 +5840,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (!$this->check_miner($this->tx_data['user_id']))
 			return 'error miner id';
 
-		// проверим, верно ли указан ID и не закончилось ли голосвание
+		// проверим, верно ли указан ID и не закончилось ли голосование
 		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
 				FROM `".DB_PREFIX."votes_miners`
@@ -5942,7 +5939,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						LIMIT 1
 						");
 
-			// убираем всем, кому ставили del_block_id, т.е. отменяем будущее удаление по крону
+			// всем, кому ставили del_block_id, убираем, т.е. отменяем будущее удаление по крону
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."log_votes`
 					SET `del_block_id` = 0
@@ -5957,7 +5954,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->get_my_user_id();
 			if ($data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 				// обновим статус в нашей локальной табле.
-				// sms/email не трогаем, т.к. смена из-за отката маловажна и в большинстве случаев статус всё равно сменится.
+				// sms/email не трогаем, т.к. смена из-за отката маловажна, и в большинстве случаев статус всё равно сменится.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."my_table`
 						SET  `status` = 'user',
@@ -5972,7 +5969,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		else {
 			// был ли данный голос решающим-отрицательным
 			// т.к. после окончания нодовского голосования и начала юзреского статус у face всегда = used (для избежания одновременной регистрации тысяч клонов), то
-			// смена статуса на pending означает, что юзреское голосание было завершено с отрициательным результатом
+			// смена статуса на pending означает, что юзерское голосание было завершено с отрициательным результатом
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."faces`
 					SET `status` = 'used'
@@ -5994,7 +5991,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				( /*прошло > 24h от начала голосования ?*/
 					$this->block_data['time'] - $data['votes_period']  > $data['votes_start_time'] &&
 					(
-						// преодолели один из лимитов, либо проголосовали все майнеры
+						// преодолен ли один из лимитов, либо проголосовали все майнеры
 						$data['votes_0'] >= $data['votes_0_min'] ||
 						$data['votes_1'] >= $data['votes_1_min'] ||
 						$data['votes_0'] == $data['count_miners'] ||
@@ -6031,7 +6028,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function ins_or_upd_miners ($user_id)
 	{
-		// проверим, может есть незанятые ID
+		// проверим: может есть незанятые ID
 		$miners = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT `miner_id`,
 									 `log_id`
@@ -6229,7 +6226,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 			
 
-			// отметим del_block_id всем, кто голосвовал за данного юзера,
+			// отметим del_block_id всем, кто голосовал за данного юзера,
 			// чтобы через 1440 блоков по крону удалить бесполезные записи
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."log_votes`
@@ -6291,12 +6288,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -6366,7 +6363,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $log_data;
 	}
 
-	// в $this->tx_data должно быть соотвествие $fields
+	// в $this->tx_data должно быть соответствие $fields
 	function selective_logging_and_upd ($fields, $values, $table, $where_fields, $where_values) {
 
 		$add_sql_fields = '';
@@ -6378,7 +6375,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$add_sql_where.="`{$where_fields[$i]}`='{$where_values[$i]}' AND ";
 		$add_sql_where = substr($add_sql_where, 0, -5);
 
-		// если есть что логировать
+		// если есть, что логировать
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT {$add_sql_fields}
 							 `log_id`
@@ -6451,7 +6448,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		self::selective_logging_and_upd (array('latitude', 'longitude', 'country'), array($this->tx_data['latitude'], $this->tx_data['longitude'], $this->tx_data['country']), 'miners_data', array('user_id'), array($this->tx_data['user_id']));
 
 		// смена местоположения влечет инициацию процедуры выдачи разрешения майнить имеющиеся у юзера валюты в данном местоположении
-		// установка promised_amount.status в change_geo возможнна только, если до этого был статус mining/pending/change_geo
+		// установка promised_amount.status в change_geo возможна, только если до этого был статус mining/pending/change_geo
 		// это означает, что нужен пересчет TDC, т.к. до этого момента они майнились
 		// логируем предыдущее. Тут ASC, а при откате используем ORDER BY `id` DESC, чтобы не накосячить при уменьшении log_id
 
@@ -6511,7 +6508,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$new_tdc = $data['tdc_amount'] + self::calc_profit ( $tdc_sum, $data['tdc_amount_update'], $this->block_data['time'], $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $this->tx_data['user_id']) );
 			}
 			else {
-				// для статуса 'pending', 'change_geo' нечего персчитывать, т.к. во время этих статусов ничего не набегает
+				// для статуса 'pending', 'change_geo' нечего пересчитывать, т.к. во время этих статусов ничего не набегает
 				$new_tdc = $data['tdc_amount'];
 			}
 
@@ -6870,7 +6867,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// $points - текущие points юзера из таблы points
 	function points_update($points, $prev_log_id, $time_start, $points_status_time_start, $user_id)
 	{
-		// среднее значение балолв
+		// среднее значение баллов
 		$mean = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT sum(`points`)/count(`points`)
 					FROM `".DB_PREFIX."points`
@@ -6878,7 +6875,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					", 'fetch_one');
 		debug_print("mean={$mean}\npoints={$points}\nmean*points_factor=".$mean * $this->variables['points_factor'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// есть ли тр-ия с голосованием votes_complex за послдение 4 недели
+		// есть ли тр-ия с голосованием votes_complex за последние 4 недели
 		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT count(`user_id`)
 					FROM `".DB_PREFIX."votes_miner_pct`
@@ -6890,7 +6887,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// и хватает ли наших баллов для получения статуса майнера
 		if ( $count > 0 && $points >= $mean * $this->variables['points_factor'] ) {
 
-			// от $time_start до текущего времени могло пройти несколько месяцев. 1-й месяц будет - майнер, остальные - юзер
+			// от $time_start до текущего времени могло пройти несколько месяцев. 1-й месяц будет майнер, остальные - юзер
 			$miner_start_time = $points_status_time_start + $this->variables['points_update_time'];
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT INTO `".DB_PREFIX."points_status` (
@@ -7018,7 +7015,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 		}
 
-		// перед тем как обновить time_start нужно его залогировать
+		// перед тем, как обновить time_start, нужно его залогировать
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."log_points` (
 					`time_start`,
@@ -7173,11 +7170,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		// -----------------------------------------------------------------------------
 		// если голос решающий или голос админа
-		// голос админа решающий только при <1000 майнеров.
+		// голос админа - решающий только при <1000 майнеров.
 		// -----------------------------------------------------------------------------
 		if ( $this->check_24h_or_admin_vote ($data) ) {
 
-			// нужно залогировать, т.к. неизветно какие были status и tdc_amount_update
+			// нужно залогировать, т.к. не известно, какие были status и tdc_amount_update
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT INTO `".DB_PREFIX."log_promised_amount` (
 							  `status`,
@@ -7296,7 +7293,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['promised_amount_id'], 'bigint') )
 			return 'promised_amount_id';
 
-		// promised_amount должна существовать. если нет негашенных check_cash_requests, то статус promised_amount не имеет значения
+		// promised_amount должна существовать. если нет негашеных check_cash_requests, то статус promised_amount не имеет значения
 		// нельзя удалить woc (currency_id=1)
 		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
@@ -7312,13 +7309,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 		// У юзера должно либо вообще не быть cash_requests, либо должен быть последний со статусом approved. Иначе у него заморожен весь майнинг
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -7351,7 +7348,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($del_mining_block_id == $this->block_data['block_id']) {
 
 			// выяснили, что начисление намайненного было, т.к. в методе mining() был указан del_mining_block_id. но какова сумма?
-			// т.к. сумма, которая сейчас хранится в tdc_amount равна нулю, значит предыдущю можно получить только в log_promised_amount
+			// т.к. сумма, которая сейчас хранится в tdc_amount, равна нулю, значит предыдущую можно получить только в log_promised_amount
 			$log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `log_id`
 					FROM `".DB_PREFIX."promised_amount`
@@ -7411,7 +7408,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							", 'fetch_one' );
 	}
 
-	// сколько на кошельке юзера денег включая %
+	// сколько на кошельке юзера денег, включая %
 	private function getTotalAmount () {
 
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7484,7 +7481,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$points_status[$row['time_start']] = $row['status'];
 		}
 		// НО! При фронтальной проверке может получиться, что последний элемент miner и прошло более 30-и дней.
-		// поэтому нужно добавлять последний элемент = user, если вызов происходит не в блоке
+		// по-этому нужно добавлять последний элемент = user, если вызов происходит не в блоке
 		if (!$block && $points_status) {
 			end($points_status);
 			$end = key($points_status);
@@ -7493,7 +7490,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			reset($points_status);
 		}
 
-		// для майнеров, которые не получили ни одного балла, а уже шлют кому-то DC или для всех юзеров
+		// для майнеров, которые не получили ни одного балла, а уже шлют кому-то DC, или для всех юзеров
 		if (!$points_status)
 			$points_status =  array(0=>'user');
 		debug_print(  $points_status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -7610,7 +7607,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 
 		// учтем все свежие cash_requests, которые висят со статусом pending
 		$cash_requests_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7680,7 +7677,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !$this->checkCurrency($this->tx_data['currency_id']) )
 			return 'error currency_id';
 
-		// проверим, удовлетворяет ли нас коммиссия, которую предлагает юзер
+		// проверим, удовлетворяет ли нас комиссия, которую предлагает юзер
 		if ( $this->tx_data['commission'] < $this -> node_commission )
 			return 'error commission';
 
@@ -7690,8 +7687,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
-		/* используем wallets_buffer чтобы учесть все списания с кошельков.
-		 * т.е. чтобы юзер не мог создать 2 тр-ии на списание по 1 DC имея только 1 DC
+		/* используем wallets_buffer, чтобы учесть все списания с кошельков.
+		 * т.е. чтобы юзер не мог создать 2 тр-ии на списание по 1 DC, имея только 1 DC
 		 */
 
 		$error = $this->check_sender_money();
@@ -7857,7 +7854,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$LOG_MARKER = 'send_dc_rollback - from_user_id';
 		$this->general_rollback('wallets', $this->tx_data['from_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
 
-		// может захватится несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+		// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."my_dc_transactions`
 				WHERE `block_id` = {$this->block_data['block_id']}
@@ -7942,7 +7939,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( $this->tx_data['amount'] + $repaid_amount > $max_promised_amount )
 			return "max_promised_amount ( {$this->tx_data['amount']} + {$repaid_amount} > {$max_promised_amount} )";
 
-		// не даем первысить общий лимит
+		// не даем превысить общий лимит
 		$rest = $max_promised_amount - $repaid_amount;
 		if ($rest < $promised_amount)
 			$promised_amount = $rest;
@@ -7954,9 +7951,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 
-        // Чтобы не затрахивать получаталей запроса на обмен, не даем отправить следующий запрос пока не пройдет cash_request_time сек с момента предыдущего
+        // Чтобы не задалбывать получателей запроса на обмен, не даем отправить следующий запрос, пока не пройдет cash_request_time сек с момента предыдущего
 		$cash_request_pending = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `status`
 				FROM `".DB_PREFIX."cash_requests`
@@ -7985,7 +7982,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 			else {
 				// тут используем time() с запасом 1800 сек, т.к. в момент, когда тр-ия попадет в блок, каникулы уже могут начаться.
-				// т.е. у голой тр-ии проверка идет жесче
+				// т.е. у голой тр-ии проверка идет жестче
 				$time1 = time()+1800;
 				$time2 = time();
 			}
@@ -8015,13 +8012,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
         // У юзера не должно быть cash_requests со статусом pending
         $error =  self::check_cash_requests( $this->tx_data['user_id'], $this->db );
         if ($error)
             return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -8091,7 +8088,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['to_user_id']);
 
-		// обновление нужно только если данный cash_request единственный с pending, иначе делать пересчет tdc_amount нельзя, т.к. уже были ранее пересчитаны
+		// обновление нужно, только если данный cash_request единственный с pending, иначе делать пересчет tdc_amount нельзя, т.к. уже были ранее пересчитаны
 		$cash_request_count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(`id`)
 				FROM `".DB_PREFIX."cash_requests`
@@ -8104,7 +8101,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($cash_request_count == 1)
 			$this->upd_promised_amounts_rollback($this->tx_data['to_user_id']);
 
-		// при откате учитываем то, что от 1 юзера не может быть более чем 1 запроса за сутки
+		// при откате учитываем то, что от 1 юзера не может быть более, чем 1 запроса за сутки
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."cash_requests`
 				WHERE  `time` = {$this->block_data['time']} AND
@@ -8247,7 +8244,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		// у получателя запроса останавливается майнинг по всем валютам и статусам, т.е. mining/pending. значит необходимо обновить tdc_amount и tdc_amount_update
 		// WOC продолжает расти
-		// обновление нужно только если данный cash_request единственный с pending, иначе делать пересчет tdc_amount нельзя, т.к. уже были ранее пересчитаны
+		// обновление нужно, только если данный cash_request единственный с pending, иначе делать пересчет tdc_amount нельзя, т.к. уже были ранее пересчитаны
 		$exists_requests = $this->check_cash_requests ($this->tx_data['to_user_id'], $this->db);
 		if (!$exists_requests)
 			$this->upd_promised_amounts($this->tx_data['to_user_id']);
@@ -8415,7 +8412,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	/* Если у юзер имеет статус for_repaid и в это время произойдет уменьшение max_promised_amount до значения менее чем сумма promised_amount со статусами mining и repaid данного юзера, то будет невозможно послать запрос cash_request_out к данному юзеру по этой валюте, а это значит статус аккаунта for_repaid будет невозможно снять.
+	/* Если юзер имеет статус for_repaid, и в это время произойдет уменьшение max_promised_amount до значения менее чем сумма promised_amount со статусами mining и repaid данного юзера, то будет невозможно послать запрос cash_request_out к данному юзеру по этой валюте, а это значит статус аккаунта for_repaid будет невозможно снять.
 	 * */
 	private function for_repaid_fix_init()
 	{
@@ -8506,7 +8503,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this -> limit_requests_rollback( 'for_repaid_fix' );
 	}
 
-	/* Если майнера забанил админ, после того, как к нему пришел запрос cash_request_out,
+	/* Если майнера забанил админ после того, как к нему пришел запрос cash_request_out,
 	 * то он всё равно должен отдать свои обещанные суммы, которые получат статус repaid.
 	*/
 	private function cash_request_in_init()
@@ -8535,7 +8532,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'cash_request_in_front cash_request_id';
 
 		// code может быть чем угодно, т.к. отправитель шлет в сеть лишь хэш
-		// нигде кроме cash_request_in_front code не используется
+		// нигде, кроме cash_request_in_front, code не используется
         // if ( !check_input_data ($this->tx_data['code'], 'cash_code') )
 		//	return 'cash_request_in_front code';
 
@@ -8563,8 +8560,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()+30; // просто на всяк случай небольшой запас
-		// запрос может быть принят только если он был отправлен не позднее чем через cash_request_time сек назад
+			$time = time()+30; // просто на всякий случай небольшой запас
+		// запрос может быть принят, только если он был отправлен не позднее чем через cash_request_time сек назад
 		if ($this->cash_request_data['time'] < $time - $this->variables['cash_request_time'])
 			return 'error cash_request time ('.$this->cash_request_data['time'].' < '.($time - $this->variables['cash_request_time']).' )';
 
@@ -8653,7 +8650,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					)");
 			$log_id = $this->db->getInsertId();
 
-			// tdc_amount не пересчитываются, т.к. пока есть cash_requests с pending они не растут
+			// tdc_amount не пересчитываются, т.к. пока есть cash_requests с pending, они не растут
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."promised_amount`
 					SET  `amount` =  `amount`+ {$this->cash_request_data['amount']},
@@ -8718,7 +8715,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$log_id = $this->db->getInsertId();
 
 		// вычитаем из mining то, что начислили выше на repaid
-		// tdc_amount не пересчитываются, т.к. пока есть cash_requests с pending они не растут
+		// tdc_amount не пересчитываются, т.к. пока есть cash_requests с pending, они не растут
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."promised_amount`
 				SET  `amount` =  `amount`- {$this->cash_request_data['amount']},
@@ -8738,10 +8735,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `status` = 'approved'
 				WHERE `id` = {$this->tx_data['cash_request_id']}
 				");
-		// возможно, что данный cash_requests с approved был единственный, и последующий вызов метода mining начислит новые TDC в соотвестии с имющимся % роста,. значит необходимо обновить tdc_amount и tdc_amount_update
+		// возможно, что данный cash_requests с approved был единственный, и последующий вызов метода mining начислит новые TDC в соответствии с имеющимся % роста,. значит необходимо обновить tdc_amount и tdc_amount_update
 		$this->upd_promised_amounts($this->tx_data['user_id'], false);
 
-		// возможно больше нет mining ни по одной валюте (кроме WOC) у данного юзера
+		// возможно, больше нет mining ни по одной валюте (кроме WOC) у данного юзера
 		$for_repaid_currency_ids = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `currency_id`
 				FROM `".DB_PREFIX."promised_amount`
@@ -8769,7 +8766,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print('$for_repaid_currency_ids='.print_r_hex($for_repaid_currency_ids), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		if ( !$for_repaid_currency_ids ) {
-			// просроченным cash_requests ставим for_repaid_del_block_id, чтобы было ясно, что юзер не имеет долгов и его TDC должны расти
+			// просроченным cash_requests ставим for_repaid_del_block_id, чтобы было ясно, что юзер не имеет долгов, и его TDC должны расти
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."cash_requests`
 					SET `for_repaid_del_block_id` = {$this->block_data['block_id']}
@@ -8787,7 +8784,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// проверим, не наш ли это user_id
 		if (($this->tx_data['user_id'] == $this->my_user_id || $cash_requests_data['from_user_id'] == $this->my_user_id) && $this->my_block_id <= $this->block_data['block_id']) {
 
-			// обновим таблу, ометив, что мы отдали деньги
+			// обновим таблу, отметив, что мы отдали деньги
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."my_cash_requests`
 					SET `status` = 'approved'
@@ -8894,7 +8891,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// проверим, не наш ли это user_id
 		if (($this->tx_data['user_id'] == $this->my_user_id || $cash_requests_data['from_user_id'] == $this->my_user_id) /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
-			// обновим таблу, ометив, что мы отдали деньги
+			// обновим таблу, отметив, что мы отдали деньги
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."my_cash_requests`
 					SET `status` = 'pending'
@@ -8941,13 +8938,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 		// У юзера должно либо вообще не быть cash_requests, либо должен быть последний со статусом approved. Иначе у него заморожен весь майнинг
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -8965,7 +8962,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 
 		$double_check = array();
 		debug_print($json_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -9558,7 +9555,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$for_sign = "{$this->tx_data['type'] },{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['new_node_public_key']}";
 		$error = self::checkSign ($this->node_public_key, $for_sign, $this->tx_data['sign'], true);
 		if ($error) {
-			// может быть подписано юзерским ключем
+			// может быть подписано юзерским ключом
 			$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 			if ($error)
 				return $error;
@@ -9720,8 +9717,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$time = $this->block_data['time'];
 		}
 		else {
-			// если каникулы попадут в один блок с cash_requet_out и у каниул будет время начала равно времени блока, то будет ошибка. Делаем запас 1 час
-			//у голой тр-ии проверка идет жесче
+			// если каникулы попадут в один блок с cash_requet_out и у каникул будет время начала равно времени блока, то будет ошибка. Делаем запас 1 час
+			//у голой тр-ии проверка идет жестче
 			$time = time()+3600;
 		}
 		if ( $this->tx_data['start_time'] <= $time )
@@ -9747,13 +9744,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
 		else // голая тр-ия
-			$time = time()-30; // просто на всяк случай небольшой запас
+			$time = time()-30; // просто на всякий случай небольшой запас
 		// У юзера должно либо вообще не быть cash_requests, либо должен быть последний со статусом approved. Иначе у него заморожен весь майнинг
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
 
-		// у юзер не должно быть обещанных сумм с for_repaid
+		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return $error;
@@ -10023,7 +10020,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		//$total_buy_amount = $this->tx_data['amount'] * $reverse_rate;
 		$total_buy_amount = $this->tx_data['amount'] * $this->tx_data['sell_rate'];
 
-		// прежде всего начислим комисию ноду-генератору
+		// прежде всего начислим комиссию ноду-генератору
 		if ($this->tx_data['commission']>0.01) {
 			debug_print("this->tx_data['commission']>0.01", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$LOG_MARKER = 'new_forex_order - update_sender_wallet - tx_data[user_id]';
@@ -10241,7 +10238,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						");
 				$this->rollbackAI('forex_orders');
 				// берем следующий ордер
-				// никаких двежений средств не произошло, откатывать кошельки не нужно
+				// никаких движений средств не произошло, откатывать кошельки не нужно
 			}
 			else {
 
@@ -10295,7 +10292,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 
-		// и на последок удалим запись, из-за которой откат был инициирован
+		// и напоследок удалим запись, из-за которой откат был инициирован
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."log_forex_orders_main`
 				WHERE `id` = {$main_id}
@@ -10305,7 +10302,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		$this->get_my_user_id();
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
-			// может захватится несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+			// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."my_dc_transactions`
 					WHERE `block_id` = {$this->block_data['block_id']}
@@ -10322,7 +10319,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	/*
-	 * отложим на потом, т.к. некогда думать, что делать с пересчетом TDC по обещанным суммам и входящим запросам, которые не шлются тем у кого каникулы
+	 * отложим на потом, т.к. некогда думать, что делать с пересчетом TDC по обещанным суммам и входящим запросам, которые не шлются тем, у кого каникулы
 		// 27
 		private function holidays_del_init() {
 
@@ -10482,7 +10479,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	/**
-	 * Откат таблиц log_time_ которые были изменены транзакциями
+	 * Откат таблиц log_time_, которые были изменены транзакциями
 	 */
 	public function ParseDataRollbackFront($tx_testblock=false) {
 
@@ -10546,7 +10543,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->type = $this->transaction_array[1];
 				$user_id = $this->transaction_array[3];
 
-				/*// от 1 юзера не может быть более X запросов за 1 минут. Для борьбы с досами.
+				/*// от 1 юзера не может быть более X запросов за 1 минуту. Для борьбы с досами.
 				$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT `count`
 						FROM `".DB_PREFIX."log_minute`
@@ -10721,7 +10718,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				// если дошли до тр-ии, которая вызвала ошибку, то откатываем только фронтальную проверку
 				if ($i == 0) {
 
-					if ($skip_current) // тр-ия, которая вызвала ошибку закончилоась еще до фронт. проверки, т.е. откатывать по ней вообще нечего
+					if ($skip_current) // тр-ия, которая вызвала ошибку закончилась еще до фронт. проверки, т.е. откатывать по ней вообще нечего
 						continue;
 
 					// если успели дойти только до половины фронтальной функции
@@ -10963,7 +10960,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					}
 				}
 
-				// время в транзакции не может быть больше чем на MAX_TX_FORW сек времени блока
+				// время в транзакции не может быть больше, чем на MAX_TX_FORW сек времени блока
 				// и  время в транзакции не может быть меньше времени блока -24ч.
 				if ( $this->transaction_array[2] - MAX_TX_FORW > $this->block_data['time'] || $this->transaction_array[2] < $this->block_data['time'] - MAX_TX_BACK ) {
 					debug_print("tr_time={$this->transaction_array[2]}\nblock_data time={$this->block_data['time']}\nMAX_TX_FORW=".MAX_TX_FORW."\nMAX_TX_BACK=".MAX_TX_BACK, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -10990,7 +10987,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				debug_print($this->tx_data , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$error = $this->$fns_name_front();
 				if ($error) {
-					// саму текущую тр-ю нужно откатить по фронту только если есть [limit_requests] Не актуально
+					// саму текущую тр-ю нужно откатить по фронту, только если есть [limit_requests] Неактуально
 					debug_print('$error (ParseDataFull) = '.$error, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 					//if (substr_count($error, '[limit_requests]')>0)
 					//	$this->RollbackTo ($tx_for_RollbackTo);
@@ -11104,7 +11101,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print("this->prev_block: ".print_r_hex($this->prev_block), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print("this->block_data: ".print_r_hex($this->block_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// меркель рут нужен для проверки подписи блока, а также, проверки лимитов MAX_TX_SIZE и MAX_TX_COUNT
+		// меркель рут нужен для проверки подписи блока, а также проверки лимитов MAX_TX_SIZE и MAX_TX_COUNT
 		if ($this->block_data['block_id']==1) {
 			$this->global_variables['max_tx_size'] = 1024*1024;
 			$first = true;
@@ -11144,7 +11141,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print('prev_block:'.print_r_hex($this->prev_block), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print('block_data:'.print_r_hex($this->block_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// не слишком ли рано прислан это блок. допустима погрешность = error_time
+		// не слишком ли рано прислан этот блок. допустима погрешность = error_time
 		if (!$first)
 		if ( $this->prev_block['time'] + $is_ready_sleep + $generator_sleep + $is_ready_sleep2 - $this->block_data['time'] > $this->global_variables['error_time'] )
 			return "error block time {$this->prev_block['time']} + {$is_ready_sleep} + {$generator_sleep} + {$is_ready_sleep2} - {$this->block_data['time']} > {$this->global_variables['error_time']}\n";
@@ -11186,7 +11183,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	// Это защита от dos, когда одну транзакцию можно было бы послать миллон раз
+	// Это защита от dos, когда одну транзакцию можно было бы послать миллион раз,
 	// и она каждый раз успешно проходила бы фронтальную проверку
 	function checkLogTx($tx_binary)
 	{
@@ -11250,7 +11247,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			// время транзакции может быть немного больше, чем время на ноде.
 			// у нода может быть просто не настроено время.
-			// время транзакции испоьзуется только для борьбы с атаками вчерашними транзакциями.
+			// время транзакции используется только для борьбы с атаками вчерашними транзакциями.
 			// А т.к. мы храним хэши в log_transaction за 36 часов, то боятся нечего.
 
 			$my_time = time();
@@ -11264,7 +11261,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if (!check_input_data($user_id, 'bigint'))
 				return 'bad user_id';
 
-			/*// от 1 юзера не может быть более X запросов за 1 минут. Для борьбы с досами.
+			/*// от 1 юзера не может быть более X запросов за 1 минуту. Для борьбы с досами.
 			$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `count`
 					FROM `".DB_PREFIX."log_minute`
