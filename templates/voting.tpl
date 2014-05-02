@@ -146,7 +146,7 @@ ArraySort = function(array, sortFunc){
 
 <div id="voting">
 	<?php
-	if (isset($tpl['promised_amount_currency_list'])) {
+	if ($tpl['promised_amount_currency_list']) {
 	?>
 	<?php echo $lng['voting_message']?>
 	<table class="table" style="width: 500px">
@@ -175,6 +175,13 @@ ArraySort = function(array, sortFunc){
 		</div>
 	</div>
 	<?php
+	}
+	else if ($tpl['wait_voting']) {
+		print '<table class="table" style="width: 500px"><tr><th>'.$lng['currency'].'</th><th>Text</th><th></tr>';
+		foreach($tpl['wait_voting'] as $currency_id=>$data) {
+			print "<tr><td>{$tpl['currency_list'][$currency_id]}</td><td>{$data}</td></tr>";
+		}
+		print '</table>';
 	}
 	else
 		print 'empty';
