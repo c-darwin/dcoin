@@ -372,7 +372,7 @@ $lng['install_php_path'] = 'Путь к php';
 $lng['account_status'] = 'Статус аккаунта';
 $lng['you_can'] = 'Вы можете';
 $lng['become_a_miner'] = 'стать майнером';
-$lng['home_text'] = '0. Дождитесь, получения статуса "User"<br> 1. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Смените праймари-ключ</a><br>2. Сделайте <a href="#" onclick="fc_navigate(\'upgrade\')">апгрейд до майнера</a><br>3. Добавьте <a href="#" onclick="fc_navigate(\'promised_amount_list\')">обещанную сумму</a><Br>4. Настройте <a href="#" onclick="fc_navigate(\'notifications\')">уведомления</a>.<br>5. Установите <a href="#" onclick="fc_navigate(\'change_commission\')">комиссию</a> которую хотите получать<br>6. Периодически выпойняте <a href="#" onclick="fc_navigate(\'tasks\')">задания</a> по проверке других майнеров<br>';
+$lng['home_text'] = '1. Дождитесь получения статуса "User"<br>2. Дождитесь обновления цепочки блоков<br> 3. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Смените праймари-ключ</a><br>4. Сделайте <a href="#" onclick="fc_navigate(\'upgrade\')">апгрейд до майнера</a><br>5. Добавьте <a href="#" onclick="fc_navigate(\'promised_amount_list\')">обещанную сумму</a><Br>6. Настройте <a href="#" onclick="fc_navigate(\'notifications\')">уведомления</a><br>7. Установите <a href="#" onclick="fc_navigate(\'change_commission\')">комиссию</a> которую хотите получать<br>8. Периодически выпойняте <a href="#" onclick="fc_navigate(\'tasks\')">задания</a> по проверке других майнеров<br>';
 $lng['script_version'] = 'v. [ver]';
 $lng['downloading_blocks'] = ' Загрузка цепочки блоков, пожалуйста подождите';
 $lng['downloading_complete'] = ' Цепочка блоков обновлена, DCoin готов к использованию';

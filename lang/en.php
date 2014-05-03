@@ -368,7 +368,7 @@ $lng['install_php_path'] = 'Path to php';
 $lng['account_status'] = 'Account Status';
 $lng['you_can'] = 'You can';
 $lng['become_a_miner'] = 'become a miner';
-$lng['home_text'] = '0. Wait for obtaining the status of "User"<br>1. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Change primary-key</a><br>2. Make <a href="#" onclick="fc_navigate(\'upgrade\')">upgrade to miner </a><br>3. Add <a href="#" onclick="fc_navigate(\'promised_amount_list\')">promised amount </a><Br>4. Adjust <a href="#" onclick="fc_navigate(\'notifications\')">notice</a>.<br>5. Set <a href="#" onclick="fc_navigate(\'change_commission\')">the commission</a> you want to receive <br>6. Periodically perform <a href="#" onclick="fc_navigate(\'tasks\')">tasks</a> by checking other miners<br>';
+$lng['home_text'] = '1. Wait for obtaining the status of "User"<br>2. Wait until the blockchain upgraded <br>3. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Change primary-key</a><br>4. Make <a href="#" onclick="fc_navigate(\'upgrade\')">upgrade to miner </a><br>5. Add <a href="#" onclick="fc_navigate(\'promised_amount_list\')">promised amount </a><Br>6. Adjust <a href="#" onclick="fc_navigate(\'notifications\')">notice</a><br>7. Set <a href="#" onclick="fc_navigate(\'change_commission\')">the commission</a> you want to receive <br>8. Periodically perform <a href="#" onclick="fc_navigate(\'tasks\')">tasks</a> by checking other miners<br>';
 $lng['script_version'] = 'v. [ver]';
 $lng['downloading_blocks'] = 'Downloading block chain, please wait before continuing';
 $lng['downloading_complete'] = 'Block chain is up-to-date, DCoin is ready to use';
