@@ -33,14 +33,15 @@ $tpl['wait_voting'] = array();
 $tpl['promised_amount_currency_list'] = array();
 while ($row = $db->fetchArray($res)) {
 
+	// после добавления обещанной суммы должно пройти не менее min_hold_time_promise_amount сек, чтобы за неё можно было голосовать
 	if ( $row['start_time'] > (time() - $variables['min_hold_time_promise_amount']) ) {
-		$tpl['wait_voting'][$row['currency_id']] = "hold_time wait ".( $variables['min_hold_time_promise_amount'] - (time() - $row['start_time']) )." sec";
+		$tpl['wait_voting'][$row['currency_id']] = str_ireplace('sec', $variables['min_hold_time_promise_amount'] - (time() - $row['start_time']), $lng['hold_time_wait']);
 		continue;
 	}
 
 	// если по данной валюте еще не набралось >1000 майнеров, то за неё голосовать нельзя.
 	$count_miners = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT count(`user_id`)
+			SELECT `user_id`
 			FROM `".DB_PREFIX."promised_amount`
 			WHERE `start_time` < ".(time() - $variables['min_hold_time_promise_amount'])." AND
 						 `del_block_id` = 0 AND
@@ -48,9 +49,10 @@ while ($row = $db->fetchArray($res)) {
 						 `currency_id` = {$row['currency_id']} AND
 						 `del_block_id` = 0
 			GROUP BY  `user_id`
-			", 'fetch_one' );
+			", 'num_rows' );
 	if ($count_miners < $variables['min_miners_of_voting']) {
-		$tpl['wait_voting'][$row['currency_id']] = "gathered {$count_miners} of the {$variables['min_miners_of_voting']} people";
+
+		$tpl['wait_voting'][$row['currency_id']] = str_ireplace( array('[miners_count]', '[remaining]'), array($variables['min_miners_of_voting'], $variables['min_miners_of_voting']-$count_miners), $lng['min_miners_count'] );
 		continue;
 	}
 
@@ -63,7 +65,7 @@ while ($row = $db->fetchArray($res)) {
 				LIMIT 1
 				", 'fetch_one' );
 	if ($vote_time) {
-		$tpl['wait_voting'][$row['currency_id']] = "please wait ".( $variables['limit_votes_complex_period'] - (time() - $vote_time) )." sec";
+		$tpl['wait_voting'][$row['currency_id']] = str_ireplace('[sec]', $variables['limit_votes_complex_period'] - (time() - $vote_time), $lng['wait_voting']);
 		continue;
 	}
 

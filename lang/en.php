@@ -375,7 +375,6 @@ $lng['downloading_complete'] = 'Block chain is up-to-date, DCoin is ready to use
 $lng['number_of_blocks'] = 'Number of blocks in block chain';
 $lng['time_last_block'] = 'Time of the last block';
 
-
 // change_commission
 $lng['change_commission_title'] = 'Commission';
 $lng['min'] = 'min';
@@ -391,6 +390,9 @@ $lng['voting_user_pct'] = '%/year for users';
 $lng['voting_max_promised_amount'] = 'Max promised amount';
 $lng['voting_max_other_currencies'] = 'How many currencies can be mined';
 $lng['voting_reduction'] = 'Reduction the money supply';
+$lng['hold_time_wait'] = 'You can vote for this currency through [sec] seconds';
+$lng['min_miners_count'] = 'Voting will be available after the typed [miners_count] miners. Remaining [remaining]';
+$lng['wait_voting'] = 'You can vote through [sec] seconds';
 
 // change_country_race
 $lng['change_country_race_title'] = 'Change country and race';

@@ -379,9 +379,6 @@ $lng['downloading_complete'] = ' Цепочка блоков обновлена,
 $lng['number_of_blocks'] = ' Количество блоков в цепочке';
 $lng['time_last_block'] = ' Время последнего блока';
 
-
-
-
 // commission
 $lng['change_commission_title'] = 'Комиссия';
 $lng['min'] = 'Мин.';
@@ -397,6 +394,9 @@ $lng['voting_user_pct'] = '%/год для юзеров';
 $lng['voting_max_promised_amount'] = 'Макс. обещанная сумма';
 $lng['voting_max_other_currencies'] = 'Со сколькими валютами можно майнить';
 $lng['voting_reduction'] = 'Урезание всей денежной массы';
+$lng['hold_time_wait'] = 'Вы сможете голосовать за данную валюту через [sec] секунд';
+$lng['min_miners_count'] = 'Голосование будет доступно после того, как наберется [miners_count] майнеров. Осталось [remaining]';
+$lng['wait_voting'] = 'Вы сможете проголосовать через [sec] секунд';
 
 // change_country_race
 $lng['change_country_race_title'] = 'Смена страны и расы';

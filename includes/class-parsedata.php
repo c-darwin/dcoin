@@ -9004,15 +9004,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			// если по данной валюте еще не набралось >1000 майнеров, то за неё голосовать нельзя.
 			$count_miners = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT count(`user_id`)
+					SELECT `user_id`
 					FROM `".DB_PREFIX."promised_amount`
 					WHERE `start_time` < ".(time() - $this->variables['min_hold_time_promise_amount'])." AND
 								 `del_block_id` = 0 AND
 								 `status` IN ('mining', 'repaid') AND
 								 `currency_id` = {$currency_id} AND
 								 `del_block_id` = 0
-					GROUP BY  `user_id`
-					", 'fetch_one' );
+					GROUP BY `user_id`
+					", 'num_rows' );
 			if ($count_miners < $this->variables['min_miners_of_voting'])
 				return '$count_miners';
 
