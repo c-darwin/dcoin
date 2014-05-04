@@ -18,11 +18,13 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 main_lock();
 
-$variables = ParseData::get_variables($db, array('rollback_blocks_2', 'limit_votes_complex_period', 'limit_commission_period', 'limit_change_host_period', 'limit_votes_miners_period', 'limit_primary_key_period', 'limit_node_key_period', 'limit_mining_period', 'limit_message_to_admin_period', 'limit_holidays_period', 'limit_change_geolocation_period', 'limit_cash_requests_out_period', 'limit_promised_amount_period', 'limit_abuses_period', 'limit_new_miner_period', 'node_voting_period'));
+$variables = ParseData::get_all_variables($db);
 $current_block_id = get_block_id($db);
 
-if (!$current_block_id)
+if (!$current_block_id) {
+	main_unlock();
 	exit;
+}
 
 // чистим log_transactions каждые 15 минут. Удаляем данные, которые старше 36 часов.
 // Можно удалять и те, что старше rollback_blocks_2 + погрешность для времени транзакции (5-15 мин),

@@ -4714,8 +4714,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 26
-	private function abuses_front() {
-
+	private function abuses_front()
+	{
 		$error = $this -> general_check();
 		if ($error)
 			return $error;
@@ -4759,8 +4759,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function abuses () {
-
+	private function abuses()
+	{
 		$abuses = json_decode( $this->tx_data['abuses'], true );
 		foreach  ($abuses as $user_id => $comment ) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
