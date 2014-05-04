@@ -22,8 +22,8 @@ if (version_compare($cur_ver, '0.0.1b10') == -1) {
 }
 */
 
-/*
-if (version_compare($cur_ver, '0.0.1b13') == -1) {
+
+if (version_compare($cur_ver, '0.0.2b6') == -1) {
 
 	 // Пример отката с нуля до опредленного блока
 
@@ -41,7 +41,7 @@ if (version_compare($cur_ver, '0.0.1b13') == -1) {
 			) ON DUPLICATE KEY UPDATE `lock_time` = ".time().", `script_name` = 'cleaning_db'
 			");
 
-	$bad_blocks = json_encode(array(800=>'85621082c3fd2eab59c21f72df50b91520166e39fb3a83dc9bc7daf11812c850f018de93e77479517bd5ea201ffd1632b7c65ae8306128013cad204cbc900f0de8e6eb5251fa309bd177e0a10668f219aa521deb27233a269ccea75ae79ddf39603ddb01e664d0ef3573844d67a5f94dea6e56b9d9192ae95ab7466381ca1fcb'));
+	$bad_blocks = json_encode(array(800=>'1545c610462e96b3e86d1c6af010dcebdf910d67c405cb48091e8d1943766f24abeb41efce5dacaeb0aa0b1a6bf5d3f56e860386d219be56e7e27b928a57aa4bed9252e0b04ce4f087eb1b16d54a7390ab6a49e0c6a4db3c93b8b324d1739ff78587f7800a8d797b0f73ad51a9cd9171fd9e5d934f17a41ba5cd5bed5208a12a'));
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."my_table`
 			SET `bad_blocks` = '{$bad_blocks}'
@@ -100,6 +100,6 @@ if (version_compare($cur_ver, '0.0.1b13') == -1) {
 	}
 
 }
-*/
+
 
 ?>
