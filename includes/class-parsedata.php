@@ -7540,32 +7540,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
 		if ($this->tx_data['comment'] == 'null') $this->tx_data['comment'] = '';
 
-		// если это тр-ия без блока, то комиссию нода берем у себя
-		if (!isset($this->block_data['block_id'])) {
-			$this->get_my_user_id();
-			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `commission`
-					FROM `".DB_PREFIX."commission`
-					WHERE `user_id` = {$this->my_user_id}
-					LIMIT 1
-					", 'fetch_one' );
-			$commission_json = json_decode($commission_json, true);
-			$this -> node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
-
-		}
-		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
-		else {
-			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `commission`
-					FROM `".DB_PREFIX."commission`
-					WHERE `user_id` = {$this->block_data['user_id']}
-					LIMIT 1
-					", 'fetch_one' );
-			$commission_json = json_decode($commission_json, true);
-			$this -> node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
-		}
-
-		debug_print('$this -> node_commission='.$this -> node_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		//$this->variables = self::get_variables( $this->db, array( 'points_factor', 'limit_votes_complex_period' ) );
@@ -7677,8 +7651,39 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !$this->checkCurrency($this->tx_data['currency_id']) )
 			return 'error currency_id';
 
+		// если это тр-ия без блока, то комиссию нода берем у себя
+		if (!isset($this->block_data['block_id'])) {
+			$this->get_my_user_id();
+			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `commission`
+					FROM `".DB_PREFIX."commission`
+					WHERE `user_id` = {$this->my_user_id}
+					LIMIT 1
+					", 'fetch_one' );
+			$commission_json = json_decode($commission_json, true);
+			if (isset($commission_json[$this->tx_data['currency_id']]))
+				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
+			else
+				$node_commission = 0;
+		}
+		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
+		else {
+			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `commission`
+					FROM `".DB_PREFIX."commission`
+					WHERE `user_id` = {$this->block_data['user_id']}
+					LIMIT 1
+					", 'fetch_one' );
+			$commission_json = json_decode($commission_json, true);
+			if (isset($commission_json[$this->tx_data['currency_id']]))
+				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
+			else
+				$node_commission = 0;
+		}
+		debug_print('$node_commission='.$node_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 		// проверим, удовлетворяет ли нас комиссия, которую предлагает юзер
-		if ( $this->tx_data['commission'] < $this -> node_commission )
+		if ( $this->tx_data['commission'] < $node_commission )
 			return 'error commission';
 
 		// проверяем подпись
@@ -7771,7 +7776,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this -> update_recipient_wallet( $this->tx_data['to_user_id'], $this->tx_data['currency_id'], $this->tx_data['amount'], 'from_user', $this->tx_data['from_user_id'], $this->tx_data['comment'] );
 
 		// теперь начисляем комиссию майнеру, который этот блок сгенерил
-		if ($this->tx_data['commission']>0.01) {
+		if ($this->tx_data['commission']>=0.01) {
 			$LOG_MARKER = 'send_dc - update_recipient_wallet - block_data[user_id]';
 			$this -> update_recipient_wallet( $this->block_data['user_id'], $this->tx_data['currency_id'], $this->tx_data['commission'], 'node_commission', $this->block_data['block_id'] );
 		}
@@ -7845,7 +7850,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `hash` = 0x{$this->tx_data['hash']}
 				LIMIT 1
 				");
-		if ($this->tx_data['commission']>0.01) {
+		if ($this->tx_data['commission']>=0.01) {
 			$LOG_MARKER = 'send_dc_rollback - commission';
 			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
 		}
@@ -9976,6 +9981,41 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (!$this->checkCurrency($this->tx_data['sell_currency_id']) || !$this->checkCurrency($this->tx_data['buy_currency_id']))
 			return 'bad currency';
 
+		// если это тр-ия без блока, то комиссию нода берем у себя
+		if (!isset($this->block_data['block_id'])) {
+			$this->get_my_user_id();
+			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `commission`
+					FROM `".DB_PREFIX."commission`
+					WHERE `user_id` = {$this->my_user_id}
+					LIMIT 1
+					", 'fetch_one' );
+			$commission_json = json_decode($commission_json, true);
+			if (isset($commission_json[$this->tx_data['sell_currency_id']]))
+				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['sell_currency_id']], $this->db);
+			else
+				$node_commission = 0;
+		}
+		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
+		else {
+			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `commission`
+					FROM `".DB_PREFIX."commission`
+					WHERE `user_id` = {$this->block_data['user_id']}
+					LIMIT 1
+					", 'fetch_one' );
+			$commission_json = json_decode($commission_json, true);
+			if (isset($commission_json[$this->tx_data['sell_currency_id']]))
+				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['sell_currency_id']], $this->db);
+			else
+				$node_commission = 0;
+		}
+		debug_print('$node_commission='.$node_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+		// проверим, удовлетворяет ли нас комиссия, которую предлагает юзер
+		if ( $this->tx_data['commission'] < $node_commission )
+			return 'error commission ('.$this->tx_data['commission'].' < '.$node_commission.')';
+
 		// если ли нужная сумма на кошельке
 		$this->tx_data['currency_id'] = $this->tx_data['sell_currency_id'];
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
@@ -10021,7 +10061,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$total_buy_amount = $this->tx_data['amount'] * $this->tx_data['sell_rate'];
 
 		// прежде всего начислим комиссию ноду-генератору
-		if ($this->tx_data['commission']>0.01) {
+		if ($this->tx_data['commission']>=0.01) {
 			debug_print("this->tx_data['commission']>0.01", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$LOG_MARKER = 'new_forex_order - update_sender_wallet - tx_data[user_id]';
 			// возможно нужно обновить таблицу points_status
@@ -10277,7 +10317,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// откатим комиссию ноду-генератору
-		if ($this->tx_data['commission']>0.01) {
+		if ($this->tx_data['commission']>=0.01) {
 			debug_print("this->tx_data['commission']>0.01", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$LOG_MARKER = 'new_forex_order_rollback - general_rollback - block_data[user_id] sell_currency_id';
 			debug_print($LOG_MARKER, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
