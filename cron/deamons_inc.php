@@ -22,6 +22,7 @@ $daemons[] = 'cleaning_db.php'; // main_lock используем, лочим, �
 //$daemons[] = '_tmp_fill_data.php'; // просто генерит тр-ии без локов. временное.
 
 if (file_exists(ABSPATH.'config_stend.ini')) {
+
 	// только у админа
 	$daemons[] = '_tx/_tmp_new_user.php';
 	$daemons[] = '_tx/_tmp_new_miner.php';
@@ -46,12 +47,12 @@ if (file_exists(ABSPATH.'config_stend.ini')) {
 	$daemons[] = '_tx/_tmp_admin_variables.php';
 	$daemons[] = '_tx/_tmp_admin_spots.php';
 	$daemons[] = '_tx/_tmp_admin_message.php';
-	//$daemons[] = '_tx/_tmp_admin_new_version.php';
+	$daemons[] = '_tx/_tmp_admin_new_version.php';
 	$daemons[] = '_tx/_tmp_admin_new_version_alert.php';
 	$daemons[] = '_tx/_tmp_message_to_admin.php';
 	$daemons[] = '_tx/_tmp_admin_blog.php';
 	$daemons[] = '_tx/_tmp_new_forex_order.php';
 	$daemons[] = '_tx/_tmp_del_forex_order.php';
-
 }
+
 ?>
