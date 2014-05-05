@@ -20,7 +20,7 @@ foreach($daemons as $daemon) {
 
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `script`, `time`
-		FROM `'.DB_PREFIX.'deamons
+		FROM `'.DB_PREFIX.'deamons`
 		');
 while ($row = $db->fetchArray($res)) {
 	$name = substr( $row['script'], 0, strpos($row['script'], '.'));
