@@ -3,8 +3,7 @@
 if (!defined('DC'))
 	die('!DC');
 
-// время в тр-ии может бежать не более, чем на 10 сек от времени в блоке
-// т.к. время тр-ии используется для подсчета TDC, то ставим пока 0, позже надо еще подумать, если будут проблемы
+// на сколько может бежать время в тр-ии
 define('MAX_TX_FORW', 0);
 // тр-ия может блуждать по сети сутки и потом попасть в блок
 define('MAX_TX_BACK', 3600*24);
@@ -10062,7 +10061,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		// прежде всего начислим комиссию ноду-генератору
 		if ($this->tx_data['commission']>=0.01) {
-			debug_print("this->tx_data['commission']>0.01", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print("this->tx_data['commission']>=0.01", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$LOG_MARKER = 'new_forex_order - update_sender_wallet - tx_data[user_id]';
 			// возможно нужно обновить таблицу points_status
 			$this->points_update_main($this->tx_data['user_id']);
