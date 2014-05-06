@@ -32,7 +32,7 @@
 <!--<tr><td>prefix</td><td><input type="text" id="mysql_prefix" value="<?php echo $tpl['mysql_prefix']?>"></td></tr>-->
 <tr><td>db_name</td><td><input type="text" id="mysql_db_name" value="<?php echo $tpl['mysql_db_name']?>"></td></tr>
 <tr><td>username</td><td><input type="text" id="mysql_username" value="<?php echo $tpl['mysql_username']?>"></td></tr>
-<tr><td>password</td><td><input type="password" id="mysql_password" value="<?php echo $tpl['mysql_password']?>"></td></tr>
+<tr><td>password</td><td><input type="password" id="mysql_password" value=""></td></tr>
 <tr><td colspan="2"><button id="next" class="btn btn-success"><?php echo $lng['next']?></button></td></tr>
 
 </table>
