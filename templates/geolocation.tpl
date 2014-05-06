@@ -30,7 +30,7 @@ $('#send_to_net').bind('click', function () {
 
 <script>
 
-function init (lat, lng, map_canvas, drag=true) {
+function init (lat, lng, map_canvas, drag) {
 
 		$("#"+map_canvas).css("display", "block");
 
@@ -99,6 +99,6 @@ function init (lat, lng, map_canvas, drag=true) {
 <!-- /container -->
 
 <script>
-	init (<?php echo $tpl['geolocation']?>, 'map_canvas');
+	init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
 	google.maps.event.trigger(map, 'resize');
 </script>

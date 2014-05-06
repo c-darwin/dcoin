@@ -13,7 +13,7 @@
 				}, "JSON");
 	});
 
-	function init (lat, lng, map_canvas, drag=true) {
+	function init (lat, lng, map_canvas, drag) {
 
 		$("#"+map_canvas).css("display", "block");
 
@@ -73,6 +73,6 @@
 </div>
 <!-- /container -->
 <script>
-	init (<?php echo $tpl['geolocation']?>, 'map_canvas');
+	init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
 	google.maps.event.trigger(map, 'resize');
 </script>
