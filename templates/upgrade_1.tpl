@@ -234,13 +234,16 @@
 		<table class="table table-bordered">
 			<tr><td>
 
-	<span class="btn btn-file"><input id="video_url" type="text" value="<?php echo @$tpl['video_url']?>" style="width:500px"> YouTube/Vimeo<button id="save_youtube"><?php echo $lng['save']?></button><button id="clear_youtube"><?php echo $lng['clear']?></button></span>
+	<span class="btn btn-file"><input id="video_url" type="text" value="<?php echo @$tpl['video_url']?>" style="width:500px"><button id="save_youtube"><?php echo $lng['save']?></button><button id="clear_youtube"><?php echo $lng['clear']?></button></span>
 		<br>Example: http://www.youtube.com/watch?v=ZSt9tm3RoUU<br>
 			<div id="video_url_iframe"><?php echo (@$tpl['video_url'])?"<iframe width=640 height=480  src='{$tpl['video_url']}' frameborder=0 allowfullscreen></iframe>":""?></div>
 				</td></tr>
 
-			<tr><td>
-		<?php echo $lng['2_video_file']?>:<br>
+			<?php
+			if (!defined('COMMUNITY')) {
+			?>
+				<tr><td>
+				<?php echo $lng['2_video_file']?>:<br>
 
 					<table><tr><td>
 
@@ -257,14 +260,15 @@
 								<button id="del_webm_ogg" style="display: none">Delete</button>
 
 					</td></tr></table>
+						<br>
 
+						<div id="video" style="display: none"><video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="468" data-setup="{}"><source src="public/user_video.mp4" type='video/mp4' /><source src="public/user_video.webm" type='video/webm' /><source src="public/user_video.ogv" type='video/ogg' /></video></div>
 
+					</td></tr>
+			<?php
+			}
+			?>
 
-		<br>
-
-		<div id="video" style="display: none"><video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="468" data-setup="{}"><source src="public/user_video.mp4" type='video/mp4' /><source src="public/user_video.webm" type='video/webm' /><source src="public/user_video.ogv" type='video/ogg' /></video></div>
-
-			</td></tr>
 
 		</table>
 

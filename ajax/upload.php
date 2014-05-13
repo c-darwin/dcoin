@@ -10,10 +10,12 @@ set_time_limit(0);
 //require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
 
-// входящие данные не проверяем, т.к. их шлет владелец данного нода
-if ( !$_SESSION['DC_ADMIN'] ) {
-	exit;
+if ( empty($_SESSION['user_id']) ) {
+	die('Permission denied');
 }
+
+if (!empty($_SESSION['restricted']))
+	die('Permission denied');
 
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
@@ -45,31 +47,34 @@ if ( $type == 'user_video' || substr_count($type, 'promised_amount')>0 ) {
 	}
 }
 
-
-// Если тип face/profile/face_video, то пишем в таблу my_table
 if ( $type == 'user_face_tmp' ) {
 
-	copy($_FILES['image']['tmp_name'], ABSPATH . 'public/user_face_tmp.jpg');
+	$name = 'public/'.$_SESSION['user_id'].'_user_face_tmp.jpg';
+	copy($_FILES['image']['tmp_name'], ABSPATH . $name);
 	//print $_FILES['image']['tmp_name'].' / '.ABSPATH . 'public/user_face_tmp.jpg';
-	$return_url = 'public/user_face_tmp.jpg';
-	
+	$return_url = $name;
 }
 else if ( $type == 'user_profile_tmp' ) {
-	
-	copy($_FILES['image']['tmp_name'], ABSPATH . 'public/user_profile_tmp.jpg');
-	$return_url = 'public/user_profile_tmp.jpg';
-}
-else if ( $type == 'user_video' ) {
 
-	copy($_FILES['file']['tmp_name'], ABSPATH . "public/user_video.{$end}");
-	$return_url = "public/user_video.{$end}";
+	$name = 'public/'.$_SESSION['user_id'].'_user_profile_tmp.jpg';
+	copy($_FILES['image']['tmp_name'], ABSPATH . $name);
+	$return_url = $name;
 }
-else if ( substr_count($type, 'promised_amount')>0 ) {
+// в пул-моде пока не даем заливать видео
+else if ( $type == 'user_video' && !get_community_users($db)) {
+
+	$name = "public/{$_SESSION['user_id']}_user_video.{$end}";
+	copy($_FILES['file']['tmp_name'], ABSPATH . $name);
+	$return_url = $name;
+}
+// в пул-моде пока не даем заливать видео
+else if ( substr_count($type, 'promised_amount')>0 && !get_community_users($db)) {
 
 	$data = explode('-', $type);
-	$currency_id = $data[1];
-	copy($_FILES['file']['tmp_name'], ABSPATH . "public/promised_amount_{$currency_id}.{$end}");
-	$return_url = "public/promised_amount_{$currency_id}.{$end}";
+	$currency_id = intval($data[1]);
+	$name = "public/{$_SESSION['user_id']}_promised_amount_{$currency_id}.{$end}";
+	copy($_FILES['file']['tmp_name'], ABSPATH . $name);
+	$return_url = $name;
 }
 
 echo json_encode(array('url'=>$return_url));

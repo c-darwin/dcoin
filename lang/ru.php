@@ -3,8 +3,8 @@
 $lng['wallet'] = 'Кошелек';
 $lng['upgrade_to_miner'] = 'Апгрейд до майнера';
 $lng['geolocation'] = 'Местонахождение';
-$lng['inbox'] = 'Входящие';
-$lng['outgoing'] = 'Исходящие';
+$lng['inbox'] = 'Входящие запросы';
+$lng['outgoing'] = 'Обмен на наличные';
 $lng['holidays'] = 'Каникулы';
 $lng['tasks'] = 'Задания';
 $lng['settings'] = 'Настройки';
@@ -25,6 +25,7 @@ $lng['reg_users'] = 'Регистрация пользователей';
 $lng['start_stop'] = 'Start/stop';
 $lng['db_info'] = 'Инфа из БД';
 $lng['exchange'] = 'Биржа';
+$lng['logout'] = 'Выйти';
 
 // периоды
 $lng['day'] = 'день';
@@ -34,6 +35,8 @@ $lng['month'] = 'месяц';
 $lng['year'] = 'год';
 
 // general
+$lng['close'] = 'Закрыть';
+$lng['log_in'] = 'Войти';
 $lng['delete'] = 'Удалить';
 $lng['next'] = 'Далее';
 $lng['status'] = 'Статус';
@@ -90,7 +93,9 @@ $lng['change_key_pass'] = 'Изменить<br>ключ/пароль';
 $lng['login_text'] = 'Введите ключ и пароль, затем - нажмите "Sign"';
 $lng['new_version'] = 'Пожалуйста, установите новую версию движка! <button class="btn" id="btn_install">install [ver]</button><br>Или залейте скрипты вручуню и нажмите <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
 $lng['new_version_wo_block'] = 'Залита новая версия движка. Нажмите <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
-
+$lng['new_version_pulls'] = 'Пожалуйста, установите новую версию движка!';
+$lng['only_for_miners'] = 'Доступно только для майнеров. Вам нужно <a href="#" onclick="fc_navigate(\'upgrade\')">сделать апгрейд</a>';
+$lng['permission_denied'] = 'Доступ запрещен';
 $lng['attention_title'] = 'Внимание!';
 $lng['alert_time'] = 'Время на Вашем сервере отличается от точного времени на [sec] секунд. Необходимо установить точное время';
 
@@ -248,7 +253,7 @@ $lng['upgrade_resend_title'] = 'Повторная отправка данных
 // change primary key
 $lng['change_primary_key_title'] = 'Смена праймари ключа';
 $lng['new_pass_for_key'] = 'Укажите новый пароль для нового праймари ключа';
-$lng['save_key'] = 'Сохранить праймари ключ на сервере';
+$lng['save_key'] = 'Сохранить праймари ключ на сервере для авторизации только по паролю';
 $lng['block'] = 'Блок';
 $lng['change_primary_key_limits_text'] = 'Смена праймари ключа допустима - не более [limit] раза в [period].';
 $lng['your_new_key'] = 'Ваш новый праймари ключ';

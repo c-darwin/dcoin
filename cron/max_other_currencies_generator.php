@@ -31,10 +31,15 @@ if (!$block_id) {
 	main_unlock();
 	exit;
 }
+
+$testBlock = new testblock($db, true);
+
 // а майнер ли я ?
-$my_miner_id = get_my_miner_id($db);
+$my_miner_id = $testBlock->miner_id;
+$my_user_id = $testBlock->user_id;
 if (!$my_miner_id) {
 	main_unlock();
+	unset($testBlock);
 	exit;
 }
 
@@ -47,8 +52,6 @@ $max_other_currencies_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __C
 		FROM `".DB_PREFIX."max_other_currencies_time`
 		", 'fetch_one' );
 if ( $time - $max_other_currencies_time > $variables['new_max_other_currencies'] ) {
-
-	$my_user_id = get_my_user_id($db);
 
 	// берем все голоса
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -77,11 +80,11 @@ if ( $time - $max_other_currencies_time > $variables['new_max_other_currencies']
 		$new_max_other_currencies[$currency_id] = get_max_vote($count_and_votes, 0, $total_count_currencies, 10);
 	}
 
-	$node_private_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `private_key`
-					FROM `".DB_PREFIX."my_node_keys`
-					WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_node_keys` )
-					", 'fetch_one');
+	if (get_community_users($db))
+		$my_prefix = $testBlock->user_id.'_';
+	else
+		$my_prefix = '';
+	$node_private_key = get_node_private_key($db, $my_prefix);
 
 	$json_data = json_encode($new_max_other_currencies);
 	// подписываем нашим нод-ключем данные транзакции
@@ -109,6 +112,5 @@ if ( $time - $max_other_currencies_time > $variables['new_max_other_currencies']
 }
 
 main_unlock();
-
 
 ?>

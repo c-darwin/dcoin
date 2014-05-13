@@ -8,15 +8,17 @@ $tpl['data']['user_id'] = $user_id;
 
 $tpl['variables'] = ParseData::get_variables ($db,  array('limit_primary_key', 'limit_primary_key_period') );
 
-// выводим все запросы
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT *
-		FROM `'.DB_PREFIX.'my_keys`
-		ORDER BY `id` DESC
-		');
-//print $db->printsql();
-while ($row = $db->fetchArray($res))
-	$tpl['my_keys'][] = $row;
+if (empty($_SESSION['restricted'])) {
+	// выводим все запросы
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT *
+			FROM `'.DB_PREFIX.MY_PREFIX.'my_keys`
+			ORDER BY `id` DESC
+			');
+	//print $db->printsql();
+	while ($row = $db->fetchArray($res))
+		$tpl['my_keys'][] = $row;
+}
 
 $status_array =
 	array(

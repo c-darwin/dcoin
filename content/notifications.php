@@ -12,13 +12,13 @@ $data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 					 `smtp_auth`,
 					 `smtp_username`,
 					 `smtp_password`
-		FROM `'.DB_PREFIX.'my_table`
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
 		', 'fetch_array');
 $tpl['data'] = $data;
 
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT *
-		FROM `'.DB_PREFIX.'my_notifications`
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_notifications`
 		ORDER BY `sort` ASC
 		');
 while ($row = $db->fetchArray($res))

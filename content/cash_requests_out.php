@@ -19,7 +19,7 @@ while ($row = $db->fetchArray($res))
 // список отравленных нами запросов
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *
-		FROM `".DB_PREFIX."my_cash_requests`
+		FROM `".DB_PREFIX.MY_PREFIX."my_cash_requests`
 		WHERE `to_user_id` != {$user_id}
 		");
 while ($row = $db->fetchArray($res) )

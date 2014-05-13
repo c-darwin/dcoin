@@ -17,7 +17,7 @@ $daemons[] = 'reduction_generator.php'; // main_lock на всё. Рестарт
 $daemons[] = 'max_promised_amount_generator.php'; // main_lock на всё. Рестарт каждые 5-10 минут
 $daemons[] = 'max_other_currencies_generator.php'; // main_lock на всё. Рестарт каждые 5-10 минут
 $daemons[] = 'clear.php'; // просто чистит таблы от старых данных
-$daemons[] = 'generate_new_node_key.php';
+//$daemons[] = 'generate_new_node_key.php'; временно отключим
 $daemons[] = 'cleaning_db.php'; // main_lock используем, лочим, если там висит чужой лок более 10-и минут
 //$daemons[] = '_tmp_fill_data.php'; // просто генерит тр-ии без локов. временное.
 

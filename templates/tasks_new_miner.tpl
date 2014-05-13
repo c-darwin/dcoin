@@ -26,6 +26,7 @@
 			comment = 'null';
 		}
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['user_info']['vote_id']}"?>,'+result+','+comment);
+		doSign();
 	}
 
 	$('#btn-bad').bind('click', function () {
@@ -260,20 +261,19 @@ $('#send_data').bind('click', function () {
     <div id="sign" style="display:none">
 
 		<label><?php echo $lng['data']?></label>
-		<textarea id="for-signature" style="width:500px;" rows="4"></textarea>
-		<label><?php echo $lng['sign']?></label>
-		<textarea id="signature1" style="width:500px;" rows="4"></textarea>
-	    <label><?php echo $lng['sign']?> 2</label>
-	    <textarea id="signature2" style="width:500px;" rows="4"></textarea>
-	    <label><?php echo $lng['sign']?> 3</label>
-	    <textarea id="signature3" style="width:500px;" rows="4"></textarea>
+		<textarea id="for-signature" style="width:500px;" rows="4"></textarea><br>
+	    <?php
+	for ($i=1; $i<=$count_sign; $i++) {
+		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
+	    }
+	    ?>
 		<br>
 		<button class="btn btn-success" id="btn-step3-back"><?php echo $lng['back']?></button>
 		<button class="btn" id="send_data"><?php echo $lng['send_to_net']?></button>
 
     </div>
     
-    <input type="hidden" id="user_id" value="<?php echo $_SESSION['DC_ADMIN']?>">
+    <input type="hidden" id="user_id" value="<?php echo $_SESSION['user_id']?>">
     <input type="hidden" id="time" value="<?php echo time()?>">
     <input type="hidden" id="vote_id" value="<?php echo $tpl['user_info']['vote_id']?>">
 	<input type="hidden" id="result" value="">

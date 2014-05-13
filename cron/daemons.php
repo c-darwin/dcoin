@@ -8,7 +8,7 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
-require_once( ABSPATH . 'cron/deamons_inc.php' );
+require_once( ABSPATH . 'cron/daemons_inc.php' );
 
 define('WAIT_SCRIPT', 300);
 
@@ -21,7 +21,7 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 $php_path = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `php_path`
-		FROM `".DB_PREFIX."my_table`
+		FROM `".DB_PREFIX."config`
 		", 'fetch_one');
 do{
 
@@ -36,7 +36,7 @@ do{
 		// проверим, давно ли отстукивался данный демон
 		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `time`, `script`
-				FROM `".DB_PREFIX."deamons`
+				FROM `".DB_PREFIX."daemons`
 				WHERE `script` = '{$script_name}'
 				", 'fetch_array');
 		if ( ($data['time'] > time() - WAIT_SCRIPT) )
@@ -47,7 +47,7 @@ do{
 
 		if (!$data) {
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-				INSERT INTO `".DB_PREFIX."deamons` (
+				INSERT INTO `".DB_PREFIX."daemons` (
 					`script`
 				) VALUES (
 					'{$script_name}'

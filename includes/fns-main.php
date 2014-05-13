@@ -34,30 +34,30 @@ function generate_token($num, $rand_sleep=0) {
 
 
 function calc_pct($pct_sec, $start, $end, $sum) {
-
 	return number_format((pow(($pct_sec/100+1), ($end-$start))*$sum-$sum), 10, '.', '');
 }
 
-function hextobin ($hexstr) {
-        /*$n = strlen($hexstr);
-        $sbin="";  
-        $i=0;
-        while($i<$n)
-        {      
-            $a =substr($hexstr,$i,2);          
-            $c = pack("H*",$a);
-            if ($i==0){$sbin=$c;}
-            else {$sbin.=$c;}
-            $i+=2;
-        }
-        return $sbin;*/
+function hextobin ($hexstr)
+{
 	return pack("H*",$hexstr);
 }
 
+function clear_comment($comment_text, $db)
+{
+	$comment_text = filter_var($comment_text, FILTER_SANITIZE_STRING);
+	$comment_text = str_ireplace(array('\'', '"'),  array('', ''), $comment_text);
+	$comment_text = $db->escape($comment_text);
+	return $comment_text;
+}
+
+function clear_quotes($text)
+{
+	return str_ireplace(array('\'', '"'),  array('', ''), $text);
+}
     
 // функция проверки входящих данных
-function check_input_data ($data, $type, $info='') {
-
+function check_input_data ($data, $type, $info='')
+{
 	switch ($type) {
 
 		case 'sleep_var' :
@@ -66,8 +66,19 @@ function check_input_data ($data, $type, $info='') {
 				return true;
 			break;
 
+		case 'db_prefix' :
+			if ( preg_match ("/^[0-9a-z\-\_]{0,20}$/Di", $data) )
+				return true;
+			break;
+
+		case 'hex':
 		case 'hex_sign':
 			if ( preg_match ("/^[0-9a-z]{64,2048}$/D", $data) )
+				return true;
+			break;
+
+		case 'hex_message':
+			if ( preg_match ("/^[0-9a-z]{1,10240}$/D", $data) )
 				return true;
 			break;
 
@@ -197,6 +208,12 @@ function check_input_data ($data, $type, $info='') {
 			$xy = '\"\d{1,3}\"\:\{\"miner_pct\"\:(0\.[0-9]{13}),"user_pct\"\.:(0\.[0-9]{13})\}';
 			$r = "/^\{({$xy}\,){0,165}{$xy}\}$/D";
 			if (preg_match ($r, $data))
+				return true;
+			break;
+
+		case 'private_key':
+
+			if (preg_match('/^[0-9a-z\+\-\s\=\/]{256,3072}$/iD', $data))
 				return true;
 			break;
 
@@ -443,8 +460,13 @@ function m_curl ($urls, $_data, $db, $type='data', $timeout=10, $answer=false, $
 	// при $remote_node_host будет всего 1 url - ip из локальной сети
 	for ($i=0; $i<sizeof($urls); $i++) {
 
-		if ($db)
+		debug_print('$urls['.$i.']: '.print_r_hex($urls[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+		if ($db) {
+			// т.к. на приеме может быть пул, то нужно дописать user_id
 			$data = encrypt_data ($_data, $urls[$i]['node_public_key'], $db);
+			$data = dec_binary($urls[$i]['user_id'], 5).$data;
+		}
 		else
 			$data = $_data;
 		if ($remote_node_host)
@@ -717,18 +739,18 @@ function get_miner_private_key($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `private_key`
-			FROM `".DB_PREFIX."my_keys`
-			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_keys`)
+			FROM `".DB_PREFIX.MY_PREFIX."my_keys`
+			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX.MY_PREFIX."my_keys`)
 			LIMIT 1
 			", 'fetch_one' );
 }
 
-function get_node_private_key($db)
+function get_node_private_key($db, $my_prefix)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `private_key`
-			FROM `".DB_PREFIX."my_node_keys`
-			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_node_keys`)
+			FROM `".DB_PREFIX."{$my_prefix}my_node_keys`
+			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."{$my_prefix}my_node_keys`)
 			LIMIT 1
 			", 'fetch_one' );
 }
@@ -737,15 +759,113 @@ function get_my_miner_id($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `miner_id`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX.MY_PREFIX."my_table`
 			", 'fetch_one' );
+}
+
+function get_my_miners_ids($db, $collective)
+{
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+			SELECT `miner_id`
+			FROM `".DB_PREFIX."miners_data`
+			WHERE `user_id` IN (".implode(',', $collective).") AND
+						 `miner_id` > 0
+			", 'array' );
+}
+
+// для пулов
+function get_community_users($db)
+{
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `user_id`
+			FROM `".DB_PREFIX."community`
+			", 'array' );
+}
+
+// доступ к управлению нодой есть только у админа ноды
+function node_admin_access($db)
+{
+	$community = get_community_users($db);
+	if ($community) {
+		$pool_admin_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `pool_admin_user_id`
+				FROM `".DB_PREFIX."config`
+				", 'fetch_one' );
+		if ( (int)$_SESSION['user_id'] === (int)$pool_admin_user_id )
+			return true;
+		else
+			return false;
+	}
+	else
+		return true;
+}
+
+
+function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix)
+{
+	$pool_data = explode("\n", $pool_data);
+	for ($i=0; $i<sizeof($pool_data); $i++) {
+
+		$data = explode(';', $pool_data[$i]);
+		$user_id = intval(trim($data[0]));
+		$my_prefix = $user_id.'_';
+		$my_public_key = trim($data[1]);
+
+		if ( !check_input_data ($my_public_key, 'public_key') )
+			return 'bad public_key';
+
+		for ($j=0; $j<sizeof($my_queries); $j++) {
+
+			$my_query = str_ireplace('[my_prefix]', $my_prefix, $my_queries[$j]);
+			mysqli_multi_query($mysqli_link, $my_query);
+			while (@mysqli_next_result($mysqli_link)) {;}
+
+			if ( mysqli_error($mysqli_link) ) {
+				return 'Error performing query (' . $my_query . ') - Error message : '. mysqli_error($mysqli_link);
+			}
+		}
+
+		mysqli_query($mysqli_link, "
+				INSERT INTO `{$prefix}community` (
+					`user_id`
+				)
+				VALUES (
+					{$user_id}
+				)");
+
+		mysqli_query($mysqli_link, "
+				INSERT INTO `{$prefix}{$my_prefix}my_table` (
+					`user_id`
+				)
+				VALUES (
+					{$user_id}
+				)");
+
+		mysqli_query($mysqli_link, "
+				INSERT INTO `{$prefix}{$my_prefix}my_keys` (
+					`public_key`,
+					`status`
+				)
+				VALUES (
+					0x{$my_public_key},
+					'approved'
+				)");
+	}
+}
+
+function get_my_prefix($db)
+{
+	if (!get_community_users($db))
+		return '';
+	else
+		return $_SESSION['user_id'].'_';
 }
 
 function get_my_host($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `host`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX.MY_PREFIX."my_table`
 			", 'fetch_one' );
 }
 
@@ -753,15 +873,26 @@ function get_my_local_gate_ip($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `local_gate_ip`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX."config`
 			", 'fetch_one' );
+}
+
+function get_my_users_ids($db)
+{
+	$users_ids = get_community_users($db);
+	if (!$users_ids) // сингл-мод
+		$users_ids[0] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+				SELECT `user_id`
+				FROM `".DB_PREFIX."my_table`
+				", 'fetch_one' );
+	return $users_ids;
 }
 
 function get_my_user_id($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `user_id`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX.MY_PREFIX."my_table`
 			", 'fetch_one' );
 }
 
@@ -769,7 +900,7 @@ function get_my_block_id($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `my_block_id`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX."config`
 			", 'fetch_one' );
 }
 
@@ -1058,15 +1189,15 @@ class testblock {
 			$this->wo_lock = false;
 
 		$this->db = $db;
-		// получаем наш miner_id и приватный ключ нода
+		/*// получаем наш miner_id и приватный ключ нода
 		$this->my_table = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 				SELECT `user_id`,
 							 `miner_id` ,
 							 `private_key`
-				FROM `".DB_PREFIX."my_table`
+				FROM `".DB_PREFIX.MY_PREFIX."my_table`
 				LEFT JOIN `my_node_keys` ON 1=1
-				WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_node_keys`)
-				", 'fetch_array' );
+				WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX.MY_PREFIX."my_node_keys`)
+				", 'fetch_array' );*/
 		// print 'testblock my_table';
 		//print_r($this->my_table);
 
@@ -1118,21 +1249,41 @@ class testblock {
 			$i++;
 		} while (!$this->cur_user_id);
 
-		debug_print('(this->my_table[miner_id]='.$this->my_table['miner_id'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print('(this->my_table[miner_id]='.$this->my_table['miner_id'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		if ($this->my_table['miner_id'] == $cur_miner_id) {
+		$collective = get_my_users_ids($db);
+
+		// в сингл-моде будет только $my_miners_ids[0]
+		$my_miners_ids = get_my_miners_ids( $this->db, $collective);
+
+		// есть ли кто-то из нашего пула (или сингл-мода), кто находится на 0-м уровне
+		if (in_array($cur_miner_id, $my_miners_ids)) {
 			$this->level = 0;
 			$this->levels_range[0][1] = $this->levels_range[0][0] = 1;
-		} else {
+			$this->miner_id = $cur_miner_id;
+		}
+		// все остальные уровни
+		else {
 			$this->levels_range = self::get_block_generator_miner_id_range ($cur_miner_id, $max_miner_id);
 			debug_print($this->levels_range , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-			if ($this->my_table['miner_id'])
-				$this->level = $this->find_miner_id_level($this->my_table['miner_id'], $this->levels_range);
-			else
-				$this->level = 'NULL'; // у нас нет уровня, т.к. нет miner_id
+			if ($my_miners_ids)
+				list($this->miner_id, $this->level) = $this->find_miner_id_level($my_miners_ids, $this->levels_range);
+			else {
+				$this->level = 'NULL'; // у нас нет уровня, т.к. пуст $my_miners_ids, т.е. на сервере нет майнеров
+				$this->miner_id = 0;
+			}
 		}
+
+		$this->user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+				SELECT `user_id`
+				FROM `".DB_PREFIX."miners_data`
+				WHERE `miner_id` = {$this->miner_id}
+				", 'fetch_one' );
+
 		debug_print('$this->level ='.$this->level, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print('$this->miner_id ='.$this->miner_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print('$this->user_id ='.$this->user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		if (!$this->wo_lock) main_unlock();
 
@@ -1337,26 +1488,28 @@ class testblock {
 		/**
 	 * Определяем, к какому уровню принадлежит указанный miner_id
 	 *
-	 * @param int $miner_id Юзер, которому определяем уровень
+	 * @param int $miners_ids Юзер или набор юзеров (при работе в пуле), которым определяем уровень
 	 * @param array $levels_range Массив уровней с диапазонами
-	 * @return int Уровень
+	 * @return array miner_id, level
 	 */
 
-	function find_miner_id_level ($miner_id, $levels_range) {
-
-		foreach ($levels_range as $level => $ranges) {
-			if ($miner_id >= $ranges[0][0] && $miner_id <= $ranges[0][1])
-				return $level;
-			if (isset($ranges[1]))
-				if ($miner_id >= $ranges[1][0] && $miner_id <= $ranges[1][1])
-					return $level;
+	function find_miner_id_level ($miners_ids, $levels_range)
+	{
+		for ($i=0; $i<sizeof($miners_ids); $i++) {
+			foreach ($levels_range as $level => $ranges) {
+				if ($miners_ids[$i] >= $ranges[0][0] && $miners_ids[$i] <= $ranges[0][1])
+					return array($miners_ids[$i], $level);
+				if (isset($ranges[1]))
+					if ($miners_ids[$i] >= $ranges[1][0] && $miners_ids[$i] <= $ranges[1][1])
+						return array($miners_ids[$i], $level);
+			}
 		}
 	}
 
 	// на 0-м уровне всегда большее значение, чтобы успели набраться тр-ии
 	// на остальных уровнях - это время, за которое нужно успеть получить новый блок и занести его в БД
-	static function get_generator_sleep($level, $data) {
-
+	static function get_generator_sleep($level, $data)
+	{
 		$sleep = 0;
 		// суммируюем время со всех уровней, которые не успели сгенерить блок до нас
 		for ($i=0; $i<=$level; $i++)
@@ -1702,7 +1855,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 
 		// если существуют глючная цепочка, тот тут мы её проигнорируем
 		$bad_blocks = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-				SELECT `bad_blocks` FROM `".DB_PREFIX."my_table`
+				SELECT `bad_blocks` FROM `".DB_PREFIX."config`
 				" , 'fetch_one');
 		$bad_blocks = json_decode($bad_blocks, true);
 		debug_print('$bad_blocks='.print_r_hex($bad_blocks), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -1962,11 +2115,11 @@ function ddos_protection ($ip)
 	$my_table = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		SELECT `in_connections_ip_limit`,
 					 `in_connections`
-		FROM `".DB_PREFIX."my_table`
+		FROM `".DB_PREFIX.MY_PREFIX."my_table`
 		", 'fetch_array' );
 
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-		INSERT IGNORE INTO `".DB_PREFIX."my_ddos_protection` (
+		INSERT IGNORE INTO `".DB_PREFIX.MY_PREFIX."my_ddos_protection` (
 			`ip`,
 			`req`
 		) VALUES (
@@ -1978,13 +2131,13 @@ function ddos_protection ($ip)
 
 	$ip_count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		SELECT sum(`req`)
-		FROM `".DB_PREFIX."my_ddos_protection`
+		FROM `".DB_PREFIX.MY_PREFIX."my_ddos_protection`
 		WHERE  `ip` = INET_ATON('{$ip}')
 		", 'fetch_one' );
 
 	$total_count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		SELECT count(`ip`)
-		FROM `".DB_PREFIX."my_ddos_protection`
+		FROM `".DB_PREFIX.MY_PREFIX."my_ddos_protection`
 		", 'fetch_one' );
 
 	if ($ip_count > $my_table['in_connections_ip_limit'])
@@ -2049,18 +2202,18 @@ function upd_deamon_time ($db)
 	else
 		$script_name = get_script_name();
 
-	debug_print('deamons start '.microtime(true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	debug_print('daemons start '.microtime(true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-			UPDATE `".DB_PREFIX."deamons`
+			UPDATE `".DB_PREFIX."daemons`
 			SET `time` = '".time()."',
 					`memory` = ".memory_get_usage()."
 			WHERE `script` = '{$script_name}'
 			");
-	debug_print('deamons end  '.microtime(true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	debug_print('daemons end  '.microtime(true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	if ($db->getAffectedRows()==0) {
 
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-			INSERT IGNORE INTO `".DB_PREFIX."deamons` (
+			INSERT IGNORE INTO `".DB_PREFIX."daemons` (
 					`time`,
 					`memory`,
 					`script`
@@ -2215,13 +2368,13 @@ function check_deamon_restart ($db)
 {
 	$restart = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 			SELECT `restart`
-			FROM `".DB_PREFIX."deamons`
+			FROM `".DB_PREFIX."daemons`
 			WHERE `script` = '".get_script_name()."'
 			", 'fetch_one');
 
 	if ($restart) {
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-				UPDATE `".DB_PREFIX."deamons`
+				UPDATE `".DB_PREFIX."daemons`
 				SET `restart`=0
 				WHERE `script` = '".get_script_name()."'
 				");
@@ -2281,20 +2434,29 @@ function encrypt_data ($data, $public_key, $db, &$key='')
 	return ParseData::encode_length_plus_data($encrypted_key).$encrypted_data;
 }
 
-function decrypt_data (&$binary_tx, $db, &$decrypted_key='') {
-
+function decrypt_data (&$binary_tx, $db, &$decrypted_key='')
+{
 	if (!$binary_tx)
 		return '[error]!$binary_tx';
+	// вначале пишется user_id, чтобы в режиме пула можно было понять
+	$my_user_id = ParseData::binary_dec_string_shift( $binary_tx, 5 ) ;
+	debug_print('$my_user_id='.$my_user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	// изымем зашифрванный ключ, а всё, что останется в $binary_tx - сами зашифрованные хэши тр-ий/блоков
 	$encrypted_key = ParseData::string_shift ( $binary_tx, ParseData::decode_length($binary_tx) ) ;
 	debug_print('$encrypted_key='.$encrypted_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	if (!$encrypted_key)
 		return '[error]!$encrypted_key';
 
+	$collective = get_community_users($db);
+	if ($collective)
+		$my_prefix = $my_user_id.'_';
+	else
+		$my_prefix = '';
+
 	$private_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 				SELECT `private_key`
-				FROM `".DB_PREFIX."my_node_keys`
-				WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_node_keys`)
+				FROM `".DB_PREFIX."{$my_prefix}my_node_keys`
+				WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."{$my_prefix}my_node_keys`)
 				", 'fetch_one' );
 	debug_print('$private_key='.$private_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	if (!$private_key)
@@ -3232,21 +3394,39 @@ function get_my_notice_data()
 {
 	global $db, $lng;
 
-	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-			SELECT `user_id`,
-						 `miner_id`,
-						 `status`
-			FROM `'.DB_PREFIX.'my_table`
-			', 'fetch_array' );
+	if (empty($_SESSION['restricted'])) {
 
-	if (!$data['user_id']) {
-		$tpl['account_status'] = 'searching';
-	} else if ($data['status'] == 'bad_key') {
-		$tpl['account_status'] = 'bad_key';
-	} else if ($data['miner_id']) {
-		$tpl['account_status'] = 'miner';
-	} else if ($data['user_id']) {
-		$tpl['account_status'] = 'user';
+		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+				SELECT `user_id`,
+							 `miner_id`,
+							 `status`
+				FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
+				', 'fetch_array' );
+
+		if (!$data['user_id']) {
+			$tpl['account_status'] = 'searching';
+		} else if ($data['status'] == 'bad_key') {
+			$tpl['account_status'] = 'bad_key';
+		} else if ($data['miner_id']) {
+			$tpl['account_status'] = 'miner';
+		} else if ($data['user_id']) {
+			$tpl['account_status'] = 'user';
+		}
+	}
+	else {
+		// user_id уже есть, т.к. мы смогли зайти в урезанном режиме по паблик-кею
+		// проверим, может есть что-то в miners_data
+		$status = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `status`
+				FROM `".DB_PREFIX."miners_data`
+				WHERE `user_id` = {$_SESSION['user_id']}
+				LIMIT 1
+				", 'fetch_one');
+		if ($status)
+			$tpl['account_status'] = $status;
+		else
+			$tpl['account_status'] = 'user';
+
 	}
 	$tpl['account_status'] = $lng['status_'.$tpl['account_status']];
 

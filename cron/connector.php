@@ -24,21 +24,28 @@ while (true) {
 	if (check_deamon_restart($db))
 		exit;
 
-	$my_table = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT `user_id`,
-						 `miner_id`,
-						 `out_connections`,
+	$my_config = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `out_connections`,
 						 `local_gate_ip`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX."config`
 			", 'fetch_array' );
-	if ($my_table['local_gate_ip']) {
+	if ($my_config['local_gate_ip']) {
 		sleep(5);
 		continue;
 	}
 	// ровно стольким нодам мы будем слать хэши блоков и тр-ий
-	$max_hosts = ($my_table['out_connections']?$my_table['out_connections']:10);
-	$my_miner_id = $my_table['miner_id'];
-	$my_user_id = $my_table['user_id'];
+	$max_hosts = ($my_config['out_connections']?$my_config['out_connections']:10);
+
+	$collective = get_community_users($db);
+	if (!$collective) // сингл-мод
+		$collective[0] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+				SELECT `user_id`
+				FROM `".DB_PREFIX."my_table`
+				", 'fetch_one' );
+
+	// в сингл-моде будет только $my_miners_ids[0]
+	$my_miners_ids = get_my_miners_ids($db, $collective);
+
 	$hosts = array();
 	$urls = array();
 	$del_miners = array();
@@ -54,6 +61,23 @@ while (true) {
 			LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."nodes_connection`.`user_id`
 			");
 	while ( $row = $db->fetchArray( $res ) ) {
+
+		debug_print($row, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+		// проверим соотвествие хоста и user_id
+		$ok = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `user_id`
+			FROM `".DB_PREFIX."miners_data`
+			WHERE `user_id` = {$row['user_id']} AND
+						 `host` = '{$row['host']}'
+			", 'fetch_one');
+		if (!$ok) {
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."nodes_connection`
+					WHERE `host` = '{$row['host']}' AND
+								 `user_id` = {$row['user_id']}
+					");
+		}
 
 		// если нода забанена недавно
 		if ( $row['ban_start'] > time() - NODE_BAN_TIME ) {
@@ -103,14 +127,18 @@ while (true) {
 			//ob_flush();
 		} while ( sizeof($id_array) < $need && sizeof($id_array) < $max );
 		debug_print("id_array=".print_r_hex($id_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print("my_miners_ids=".print_r_hex($my_miners_ids), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print("del_miners=".print_r_hex($del_miners), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// удалим себя
-		unset($id_array[$my_miner_id]);
+		for ($i=0; $i<sizeof($my_miners_ids); $i++)
+			unset($id_array[$my_miners_ids[$i]]); // удалим себя
 
 		// Удалим забаннные хосты
 		for ($i=0; $i<sizeof($del_miners); $i++) {
 			unset($id_array[$del_miners[$i]]);
 		}
+
+		debug_print("id_array=".print_r_hex($id_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$ids='';
 		if ($id_array) {
@@ -149,7 +177,7 @@ while (true) {
 
 		for ($i=0; $i<sizeof($r); $i++) {
 			list($host, $user_id) = explode(';', $hosts[$r[$i]]);
-			if ( $user_id == $my_user_id )
+			if ( in_array($user_id, $collective) )
 				continue;
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT IGNORE INTO `".DB_PREFIX."nodes_connection` (

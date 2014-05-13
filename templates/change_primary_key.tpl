@@ -3,20 +3,21 @@
 
 <script>
 
+var save_private_key = 0;
 $('#save').bind('click', function () {
 	
 	$.post( 'ajax/generate_new_primary_key.php', { 'password' : $("#new_password").val() }, function (data) {
 
 			$("#public_key_1").val( data.public_key );
-			if ($("#save_private_key").prop("checked")) {
-				$("#password_hash").val( data.password_hash );
-			}
-			else {
-				$("#password_hash").val( '' );
-			}
+			$("#password_hash").val( data.password_hash );
 			$("#add").css("display", "none");
 			$("#show_key").css("display", "block");
 			$("#private_key").val( data.private_key );
+			if ($("#save_private_key").prop("checked"))
+				save_private_key = 1;
+			else
+				save_private_key = 0;
+
 		}, 'json' );
 		
 } );
@@ -35,6 +36,7 @@ $('#save3').bind('click', function () {
 	$("#show_key").css("display", "none");
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key_1").val()+','+$("#public_key_2").val()+','+$("#public_key_3").val() );
+	doSign();
 
 } );
 
@@ -50,6 +52,7 @@ $('#send_to_net').bind('click', function () {
 			'public_key_3' : $('#public_key_3').val(),
 			'private_key' : $('#private_key').val(),
 			'password_hash' : $('#password_hash').val(),
+			'save_private_key' : save_private_key,
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
@@ -71,9 +74,11 @@ $('#send_to_net').bind('click', function () {
 			<fieldset>
 				<label><?php echo $lng['new_pass_for_key']?></label>
 				<input type="password" placeholder="" id="new_password">
-				<label class="checkbox">
-					<input type="checkbox" id="save_private_key"> <?php echo $lng['save_key']?>
-				</label>
+				<?php
+				if (!defined('COMMUNITY'))
+					echo '<label class="checkbox"><input type="checkbox" id="save_private_key"> '.$lng['save_key'].'</label>';
+				?>
+				<br>
 				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
 			</fieldset>
 		</form>

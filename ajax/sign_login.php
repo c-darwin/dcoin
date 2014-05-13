@@ -13,9 +13,23 @@ require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$login_code = strval(rand());
+$login_code = strval(rand(9999999, getrandmax()));
+$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+if ($ini_array['main']['sign_hash'] == 'ip')
+	$hash = md5($_SERVER['REMOTE_ADDR']);
+else
+	$hash = md5($_SERVER['HTTP_USER_AGENT']);
+
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		UPDATE `".DB_PREFIX."my_table` SET `login_code`='{$login_code}'
+		INSERT INTO  `".DB_PREFIX."authorization` (
+			`hash`,
+			`data`
+		)
+		VALUES (
+			0x{$hash},
+			'{$login_code}'
+		)
+		ON DUPLICATE KEY UPDATE `data` = '{$login_code}'
 		");
 echo json_encode($login_code);
 

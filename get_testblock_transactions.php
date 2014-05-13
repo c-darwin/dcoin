@@ -36,7 +36,7 @@ $data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 
 $response_binary_data = dec_binary ($data['block_id'], 4) .
 	dec_binary ($data['time'], 4) .
-	dec_binary ($data['user_id'], 4) .
+	dec_binary ($data['user_id'], 5) .
 	encode_length( strlen($data['signature']) ) . $data['signature']
 ;
 

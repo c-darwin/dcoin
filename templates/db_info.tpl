@@ -1,8 +1,8 @@
 <!-- container -->
 <script>
 
-	$('#clear_deamons_time').bind('click', function () {
-		$.post( 'ajax/clear_deamons_time.php', { } ,
+	$('#clear_daemons_time').bind('click', function () {
+		$.post( 'ajax/clear_daemons_time.php', { } ,
 				function () {
 					fc_navigate ('db_info', {'alert': 'Complete!'} );
 				});
@@ -16,7 +16,7 @@
 	<p><?php echo date('d-m-Y H:i:s')?></p>
 
 	<?php
-	echo '<table class="table table-bordered" style="width:600px"><caption>deamons</caption>';
+	echo '<table class="table table-bordered" style="width:600px"><caption>daemons</caption>';
 	echo '<thead><tr><th>Script</th><th>Time</th><th>Memory (mb)</th><th>Restart</th></tr></thead>';
 	echo '<tbody>';
 	foreach ( $tpl['demons'] as $data ) {
@@ -72,7 +72,7 @@
 	echo '</table>';
 	?>
 
-	<button class="btn" id="clear_deamons_time">clear_deamons_time</button>
+	<button class="btn" id="clear_daemons_time">clear_daemons_time</button>
 
 
 </div>

@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'DC', TRUE);
 
@@ -14,12 +14,14 @@ require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		UPDATE `".DB_PREFIX."alert_messages`
-		SET `close` = 1
-		WHERE `id` <= {$_REQUEST['id']}
-		");
+if (!node_admin_access($db))
+	die ('Permission denied');
 
+$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			UPDATE `".DB_PREFIX."alert_messages`
+			SET `close` = 1
+			WHERE `id` <= {$_REQUEST['id']}
+			");
 
 
 ?>

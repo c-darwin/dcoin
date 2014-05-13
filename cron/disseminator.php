@@ -28,14 +28,11 @@ while (true) {
 	$urls = array();
 	$hosts = array();
 
-	$my_table = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT `user_id`,
-						 `miner_id`,
-						 `local_gate_ip`,
+	$my_config = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `local_gate_ip`,
 						 `static_node_user_id`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX."config`
 			", 'fetch_array' );
-	$my_user_id = $my_table['user_id'];
 
 	// отметимся в БД, что мы живы.
 	upd_deamon_time($db);
@@ -44,15 +41,15 @@ while (true) {
 	if (check_deamon_restart($db))
 		exit;
 
-	if (!$my_table['local_gate_ip']) {
+	if (!$my_config['local_gate_ip']) {
 		// обычнй режим
 		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `".DB_PREFIX."miners_data`.`host`, `node_public_key`
+					SELECT `".DB_PREFIX."miners_data`.`user_id`, `".DB_PREFIX."miners_data`.`host`, `node_public_key`
 					FROM `".DB_PREFIX."nodes_connection`
 					LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."nodes_connection`.`user_id` = `".DB_PREFIX."miners_data`.`user_id`
 					");
 		while ( $row = $db->fetchArray( $res ) ) {
-			$hosts[] = array('host'=>$row['host'], 'node_public_key'=>$row['node_public_key']);
+			$hosts[] = array('user_id'=>$row['user_id'], 'host'=>$row['host'], 'node_public_key'=>$row['node_public_key']);
 		}
 		// хосты могут еще не успеть набраться
 		if (!$hosts) {
@@ -66,12 +63,15 @@ while (true) {
 				SELECT `node_public_key`,
 							  `host`
 				FROM `".DB_PREFIX."miners_data`
-				WHERE `user_id` = {$my_table['static_node_user_id']}
+				WHERE `user_id` = {$my_config['static_node_user_id']}
 				", 'fetch_array');
-		$hosts[] = array('host'=>$my_table['local_gate_ip'], 'node_public_key'=>$node_data['node_public_key']);
+		$hosts[] = array('host'=>$my_config['local_gate_ip'], 'node_public_key'=>$node_data['node_public_key']);
 	}
 
 	debug_print($hosts, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+	$my_users_ids = get_my_users_ids($db);
+	$my_miners_ids = get_my_miners_ids($db, $my_users_ids);
 
 	// если среди тр-ий есть смена нодовского ключа, то слать через отправку хэшей с последющей отдачей данных может не получиться
 	// т.к. при некорректном нодовском ключе придет зашифрованый запрос на отдачу данных, а мы его не сможем расшифровать т.к. ключ у нас неверный
@@ -79,20 +79,28 @@ while (true) {
 			SELECT count(*)
 			FROM `".DB_PREFIX."transactions`
 			WHERE `type` = ".ParseData::findType('change_node_key')." AND
-						 `user_id` = {$my_user_id}
+						 `user_id` IN (".implode(',', $my_users_ids).")
 			", 'fetch_one');
 
 	// если я майнер и работаю в обычном режиме, то должен слать хэши
-	if ($my_table['miner_id'] && !$my_table['local_gate_ip'] && !$change_node_key) {
+	if ($my_miners_ids && !$my_config['local_gate_ip'] && !$change_node_key) {
+
+		// опредлим, от кого будем слать
+		$r = array_rand($my_miners_ids);
+		$my_miner_id = $my_miners_ids[$r];
+		$my_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."miners_data`
+				WHERE `miner_id` = {$my_miner_id}
+				", 'fetch_one');
 
 		for ($i=0; $i<sizeof($hosts); $i++)
-			$urls[$i] = array('url'=>$hosts[$i]['host'].'gate_hashes.php', 'node_public_key'=>$hosts[$i]['node_public_key']);
+			$urls[$i] = array('url'=>$hosts[$i]['host'].'gate_hashes.php', 'node_public_key'=>$hosts[$i]['node_public_key'], 'user_id'=>$hosts[$i]['user_id']);
 
 		//main_lock();
 
-		// возьмем хэш текущего блока и номер блока
-		// для теста роолбеков отключим на время
-		/*
+		// //возьмем хэш текущего блока и номер блока
+		// //для теста ролбеков отключим на время
 		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `block_id`,
 							 `hash`,
@@ -101,8 +109,7 @@ while (true) {
 				WHERE `sent` = 0
 				", 'fetch_array');
 		debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		*/
-		$data = ''; // для тестов
+		//$data = ''; // //для тестов
 
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."info_block`
@@ -111,12 +118,13 @@ while (true) {
 		/*
 		 * Составляем данные на отправку
 		 * */
-		// первые 4 байта = наш user_id
-		$to_be_sent = dec_binary($my_user_id, 4);
-		if ($data) { // если 5-й байт = 0, то на приемнике будем читать блок, если = 1 , то сразу хэши тр-ий
+		// 4 байта = наш user_id. Но они будут не первые, т.к. m_curl допишет вперед user_id получателя (нужно для пулов)
+		$to_be_sent = dec_binary($my_user_id, 5);
+		if ($data) { // блок
+			// если 5-й байт = 0, то на приемнике будем читать блок, если = 1 , то сразу хэши тр-ий
 			$to_be_sent .= dec_binary(0, 1) . dec_binary($data['block_id'], 3) . $data['hash'] . $data['head_hash'];
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "UPDATE `".DB_PREFIX."info_block` SET `sent` = 1");
-		}else
+		} else // тр-ии без блока
 			$to_be_sent .= dec_binary(1, 1);
 
 		// возьмем хэши тр-ий
@@ -142,13 +150,13 @@ while (true) {
 		// отправляем блок и хэши тр-ий, если есть что отправлять
 		if ( strlen($to_be_sent) > 10 ) {
 			debug_print($urls, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-			$rez = m_curl ($urls, $to_be_sent, $db, 'data', 10, true);
+			$rez = m_curl ($urls, $to_be_sent, $db, 'data', 20, true);
 			debug_print($rez, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		}
 
 	}
 	else { // если просто юзер или работаю в защищенном режиме, то шлю тр-ии целиком. слать блоки не имею права.
-		if ($my_table['local_gate_ip']) {
+		if ($my_config['local_gate_ip']) {
 			$gate = 'protected_gate_tx.php';
 			// Чтобы protected_gate_tx.php мог понять, какому ноду слать эту тр-ию, пишем в первые 100 байт host
 			$remote_node_host = $node_data['host'];
@@ -158,7 +166,7 @@ while (true) {
 			$remote_node_host = '';
 		}
 		for ($i=0; $i<sizeof($hosts); $i++)
-			$urls[$i] = array('url'=>$hosts[$i]['host'].$gate, 'node_public_key'=>$hosts[$i]['node_public_key']);
+			$urls[$i] = array('url'=>$hosts[$i]['host'].$gate, 'node_public_key'=>$hosts[$i]['node_public_key'], 'user_id'=>$hosts[$i]['user_id']);
 		debug_print($urls, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		// возьмем хэши и сами тр-ии
 		$tx_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -175,7 +183,8 @@ while (true) {
 					SET `sent` = 1
 					WHERE `hash` = 0x{$hex_hash}
 					");
-			$rez = m_curl ($urls, $tx_data['data'], $db, 'data', 10, true, true, $remote_node_host);
+			// в первые 5 байт tx_data['data'] m_curl допишет user_id получателя, если вдруг там пул
+			$rez = m_curl ($urls, $tx_data['data'], $db, 'data', 20, true, true, $remote_node_host);
 			debug_print($rez, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		}
 	}

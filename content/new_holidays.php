@@ -1,11 +1,12 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-
-// Выводим таблицу всех holidays юзера
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, 'SELECT * FROM `'.DB_PREFIX.'my_holidays' );
-$row = $db->fetchArray($res);
-$tpl = $row;
+if (empty($_SESSION['restricted'])) {
+	// Выводим таблицу всех holidays юзера
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, 'SELECT * FROM `'.DB_PREFIX.MY_PREFIX.'my_holidays' );
+	$row = $db->fetchArray($res);
+	$tpl = $row;
+}
 
 $tpl['data']['type'] = 'new_holidays';
 $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);

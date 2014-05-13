@@ -26,13 +26,13 @@ main_lock();
 
 	$my_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `user_id`
-					FROM `".DB_PREFIX."my_table`
+					FROM `".DB_PREFIX.MY_PREFIX."my_table`
 					", 'fetch_one');
 
 	$node_private_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `private_key`
-					FROM `".DB_PREFIX."my_node_keys`
-					WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_node_keys` )
+					FROM `".DB_PREFIX.MY_PREFIX."my_node_keys`
+					WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX.MY_PREFIX."my_node_keys` )
 					", 'fetch_one');
 	if (!$my_user_id || !$node_private_key) {
 		main_unlock();
@@ -49,7 +49,7 @@ main_lock();
 	$publickey = clear_public_key($publickey);
 
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			INSERT INTO  `".DB_PREFIX."my_node_keys` (
+			INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_node_keys` (
 				`public_key`,
 				`private_key`
 			)

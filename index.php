@@ -31,7 +31,7 @@ require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
 //$tpl['title'] = 'Авторизация';
 //print_R($_SESSION);
-//if ( $_SESSION['DC_ADMIN'] != 1 ) {
+//if ( !empty($_SESSION['user_id']) ) {
 //	$tpl['main_include'] = 'login.tpl';
 //}else{
 require_once( ABSPATH . 'templates/index.tpl' );

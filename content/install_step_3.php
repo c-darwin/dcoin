@@ -2,15 +2,21 @@
 if (!defined('DC')) die("!defined('DC')");
 
 if ($_POST['php_path']) {
+
+	$php_path = clear_comment($_POST['php_path'], $db);
+
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			UPDATE `".DB_PREFIX."my_table`
-			SET `php_path` = '".str_replace('\\', '\\\\', $_POST['php_path'])."'
-			");
+			INSERT INTO `".DB_PREFIX."config` (
+				`php_path`
+			)
+			VALUES (
+				'".str_replace('\\', '\\\\', $php_path)."'
+			)");
 }
 
 $tpl['php_path'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `php_path`
-		FROM `".DB_PREFIX."my_table`
+		FROM `".DB_PREFIX."config`
 		", 'fetch_one');
 
 if (OS=='WIN'){

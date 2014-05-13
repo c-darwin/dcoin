@@ -29,13 +29,14 @@ $ip = $_SERVER['REMOTE_ADDR'];
 $encrypted_data = $_POST['data'];
 
 debug_print('$encrypted_data='.$encrypted_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+debug_print('$encrypted_data='.bin2hex($encrypted_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 // извлечем ключ, декодируем его и декодируем им данные
 $binary_tx = decrypt_data ($encrypted_data, $db);
 if (substr($binary_tx, 0, 7)=='[error]')
 	die($binary_tx);
 
-debug_print('$binary_tx='.$binary_tx, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+//debug_print('$binary_tx='.$binary_tx, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 list(, $tx_hex ) = unpack( "H*", $binary_tx );
 $tx_hash = md5($binary_tx);

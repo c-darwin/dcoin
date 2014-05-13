@@ -43,6 +43,13 @@
 		
 	}
 
+	function load_menu() {
+		$.get("ajax/menu.php", { },
+				function(data) {
+					$('.fc_menu').html( data );
+				}, "html");
+	}
+
 	function doSign() {
 	
 		var SIGN_LOGIN = false;
@@ -96,9 +103,9 @@
 
 			var rsa = new RSAKey();
 			rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-			//a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-			//console.log(a[1]);
-			//console.log(a[2]);
+			var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
+			var modulus = a[1];
+			var exp = a[2];
 
 			//var hash = CryptoJS.SHA256(forsignature);
 			//var hSig = rsa.signString(forsignature, 'sha256');
@@ -118,7 +125,9 @@
 			if (key) {
 				// шлем подпись на сервер на проверку
 				$.post( 'ajax/check_sign.php', {
-							'sign': hSig
+							'sign': hSig,
+							'n' : modulus,
+							'e': exp
 						}, function (data) {
 							// залогинились
 							//alert(data.result);
@@ -329,11 +338,11 @@
 
 				</div>
 
-				   <button type="button" class="btn btn-primary" data-toggle="button"  onclick="doSign()">Sign</button>
 
-				<button type="button" class="btn" data-toggle="button"  onclick="logout()" style="margin-left:30px">logout</button>
 
-				  <a href="#" onclick="fc_navigate('home', 'lang=ru')">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en')">en</a>
+				<!--<button type="button" class="btn" data-toggle="button"  onclick="logout()" style="margin-left:30px">logout</button>-->
+
+				  <a href="#" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</a>
 		          <span id="cur_block_id-"></span>
 	          </div>
 	          <div id="bar_alert" style="display: none"><a href="#" onclick="fc_navigate('cash_requests_in')"><img src="img/alert.png"></a></div>
@@ -346,7 +355,7 @@
 		<div id="myModal" class="modal hide fade" tabindex="-1" role="dialog" aria-labelledby="myModalLabel" aria-hidden="true">
 			<div class="modal-header">
 			<button type="button" class="close" data-dismiss="modal" aria-hidden="true">×</button>
-			<h3 id="myModalLabel">Key</h3>
+			<h3 id="myModalLabel">Login</h3>
 			</div>
 			<div class="modal-body">
 				<form>
@@ -355,14 +364,15 @@
 				<label>Key</label>
 				<textarea rows="3" style="width:500px" id="modal_key"></textarea>
 				
-				<label>Password</label>
+				<label>Password (is exists)</label>
 				<input type="password"  style="width:500px" id="modal_password">
 				</fieldset>
 				</form>
 			</div>
 			<div class="modal-footer">
 			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-			<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" onclick="save_key()">Save changes</button>
+			<!--<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" onclick="save_key()">Save changes</button>-->
+				<button type="button" class="btn btn-primary" data-toggle="button"  data-dismiss="modal"  onclick="save_key();doSign()">Log in</button>
 			</div>
 		</div>
     <!-- / Modal -->
@@ -388,10 +398,7 @@
     <script src="js/bootstrap-typeahead.js"></script>
 
   	<script>
-		$.get("ajax/menu.php", { },
-		function(data) {
-			$('.fc_menu').html( data );
-		}, "html");
+	    load_menu();
 		
 		$.get("content.php", { },
 		function(data) {

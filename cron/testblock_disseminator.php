@@ -79,7 +79,7 @@ do {
 	if ($data) {
 		$data_binary =  dec_binary ($data['block_id'], 4) .
 								dec_binary ($data['time'], 4) .
-								dec_binary ($data['user_id'], 4) .
+								dec_binary ($data['user_id'], 5) .
 								$data['mrkl_root'] .
 								ParseData::encode_length_plus_data($data['signature']);
 

@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'DC', TRUE);
 
@@ -22,6 +22,9 @@ require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
 require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
 require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
 require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
+
+if (!node_admin_access($db))
+	die ('Permission denied');
 
 $rsa = new Crypt_RSA();
 extract($rsa->createKey(2048));

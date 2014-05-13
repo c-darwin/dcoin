@@ -14,11 +14,10 @@ require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'includes/class-parsedata.php' );
-
-		require_once( ABSPATH . 'phpseclib/Math/BigInteger.php');
-		require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
-		require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
-		require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
+require_once( ABSPATH . 'phpseclib/Math/BigInteger.php');
+require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
+require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
+require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
 		
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
@@ -38,7 +37,8 @@ do {
 
 	// если это первый запуск во время инсталяции, то нужно дождаться, пока юзер загрузит свой ключ
 	// т.к. возможно этот ключ уже есть в блоках и нужно обновить внутренние таблицы
-	if (!get_user_public_key($db)) {
+	$collective = get_community_users($db);
+	if (!$collective && !get_user_public_key($db)) {
 		sleep(1);
 		continue;
 	}
@@ -66,19 +66,19 @@ do {
 	}
 	main_unlock();
 
-	$my_table = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+	$my_config = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `local_gate_ip`,
 						  `static_node_user_id`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX."config`
 			", 'fetch_array' );
 
-	if ($my_table['local_gate_ip']) {
-		$hosts[0]['host'] = $my_table['local_gate_ip'];
-		$hosts[0]['user_id'] = $my_table['static_node_user_id'];
+	if ($my_config['local_gate_ip']) {
+		$hosts[0]['host'] = $my_config['local_gate_ip'];
+		$hosts[0]['user_id'] = $my_config['static_node_user_id'];
 		$node_host = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `host`
 				FROM `".DB_PREFIX."miners_data`
-				WHERE `user_id` = {$my_table['static_node_user_id']}
+				WHERE `user_id` = {$my_config['static_node_user_id']}
 				", 'fetch_one');
 		$get_max_block_script_name = 'protected_get_max_block.php?node_host='.$node_host;
 		$get_block_script_name = 'protected_get_block.php';
@@ -193,7 +193,7 @@ do {
 
 		// если существуют глючная цепочка, тот тут мы её проигнорируем
 		$bad_blocks = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-				SELECT `bad_blocks` FROM `".DB_PREFIX."my_table`
+				SELECT `bad_blocks` FROM `".DB_PREFIX."config`
 				" , 'fetch_one');
 		$bad_blocks = json_decode($bad_blocks, true);
 		debug_print('$bad_blocks='.print_r_hex($bad_blocks), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);

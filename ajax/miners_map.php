@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'DC', TRUE);
 
@@ -17,10 +17,10 @@ require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$my_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `user_id`
-		FROM `".DB_PREFIX."my_table`
-		", 'fetch_one' );
+if (!empty($_SESSION['restricted']))
+	die('Permission denied');
+
+$my_user_id = $_SESSION['user_id'];
 
 $min_amount = $_REQUEST['min_amount'];
 $currency_id = $_REQUEST['currency_id'];

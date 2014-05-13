@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 

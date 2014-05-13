@@ -11,7 +11,7 @@ if (!$my_miner_id) {
 	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `node_voting_send_request`,
 						 `host`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX.MY_PREFIX."my_table`
 			LIMIT 1
 			", 'fetch_array');
 	$node_voting_send_request = $data['node_voting_send_request'];

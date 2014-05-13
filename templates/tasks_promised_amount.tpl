@@ -8,6 +8,7 @@ function write_for_signature (result) {
 		$('#comment').val('null');
 	}
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['data']['id']}"?>,'+result+','+$('#comment').val() );
+	doSign();
 }
 
 $('#btn-bad').bind('click', function () {

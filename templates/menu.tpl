@@ -56,6 +56,8 @@
 						<li><a href="#" onclick="fc_navigate('bug_reporting')"><?php echo $lng['bug_reporting']?></a></li>
 						<li><a href="#" onclick="fc_navigate('start_stop')"><?php echo $lng['start_stop']?></a></li>
 						<li><a href="#" onclick="fc_navigate('nulling')"><?php echo $lng['nulling']?></a></li>
+						<?php echo defined('POOL_ADMIN')?'<li><a href="#" onclick="fc_navigate(\'pool_admin\')">Pool admin</a></li>':'' ?>
+						<li><a href="#" onclick="logout()"><?php echo $lng['logout']?></a></li>
 					</ul>
 				</li>
             </ul>

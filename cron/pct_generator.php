@@ -32,10 +32,14 @@ if (!$block_id) {
 	exit;
 }
 
+$testBlock = new testblock($db, true);
+
 // а майнер ли я ?
-$my_miner_id = get_my_miner_id($db);
+$my_miner_id = $testBlock->miner_id;
+$my_user_id = $testBlock->user_id;
 if (!$my_miner_id) {
 	main_unlock();
+	unset($testBlock);
 	exit;
 }
 
@@ -47,8 +51,6 @@ $pct_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 		FROM `".DB_PREFIX."pct`
 		", 'fetch_one' );
 if ( $time - $pct_time > $variables['new_pct_period'] ) {
-
-	$my_user_id = get_my_user_id($db);
 
 	// берем все голоса miner_pct
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -93,11 +95,12 @@ if ( $time - $pct_time > $variables['new_pct_period'] ) {
 
 	debug_print( $new_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-	$node_private_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `private_key`
-					FROM `".DB_PREFIX."my_node_keys`
-					WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_node_keys` )
-					", 'fetch_one');
+	$testBlock = new testblock($db, true);
+	if (get_community_users($db))
+		$my_prefix = $testBlock->user_id.'_';
+	else
+		$my_prefix = '';
+	$node_private_key = get_node_private_key($db, $my_prefix);
 
 	$json_data = json_encode($new_pct);
 	// подписываем нашим нод-ключем данные транзакции
@@ -128,6 +131,4 @@ if ( $time - $pct_time > $variables['new_pct_period'] ) {
 }
 
 main_unlock();
-
-
 ?>

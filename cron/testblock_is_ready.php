@@ -43,8 +43,8 @@ do {
 	// сколько нужно спать
 	$testBlock = new testblock($db);
 
-	$my_miner_id = $testBlock->my_table['miner_id'];
-	$my_user_id = $testBlock->my_table['user_id'];
+	$my_miner_id = $testBlock->miner_id;
+	$my_user_id = $testBlock->user_id;
 
 	if (!$my_miner_id){
 		unset($testBlock);
@@ -114,7 +114,6 @@ do {
 		sleep(1);
 		continue;
 	}
-
 
 	// составим блок. заголовок + тело + подпись
 	$testblock_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "

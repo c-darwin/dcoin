@@ -23,6 +23,7 @@ if (!$PublicKey)
 
 // пишем в нашу таблу паблик-кей и если нужно, запароленный приватный ключ и хэш пароля
 if (!$tpl['error'] && $_POST['save_private_key']) {
+
 	$private_key = $_POST['private_key'];
 	$hash_pass = $_POST['hash_pass'];
 
@@ -34,25 +35,29 @@ if (!$tpl['error'] && $_POST['save_private_key']) {
 
 	if (!$tpl['error']) {
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				INSERT INTO `".DB_PREFIX."my_keys`(
+				INSERT INTO `".DB_PREFIX.MY_PREFIX."my_keys`(
 					`public_key`,
 					`private_key`,
-					`password_hash`
+					`password_hash`,
+					`status`
 				)
 				VALUES (
 					0x{$PublicKey},
 					'{$private_key}',
-					'{$hash_pass}'
+					'{$hash_pass}',
+					'approved'
 				)");
 	}
 }
 else if (!$tpl['error']) {
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		INSERT INTO `".DB_PREFIX."my_keys`(
-			`public_key`
+		INSERT INTO `".DB_PREFIX.MY_PREFIX."my_keys`(
+			`public_key`,
+			`status`
 		)
 		VALUES (
-			0x{$PublicKey}
+			0x{$PublicKey},
+			'approved'
 		)");
 }
 
@@ -68,57 +73,5 @@ if (!$tpl['error']) {
 else {
 	require_once( ABSPATH . 'templates/install_step_4.tpl' );
 }
-	/*}
-*
-	else {
-
-		$rsa = new Crypt_RSA();
-		extract($rsa->createKey(2048));
-		$publickey = clear_public_key($publickey);
-		$priv = $rsa->_parseKey($privatekey,CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
-		$aes = new Crypt_AES( CRYPT_AES_MODE_ECB );
-		$aes->setKey(md5($_POST['pass']));
-		$text = $privatekey;
-
-		$aes_encr = $aes->encrypt($text);
-
-		$private_key = chunk_split(base64_encode($aes_encr), 64);
-		$password_hash = hash('sha256', hash('sha256', $_POST['pass']));
-
-		if (!$_POST['save_private_key']) {
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_keys`(
-						`public_key`
-					) VALUES (
-						0x{$publickey}
-					)");
-		}
-		else {
-
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					TRUNCATE TABLE `".DB_PREFIX."my_keys`
-			");
-
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_keys`(
-						`public_key`,
-						`private_key`,
-						`password_hash`
-					) VALUES (
-						0x{$publickey},
-						'{$private_key}',
-						'{$password_hash}'
-					)");
-		}
-
-		debug_print("privatekey={$text}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		debug_print("_POST['pass']={$_POST['pass']}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		debug_print("password_hash={$password_hash}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-
-		$tpl['key'] = $private_key;
-
-		require_once( ABSPATH . 'templates/install_step_5.tpl' );
-	}
-	*/
 
 ?>

@@ -8,7 +8,7 @@ set_time_limit(0);
 require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
-require_once( ABSPATH . 'cron/deamons_inc.php' );
+require_once( ABSPATH . 'cron/daemons_inc.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
@@ -20,7 +20,7 @@ foreach($daemons as $daemon) {
 
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `script`, `time`
-		FROM `'.DB_PREFIX.'deamons`
+		FROM `'.DB_PREFIX.'daemons`
 		');
 while ($row = $db->fetchArray($res)) {
 	$name = substr( $row['script'], 0, strpos($row['script'], '.'));

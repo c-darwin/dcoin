@@ -12,16 +12,9 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, 'S
 while ($row = $db->fetchArray($res)) 
 	$tpl['currency_list'][$row['id']] = $row['name'];
 
+$tpl['user_id'] = $_SESSION['user_id'];
 
-$tpl['user_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `user_id`
-		FROM `'.DB_PREFIX.'my_table`
-		', 'fetch_one');
-
-if ($user_id)
-	$tpl['user_id'] = $user_id;
-
-if ($tpl['user_id']) {
+if ($tpl['user_id']!='wait') {
 
 	// получаем список кошельков, на которых есть FC
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -30,23 +23,7 @@ if ($tpl['user_id']) {
 			WHERE `user_id` = {$tpl['user_id']}
 			");
 	while ( $row = $db->fetchArray($res) ) {
-/*
-		$pct_array = array();
-		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT *
-					FROM `".DB_PREFIX."pct`
-					WHERE `currency_id` = {$row['currency_id']}
-					ORDER BY `time` ASC
-					");
-		while ($row0 = $db->fetchArray($res)) {
-			$pct_array[$row0['time']]['miner'] = $row0['miner'];
-			$pct_array[$row0['time']]['user'] = $row0['user'];
-		}
 
-		$points_status_array = ParseData::getPointsStatus($tpl['user_id'], $db);
-
-		$row['amount']+= ParseData::calc_profit( $row['amount'], $row['last_update'], time(), $pct_array, $points_status_array );
-*/
 		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $tpl['user_id'], $db, $row['last_update'], time(), 'wallet');
 		$row['amount'] = floor( round( $row['amount'], 3)*100 ) / 100;
 		$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -59,21 +36,19 @@ if ($tpl['user_id']) {
 		$row['amount'] -= $forex_orders_amount;
 		$tpl['wallets'][] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount']);
 
-		//print_r($row);
-		//print_r($pct_array);
-		//print_r($points_status_array);
-
 	}
 
-	// получаем последние 20 транзакций по кошелькам
-	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT *
-			FROM `".DB_PREFIX."my_dc_transactions`
-			ORDER BY `id` DESC
-			LIMIT 0, 100
-			");
-	while ( $row = $db->fetchArray($res) ) {
-		$tpl['my_dc_transactions'][] = $row;
+	if (empty($_SESSION['restricted'])) {
+		// получаем последние 20 транзакций по кошелькам
+		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX.MY_PREFIX."my_dc_transactions`
+				ORDER BY `id` DESC
+				LIMIT 0, 100
+				");
+		while ( $row = $db->fetchArray($res) ) {
+			$tpl['my_dc_transactions'][] = $row;
+		}
 	}
 
 }

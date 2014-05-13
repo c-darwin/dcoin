@@ -59,7 +59,7 @@ do {
 	// отметимся в БД, что мы живы.
 	upd_deamon_time($db);
 
-	// проверим, не нужно нам выйти, т.к. обновилась версия скрипта
+	// проверим, не нужно ли нам выйти, т.к. обновилась версия скрипта
 	if (check_deamon_restart($db)){
 		main_unlock();
 		exit;
@@ -80,14 +80,15 @@ do {
 		continue;
 	}
 
-	debug_print("memory", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 	$testBlock = new testblock($db, true);
 
-	debug_print("memory", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-	$my_miner_id = $testBlock->my_table['miner_id'];
-	$my_user_id = $testBlock->my_table['user_id'];
 
-	debug_print($testBlock->my_table, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	$my_miner_id = $testBlock->miner_id;
+	$my_user_id = $testBlock->user_id;
+
+	debug_print($testBlock->miner_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	debug_print($testBlock->user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 	if (!$my_miner_id){
 		unset($testBlock);
@@ -98,8 +99,6 @@ do {
 	}
 
 	$sleep = $testBlock->getGenSleep();
-
-	$node_private_key = get_node_private_key($db);
 
 	$block_id = $testBlock->prev_block['block_id'];
 	$prev_head_hash = $testBlock->prev_block['head_hash'];
@@ -125,7 +124,9 @@ do {
 	for ($i=0; $i<$sleep; $i++) {
 		main_lock();
 		debug_print("i={$i}\nsleep={$sleep}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		$new_head_hash = bin2hex($db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SELECT `head_hash` FROM `".DB_PREFIX."info_block` ", 'fetch_one'));
+		$new_head_hash = bin2hex($db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `head_hash` FROM `".DB_PREFIX."info_block` ",
+				'fetch_one'));
 		debug_print("new_head_hash={$new_head_hash}\nprev_head_hash={$prev_head_hash}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		main_unlock();
 		if ($new_head_hash!=$prev_head_hash) {
@@ -134,7 +135,7 @@ do {
 		}
 		upd_deamon_time ($db);
 		// из-за задержек с main_lock время уже прошло и выходим раньше, чем закончится цикл
-		if(time()-$start_sleep>$sleep) {
+		if(time() - $start_sleep>$sleep) {
 			debug_print('break', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			break;
 		}
@@ -176,12 +177,16 @@ do {
 		continue;
 	}
 
-	$my_user_id = $testBlock->my_table['user_id'];
+	$my_user_id = $testBlock->user_id;
 	$new_block_id = $block_id + 1;
 	$new_block_id_binary = dec_binary( $new_block_id, 4 );
 	$user_id_binary = dec_binary( $testBlock->cur_user_id, 5 );
 	$level_binary = dec_binary( $testBlock->level, 1 );
-	$node_private_key = get_node_private_key($db);
+	if (get_community_users($db))
+		$my_prefix = $testBlock->user_id.'_';
+	else
+		$my_prefix = '';
+	$node_private_key = get_node_private_key($db, $my_prefix);
 	$prev_head_hash = $testBlock->prev_block['head_hash'];
 
 	#####################################
@@ -296,7 +301,6 @@ do {
 	Далее - тело блока (Тр-ии)
 	*/
 
-	debug_print("memory", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	// подписываем нашим нод-ключем заголовок блока
 	$rsa = new Crypt_RSA();
 	$rsa->loadKey($node_private_key);
@@ -305,9 +309,7 @@ do {
 	$for_sign = "0,{$new_block_id},{$testBlock->prev_block['hash']},{$time},{$my_user_id},{$testBlock->level},{$mrkl_root}";
 	debug_print('$for_sign='.$for_sign, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	$signature = $rsa->sign( $for_sign );
-	debug_print("memory", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	unset($rsa);
-	debug_print("memory", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	list(, $signature_hex ) = unpack( "H*",   $signature);
 	debug_print('$signature_hex = '.$signature_hex, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 

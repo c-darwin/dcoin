@@ -1,13 +1,17 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+if (empty($_SESSION['restricted'])) {
+	$tpl['public_key'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `public_key`
+			FROM `".DB_PREFIX.MY_PREFIX."my_keys`
+			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX.MY_PREFIX."my_keys` )
+			", 'fetch_one');
+	$tpl['public_key'] = bin2hex($tpl['public_key']);
+}
 
-$tpl['public_key'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `public_key`
-		FROM `".DB_PREFIX."my_keys`
-		WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_keys` )
-		", 'fetch_one');
-$tpl['public_key'] = bin2hex($tpl['public_key']);
+$tpl['my_notice'] = get_my_notice_data();
+
 $tpl['script_version'] = str_ireplace('[ver]', get_current_version($db), $lng['script_version']);
 
 $script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -19,8 +23,15 @@ if ($script_name == 'my_lock')
 else
 	$tpl['demons_status'] = 'ON';
 
-$tpl['my_notice'] = get_my_notice_data();
-//var_dump($tpl['my_notice']);
+if ( isset($db) && get_community_users($db) ) {
+	$pool_admin_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `pool_admin_user_id`
+				FROM `".DB_PREFIX."config`
+				", 'fetch_one' );
+	if ( (int)$_SESSION['user_id'] === (int)$pool_admin_user_id ) {
+		define('POOL_ADMIN', true);
+	}
+}
 
 require_once( ABSPATH . 'templates/home.tpl' );
 

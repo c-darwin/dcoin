@@ -11,6 +11,7 @@ $('#generate_change_node_key').bind('click', function () {
 			$("#public_key").val( data.public_key );
 			$("#private_key").val( data.private_key );
 			$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key").val() );
+			doSign();
 		}, 'json' );
 		
 } );
@@ -38,7 +39,7 @@ $('#send_to_net').bind('click', function () {
 
 	<legend><h2><?php echo $lng['change_node_key_title']?></h2></legend>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
-	
+
 	<div id="generate">
 		<button class="btn" type="button" id="generate_change_node_key"><?php echo $lng['generate_new_node_key']?></button>
 	</div>
@@ -47,6 +48,6 @@ $('#send_to_net').bind('click', function () {
 
 	<input type="hidden" id="public_key">
 	<input type="hidden" id="private_key">
-    
+
 </div>
 <!-- /container -->

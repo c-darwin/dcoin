@@ -49,20 +49,21 @@
 
 	<?php echo $lng['data']?>:<br>
 	<textarea id="for-signature" style="width:500px; height:100px"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['data']['race']},{$tpl['data']['country']},{$tpl['data']['latitude']},{$tpl['data']['longitude']},{$tpl['data']['host']},{$tpl['data']['face_hash']},{$tpl['data']['profile_hash']},{$tpl['data']['face_coords']},{$tpl['data']['profile_coords']},{$tpl['data']['video_type']},{$tpl['data']['video_url_id']},{$tpl['data']['node_public_key']}"; ?></textarea><br>
-	<label><?php echo $lng['sign']?></label>
-	<textarea id="signature1" style="width:500px;" rows="4"></textarea>
-	<label><?php echo $lng['sign']?> 2</label>
-	<textarea id="signature2" style="width:500px;" rows="4"></textarea>
-	<label><?php echo $lng['sign']?> 3</label>
-	<textarea id="signature3" style="width:500px;" rows="4"></textarea>
+	<?php
+	for ($i=1; $i<=$count_sign; $i++) {
+		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
+	}
+	?>
 	<br>
 	
 	</textarea><br>
 
-	<button class="btn btn-success" onclick="send_data()">Send</button>
+	<button class="btn btn-success" onclick="send_data()"><?php echo $lng['send_to_net']?></button>
 	
-	
-	<br><br><br><br><br><br><br>
+	<script>
+		doSign();
+	</script>
+
 		
        
 

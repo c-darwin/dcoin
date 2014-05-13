@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
@@ -39,30 +39,25 @@ function save_img($src, $save_name, $coords) {
 	return true;
 }
 
-if ( $_SESSION['DC_ADMIN'] ) {
+if ( !empty($_SESSION['user_id']) && empty($_SESSION['restricted']) ) {
 	
 	$coords = explode(';', $_REQUEST['coords']);
+	$r = "\d{1,5}(\.\d{1,30})?";
+	if (!preg_match("/^({$r};){5}{$r}$/iD", $_REQUEST['coords']))
+		die('bad coords');
 
-	// пришла временная фотка, которую обрежим и сохраним как постоянную
+	// пришла временная фотка, которую обрежем и сохраним, как постоянную
 	if ($_REQUEST['type'] == 'user_face_tmp') {
-		
-		save_img( ABSPATH . '/public/user_face_tmp.jpg' , ABSPATH . '/public/user_face.jpg' , $coords);
-		
-		echo json_encode( array('url'=>'public/user_face.jpg') );
+
+		$name = 'public/'.$_SESSION['user_id'].'_user_face.jpg';
+		save_img( ABSPATH . '/public/'.$_SESSION['user_id'].'_user_face_tmp.jpg' , ABSPATH . $name , $coords);
+		echo json_encode( array('url'=>$name) );
 	}
 	else if ($_REQUEST['type'] == 'user_profile_tmp') {
-		
-		save_img( ABSPATH . '/public/user_profile_tmp.jpg' , ABSPATH . '/public/user_profile.jpg' , $coords);
-		
-		echo json_encode( array('url'=>'public/user_profile.jpg') );
-	}
-	else if ($_REQUEST['type'] == 'banknote') {
-	
-		$promised_amount_id = filter_var($_REQUEST['promised_amount_id'], FILTER_SANITIZE_NUMBER_INT);
-		
-		save_img( ABSPATH . '/public/banknote_tmp.jpg' , ABSPATH . '/public/banknote_'.$promised_amount_id.'.jpg' , $coords);
-		
-		echo json_encode( array('url'=>'public/banknote_'.$promised_amount_id.'.jpg', 'hash'=>hash('sha256', (hash_file('sha256', ABSPATH . '/public/banknote_'.$promised_amount_id.'.jpg')))));
+
+		$name = 'public/'.$_SESSION['user_id'].'_user_profile.jpg';
+		save_img( ABSPATH . '/public/'.$_SESSION['user_id'].'_user_profile_tmp.jpg' , ABSPATH . $name , $coords);
+		echo json_encode( array('url'=>$name ));
 	}
 	
 }

@@ -9,7 +9,8 @@
 			'mysql_prefix' : $('#mysql_prefix').val(),
 			'mysql_db_name' : $('#mysql_db_name').val(),
 			'mysql_username' : $('#mysql_username').val(),
-			'mysql_password' : $('#mysql_password').val()
+			'mysql_password' : $('#mysql_password').val(),
+			'pool_data' : $('#pool_data').val()
 		}, function (data) { $('.fc_content').html( data ); }, 'html' );
 	} );
 </script>
@@ -27,13 +28,17 @@
 			echo "<p style=\"color:#ff0000\">{$tpl['error'][$i]}</p>";
 	?>
 <table>
-<tr><td>host</td><td><input type="text" id="mysql_host" value="<?php echo $tpl['mysql_host']?>"></td></tr>
-<tr><td>port</td><td><input type="text" id="mysql_port" value="<?php echo $tpl['mysql_port']?>"></td></tr>
-<!--<tr><td>prefix</td><td><input type="text" id="mysql_prefix" value="<?php echo $tpl['mysql_prefix']?>"></td></tr>-->
-<tr><td>db_name</td><td><input type="text" id="mysql_db_name" value="<?php echo $tpl['mysql_db_name']?>"></td></tr>
-<tr><td>username</td><td><input type="text" id="mysql_username" value="<?php echo $tpl['mysql_username']?>"></td></tr>
-<tr><td>password</td><td><input type="password" id="mysql_password" value=""></td></tr>
-<tr><td colspan="2"><button id="next" class="btn btn-success"><?php echo $lng['next']?></button></td></tr>
+	<tr><td>host</td><td><input type="text" id="mysql_host" value="<?php echo $tpl['mysql_host']?>"></td></tr>
+	<tr><td>port</td><td><input type="text" id="mysql_port" value="<?php echo $tpl['mysql_port']?>"></td></tr>
+	<!--<tr><td>prefix</td><td><input type="text" id="mysql_prefix" value="<?php echo $tpl['mysql_prefix']?>"></td></tr>-->
+	<tr><td>db_name</td><td><input type="text" id="mysql_db_name" value="<?php echo $tpl['mysql_db_name']?>"></td></tr>
+	<tr><td>username</td><td><input type="text" id="mysql_username" value="<?php echo $tpl['mysql_username']?>"></td></tr>
+	<tr><td>password</td><td><input type="password" id="mysql_password" value=""></td></tr>
+	<tr><td>pool_data (if present)</td><td><textarea id="pool_data"></textarea></td></tr>
+	<tr><td colspan="2"><button id="next" class="btn btn-success"><?php echo $lng['next']?></button></td></tr>
+
+
+
 
 </table>
 <?php echo $lng['install_mysql_warning']?>

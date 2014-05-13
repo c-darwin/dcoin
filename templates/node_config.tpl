@@ -17,7 +17,7 @@
 
   <legend><h2><?php echo $lng['node_config_title']?></h2></legend>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
-    
+
     <div id="new">
 		<label><?php echo $lng['in_connections_ip_limit']?></label>
 		<input id="in_connections_ip_limit" class="input" type="text" value="<?php echo $tpl['data']['in_connections_ip_limit']?>">

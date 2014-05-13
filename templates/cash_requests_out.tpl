@@ -44,6 +44,7 @@ $('#next').bind('click', function () {
 			$("#onmap").css("display", "none");
 			$("#sign").css("display", "block");
 			$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+$('#to_user_id').text()+','+$('#send_amount').val()+','+data+','+$('#currency_id').val()+','+$('#hash_code').val() );
+			doSign();
 
 		});
 	}

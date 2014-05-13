@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'DC', TRUE);
 
@@ -21,10 +21,17 @@ require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
+$to_user_id = $_REQUEST['to_user_id'];
+if ( !check_input_data ($to_user_id , 'int') )
+	die('error to_user_id');
+
+if (strlen($_REQUEST['comment'])>1024)
+	die('error comment');
+
 $public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `public_key_0`
 				FROM `".DB_PREFIX."users`
-				WHERE `user_id` = {$_REQUEST['to_user_id']}
+				WHERE `user_id` = {$to_user_id}
 				LIMIT 1
 				", 'fetch_one' );
 

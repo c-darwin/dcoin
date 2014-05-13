@@ -2,6 +2,10 @@
 
 if (!defined('DC'))
 	die('!DC');
+
+if (preg_match('/install/', $_REQUEST['tpl_name']))
+	return true;
+
 $show = false;
 // проверим, есть ли сообщения от админа
 $data =  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -80,6 +84,12 @@ else {
 	}
 }
 
+// для пулов и ограниченных юзеров выводим сообщение без кнопок
+$community = get_community_users($db);
+if (($community || !empty($_SESSION['restricted'])) && $new_max_ver) {
+	$lng['new_version'] = str_ireplace('[ver]', $new_max_ver, $lng['new_version_pulls']);
+}
+
 if ($new_max_ver && $my_ver) {
 
 		echo "<script>
@@ -104,48 +114,85 @@ if ($new_max_ver && $my_ver) {
 			    </div>";
 }
 
-$variables_ = ParseData::get_variables($db, array('alert_error_time'));
-$my_miner_id = get_my_miner_id($db);
-// если юзер уже майнер, то у него должно быть настроено точное время
-if ($my_miner_id) {
-	$diff = intval(ntp_time());
-	if ($diff > $variables_['alert_error_time']) {
-		$lng['alert_time'] = str_ireplace('[sec]', $diff, $lng['alert_time']);
-		echo "<div class=\"container\"><div class='alert alert-error' >
-			    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-			    <h4>Warning!</h4>
-			   <div>{$lng['alert_time']}</div>
-			    </div>
-			    </div>";
+if (empty($_SESSION['restricted'])) {
+	$variables_ = ParseData::get_variables($db, array('alert_error_time'));
+	$my_miner_id = get_my_miner_id($db);
+	// если юзер уже майнер, то у него должно быть настроено точное время
+	if ($my_miner_id) {
+		$diff = intval(ntp_time());
+		if ($diff > $variables_['alert_error_time']) {
+			$lng['alert_time'] = str_ireplace('[sec]', $diff, $lng['alert_time']);
+			echo "<div class=\"container\"><div class='alert alert-error' >
+				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
+				    <h4>Warning!</h4>
+				   <div>{$lng['alert_time']}</div>
+				    </div>
+				    </div>";
+		}
 	}
 }
 
-// после обнуления таблиц my_node_key будет пуст
-// получим время из последнего блока
-$last_block_bin = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `data`
-		FROM `".DB_PREFIX."block_chain`
-		ORDER BY `id` DESC
-		LIMIT 1
-		", 'fetch_one');
-ParseData::string_shift( $last_block_bin, 5 );
-$block_time = ParseData::binary_dec_string_shift( $last_block_bin, 4 );
-// дождемся загрузки свежих блоков
-// if (time() - $block_time < 600) { закомменчено, т.к. при ручном откате до какого-то блока время будет старое
-	$my_node_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT `private_key`
-			FROM `".DB_PREFIX."my_node_keys`
-			WHERE `block_id` > 0
+if (empty($_SESSION['restricted'])) {
+	// после обнуления таблиц my_node_key будет пуст
+	// получим время из последнего блока
+	$last_block_bin = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `data`
+			FROM `".DB_PREFIX."block_chain`
+			ORDER BY `id` DESC
 			LIMIT 1
 			", 'fetch_one');
-	if (!$my_node_key && $my_miner_id>0) {
+	ParseData::string_shift( $last_block_bin, 5 );
+	$block_time = ParseData::binary_dec_string_shift( $last_block_bin, 4 );
+	// дождемся загрузки свежих блоков
+	// if (time() - $block_time < 600) { закомменчено, т.к. при ручном откате до какого-то блока время будет старое
+		$my_node_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `private_key`
+				FROM `".DB_PREFIX.MY_PREFIX."my_node_keys`
+				WHERE `block_id` > 0
+				LIMIT 1
+				", 'fetch_one');
+		if (!$my_node_key && $my_miner_id>0) {
+			echo "<div class=\"container\"><div class='alert alert-error' >
+				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
+				    <h4>Warning!</h4>
+				   <div>{$lng['alert_change_node_key']}</div>
+				    </div>
+				    </div>";
+		}
+	//}
+}
+// просто информируем, что в данном разделе у юзера нет прав
+$skip_community = array('node_config', 'change_node_key', 'nulling', 'start_stop');
+$skip_restricted_users = array('node_config', 'change_node_key', 'nulling', 'start_stop', 'cash_requests_in', 'cash_requests_out', 'upgrade', 'notifications');
+if ( (!node_admin_access($db) && in_array($tpl_name, $skip_community)) ||  (!empty($_SESSION['restricted']) && in_array($tpl_name, $skip_restricted_users)) ) {
+	echo "<div class=\"container\"><div class='alert alert-error' >
+				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
+				    <h4>Warning!</h4>
+				   <div>{$lng['permission_denied']}</div>
+				    </div>
+				    </div>";
+
+}
+
+// информируем, что у юзера нет прав и нужно стать майнером
+$miners_only = array('cash_requests_in', 'cash_requests_out', 'change_node_key', 'voting', 'geolocation', 'promised_amount_list', 'promised_amount_add', 'holidays_list', 'new_holidays', 'points', 'tasks', 'change_host', 'new_user', 'change_commission');
+if (in_array($tpl_name, $miners_only)) {
+	$miner_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `miner_id`
+			FROM `".DB_PREFIX."users`
+			LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."users`.`user_id` = `".DB_PREFIX."miners_data`.`user_id`
+			WHERE `".DB_PREFIX."users`.`user_id` = {$user_id}
+			LIMIT 1
+			", 'fetch_one');
+	//print $db->printsql();
+	if (!$miner_id) {
 		echo "<div class=\"container\"><div class='alert alert-error' >
-			    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-			    <h4>Warning!</h4>
-			   <div>{$lng['alert_change_node_key']}</div>
-			    </div>
-			    </div>";
+				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
+				    <h4>Warning!</h4>
+				   <div>{$lng['only_for_miners']}</div>
+				    </div>
+				    </div>";
 	}
-//}
+}
 
 ?>

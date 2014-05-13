@@ -1,9 +1,9 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
-$_SESSION['DC_ADMIN'] = 0;
+unset($_SESSION['user_id']);
 
 ?>

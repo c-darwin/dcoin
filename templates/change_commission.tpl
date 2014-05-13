@@ -23,6 +23,7 @@ $('#save').bind('click', function () {
 	$("#change_commission").css("display", "none");
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+json_data);
+	doSign();
 
 });
 

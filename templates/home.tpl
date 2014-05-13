@@ -34,7 +34,7 @@
 
 		<div id="main_status"><?php echo $tpl['my_notice']['main_status']?></div>
 
-		<p><?php echo $lng['account_status']?>: <span id="account_status"><?php echo $tpl['my_notice']['account_status'];?></span></p>
+		<p><?php echo $lng['account_status']?>: <span id="account_status"><?php echo $tpl['my_notice']['account_status'];?></span> <?php echo !empty($_SESSION['restricted'])?'restricted':'' ?> <?php echo defined('POOL_ADMIN')?'(Pool admin)':'' ?></p>
 
 		<?php echo $lng['home_text']?>
 		<br>

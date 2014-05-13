@@ -7,6 +7,7 @@ function next_step()
 	$("#geo").css("display", "none");
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#latitude").val()+','+$("#longitude").val()+','+$("#country").val() );
+	doSign();
 }
 
 $('#send_to_net').bind('click', function () {
@@ -17,7 +18,7 @@ $('#send_to_net').bind('click', function () {
 			'latitude' : $('#latitude').val(),
 			'longitude' : $('#longitude').val(),
 			'country' : $('#country').val(),
-						'signature1': $('#signature1').val(),
+			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 			}, function () {

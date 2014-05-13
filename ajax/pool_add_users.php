@@ -13,17 +13,17 @@ require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 
+$mysqli_link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-if (empty($_SESSION['restricted']) && !get_community_users($db)) {
+if (!node_admin_access($db))
+	die('Permission denied');
 
-	if ( $_REQUEST['type'] == 'mp4' )
-		@unlink( ABSPATH . 'public/'.$_SESSION['user_id'].'_user_video.mp4' );
+$db_name = DB_NAME;
+$prefix = DB_PREFIX;
+include ABSPATH.'schema.php';
 
-	if ( $_REQUEST['type'] == 'webm_ogg' ) {
-		@unlink( ABSPATH . 'public/'.$_SESSION['user_id'].'_user_video.ogv' );
-		@unlink( ABSPATH . 'public/'.$_SESSION['user_id'].'_user_video.webm' );
-	}
-}
-
+$error = pool_add_users ($_POST['pool_data'], $my_queries, $mysqli_link, DB_PREFIX);
+if ($error)
+	print $error;
 ?>

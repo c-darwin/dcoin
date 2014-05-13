@@ -12,13 +12,15 @@ $tpl['currency_id'] = @$_REQUEST['parameters']['currency_id'];
 if (!$tpl['currency_id'])
 	$tpl['currency_id'] = 150;
 
-// то, что еще не попало в блоки.
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT *
-		FROM `'.DB_PREFIX.'my_promised_amount`
-		');
-while ($row = $db->fetchArray($res)) {
-	$tpl['promised_amount_list']['my_pending'][] = $row;
+if (empty($_SESSION['restricted'])) {
+	// то, что еще не попало в блоки.
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT *
+			FROM `'.DB_PREFIX.MY_PREFIX.'my_promised_amount`
+			');
+	while ($row = $db->fetchArray($res)) {
+		$tpl['promised_amount_list']['my_pending'][] = $row;
+	}
 }
 
 $tpl['variables'] = ParseData::get_all_variables($db);

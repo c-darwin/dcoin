@@ -171,6 +171,9 @@ $host = $data['host'];
 $node_public_key = $data['node_public_key'];
 debug_print($new_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+// user_id получателя (нужно для пулов)
+$need_tx = dec_binary($new_data['user_id'], 5).$need_tx;
+
 // шифруем данные. ключ $key будем использовать для расшифровки ответа
 $encrypted_data = encrypt_data ($need_tx, $node_public_key, $db, $my_key);
 

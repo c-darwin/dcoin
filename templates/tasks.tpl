@@ -12,7 +12,7 @@ $('#btn-bad,#btn-bad2,#btn-bad3').bind('click', function () {
 	$('#result').val( '0' );
 	
 	$("#for-signature").val( '5,'+$('#time').val()+','+$('#user_id').val()+','+$('#contender_id').val()+','+$('#result').val() );
-
+	doSign();
 	
 } );
 
@@ -41,8 +41,7 @@ $('#btn-step4').bind('click', function () {
 	$('#result').val( '1' );
 	
 	$("#for-signature").val( '5,'+$('#time').val()+','+$('#user_id').val()+','+$('#contender_id').val()+','+$('#result').val() );
-
-	
+	doSign();
 
 } );
 
@@ -200,7 +199,7 @@ coords.getObject("profile").init({
     <!-- S I G N -->
 	<?php require_once( 'signatures.tpl' );?>
     
-    <input type="hidden" id="user_id" value="<?php echo $_SESSION['DC_ADMIN']?>">
+    <input type="hidden" id="user_id" value="<?php echo $_SESSION['user_id']?>">
     <input type="hidden" id="time" value="<?php echo time()?>">
     <input type="hidden" id="contender_id" value="<?php echo $tpl['user_info']['user_id']?>">
     <input type="hidden" id="result" value="">

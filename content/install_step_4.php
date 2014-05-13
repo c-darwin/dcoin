@@ -6,7 +6,13 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SET`progress` = 3
 		");
 
-require_once( ABSPATH . 'templates/install_step_4.tpl' );
-
-
+if (!get_community_users($db))
+	require_once( ABSPATH . 'templates/install_step_4.tpl' );
+else {
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		UPDATE `".DB_PREFIX."install`
+		SET`progress` = 'complete'
+		");
+	require_once( ABSPATH . 'templates/install_step_6.tpl' );
+}
 ?>

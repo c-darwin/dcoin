@@ -34,9 +34,9 @@
 	<h3><?php echo $lng['country']?></h3>
 	<?php echo $lng['any_country']?><br>
 	<?php
-	echo "<select id='country'><option value='0'></option>";
+	echo "<select id='country'><option value=''></option>";
 	for ($i=0; $i<sizeof($tpl['countries']); $i++)
-		echo "<option value='{$i}' ".($i==$tpl['country']?'selected':'').">{$tpl['countries'][$i]}</option>\n";
+		echo "<option value='{$i}' ".($i===$tpl['country']?'selected':'').">{$tpl['countries'][$i]}</option>\n";
 	echo '</select>';
 	?>
 	<br>

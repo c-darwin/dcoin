@@ -4,7 +4,7 @@
 	<script>
 		$('#start').bind('click', function () {
 			$('#wait').text('<?php echo $lng['please_wait']?>');
-			$.post( 'ajax/start_deamons.php', { } ,
+			$.post( 'ajax/start_daemons.php', { } ,
 					function () {
 						fc_navigate ('start_stop', {'alert': 'complete'} );
 						$('#status').text('ON');
@@ -13,7 +13,7 @@
 
 		$('#stop').bind('click', function () {
 			$('#wait').text('<?php echo $lng['please_wait']?>');
-			$.post( 'ajax/stop_deamons.php', { } ,
+			$.post( 'ajax/stop_daemons.php', { } ,
 					function () {
 						fc_navigate ('start_stop', {'alert': 'complete'} );
 						$('#status').text('OFF');

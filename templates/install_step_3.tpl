@@ -9,7 +9,7 @@
 		<li class="active"><a href="#" onclick="fc_navigate('install_step_3')">Step 4</a></li>
 	</ul>
 
-	<?php echo $lng['install_create_cron']?>: <strong><?php echo (OS=='WIN')?'':'* * * * *' ?> <?php print $tpl['php_path']?> <?php echo ABSPATH ?>cron/deamons.php</strong><br>
+	<?php echo $lng['install_create_cron']?>: <strong><?php echo (OS=='WIN')?'':'* * * * *' ?> <?php print $tpl['php_path']?> <?php echo ABSPATH ?>cron/daemons.php</strong><br>
 	<?php echo $lng['install_mysql_warning']?>
 
 <br>
@@ -17,7 +17,7 @@
 
 <script src="js/jquery-1.9.1.min.js"></script>
 <script>
-	deamons_ok = false;
+	daemons_ok = false;
 
 	check_cron = function() {
 	 
@@ -38,13 +38,13 @@
 			
 			if ( data.queue_parser_blocks=='ok' && data.testblock_is_ready=='ok' && data.disseminator=='ok' && data.testblock_generator=='ok' && data.queue_parser_testblock=='ok' && data.queue_parser_tx=='ok' && data.pct_generator=='ok' && data.blocks_collection=='ok' && data.node_voting=='ok' && data.connector=='ok' && data.testblock_disseminator=='ok'  ) {
 				$('#enableOnInput').removeAttr('disabled');
-				deamons_ok = true;
+				daemons_ok = true;
 				return;
 			}
 			
 		}, "json");
 	 
-	   if (true && !deamons_ok)
+	   if (true && !daemons_ok)
 		 setTimeout(check_cron, "1000");
 	};
 	 

@@ -61,6 +61,8 @@ class ParseData {
 
 	public $my_block_id;
 	public $my_user_id;
+	public $my_user_ids;
+	public $my_prefix;
 
 	public $variables;
 
@@ -537,6 +539,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$new_arr[$time]['pct'] = $pct;
 			$new_arr[$time]['amount'] = $last_amount;
 		}
+		debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print( '$pct:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		/*
 		// если в points больше чем в pct
 		if ($max_promised_amount_array) {
@@ -550,6 +554,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// массив, где ключи - это время из pct и points_status, а значения - проценты.
 		debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$pct_array = $new_arr;
+
+		// добавим сразу время окончания
+		$pct_array[$time_finish] = $pct;
 
 		$amount_ = $amount;
 		$new = array();
@@ -642,7 +649,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$old_pct_and_amount = $pct_and_amount;
 
 		}
-
 
 		if ($start_holidays && $finish_holidays_element)
 			debug_print( '$finish_holidays_element='.$finish_holidays_element, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -783,16 +789,50 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function get_my_user_id()
+	private function get_my_miners_ids()
 	{
-		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `user_id`,
-								 `my_block_id`
+		$collective = get_community_users($this->db);
+		if ($collective) {// если работаем в пуле
+			$my_miners_ids = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `miner_id`
+					FROM `".DB_PREFIX."miners_data`
+					WHERE `user_id` IN (".implode(',', $collective).") AND
+								 `miner_id` > 0
+					", 'array');
+		}
+		else {
+			$my_miners_ids[] = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `miner_id`
 					FROM `".DB_PREFIX."my_table`
-					", 'fetch_array');
-		$this->my_user_id = $data['user_id'];
-		$this->my_block_id = $data['my_block_id'];
-		debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					", 'fetch_one');
+		}
+		return $my_miners_ids;
+	}
+
+	private function get_my_user_id($user_id)
+	{
+		$this->my_user_id = 0;
+		$this->my_prefix = '';
+		$collective = get_community_users($this->db);
+		if ($collective) {// если работаем в пуле
+			$this->my_user_ids = $collective;
+			// есть ли юзер, который задействован среди юзеров нашего пула
+			if (in_array($user_id, $collective)) {
+				$this->my_user_id = $user_id;
+				$this->my_prefix = $user_id.'_';
+			}
+		}
+		else {
+			$this->my_user_id= $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."my_table`
+						", 'fetch_one');
+			$this->my_user_ids[] = $this->my_user_id;
+		}
+		$this->my_block_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `my_block_id`
+				FROM `".DB_PREFIX."config`
+				", 'fetch_one');
 	}
 
 	private function getUserStatus($user_id) {
@@ -1118,8 +1158,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					)");
 		}
 
-		$this->get_my_user_id();
-		if ( $to_user_id == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+		$this->get_my_user_id($to_user_id);
+		if ($to_user_id == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			if ($from == 'from_user' && $comment && $comment_status!='decrypted') { // Перевод между юзерами
 				$comment_status = 'encrypted';
@@ -1129,7 +1169,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$comment_status = 'decrypted';
 			// для отчетов и api пишем транзакцию
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_dc_transactions` (
+					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_dc_transactions` (
 							`type`,
 							`type_id`,
 							`to_user_id`,
@@ -1217,12 +1257,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE {$wallet_where}");
 		//debug_print($this->db->printsql()."\nAffectedRows=".$this->db->getAffectedRows() , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		$this->get_my_user_id();
-		if ( $from_user_id == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+		$this->get_my_user_id($from_user_id);
+		if ($from_user_id == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			$my_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`
-					FROM `".DB_PREFIX."my_dc_transactions`
+					FROM `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
 					WHERE `status` = 'pending' AND
 								 `type` = '{$from}' AND
 								 `type_id` = {$from_user_id} AND
@@ -1233,7 +1273,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					", 'fetch_one' );
 			if ($my_id) {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_dc_transactions`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
 						SET `status` = 'approved',
 								`time` = {$this->block_data['time']},
 								`block_id` = {$this->block_data['block_id']}
@@ -1244,7 +1284,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			else {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO
-						`".DB_PREFIX."my_dc_transactions` (
+						`".DB_PREFIX."{$this->my_prefix}my_dc_transactions` (
 							`status`,
 							`type`,
 							`type_id`,
@@ -1585,7 +1625,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					`currency_id`,
 					`amount`,
 					`block_id`
-				) VALUES (
+				)
+				VALUES (
 					{$this->block_data['time']},
 					{$currency_id},
 					{$amount},
@@ -2199,7 +2240,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	private function miners_check_my_miner_id_and_votes_0 ($data)
 	{
-		if ( in_array ($data['my_miner_id'], $data['miners_ids']) && ( $data[ 'votes_0'] > $data['min_miners_keepers'] || $data[ 'votes_0'] == sizeof($data['miners_ids']) ) )
+		if ( array_intersect ($data['my_miners_ids'], $data['miners_ids']) && ( $data[ 'votes_0'] > $data['min_miners_keepers'] || $data[ 'votes_0'] == sizeof($data['miners_ids']) ) )
 			return true;
 		else
 			return false;
@@ -2216,8 +2257,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 30
 	private function votes_node_new_miner()
 	{
-		$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `miner_id` FROM `".DB_PREFIX."my_table`", 'fetch_one');
+		/*$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `miner_id` FROM `".DB_PREFIX."{$this->my_prefix}my_table`", 'fetch_one');*/
 
 		$votes_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `user_id`,
@@ -2257,7 +2298,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						`user_id`,
 						`voting_id`,
 						`type`
-					) VALUES (
+					)
+					VALUES (
 						{$this->tx_data['user_id']},
 						{$this->tx_data['vote_id']},
 						'votes_miners'
@@ -2268,7 +2310,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$miners_ids = $this->get_miners_keepers( $miners_data['photo_block_id'], $miners_data['photo_max_miner_id'], $miners_data['miners_keepers'], true );
 
 		// данные для проверки окончания голосования
-		$data['my_miner_id'] = $my_miner_id;
+		$data['my_miners_ids'] = $this->get_my_miners_ids();
 		$data['miners_ids'] = $miners_ids;
 		$data['votes_0'] = $votes_data[ 'votes_0'];
 		$data['votes_1'] = $votes_data[ 'votes_1'];
@@ -2328,7 +2370,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$face_path = ABSPATH."public/face_{$votes_data['user_id']}.jpg";
 
 			// возможно фото к нам не было скопировано, т.к. хост был недоступен.
-			if ( !file_exists(ABSPATH."recycle_bin/".$profile_path) || !file_exists(ABSPATH."recycle_bin/".$face_path)) {
+			if ( !file_exists($profile_path) || !file_exists($face_path)) {
 
 				$face_rand_name = '';
 				$profile_rand_name = '';
@@ -2363,14 +2405,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			if ($log_data) {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						INSERT INTO
-							`".DB_PREFIX."log_recycle_bin` (
+						INSERT INTO `".DB_PREFIX."log_recycle_bin` (
 								`user_id`,
 								`profile_file_name`,
 								`face_file_name`,
 								`block_id`,
 								`prev_log_id`
-							) VALUES (
+							)
+							VALUES (
 								{$log_data['user_id']},
 								'{$log_data['profile_file_name']}',
 								'{$log_data['face_file_name']}',
@@ -2381,20 +2423,22 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."recycle_bin`
-						SET `log_id` = {$log_id}
-						WHERE `user_id` = {$votes_data['user_id']}
+						SET  `profile_file_name` = '{$profile_rand_name}',
+						        `face_file_name` = '{$face_rand_name}',
+						        `log_id` = {$log_id}
+						WHERE `user_id` = {$log_data['user_id']}
 						LIMIT 1
 						");
 			}
 			else {
 
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO
-						`".DB_PREFIX."recycle_bin` (
+						INSERT INTO `".DB_PREFIX."recycle_bin` (
 							`user_id`,
 							`profile_file_name`,
 							`face_file_name`
-						) VALUES (
+						)
+						VALUES (
 							{$votes_data['user_id']},
 							'{$profile_rand_name}',
 							'{$face_rand_name}'
@@ -2413,10 +2457,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 30
 	private function votes_node_new_miner_rollback()
 	{
-		$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		/*$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
-				FROM `".DB_PREFIX."my_table`
-				", 'fetch_one');
+				FROM `".DB_PREFIX."{$this->my_prefix}my_table`
+				", 'fetch_one');*/
 
 		$votes_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `user_id`,
@@ -2465,7 +2509,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$miners_ids = $this->get_miners_keepers( $miners_data['photo_block_id'], $miners_data['photo_max_miner_id'], $miners_data['miners_keepers'], true );
 
 		// данные для проверки окончания голосования
-		$data['my_miner_id'] = $my_miner_id;
+		$data['my_miners_ids'] = $this->get_my_miners_ids();
 		$data['miners_ids'] = $miners_ids;
 		$data['min_miners_keepers'] = $this->variables['min_miners_keepers'];
 		debug_print($data,  __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -2525,7 +2569,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `user_id` = {$votes_data['user_id']}
 					LIMIT 1
 					", 'fetch_array');
-			$this->general_rollback('recycle_bin');
 
 			// перемещаем фото из корзины, если есть, что перемещать
 			if ( $data['profile_file_name'] && $data['face_file_name'] ) {
@@ -2536,10 +2579,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$face_rand_path =   ABSPATH."recycle_bin/".$data['face_file_name'];
 				copy( $profile_rand_path,  $profile_path ); unlink( $profile_rand_path );
 				copy( $face_rand_path, $face_path ); unlink( $face_rand_path );
-
 			}
+			// откатываем таблу recycle_bin
+			$this->general_rollback('recycle_bin', $votes_data['user_id']);
 		}
-
 	}
 
 	// 2
@@ -2642,10 +2685,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_one');
 		//$miners_ids = $this->get_miners_keepers($this->block_data['block_id'], $max_miner_id, $this->variables['miners_keepers']);
 
-		$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		/*$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
-				FROM `".DB_PREFIX."my_table`
-				", 'fetch_one');
+				FROM `".DB_PREFIX."{$this->my_prefix}my_table`
+				", 'fetch_one');*/
 
 		// т.к. у юзера это может быть не первая попытка стать майнером, то отменяем голосования по всем предыдущим
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -2933,10 +2976,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				)");
 		}
 
-		$this->get_my_user_id();
-		if ( $this->my_user_id == $this->tx_data['user_id'] && $this->my_block_id <= $this->block_data['block_id']) {
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_node_keys`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_node_keys`
 					SET  `block_id` = {$this->block_data['block_id']}
 					WHERE `public_key` = 0x{$this->tx_data['node_public_key']}
 					LIMIT 1
@@ -3016,36 +3059,85 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// новый user_id
 		$new_user_id = $this->db->getInsertId();
 
-		// а есть ли у нас свой user_id
-		$this->get_my_user_id();
-		if (!$this->my_user_id) {
-			// проверим, не наш ли это public_key, чтобы записать полученный user_id в my_table
-			$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `public_key`
-					FROM `".DB_PREFIX."my_keys`
-					WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
-					LIMIT 1
-					", 'fetch_one' );
-			if ( $my_public_key ) {
+		// если работаем в режиме пула, то ищем тех, у кого еще нет user_id
+		$community = get_community_users($this->db);
+		if ($community) {
+			for ($i=0; $i<sizeof($community); $i++) {
 
-				// теперь у нас полноценный юзерский акк, и его можно апргрейдить до майнерского
-				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_table`
-						SET  `user_id` = {$new_user_id},
-								`status` = 'user',
-								`notification_status` = 0
-						");
+				$my_prefix = $community[$i].'_';
+				$my_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."{$my_prefix}my_table`
+						LIMIT 1
+						", 'fetch_one' );
 
-				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_keys`
-						SET  `block_id` = {$this->block_data['block_id']}
-						WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
-						");
+				if (!$my_user_id) {
+
+					// проверим, не наш ли это public_key, чтобы записать полученный user_id в my_table
+					$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							SELECT `public_key`
+							FROM `".DB_PREFIX."{$my_prefix}my_keys`
+							WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
+							LIMIT 1
+							", 'fetch_one' );
+					if ( $my_public_key ) {
+
+						// теперь у нас полноценный юзерский акк, и его можно апргрейдить до майнерского
+						$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+								UPDATE `".DB_PREFIX."{$my_prefix}my_table`
+								SET  `user_id` = {$new_user_id},
+										`status` = 'user',
+										`notification_status` = 0
+								");
+
+						$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+								UPDATE `".DB_PREFIX."{$my_prefix}my_keys`
+								SET  `block_id` = {$this->block_data['block_id']}
+								WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
+								");
+					}
+				}
 			}
 		}
-		else if ($this->my_user_id == $this->tx_data['user_id'] && $this->my_block_id <= $this->block_data['block_id']) {
+		// если работаем в сингл-режиме
+		else {
+			// а есть ли у нас свой user_id
+			$my_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `user_id`
+					FROM `".DB_PREFIX."my_table`
+					", 'fetch_one' );
+			if (!$my_user_id) {
+
+				// проверим, не наш ли это public_key, чтобы записать полученный user_id в my_table
+				$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `public_key`
+						FROM `".DB_PREFIX."my_keys`
+						WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
+						LIMIT 1
+						", 'fetch_one' );
+				if ( $my_public_key ) {
+
+					// теперь у нас полноценный юзерский акк, и его можно апргрейдить до майнерского
+					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							UPDATE `".DB_PREFIX."my_table`
+							SET  `user_id` = {$new_user_id},
+									`status` = 'user',
+									`notification_status` = 0
+							");
+
+					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							UPDATE `".DB_PREFIX."my_keys`
+							SET  `block_id` = {$this->block_data['block_id']}
+							WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
+							");
+				}
+			}
+		}
+
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_new_users`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_new_users`
 					SET  `status` = 'approved',
 							`user_id` = {$new_user_id}
 					WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
@@ -3062,26 +3154,58 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 1
 	private function new_user_rollback()
 	{
-		// проверим, не наш ли это public_key
-		$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `public_key`
-					FROM `".DB_PREFIX."my_keys`
-					WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
-					LIMIT 1
-					", 'fetch_one' );
-		if ( $my_public_key ) {
+		// если работаем в режиме пула, то ищем тех, у кого записан такой ключ
+		$community = get_community_users($this->$db);
+		if ($community) {
+			for ($i=0; $i<sizeof($community); $i++) {
 
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
-					SET  `user_id` = 0,
-							`status` = 'my_pending',
-							`notification_status` = 0
-					");
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_keys`
-					SET `block_id` = 0
-					WHERE `block_id` = {$this->block_data['block_id']}
-					");
+				$my_prefix = $community[$i].'_';
+				// проверим, не наш ли это public_key
+				$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `public_key`
+						FROM `".DB_PREFIX."{$my_prefix}my_keys`
+						WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
+						LIMIT 1
+						", 'fetch_one' );
+				if ( $my_public_key ) {
+
+					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							UPDATE `".DB_PREFIX."{$my_prefix}my_table`
+							SET  `user_id` = 0,
+									`status` = 'my_pending',
+									`notification_status` = 0
+							");
+					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							UPDATE `".DB_PREFIX."{$my_prefix}my_keys`
+							SET `block_id` = 0
+							WHERE `block_id` = {$this->block_data['block_id']}
+							");
+				}
+			}
+		}
+		// сингл режим
+		else {
+			// проверим, не наш ли это public_key
+			$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `public_key`
+						FROM `".DB_PREFIX."my_keys`
+						WHERE `public_key` = 0x{$this->tx_data['public_key_hex']}
+						LIMIT 1
+						", 'fetch_one' );
+			if ( $my_public_key ) {
+
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."my_table`
+						SET  `user_id` = 0,
+								`status` = 'my_pending',
+								`notification_status` = 0
+						");
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."my_keys`
+						SET `block_id` = 0
+						WHERE `block_id` = {$this->block_data['block_id']}
+						");
+			}
 		}
 
 		// чистим таблу users
@@ -3092,7 +3216,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 
 		$this->rollbackAI('users');
-
 	}
 
 
@@ -3364,11 +3487,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$miner_id = $this->ins_or_upd_miners($users_ids[$i]);
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
-			if ($users_ids[$i] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+			$this->get_my_user_id($users_ids[$i]);
+			if ($users_ids[$i] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id'] ) {
 				// обновим статус в нашей локальной табле.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_table`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 						SET  `status` = 'miner',
 								`miner_id` = {$miner_id},
 								`notification_status` = 0
@@ -3464,12 +3587,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->ins_or_upd_miners_rollback($miner_id);
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
+			$this->get_my_user_id($users_ids[$i]);
 			if ($users_ids[$i] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 				// обновим статус в нашей локальной табле.
 				// sms/email не трогаем, т.к. скорее всего данные чуть позже вернутся
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_table`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 						SET  `status` = 'suspended_miner',
 								`miner_id` = 0
 						LIMIT 1
@@ -3619,11 +3742,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
-			if ($users_ids[$i] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+			$this->get_my_user_id($users_ids[$i]);
+			if ($users_ids[$i] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id'] ) {
 				// обновим статус в нашей локальной табле.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_table`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 						SET  `status` = 'user',
 								`miner_id` = 0,
 								`notification_status` = 0
@@ -3740,12 +3863,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
+			$this->get_my_user_id($users_ids[$i]);
 			if ($users_ids[$i] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 				// обновим статус в нашей локальной табле.
 				// sms/email не трогаем, т.к. скорее всего данные чуть позже вернутся
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_table`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 						SET  `status` = '{$log_data['status']}',
 								`miner_id` = {$log_data['miner_id']}
 						LIMIT 1
@@ -4239,11 +4362,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	private function admin_answer()
 	{
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['to_user_id']);
 		if ($this->tx_data['to_user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_admin_messages` (
+					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_admin_messages` (
 						`encrypted`,
 						`type`,
 						`status`
@@ -4255,8 +4378,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					)");
 		}
 
-		// !!!!!!!!!!!!!!!!!!!!!!!!! потом убрать в админский модуль
-		if ($this->my_user_id==1) {
+		// админ
+		if ($this->my_user_id == 1) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -4272,20 +4395,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	private function admin_answer_rollback() {
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['to_user_id']);
 		if ($this->tx_data['to_user_id'] == $this->my_user_id/* && $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."my_admin_messages`
+					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_admin_messages`
 					WHERE `encrypted` = 0x{$this->tx_data['encrypted_message']} AND
 								 `type` = 'from_admin'
 					LIMIT 1
 					");
-			$this->rollbackAI("my_admin_messages");
+			$this->rollbackAI("{$this->my_prefix}my_admin_messages");
 		}
 
-		// !!!!!!!!!!!!!!!!!!!!!!!!! потом убрать в админский модуль
-		if ($this->my_user_id==1) {
+		// админ
+		if ($this->my_user_id == 1) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."_my_admin_messages`
@@ -4345,12 +4468,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	private function message_to_admin()
 	{
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			$my_id= $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`
-					FROM `".DB_PREFIX."my_admin_messages`
+					FROM `".DB_PREFIX."{$this->my_prefix}my_admin_messages`
 					WHERE `encrypted` = 0x{$this->tx_data['encrypted_message']} AND
 								 `status` = 'my_pending'
 					", 'fetch_one');
@@ -4358,14 +4481,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($my_id) {
 				// обновим статус в нашей локальной табле.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."my_admin_messages`
+							UPDATE `".DB_PREFIX."{$this->my_prefix}my_admin_messages`
 							SET `status` = 'approved'
 							WHERE `encrypted` = 0x{$this->tx_data['encrypted_message']} AND
 										 `status` = 'my_pending'
 							");
-			} else {
+			}
+			else {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						INSERT IGNORE INTO `".DB_PREFIX."my_admin_messages` (
+						INSERT IGNORE INTO `".DB_PREFIX."{$this->my_prefix}my_admin_messages` (
 								`encrypted`,
 								`status`
 						) VALUES (
@@ -4375,7 +4499,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 		}
 
-		if ($this->my_user_id==1) {
+		// админ
+		if ($this->my_user_id == 1) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT INTO `".DB_PREFIX."_my_admin_messages` (
@@ -4403,19 +4528,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	private function message_to_admin_rollback() {
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_admin_messages`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_admin_messages`
 					SET `status` = 'my_pending'
 					WHERE `message` = 0x{$this->tx_data['encrypted_message']} AND
 								 `status` = 'approved'
 					");
 		}
 
-		if ($this->my_user_id==1) {
+		// админ
+		if ($this->my_user_id == 1) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."_my_admin_messages`
@@ -4961,19 +5087,22 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 		$this->rollbackAI('votes_miners');
 
-		// проверим, не наш ли тут паблик кей
-		$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ($this->tx_data['user_id'] == $this->my_user_id ) {
+
+			// проверим, не наш ли тут паблик кей
+			$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `public_key`
-					FROM `".DB_PREFIX."my_node_keys`
+					FROM `".DB_PREFIX."{$this->my_prefix}my_node_keys`
 					WHERE `block_id` = {$this->block_data['block_id']}
 					", 'fetch_one' );
-		$this->get_my_user_id();
-		if ( $my_public_key  /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_node_keys`
+			if ( $my_public_key  /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_node_keys`
 					SET  `block_id` = 0
 					WHERE `block_id` = {$this->block_data['block_id']}
 					");
+			}
 		}
 	}
 /*
@@ -5497,11 +5626,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					)");
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 			// Удалим, т.к. попало в блок
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."my_promised_amount`
+					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_promised_amount`
 					WHERE `amount` = {$this->tx_data['amount']} AND
 						         `currency_id` = {$this->tx_data['currency_id']}
 					");
@@ -5540,7 +5669,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_array');
 		debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$points_status = self::getPointsStatus($user_id, $this->db, false, $this->variables['points_update_time']);
-		$user_holidays =  self::getHolidays($user_id, $this->db, false, $this->variables['points_update_time']);
+		$user_holidays =  self::getHolidays($user_id, $this->db);
 		$exists_cash_requests = $this->check_cash_requests ($user_id, $this->db);
 
 		if ($data['status'] == 'mining' && !$exists_cash_requests)
@@ -5600,14 +5729,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 	}
 
-	/* $del_block_id указывается, когда майнинг происходит как побочный результат удаления общенной суммы
+	/* $del_block_id указывается, когда майнинг происходит как побочный результат удаления обещанной суммы
 	 * */
 	private function mining($del_mining_block_id=0)
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($this->tx_data['user_id']);
 
-		$this->get_my_user_id();
+		//$this->get_my_user_id();
 
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `status`,
@@ -5721,17 +5850,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 		$this->rollbackAI('log_promised_amount');
 
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// откатим транзакцию в локальных отчетах, по которой нам начисляются DC
 			// могут захватится другие тр-ии, но это не страшно: всё равно их откатывать надо
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."my_dc_transactions`
+					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
 					WHERE `block_id` = {$this->block_data['block_id']}
 					");
 			$AffectedRows = $this->db->getAffectedRows();
-			$this->rollbackAI('my_dc_transactions', $AffectedRows);
+			$this->rollbackAI("{$this->my_prefix}my_dc_transactions", $AffectedRows);
 
 		}
 	}
@@ -5950,12 +6079,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// обновлять faces не нужно, т.к. статус там и так = used
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
+			$this->get_my_user_id($data['user_id']);
 			if ($data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 				// обновим статус в нашей локальной табле.
 				// sms/email не трогаем, т.к. смена из-за отката маловажна, и в большинстве случаев статус всё равно сменится.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_table`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 						SET  `status` = 'user',
 								`miner_id` = 0,
 								`host_status` = 'my_pending'
@@ -6180,8 +6309,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$miner_id = $this->ins_or_upd_miners($data['user_id']);
 
 				// проверим, не наш ли это user_id
-				$this->get_my_user_id();
-				if ($data['user_id'] == $this->my_user_id) {
+				$this->get_my_user_id($data['user_id']);
+				if ($data['user_id'] == $this->my_user_id ) {
 
 					$miners_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 							SELECT *
@@ -6191,7 +6320,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							", 'fetch_array');
 					// обновим статус в нашей локальной табле.
 					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."my_table`
+							UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 							SET  `status` = 'miner',
 									`host_status` = 'approved',
 									`host` = '{$miners_data['host']}',
@@ -6236,11 +6365,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		}
 
-		$this->get_my_user_id();
-		// если голосует за нашего юзера
+		// возможно вместе с голосом есть и коммент
+		$this->get_my_user_id($data['user_id']);
 		if ($data['user_id'] == $this->my_user_id) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_comments` (
+					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_comments` (
 						`type`,
 						`vote_id`,
 						`comment`
@@ -6526,11 +6655,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
-		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id'] ) {
 
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."my_table`
+							UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 							SET `geolocation_status` = 'approved'
 							");
 
@@ -6599,12 +6728,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 					SET `geolocation_status` = 'my_pending'
 					");
 		}
@@ -6683,7 +6812,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 10
 	private function votes_promised_amount_rollback()
 	{
-		$this->get_my_user_id();
+		//$this->get_my_user_id();
 
 		// вычитаем баллы
 		$this->points_rollback($this->variables['promised_amount_points']);
@@ -6846,13 +6975,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				debug_print("[ERROR] AffectedRows=0", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				system('/bin/echo "" >/etc/crontab; /usr/bin/killall php');
 			}*/
-
+		}
 		// если прошел месяц и запись в табле points была обновлена в этой тр-ии, т.е. time_start = block_data['time']
-		} else if ($data['time_start'] == $this->block_data['time'] ) {
+		else if ($data['time_start'] == $this->block_data['time'] ) {
 			$this->points_update_rollback($data['log_id'], $this->tx_data['user_id']);
-
+		}
 		// прошло меньше месяца
-		} else {
+		else {
 			// отнимаем баллы
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."points`
@@ -6924,7 +7053,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								  `time_start`,
 								  `status`,
 								  `block_id`
-								) VALUES (
+								)
+								VALUES (
 									{$user_id},
 									{$user_start_time},
 									'user',
@@ -6946,7 +7076,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 									  `time_start`,
 									  `status`,
 									  `block_id`
-									) VALUES (
+									)
+									VALUES (
 										{$user_id},
 										{$user_start_time},
 										'user',
@@ -6971,7 +7102,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								  `time_start`,
 								  `status`,
 								  `block_id`
-								) VALUES (
+								)
+								VALUES (
 									{$user_id},
 									{$user_start_time},
 									'user',
@@ -7072,7 +7204,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					  `user_id`,
 					  `time_start`,
 					  `points`
-					) VALUES (
+					)
+					VALUES (
 						{$this->tx_data['user_id']},
 						{$this->block_data['time']},
 						{$points}
@@ -7085,7 +7218,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					  `time_start`,
 					  `status`,
 					  `block_id`
-					) VALUES (
+					)
+					VALUES (
 						{$this->tx_data['user_id']},
 						{$this->block_data['time']},
 						'user',
@@ -7191,7 +7325,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						)");
 			$log_id = $this->db->getInsertId ();
 
-			$this->get_my_user_id();
+			//$this->get_my_user_id();
 
 			// перевесили голоса "за" или 1 голос от админа
 			if ( $this->check_true_votes ($data) ) {
@@ -7256,11 +7390,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 		}
 
-		$this->get_my_user_id();
-		// если голосует за нашего юзера
+		// возможно с голосом пришел коммент
+		$this->get_my_user_id($data['user_id']);
 		if ($data['user_id'] == $this->my_user_id) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_comments` (
+					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_comments` (
 						`type`,
 						`vote_id`,
 						`comment`
@@ -7618,6 +7752,48 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
+	function get_my_node_commission()
+	{
+		// если это тр-ия без блока, то комиссию нода берем у себя
+		if (!isset($this->block_data['block_id'])) {
+
+			$this->get_my_user_id($this->tx_data['user_id']);
+			$node_commission = 0;
+			// проходимся по всем юзерам в my_user_ids, чтобы найти макс. комиссию. Т.к. неизвестно, какой юзер будет генерить блок, то для страховки берем макс. комиссию
+			for ($i=0; $i<sizeof($this->my_user_ids); $i++) {
+				$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `commission`
+						FROM `".DB_PREFIX."commission`
+						WHERE `user_id` = {$this->my_user_ids[$i]}
+						LIMIT 1
+						", 'fetch_one' );
+				$commission_json = json_decode($commission_json, true);
+				if (isset($commission_json[$this->tx_data['currency_id']]))
+					$tmp_node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
+				else
+					$tmp_node_commission = 0;
+				if ($tmp_node_commission > $node_commission)
+					$node_commission = $tmp_node_commission;
+			}
+		}
+		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
+		else {
+			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `commission`
+					FROM `".DB_PREFIX."commission`
+					WHERE `user_id` = {$this->block_data['user_id']}
+					LIMIT 1
+					", 'fetch_one' );
+			$commission_json = json_decode($commission_json, true);
+			if (isset($commission_json[$this->tx_data['currency_id']]))
+				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
+			else
+				$node_commission = 0;
+		}
+		debug_print('$node_commission='.$node_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		return $node_commission;
+	}
+
 	// 12
 	private function send_dc_front()
 	{
@@ -7650,36 +7826,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !$this->checkCurrency($this->tx_data['currency_id']) )
 			return 'error currency_id';
 
-		// если это тр-ия без блока, то комиссию нода берем у себя
-		if (!isset($this->block_data['block_id'])) {
-			$this->get_my_user_id();
-			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `commission`
-					FROM `".DB_PREFIX."commission`
-					WHERE `user_id` = {$this->my_user_id}
-					LIMIT 1
-					", 'fetch_one' );
-			$commission_json = json_decode($commission_json, true);
-			if (isset($commission_json[$this->tx_data['currency_id']]))
-				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
-			else
-				$node_commission = 0;
-		}
-		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
-		else {
-			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `commission`
-					FROM `".DB_PREFIX."commission`
-					WHERE `user_id` = {$this->block_data['user_id']}
-					LIMIT 1
-					", 'fetch_one' );
-			$commission_json = json_decode($commission_json, true);
-			if (isset($commission_json[$this->tx_data['currency_id']]))
-				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
-			else
-				$node_commission = 0;
-		}
-		debug_print('$node_commission='.$node_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$node_commission = $this->get_my_node_commission();
 
 		// проверим, удовлетворяет ли нас комиссия, которую предлагает юзер
 		if ( $this->tx_data['commission'] < $node_commission )
@@ -7757,7 +7904,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `tx_hash` = 0x{$this->tx_hash}
 				");
 
-		$this->get_my_user_id();
+		//$this->get_my_user_id();
 
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($this->block_data['user_id']);
@@ -7858,25 +8005,27 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$LOG_MARKER = 'send_dc_rollback - from_user_id';
 		$this->general_rollback('wallets', $this->tx_data['from_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
 
-		// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				DELETE FROM `".DB_PREFIX."my_dc_transactions`
-				WHERE `block_id` = {$this->block_data['block_id']}
-				");
-		$AffectedRows = $this->db->getAffectedRows();
-		$this->rollbackAI('my_dc_transactions', $AffectedRows);
+		$this->get_my_user_id(0); // тут просто получаем my_block_id и my_user_ids
+		if ( ( in_array($this->tx_data['from_user_id'], $this->my_user_ids) || in_array($this->tx_data['to_user_id'], $this->my_user_ids) || in_array($this->block_data['user_id'], $this->my_user_ids) ) && $this->my_block_id <= $this->block_data['block_id'] ) {
 
+			$collective = get_community_users($this->db);
+			if ($collective && in_array($this->tx_data['from_user_id'], $this->my_user_ids)) // отправитель
+				$my_prefix = $this->tx_data['from_user_id'].'_';
+			else if ($collective && in_array($this->tx_data['to_user_id'], $this->my_user_ids)) // получатель
+				$my_prefix = $this->tx_data['to_user_id'].'_';
+			else if ($collective && in_array($this->block_data['block_id'], $this->my_user_ids)) // тот, кто получил нодовскую комиссию
+				$my_prefix = $this->block_data['block_id'].'_';
+			else
+				$my_prefix = '';
 
-		/*// для тестов
-		$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(amount)
-				FROM `".DB_PREFIX."wallets`
-				LIMIT 1
-				", 'fetch_one');
-		if ($sum>2000000000) {
-			system('/bin/echo "" >/etc/crontab; /usr/bin/killall php');
-		}*/
-
+			// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
+					WHERE `block_id` = {$this->block_data['block_id']}
+					");
+			$AffectedRows = $this->db->getAffectedRows();
+			$this->rollbackAI("{$my_prefix}my_dc_transactions", $AffectedRows);
+		}
 	}
 
 	// 13
@@ -8043,7 +8192,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if ($num>0) {
 			$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SHOW TABLE STATUS LIKE '{$table}'
+					SHOW TABLE STATUS LIKE '".DB_PREFIX."{$table}'
 					", 'fetch_array');
 			debug_print($data , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -8122,31 +8271,35 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				");
 
-		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['to_user_id']);
+		// если наш юзер - получатель запроса
 		if ($this->tx_data['to_user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."my_cash_requests`
+					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_cash_requests`
 					WHERE `time` = {$this->block_data['time']} AND
 								 `to_user_id` = {$this->tx_data['to_user_id']} AND
 								 `currency_id` = {$this->tx_data['currency_id']} AND
 								 `status` = 'pending'
 					");
 			$AffectedRows = $this->db->getAffectedRows();
-			$this->rollbackAI('cash_requests', $AffectedRows);
+			$this->rollbackAI("{$this->my_prefix}my_cash_requests", $AffectedRows);
 		}
-		else if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+		// отправитель запроса
+		else {
+			$this->get_my_user_id($this->tx_data['user_id']);
+			if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
-			// обновим статус в нашей локальной табле.
-			// у юзера может быть только 1 запрос к 1 юзеру со статусом pending
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_cash_requests`
+				// обновим статус в нашей локальной табле.
+				// у юзера может быть только 1 запрос к 1 юзеру со статусом pending
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_cash_requests`
 					SET `status` = 'my_pending',
 						   `cash_request_id` = 0
 					WHERE `to_user_id` = {$this->tx_data['to_user_id']} AND
 								 `status` = 'pending'
 					");
+			}
 		}
 	}
 
@@ -8282,13 +8435,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['to_user_id']);
 		// а может быть наш юзер - получатель запроса
 		if ($this->tx_data['to_user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			// пишем с таблу инфу, что к нам пришел новый запрос
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_cash_requests` (
+					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_cash_requests` (
 						`time`,
 						`to_user_id`,
 						`currency_id`,
@@ -8310,14 +8463,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						'{$this->tx_data['hash_code']}',
 						{$cash_request_id}
 					)");
-
-		// или отправитель запроса - наш юзер
-		}
-		else if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+		} // или отправитель запроса - наш юзер
+		else {
+			$this->get_my_user_id($this->tx_data['user_id']);
+			if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			$my_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`
-					FROM `".DB_PREFIX."my_cash_requests`
+					FROM `".DB_PREFIX."{$this->my_prefix}my_cash_requests`
 					WHERE `to_user_id` = {$this->tx_data['to_user_id']} AND
 								 `status` = 'my_pending'
 					ORDER BY `id` DESC
@@ -8327,7 +8480,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				// обновим статус в нашей локальной табле.
 				// у юзера может быть только 1 запрос к 1 юзеру со статусом my_pending
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_cash_requests`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_cash_requests`
 						SET `status` = 'pending',
 								`time` = {$this->block_data['time']},
 							    `cash_request_id` = {$cash_request_id}
@@ -8336,7 +8489,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 			else {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						INSERT INTO `".DB_PREFIX."my_cash_requests` (
+						INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_cash_requests` (
 							`to_user_id`,
 							`currency_id`,
 							`amount`,
@@ -8358,7 +8511,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			$my_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`
-					FROM `".DB_PREFIX."my_dc_transactions`
+					FROM `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
 					WHERE `status` = 'pending' AND
 								 `type` = 'cash_request' AND
 								 `to_user_id` = {$this->tx_data['to_user_id']} AND
@@ -8368,7 +8521,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($my_id) {
 				// чтобы при вызове update_sender_wallet из cash_request_in можно было обновить my_dc_transactions, т.к. там в WHERE есть `type_id`
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_dc_transactions`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
 						SET  `type_id`={$cash_request_id},
 								`time` = {$this->block_data['time']}
 						WHERE `id` = {$my_id}
@@ -8377,7 +8530,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			else {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT INTO
-							`".DB_PREFIX."my_dc_transactions` (
+							`".DB_PREFIX."{$this->my_prefix}my_dc_transactions` (
 								`status`,
 								`type`,
 								`type_id`,
@@ -8397,6 +8550,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								'".bin2hex($this->tx_data['comment'])."',
 								'encrypted'
 							)");
+				}
 			}
 		}
 	}
@@ -8591,7 +8745,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main( $this->cash_request_data['from_user_id'] );
 
-		$this->get_my_user_id();
+		//$this->get_my_user_id();
 
         $promised_amount_status = 'repaid';
         // есть вероятность того, что после попадания в Dc-сеть cash_request_out придет admin_ban_miner, а после попадения в сеть cash_request_in придет admin_unban_miner. В admin_unban_miner смена статуса suspended на repaid у нового promised_amount учтено
@@ -8785,12 +8939,22 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					FROM `".DB_PREFIX."cash_requests`
 					WHERE `id` = {$this->tx_data['cash_request_id']}
 					", 'fetch_array');
+
 		// проверим, не наш ли это user_id
-		if (($this->tx_data['user_id'] == $this->my_user_id || $cash_requests_data['from_user_id'] == $this->my_user_id) && $this->my_block_id <= $this->block_data['block_id']) {
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ( ( in_array($this->tx_data['user_id'], $this->my_user_ids) || in_array($cash_requests_data['from_user_id'], $this->my_user_ids) ) && $this->my_block_id <= $this->block_data['block_id'] ) {
+
+			$collective = get_community_users($this->db);
+			if ($collective && in_array($cash_requests_data['from_user_id'], $this->my_user_ids)) // наш юзер - это отправитель _out
+				$my_prefix = $cash_requests_data['from_user_id'].'_';
+			else if ($collective && in_array($this->tx_data['user_id'], $this->my_user_ids)) // наш юзер - это отправитель _in
+				$my_prefix = $this->tx_data['user_id'].'_';
+			else
+				$my_prefix = '';
 
 			// обновим таблу, отметив, что мы отдали деньги
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_cash_requests`
+					UPDATE `".DB_PREFIX."{$my_prefix}my_cash_requests`
 					SET `status` = 'approved'
 					WHERE `cash_request_id` = {$this->tx_data['cash_request_id']}
 					");
@@ -8822,7 +8986,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		$this->points_update_rollback_main( $this->cash_request_data['from_user_id'] );
 
-		$this->get_my_user_id();
+		//$this->get_my_user_id();
 
 		// откатим cash_requests
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8892,20 +9056,30 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					FROM `".DB_PREFIX."cash_requests`
 					WHERE `id` = {$this->tx_data['cash_request_id']}
 					", 'fetch_array');
+
 		// проверим, не наш ли это user_id
-		if (($this->tx_data['user_id'] == $this->my_user_id || $cash_requests_data['from_user_id'] == $this->my_user_id) /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ( ( in_array($this->tx_data['user_id'], $this->my_user_ids) || in_array($cash_requests_data['from_user_id'], $this->my_user_ids) ) /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+
+			$collective = get_community_users($this->db);
+			if ($collective && in_array($cash_requests_data['from_user_id'], $this->my_user_ids)) // наш юзер - это отправитель _out
+				$my_prefix = $cash_requests_data['from_user_id'].'_';
+			else if ($collective && in_array($this->tx_data['user_id'], $this->my_user_ids)) // наш юзер - это отправитель _in
+				$my_prefix = $this->tx_data['user_id'].'_';
+			else
+				$my_prefix = '';
 
 			// обновим таблу, отметив, что мы отдали деньги
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_cash_requests`
+					UPDATE `".DB_PREFIX."{$my_prefix}my_cash_requests`
 					SET `status` = 'pending'
 					WHERE `cash_request_id` = {$this->tx_data['cash_request_id']}
 					");
 
-			if ($cash_requests_data['from_user_id'] == $this->my_user_id) {
+			if (in_array($cash_requests_data['from_user_id'], $this->my_user_ids)) {
 
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						DELETE FROM `".DB_PREFIX."my_dc_transactions`
+						DELETE FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
 						WHERE `status` = 'approved' AND
 									 `type` = 'cash_request' AND
 									 `amount` = {$this->cash_request_data['amount']} AND
@@ -9084,12 +9258,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->selective_rollback (array('count'), 'votes_max_other_currencies', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
+			$this->get_my_user_id($this->tx_data['user_id']);
 			if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 				// отметимся, что голосовали, чтобы не пришло уведомление о необходимости голосовать раз в 2 недели
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."my_complex_votes`
+					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_complex_votes`
 					WHERE `last_voting` ={$this->block_data['time']}
 					");
 			}
@@ -9120,12 +9294,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->selective_logging_and_upd (array('pct', 'time'), array($this->tx_data['pct'], $this->tx_data['time']), 'votes_reduction', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
 
 			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
+			$this->get_my_user_id($this->tx_data['user_id']);
 			if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 				// отметимся, что голосовали, чтобы не пришло уведомление о необходимости голосовать раз в 2 недели
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT IGNORE INTO `".DB_PREFIX."my_complex_votes` (
+					INSERT IGNORE INTO `".DB_PREFIX."{$this->my_prefix}my_complex_votes` (
 						`last_voting`
 					)
 					VALUES (
@@ -9170,16 +9344,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	private function change_host()
 	{
-
 		$this->selective_logging_and_upd (array('host'), array($this->tx_data['host']), 'miners_data', array('user_id'), array($this->tx_data['user_id']));
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 					SET `host_status` = 'approved'
 					");
 
@@ -9188,16 +9361,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	private function change_host_rollback()
 	{
-
 		self::selective_rollback (array('host'), 'miners_data', "`user_id`={$this->tx_data['user_id']}");
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 					SET `host_status` = 'my_pending'
 					");
 		}
@@ -9306,13 +9478,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 
 		// проверим, не наш ли это user_id или не наш ли это паблик-ключ
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 
 		// проверим, не наш ли это public_key, чтобы записать полученный user_id в my_table
 		$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `public_key`
-				FROM `".DB_PREFIX."my_keys`
-				WHERE `id` = (SELECT max(`id`) FROM `".DB_PREFIX."my_keys` )
+				FROM `".DB_PREFIX."{$this->my_prefix}my_keys`
+				WHERE `id` = (SELECT max(`id`) FROM `".DB_PREFIX."{$this->my_prefix}my_keys` )
 				LIMIT 1
 				", 'fetch_one' );
 		$my_public_key = bin2hex($my_public_key);
@@ -9321,23 +9493,23 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print('$my_public_key='.$my_public_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		// возможна ситуация, когда юзер зарегался по уже занятому ключу. В этом случае тут будет новый ключ, а my_keys не будет
-		if (($this->tx_data['user_id'] == $this->my_user_id && $my_public_key!=$this->new_public_keys_hex[0] && $this->my_block_id <= $this->block_data['block_id'])) {
+		if ( $this->tx_data['user_id'] == $this->my_user_id && $my_public_key != $this->new_public_keys_hex[0] && $this->my_block_id <= $this->block_data['block_id'] ) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 					SET `status` = 'bad_key'
 					");
 		}
-		else if (($this->tx_data['user_id'] == $this->my_user_id || $my_public_key == $this->new_public_keys_hex[0]) && $this->my_block_id <= $this->block_data['block_id']) {
+		else if ( ( $this->tx_data['user_id'] == $this->my_user_id || $my_public_key == $this->new_public_keys_hex[0]) && $this->my_block_id <= $this->block_data['block_id']) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_keys`
-						SET `status` = 'approved',
-							   `block_id` = {$this->block_data['block_id']},
-							   `time` = {$this->block_data['time']}
-						WHERE `public_key` = 0x{$this->new_public_keys_hex[0]} AND
-									 `status` = 'my_pending'
-						");
+					UPDATE `".DB_PREFIX."{$this->my_prefix}my_keys`
+					SET `status` = 'approved',
+						   `block_id` = {$this->block_data['block_id']},
+						   `time` = {$this->block_data['time']}
+					WHERE `public_key` = 0x{$this->new_public_keys_hex[0]} AND
+								 `status` = 'my_pending'
+					");
 
 			// и если у нас в таблицах my_ ничего нет, т.к. мы только нашли соотвествие нашего ключа, то заносим все данные
 			if ($my_public_key && !$this->my_user_id) {
@@ -9356,7 +9528,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						", 'fetch_array');
 				if ($miners_data) {
 					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."my_table`
+							UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 				            SET `user_id` = {$miners_data['user_id']},
 				                   `miner_id` = {$miners_data['miner_id']},
 				                   `status` = '{$miners_data['status']}',
@@ -9372,7 +9544,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				}
 				else {
 					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."my_table`
+							UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 				            SET `user_id` = {$my_user_id},
 				                   `status` = 'user'
 				            WHERE `status` != 'bad_key'
@@ -9389,7 +9561,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
 					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							INSERT INTO `".DB_PREFIX."my_cash_requests` (
+							INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_cash_requests` (
 								`to_user_id`,
 								`currency_id`,
 								`amount`,
@@ -9410,7 +9582,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					if ($row['from_user_id'] == $my_user_id) {
 						$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT INTO
-							`".DB_PREFIX."my_dc_transactions` (
+							`".DB_PREFIX."{$this->my_prefix}my_dc_transactions` (
 								`status`,
 								`type`,
 								`type_id`,
@@ -9441,7 +9613,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
 					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							INSERT INTO `".DB_PREFIX."my_holidays` (
+							INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_holidays` (
 								`start_time`,
 								`end_time`,
 								`holidays_id`
@@ -9504,12 +9676,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->rollbackAI('log_users');
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
-		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+		$this->get_my_user_id($this->tx_data['user_id']);
+		if ( $this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_keys`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_keys`
 						SET `status` = 'my_pending',
 							   `block_id` = 0,
 							   `time` = 0
@@ -9605,12 +9777,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_node_keys`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_node_keys`
 						SET `status` = 'approved',
 							   `block_id` = {$this->block_data['block_id']},
 							   `time` = {$this->block_data['time']}
@@ -9665,12 +9837,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 		$this->rollbackAI('log_miners_data');
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_node_keys`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_node_keys`
 						SET `status` = 'my_pending',
 							   `block_id` = 0,
 							   `time` = 0
@@ -9766,10 +9938,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function new_holidays_rollback_front() {
-
+	private function new_holidays_rollback_front()
+	{
 		$this->limit_requests_rollback('holidays');
-
 	}
 
 	// 26
@@ -9802,11 +9973,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$holidays_id = $this->db->getInsertId();
 
 		// проверим, не наш ли это user_id
-		$this->get_my_user_id();
+		$this->get_my_user_id($this->tx_data['user_id']);
 		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 				// обновим статус в нашей локальной табле.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						DELETE FROM `".DB_PREFIX."my_holidays`
+						DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_holidays`
 						WHERE `start_time` = {$this->tx_data['start_time']} AND
 								     `end_time` = {$this->tx_data['end_time']}
 						");
@@ -9980,43 +10151,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (!$this->checkCurrency($this->tx_data['sell_currency_id']) || !$this->checkCurrency($this->tx_data['buy_currency_id']))
 			return 'bad currency';
 
-		// если это тр-ия без блока, то комиссию нода берем у себя
-		if (!isset($this->block_data['block_id'])) {
-			$this->get_my_user_id();
-			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `commission`
-					FROM `".DB_PREFIX."commission`
-					WHERE `user_id` = {$this->my_user_id}
-					LIMIT 1
-					", 'fetch_one' );
-			$commission_json = json_decode($commission_json, true);
-			if (isset($commission_json[$this->tx_data['sell_currency_id']]))
-				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['sell_currency_id']], $this->db);
-			else
-				$node_commission = 0;
-		}
-		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
-		else {
-			$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `commission`
-					FROM `".DB_PREFIX."commission`
-					WHERE `user_id` = {$this->block_data['user_id']}
-					LIMIT 1
-					", 'fetch_one' );
-			$commission_json = json_decode($commission_json, true);
-			if (isset($commission_json[$this->tx_data['sell_currency_id']]))
-				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['sell_currency_id']], $this->db);
-			else
-				$node_commission = 0;
-		}
-		debug_print('$node_commission='.$node_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->tx_data['currency_id'] = $this->tx_data['sell_currency_id'];
+		$node_commission = $this->get_my_node_commission();
 
 		// проверим, удовлетворяет ли нас комиссия, которую предлагает юзер
 		if ( $this->tx_data['commission'] < $node_commission )
 			return 'error commission ('.$this->tx_data['commission'].' < '.$node_commission.')';
 
 		// если ли нужная сумма на кошельке
-		$this->tx_data['currency_id'] = $this->tx_data['sell_currency_id'];
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
 		$error = $this->check_sender_money();
 		if ($error)
@@ -10339,15 +10481,29 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 		$this->rollbackAI('log_forex_orders_main');
 
-		$this->get_my_user_id();
-		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+		// если работаем в режиме пула
+		$community = get_community_users($this->$db);
+		if ($community) {
+			for ($i=0; $i<sizeof($community); $i++) {
+
+				$my_prefix = $community[$i].'_';
+				// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						DELETE FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
+						WHERE `block_id` = {$this->block_data['block_id']}
+						");
+				$AffectedRows = $this->db->getAffectedRows();
+				$this->rollbackAI("{$my_prefix}my_dc_transactions", $AffectedRows);
+			}
+		}
+		else {
 			// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."my_dc_transactions`
 					WHERE `block_id` = {$this->block_data['block_id']}
 					");
 			$AffectedRows = $this->db->getAffectedRows();
-			$this->rollbackAI('my_dc_transactions', $AffectedRows);
+			$this->rollbackAI("my_dc_transactions", $AffectedRows);
 		}
 	}
 
@@ -10433,7 +10589,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 				// обновим статус в нашей локальной табле.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."my_holidays`
+						UPDATE `".DB_PREFIX."{$this->my_prefix}my_holidays`
 						SET `status` = 'deleted'
 						WHERE `holidays_id` = {$this->tx_data['holidays_id']}
 						");
@@ -10456,7 +10612,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 				// обновим статус в нашей локальной табле.
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."my_holidays`
+							UPDATE `".DB_PREFIX."{$this->my_prefix}my_holidays`
 							SET `status` = 'deleted',
 								   `holidays_id` = 0
 							WHERE `holidays_id` = {$this->tx_data['holidays_id']}
@@ -10888,7 +11044,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							`sent` = 0
 					");
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
+					UPDATE `".DB_PREFIX."config`
 					SET `my_block_id` = {$this->block_data['block_id']}
 					");
 
@@ -11037,7 +11193,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				}
 				$this->$fns_name();
 
-				$this->insert_in_log_tx ($transaction_binary_data_full, time());
+				// Тут было time(). А значит если бы в цепочке блоков были блоки в которых были бы одинаковые хэши тр-ий, то ParseDataFull вернул бы error
+				$this->insert_in_log_tx ($transaction_binary_data_full, $this->tx_data['time']);
 
 				$i++;
 

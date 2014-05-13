@@ -8,9 +8,6 @@ set_time_limit(0);
 
 require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
-
-
-
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 require_once( ABSPATH . 'includes/class-parsedata.php' );
@@ -44,7 +41,7 @@ $new_testblock_binary = $_POST['data'];
 //print_R($_POST);
 $new_testblock['block_id'] = ParseData::binary_dec_string_shift($new_testblock_binary, 4);
 $new_testblock['time'] = ParseData::binary_dec_string_shift($new_testblock_binary, 4);
-$new_testblock['user_id'] = ParseData::binary_dec_string_shift($new_testblock_binary, 4);
+$new_testblock['user_id'] = ParseData::binary_dec_string_shift($new_testblock_binary, 5);
 list(, $new_testblock['mrkl_root']) = unpack( "H*", ( string_shift ( $new_testblock_binary, 32 ) ) );
 $sign_size = ParseData::decode_length($new_testblock_binary);
 $new_testblock['signature'] =  ParseData::string_shift ( $new_testblock_binary, $sign_size ) ;
@@ -213,7 +210,7 @@ if ($new_testblock['mrkl_root'] != $my_testblock['mrkl_root']) {
 	// Разбираем полученные бинарные данные.
 	$new_testblock['block_id'] = ParseData::binary_dec_string_shift($binary_data, 4);
 	$new_testblock['time'] = ParseData::binary_dec_string_shift($binary_data, 4);
-	$new_testblock['user_id'] = ParseData::binary_dec_string_shift($binary_data, 4);
+	$new_testblock['user_id'] = ParseData::binary_dec_string_shift($binary_data, 5);
 	$sign_size = ParseData::decode_length($binary_data);
 	$new_testblock['signature'] =  ParseData::string_shift ( $binary_data, $sign_size ) ;
 	$new_testblock['signature_hex'] = bin2hex($new_testblock['signature']);

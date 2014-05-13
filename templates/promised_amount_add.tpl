@@ -60,6 +60,7 @@ $('#add_promised_amount').bind('click', function () {
 	$("#add").css("display", "none");
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+video_type+','+video_url_id );
+	doSign();
 
 });
 
@@ -142,7 +143,9 @@ $( "#currency_id" ).change(function () {
 					    <br>Example: http://www.youtube.com/watch?v=ZSt9tm3RoUU<br>
 
 				    </td></tr>
-
+			<?php
+			if (!defined('COMMUNITY')) {
+			?>
 			    <tr><td>
 					    <?php echo $lng['2_video_file']?>:<br>
 
@@ -169,6 +172,9 @@ $( "#currency_id" ).change(function () {
 					    <div id="video" style="display: none"><video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="468" data-setup="{}"><source  src="" id="source_mp4" type='video/mp4' /><source  src="" id="source_webm" type='video/webm' /><source src="" id="source_ogg" type='video/ogg' /></video></div>-->
 
 				    </td></tr>
+			<?php
+			}
+			?>
 		    </table>
 	    </div>
 

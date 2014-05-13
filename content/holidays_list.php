@@ -11,14 +11,16 @@ $status_list =
 // уведомления
 $tpl['alert'] = @$_REQUEST['parameters']['alert'];
 
-// те, что еще не попали в Dc-сеть
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT *
-		FROM `'.DB_PREFIX.'my_holidays`
-		ORDER BY `id` DESC
-		');
-while ($row = $db->fetchArray($res))
-	$tpl['holidays_list']['my_pending'][] = $row;
+if (empty($_SESSION['restricted'])) {
+	// те, что еще не попали в Dc-сеть
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT *
+			FROM `'.DB_PREFIX.MY_PREFIX.'my_holidays`
+			ORDER BY `id` DESC
+			');
+	while ($row = $db->fetchArray($res))
+		$tpl['holidays_list']['my_pending'][] = $row;
+}
 
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *

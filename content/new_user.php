@@ -1,13 +1,14 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-
-$tpl['new_users'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `user_id`,
-					 `private_key`,
-					 `status`
-		FROM `".DB_PREFIX."my_new_users`
-		", 'all_data' );
+if (empty($_SESSION['restricted'])) {
+	$tpl['new_users'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `user_id`,
+						 `private_key`,
+						 `status`
+			FROM `".DB_PREFIX.MY_PREFIX."my_new_users`
+			", 'all_data' );
+}
 
 $tpl['data']['type'] = 'new_user';
 $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);

@@ -71,7 +71,7 @@ else {
 			SHOW TABLES
 			", 'array');
 	foreach($tables_array as $table) {
-		if (substr($table, 0, 3) != 'my_' && substr($table, 0, 3) != '_my') {
+		if (!preg_match('/my_|_my/', $table)) {
 			$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT count(*)
 					FROM `".DB_PREFIX."{$table}`

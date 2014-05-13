@@ -21,19 +21,14 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 while ($row = $db->fetchArray($res)) 
 	$tpl['currency_list'][$row['id']] = $row['name'];
 
-// Узнаем свой user_id	
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `user_id`
-		FROM `'.DB_PREFIX.'my_table`
-		');
-$row = $db->fetchArray($res);
-$tpl['user_id'] = $row['user_id'];
+// Узнаем свой user_id
+$tpl['user_id'] = get_my_user_id($db);
 
 $variables = ParseData::get_all_variables($db);
 // актуальный запрос к нам на получение налички. Может быть только 1.
 $tpl['data'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *
-		FROM `".DB_PREFIX."my_cash_requests`
+		FROM `".DB_PREFIX.MY_PREFIX."my_cash_requests`
 		WHERE `to_user_id` = {$tpl['user_id']} AND
 					 `status` = 'pending' AND
 					 `time` > ".(time()-$variables['cash_request_time'])."
@@ -44,7 +39,7 @@ $tpl['data'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METH
 // список ранее отправленных ответов на запросы.
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *
-		FROM `".DB_PREFIX."my_cash_requests`
+		FROM `".DB_PREFIX.MY_PREFIX."my_cash_requests`
 		WHERE `to_user_id` = {$tpl['user_id']}
 		");
 while ($row = $db->fetchArray($res))

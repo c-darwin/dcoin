@@ -2,8 +2,8 @@
 
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'DC', TRUE);
 
@@ -20,6 +20,10 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
+define('MY_PREFIX', get_my_prefix($db));
+
+$_REQUEST['time'] = intval($_REQUEST['time']);
+$_REQUEST['user_id'] = intval($_REQUEST['user_id']);
 $type = ParseData::findType($_REQUEST['type']);
 $time = $_REQUEST['time'];
 $user_id = $_REQUEST['user_id'];
@@ -37,18 +41,24 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 	case 'new_user' :
 
-		$public_key = hextobin($_REQUEST['public_key']);
-		$private_key = $_POST['private_key'];
+		if ( !check_input_data ($_REQUEST['public_key'], 'public_key' ) )
+			die('error public_key');
+		if ( !check_input_data ($_REQUEST['private_key'], 'private_key' ) )
+			die('error public_key');
 
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				INSERT INTO  `".DB_PREFIX."my_new_users` (
-					`public_key`,
-					`private_key`
-				)
-				VALUES (
-					0x{$_REQUEST['public_key']},
-					'{$private_key}'
-				)");
+		$public_key = hextobin($_REQUEST['public_key']);
+
+		if (empty($_SESSION['restricted'])) {
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_new_users` (
+						`public_key`,
+						`private_key`
+					)
+					VALUES (
+						0x{$_REQUEST['public_key']},
+						'{$_REQUEST['private_key']}'
+					)");
+		}
 
 
 		$data = dec_binary ($type, 1) .
@@ -74,7 +84,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		$video_url_id = $_REQUEST['video_url_id'];
 		$node_public_key = $_REQUEST['node_public_key'];
 
-		if (!$race || !$country || !$latitude || !$longitude || !$host || !$face_hash || !$profile_hash || !$face_coords || !$profile_coords || !$video_type || !$video_url_id || !$node_public_key) {
+		if (!$race || empty($country) || !$latitude || !$longitude || !$host || !$face_hash || !$profile_hash || !$face_coords || !$profile_coords || !$video_type || !$video_url_id || !$node_public_key) {
 			die('error');
 		}
 		if ($video_type=='null' || $video_url_id=='null') {
@@ -101,10 +111,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 					encode_length(strlen($node_public_key)) . $node_public_key .
 					$bin_signatures;
 
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."my_table`
-				SET `node_voting_send_request` = {$time}
-				");
+		if (empty($_SESSION['restricted'])) {
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
+					SET `node_voting_send_request` = {$time}
+					");
+		}
 
 		break;
 
@@ -123,21 +135,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 					$bin_signatures;
 
 		break;
-			
-	case 'votes_tdc_dc' : // голос за майнинг tdc->DC
-
-		$mining_id = $_REQUEST['mining_id'];
-		$result = $_REQUEST['result'];
-		
-
-		$data = dec_binary ($type, 1) .
-					dec_binary ($time, 4) .
-					encode_length(strlen($user_id)) . $user_id .
-					encode_length(strlen($mining_id)) . $mining_id .
-					encode_length(strlen($result)) . $result .
-					$bin_signatures;
-
-		break;
 
 	case 'new_promised_amount' :
 
@@ -145,9 +142,11 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		$amount = $_REQUEST['amount'];
 		$video_type = $_REQUEST['video_type'];
 		$video_url_id = $_REQUEST['video_url_id'];
-		
 
-		print_R($_REQUEST);
+		if ( !check_input_data ($currency_id, 'int' ) )
+			die('error currency_id');
+		if ( !check_input_data ($amount, 'amount' ) )
+			die('error amount');
 
 		$data = dec_binary ($type, 1) .
 					dec_binary ($time, 4) .
@@ -158,15 +157,17 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 					encode_length(strlen($video_url_id)) . $video_url_id .
 					$bin_signatures;
 
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				INSERT INTO  `".DB_PREFIX."my_promised_amount` (
-					currency_id,
-					amount
-				)
-				VALUES (
-					{$currency_id},
-					{$amount}
-				)");
+		if (empty($_SESSION['restricted'])) {
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_promised_amount` (
+						currency_id,
+						amount
+					)
+					VALUES (
+						{$currency_id},
+						{$amount}
+					)");
+		}
 
 		break;
 
@@ -198,23 +199,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
-	case 'promised_amount_add_photo' :
-
-			$promised_amount_id = $_REQUEST['promised_amount_id'];
-			$hash = $_REQUEST['hash'];
-			$signature = hextobin($_POST['signature']);
-			
-			$data = dec_binary ($type, 1) .
-						dec_binary ($time, 4) .
-						encode_length(strlen($user_id)) . $user_id .
-						encode_length(strlen($promised_amount_id)) . $promised_amount_id .
-						encode_length(strlen($hash)) . $hash .
-						$bin_signatures;
-
-			
-			
-			break;
-			
 		case 'votes_promised_amount':
 
 			$promised_amount_id = $_REQUEST['promised_amount_id'];
@@ -236,13 +220,21 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$latitude = $_REQUEST['latitude'];
 			$longitude = $_REQUEST['longitude'];
 			$country = $_REQUEST['country'];
-			
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_table`
-					SET `geolocation` = '{$latitude}, {$longitude}',
-							`location_country` =  {$country}
-					");
+			if ( !check_input_data ($latitude, 'coordinate' ) )
+				die('error latitude');
+			if ( !check_input_data ($longitude, 'coordinate' ) )
+				die('error longitude');
+			if ( !check_input_data ($country, 'int' ) )
+				die('error country');
+
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
+						SET `geolocation` = '{$latitude}, {$longitude}',
+								`location_country` =  {$country}
+						");
+			}
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -254,27 +246,10 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
-		case 'votes_geolocation' :
-
-			$geolocation_id = $_REQUEST['geolocation_id'];
-			$result = $_REQUEST['result'];			
-			
-			
-			$data = dec_binary ($type, 1) .
-						dec_binary ($time, 4) .
-						encode_length(strlen($user_id)) . $user_id .
-						encode_length(strlen($geolocation_id)) . $geolocation_id .
-						encode_length(strlen($result)) . $result .
-						$bin_signatures;
-
-			break;
-
 		case 'del_promised_amount' :
 
 			$promised_amount_id = $_REQUEST['promised_amount_id'];
-
-
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
@@ -306,35 +281,47 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$commission = $_REQUEST['commission'];
 			$comment = $_REQUEST['comment'];
 			$comment_text = $_REQUEST['comment_text'];
-			
 
-			// пишем транзакцкцию к сбе в таблу
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO
-						`".DB_PREFIX."my_dc_transactions` (
-							`status`,
-							`type`,
-							`type_id`,
-							`to_user_id`,
-							`amount`,
-							`commission`,
-							`currency_id`,
-							`comment`,
-							`comment_status`
-						)
-						VALUES (
-							'pending',
-							'from_user',
-							{$user_id},
-							{$to_user_id},
-							{$amount},
-							{$commission},
-							{$currency_id},
-							'{$comment_text}',
-							'decrypted'
-						)");
-			print $db->printsql()."\n";
+			if ( !check_input_data ($to_user_id, 'int' ) )
+				die('error to_user_id');
+			if ( !check_input_data ($currency_id, 'int' ) )
+				die('error currency_id');
+			if ( !check_input_data ($amount, 'amount' ) )
+				die('error amount');
+			if ( !check_input_data ($commission, 'amount' ) )
+				die('error commission');
+
+			$comment_text = clear_comment($comment_text, $db);
+
+			if (empty($_SESSION['restricted'])) {
+				// пишем транзакцкцию к сбе в таблу
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO
+							`".DB_PREFIX.MY_PREFIX."my_dc_transactions` (
+								`status`,
+								`type`,
+								`type_id`,
+								`to_user_id`,
+								`amount`,
+								`commission`,
+								`currency_id`,
+								`comment`,
+								`comment_status`
+							)
+							VALUES (
+								'pending',
+								'from_user',
+								{$user_id},
+								{$to_user_id},
+								{$amount},
+								{$commission},
+								{$currency_id},
+								'{$comment_text}',
+								'decrypted'
+							)");
+			//print $db->printsql()."\n";
+			}
 
 			if (!$comment)
 				$comment = 'null';
@@ -362,51 +349,64 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$comment_text = $_REQUEST['comment_text'];
 			$hash_code = $_REQUEST['hash_code'];
 			$code = $_REQUEST['code'];
-			
 
-			print_r($_REQUEST);
+			if ( !check_input_data ($code, 'cash_code' ) )
+				die('error code');
+			if ( !check_input_data ($to_user_id, 'int' ) )
+				die('error to_user_id');
+			if ( !check_input_data ($currency_id, 'int' ) )
+				die('error currency_id');
+			if ( !check_input_data ($amount, 'amount' ) )
+				die('error amount');
+			if ( !check_input_data ($commission, 'amount' ) )
+				die('error commission');
 
-			// пишем в личную таблу
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO  `".DB_PREFIX."my_cash_requests` (
-							`to_user_id`,
-							`currency_id`,
-							`amount`,
-							`comment`,
-							`code`
-						)
-						VALUES (
-							{$to_user_id},
-							{$currency_id},
-							'{$amount}',
-							'{$comment_text}',
-							'{$code}'
-						)");
+			$comment_text = clear_comment($comment_text, $db);
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO
-						`".DB_PREFIX."my_dc_transactions` (
-							`status`,
-							`type`,
-							`type_id`,
-							`to_user_id`,
-							`amount`,
-							`currency_id`,
-							`comment`,
-							`comment_status`
-						)
-						VALUES (
-							'pending',
-							'cash_request',
-							{$user_id},
-							{$to_user_id},
-							{$amount},
-							{$currency_id},
-							'{$comment_text}',
-							'decrypted'
-						)");
-			//print $db->printsql()."\n";
+			if (empty($_SESSION['restricted'])) {
+
+				// пишем в личную таблу
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_cash_requests` (
+								`to_user_id`,
+								`currency_id`,
+								`amount`,
+								`comment`,
+								`code`
+							)
+							VALUES (
+								{$to_user_id},
+								{$currency_id},
+								'{$amount}',
+								'{$comment_text}',
+								'{$code}'
+							)");
+
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO
+							`".DB_PREFIX.MY_PREFIX."my_dc_transactions` (
+								`status`,
+								`type`,
+								`type_id`,
+								`to_user_id`,
+								`amount`,
+								`currency_id`,
+								`comment`,
+								`comment_status`
+							)
+							VALUES (
+								'pending',
+								'cash_request',
+								{$user_id},
+								{$to_user_id},
+								{$amount},
+								{$currency_id},
+								'{$comment_text}',
+								'decrypted'
+							)");
+				//print $db->printsql()."\n";
+			}
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -424,9 +424,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$cash_request_id = $_REQUEST['cash_request_id'];
 			$code = $_REQUEST['code'];
-			
 
-			print_r($_REQUEST);
+			//print_r($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -434,46 +433,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 						encode_length(strlen($cash_request_id)) . $cash_request_id .
 						encode_length(strlen($code)) . $code .
 						$bin_signatures;
-/*
- * убрано, т.к. тот, кто отдает наличку получает не DC, а TDC и погашенные банкноты
-			// нужно получить сумму, которая будет начислена нам на кошелек
-			$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `amount`,
-								 `currency_id`
-					FROM `".DB_PREFIX."cash_requests`
-					WHERE `id` = {$cash_request_id}
-					", 'fetch_array');
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO
-						`".DB_PREFIX."my_dc_transactions` (
-							`status`,
-							`type`,
-							`type_id`,
-							`to_user_id`,
-							`amount`,
-							`currency_id`,
-							`comment`,
-							`comment_status`
-						)
-						VALUES (
-							'pending',
-							'cash_request',
-							{$cash_request_id},
-							{$user_id},
-							{$data['amount']},
-							{$data['currency_id']},
-							'',
-							'decrypted'
-						)");
-			print $db->printsql()."\n";
-*/
 			break;
 
 		case 'abuses' :
 
 			$abuses = $_REQUEST['abuses'];
-			
 
 			// проверим, не делал слал ли юзер абузы за последние сутки.
 			// если слал - то выходим.
@@ -485,7 +450,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 					", 'num_rows' );
 			if ( $num > 0 )
 				exit;
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -498,7 +463,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		case 'admin_ban_miners' :
 
 			$users_ids = $_REQUEST['users_ids'];
-
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
@@ -523,9 +487,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		case 'admin_variables' :  // админ изменил variables
 
 			$variables = $_REQUEST['variables'];
-			
 
-			print_r($_REQUEST);
+			//print_r($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -541,7 +504,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$segments = $_REQUEST['segments'];
 			$tolerances = $_REQUEST['tolerances'];
 			$compatibility = $_REQUEST['compatibility'];
-			
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -554,27 +516,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
-		case 'admin_entropy' : // админ обновил энтропию
-
-			$entropy = $_REQUEST['entropy'];
-			
-
-			$data = dec_binary ($type, 1) .
-						dec_binary ($time, 4) .
-						encode_length(strlen($user_id)) . $user_id .
-						encode_length(strlen($entropy)) . $entropy .
-						$bin_signatures;
-
-			
-
-			break;
-
 		case 'admin_message' : // админ отправил alert message
 
 			$message = $_REQUEST['message'];
 			$currency_list = $_REQUEST['currency_list'];
 			
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -592,19 +539,37 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$public_key_3 = $_REQUEST['public_key_3'];
 			$private_key = $_REQUEST['private_key'];
 			$password_hash = $_REQUEST['password_hash'];
-			
+			$save_private_key = $_REQUEST['save_private_key'];
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO  `".DB_PREFIX."my_keys` (
-							`public_key`,
-							`private_key`,
-							`password_hash`
-						)
-						VALUES (
-							0x{$public_key_1},
-							'{$private_key}',
-							'{$password_hash}'
-						)");
+			if ( !check_input_data ($public_key_1, 'public_key' ) )
+				die('error public_key');
+			if ( !check_input_data ($private_key, 'private_key' ) )
+				die('error private_key');
+			if ( !check_input_data ($password_hash, 'sha256' ) )
+				die('error password_hash');
+
+			if (empty($_SESSION['restricted'])) {
+				if ($save_private_key==1 && !get_community_users($db))
+					$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_keys` (
+									`public_key`,
+									`private_key`,
+									`password_hash`
+								)
+								VALUES (
+									0x{$public_key_1},
+									'{$private_key}',
+									'{$password_hash}'
+								)");
+				else
+					$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_keys` (
+									`public_key`
+								)
+								VALUES (
+									0x{$public_key_1}
+								)");
+			}
 
 			$bin_public_key_1 = hextobin($public_key_1);
 			$bin_public_key_2 = hextobin($public_key_2);
@@ -625,18 +590,24 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$public_key = $_REQUEST['public_key'];
 			$private_key = $_REQUEST['private_key'];
-			
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO  `".DB_PREFIX."my_node_keys` (
-							`public_key`,
-							`private_key`
-						)
-						VALUES (
-							0x{$public_key},
-							'{$private_key}'
-						)");
-			print $db->printsql();
+			if ( !check_input_data ($public_key, 'public_key' ) )
+				die('error public_key');
+			if ( !check_input_data ($private_key, 'private_key' ) )
+				die('error private_key');
+
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_node_keys` (
+								`public_key`,
+								`private_key`
+							)
+							VALUES (
+								0x{$public_key},
+								'{$private_key}'
+							)");
+				//print $db->printsql();
+			}
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
@@ -650,7 +621,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$json_data = $_REQUEST['json_data'];
 			
-
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
 				ParseData::encode_length_plus_data($user_id) .
@@ -659,37 +629,28 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
-		case 'votes_reduction' :
-
-			$currency_id = $_REQUEST['currency_id'];
-			$pct = $_REQUEST['pct'];
-			
-
-			$data = dec_binary ($type, 1) .
-				dec_binary ($time, 4) .
-				encode_length(strlen($user_id)) . $user_id .
-				encode_length(strlen($currency_id)) . $currency_id .
-				encode_length(strlen($pct)) . $pct .
-				$bin_signatures;
-
-			break;
-
 		case 'new_holidays' :
 
 			$start_time = $_REQUEST['start_time'];
 			$end_time = $_REQUEST['end_time'];
-			
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO
-						`".DB_PREFIX."my_holidays` (
-							`start_time`,
-							`end_time`
-						)
-						VALUES (
-							{$start_time},
-							{$end_time}
-						)");
+			if ( !check_input_data ($start_time, 'int' ) )
+				die('error start_time');
+			if ( !check_input_data ($end_time, 'int' ) )
+				die('error end_time');
+
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO
+							`".DB_PREFIX.MY_PREFIX."my_holidays` (
+								`start_time`,
+								`end_time`
+							)
+							VALUES (
+								{$start_time},
+								{$end_time}
+							)");
+			}
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -700,12 +661,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
+		/*
 		case 'holidays_del' :
 
 			$holidays_id = $_REQUEST['holidays_id'];
-			
 
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -713,26 +674,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 						encode_length(strlen($holidays_id)) . $holidays_id .
 						$bin_signatures;
 
-			
+			break;*/
 
-			break;
-
-		case 'tdc_dc_repaid' :
-
-			$promised_amount_id = $_REQUEST['promised_amount_id'];
-			$amount = $_REQUEST['amount'];
-			
-
-			print_R($_REQUEST);
-
-			$data = dec_binary ($type, 1) .
-				dec_binary ($time, 4) .
-				encode_length(strlen($user_id)) . $user_id .
-				encode_length(strlen($promised_amount_id)) . $promised_amount_id .
-				encode_length(strlen($amount)) . $amount .
-				$bin_signatures;
-
-			break;
 
 		case 'new_miner_update' :
 
@@ -741,10 +684,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				encode_length(strlen($user_id)) . $user_id .
 				$bin_signatures;
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."my_table`
-				SET `node_voting_send_request` = {$time}
-				");
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
+					SET `node_voting_send_request` = {$time}
+					");
+			}
 
 			break;
 
@@ -755,7 +700,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$max_promised_amount = $_REQUEST['max_promised_amount'];
 			$max_other_currencies = $_REQUEST['max_other_currencies'];
 
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
 				ParseData::encode_length_plus_data($user_id) .
@@ -775,7 +720,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			
 			$new_file = file_get_contents(ABSPATH . "public/new.zip");
 
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
@@ -806,7 +751,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$title = $_REQUEST['title'];
 			$message = $_REQUEST['message'];
-			
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
@@ -819,7 +763,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'message_to_admin' :
 
-			print_r($_REQUEST);
+			//print_r($_REQUEST);
 
 			$message_id = $_REQUEST['message_id'];
 			$parent_id = $_REQUEST['parent_id'];
@@ -828,16 +772,23 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$message_type = $_REQUEST['message_type'];
 			$message_subtype = $_REQUEST['message_subtype'];
 			$encrypted_message = $_REQUEST['encrypted_message'];
-			
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."my_admin_messages`
-					SET  `status` = 'my_pending',
-							`encrypted` = 0x{$encrypted_message}
-					WHERE `id` = {$message_id}
-					");
-			print $db->printsql()."\n";
+			if ( !check_input_data ($message_id, 'int' ) )
+				die('error message_id');
+
+			if ( !check_input_data ($encrypted_message, 'hex_message' ) )
+				die('error encrypted_message');
+
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX.MY_PREFIX."my_admin_messages`
+						SET  `status` = 'my_pending',
+								`encrypted` = 0x{$encrypted_message}
+						WHERE `id` = {$message_id}
+						");
+				//print $db->printsql()."\n";
+			}
 
 			$encrypted_message = hextobin($encrypted_message);
 
@@ -851,7 +802,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'admin_answer' :
 
-			print_r($_REQUEST);
+			//print_r($_REQUEST);
 
 			//$message_id = $_REQUEST['message_id'];
 			$parent_id = $_REQUEST['parent_id'];
@@ -888,6 +839,16 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$host = $_REQUEST['host'];
 
+			if ( !check_input_data ($host, 'host' ) )
+				die('error host');
+
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
+					SET  `host` = '{$host}',
+							`host_status` = 'my_pending'
+					");
+			}
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
@@ -928,59 +889,36 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
-		/*
-				case 'admin_lang' :
-
-					$type = ParseData::findType('admin_lang');
-					$time = $_REQUEST['time'];
-					$user_id = $_REQUEST['user_id'];
-					$lang = $_REQUEST['lang'];
-					$full_name = $_REQUEST['full_name'];
-					$version = $_REQUEST['version'];
-					$data = $_REQUEST['data'];
-					
-
-					$data = dec_binary ($type, 1) .
-								dec_binary ($time, 4) .
-								encode_length(strlen($user_id)) . $user_id .
-								encode_length(strlen($lang)) . $lang .
-								encode_length(strlen($full_name)) . $full_name .
-								encode_length(strlen($version)) . $version .
-								encode_length(strlen($data)) . $data .
-								$bin_signatures;
-
-					
-
-					break;
-		*/
-
-
 		case 'change_commission' :
 
-			//print_r($_REQUEST);
-
 			$commission = $_REQUEST['commission'];
-			
-
 			$commission_decode = json_decode($commission, true);
-			//print_r($commission_decode);
-			foreach ($commission_decode as $currency_id=>$data) {
-				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."my_commission` (
-							`currency_id`,
-							`pct`,
-							`min`,
-							`max`
-						)
-						VALUES (
-							{$currency_id},
-							{$data[0]},
-							{$data[1]},
-							{$data[2]}
-						)
-                    ON DUPLICATE KEY UPDATE `pct`={$data[0]}, `min`={$data[0]}, `max`={$data[0]}
-                    ");
-				//print $db->printsql();
+
+			foreach  ($commission_decode as $currency_id => $data) {
+
+				if ( !check_input_data ($currency_id, 'int') )
+					die('bad currency_id');
+			}
+
+			if (empty($_SESSION['restricted'])) {
+				foreach ($commission_decode as $currency_id=>$data) {
+					$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX.MY_PREFIX."my_commission` (
+								`currency_id`,
+								`pct`,
+								`min`,
+								`max`
+							)
+							VALUES (
+								{$currency_id},
+								{$data[0]},
+								{$data[1]},
+								{$data[2]}
+							)
+	                    ON DUPLICATE KEY UPDATE `pct`={$data[0]}, `min`={$data[0]}, `max`={$data[0]}
+	                    ");
+					//print $db->printsql();
+				}
 			}
 
 			$data = dec_binary ($type, 1) .

@@ -28,6 +28,7 @@ $('#next').bind('click', function () {
 	json_data = '{'+data.substr(0, data.length-1)+'}';
 
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+json_data);
+	doSign();
 
 } );
 

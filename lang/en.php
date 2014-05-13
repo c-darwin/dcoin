@@ -3,8 +3,8 @@
 $lng['wallet'] = 'Wallet';
 $lng['upgrade_to_miner'] = 'Upgrade to miner';
 $lng['geolocation'] = 'Location';
-$lng['inbox'] = 'Inbox';
-$lng['outgoing'] = 'Outgoing';
+$lng['inbox'] = 'Inbox request';
+$lng['outgoing'] = 'Exchange for cash';
 $lng['holidays'] = 'Holidays';
 $lng['tasks'] = 'Tasks';
 $lng['settings'] = 'Settings';
@@ -26,6 +26,7 @@ $lng['start_stop'] = 'Start/stop';
 $lng['demons'] = 'Demons';
 $lng['db_info'] = 'Db info';
 $lng['exchange'] = 'Exchange';
+$lng['logout'] = 'Logout';
 
 // periods
 $lng['day'] = 'day';
@@ -35,6 +36,8 @@ $lng['month'] = 'month';
 $lng['year'] = 'year';
 
 // general
+$lng['close'] = 'Close';
+$lng['log_in'] = 'Log in';
 $lng['delete'] = 'Delete';
 $lng['next'] = 'Next';
 $lng['status'] = 'Status';
@@ -91,6 +94,9 @@ $lng['change_key_pass'] = 'Change<br>key/password';
 $lng['login_text'] = 'Enter key and password, and then - click "Sign"';
 $lng['new_version'] = 'Please, install the new version of the engine! <button class="btn" id="btn_install">install [ver]</button><br>Or fill scripts manually and press <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
 $lng['new_version_wo_block'] = 'Uploaded new version of the engine. Press <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
+$lng['new_version_pulls'] = 'Please, install the new version of the engine!';
+$lng['only_for_miners'] = 'Available only for miners. You need to <a href="#" onclick="fc_navigate(\'upgrade\')">upgrade</a>';
+$lng['permission_denied'] = 'Permission denied';
 $lng['attention_title'] = 'Attention!';
 $lng['alert_time'] = 'Time on your server differs from the exact time of [sec] seconds. Necessary to establish the exact time';
 
@@ -246,7 +252,7 @@ $lng['upgrade_resend_title'] = 'Resending data';
 // change primary key
 $lng['change_primary_key_title'] = 'Changing the master key';
 $lng['new_pass_for_key'] = 'Specify the new password for the new master key';
-$lng['save_key'] = 'Save the master key on the server';
+$lng['save_key'] = 'Save master key on the server for password authentication';
 $lng['block'] = 'Block';
 $lng['change_primary_key_limits_text'] = 'Changing the master key is permissible - no more than [limit] times [period].';
 $lng['your_new_key'] = 'Your new master key';

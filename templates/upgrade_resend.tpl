@@ -5,12 +5,11 @@
 
 	<?php echo $lng['data']?>:<br>
 	<textarea id="for-signature" style="width:500px; height:100px"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?></textarea><br>
-	<label><?php echo $lng['sign']?>:</label>
-	<textarea id="signature1" style="width:500px; height:100px"></textarea>
-	<label><?php echo $lng['sign']?> 2</label>
-	<textarea id="signature2" style="width:500px;" rows="4"></textarea>
-	<label><?php echo $lng['sign']?> 3</label>
-	<textarea id="signature3" style="width:500px;" rows="4"></textarea>
+	<?php
+	for ($i=1; $i<=$count_sign; $i++) {
+		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
+	}
+	?>
 	<br>
 	<script>
 	$('#save_queue').bind('click', function () {

@@ -8,10 +8,12 @@ $tpl['data']['user_id'] = $user_id;
 
 $tpl['variables'] = ParseData::get_variables ($db,  array('limit_change_host', 'limit_change_host_period') );
 
-$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `host`, `host_status`
-		FROM `'.DB_PREFIX.'my_table`
-		', 'fetch_array');
+if (empty($_SESSION['restricted'])) {
+	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT `host`, `host_status`
+			FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
+			', 'fetch_array');
+}
 
 $status_array =
 	array(

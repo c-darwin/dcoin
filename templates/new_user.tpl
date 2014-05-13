@@ -6,7 +6,9 @@
 			$("#public_key").val( data.public_key );
 			$("#private_key").val( data.private_key );
 			$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key").val());
+			doSign();
 		}, 'json' );
+
 	} );
 
 	$('#next').bind('click', function () {

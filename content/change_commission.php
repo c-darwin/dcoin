@@ -23,12 +23,14 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_min'][$row['id']] = $min_commission_array[$row['name']];
 }
 
-$res= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT *
-		FROM `'.DB_PREFIX.'my_commission`
-		');
-while ($row = $db->fetchArray($res)) {
-	$my_commission[$row['currency_id']] = array($row['pct'], $row['min'], $row['max']);
+if (empty($_SESSION['restricted'])) {
+	$res= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT *
+			FROM `'.DB_PREFIX.MY_PREFIX.'my_commission`
+			');
+	while ($row = $db->fetchArray($res)) {
+		$my_commission[$row['currency_id']] = array($row['pct'], $row['min'], $row['max']);
+	}
 }
 
 $res= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '

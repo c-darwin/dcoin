@@ -7,10 +7,10 @@ if (defined('DB_HOST') && defined('DB_USER') && defined('DB_NAME'))
 	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 if ($db) {
-	require_once(ABSPATH . 'cron/deamons_inc.php');
+	require_once(ABSPATH . 'cron/daemons_inc.php');
 	foreach ($daemons as $script_name) {
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-				INSERT INTO `".DB_PREFIX."deamons` (
+				INSERT INTO `".DB_PREFIX."daemons` (
 					`script`,
 					`restart`
 				)
@@ -21,6 +21,9 @@ if ($db) {
 				");
 	}
 }
+
+unset($_SESSION['user_id']);
+unset($_SESSION['restricted']);
 
 require_once( ABSPATH . 'templates/install_step_0.tpl' );
 

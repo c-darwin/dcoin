@@ -1,7 +1,6 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-
 if (file_exists(ABSPATH . 'db_config.php') && !@$_POST['mysql_host']){
 	require_once(ABSPATH . 'db_config.php');
 	$tpl['mysql_host'] = DB_HOST;
@@ -12,12 +11,15 @@ if (file_exists(ABSPATH . 'db_config.php') && !@$_POST['mysql_host']){
 	$tpl['mysql_prefix'] = DB_PREFIX;
 }
 else {
-	$tpl['mysql_host'] = $_POST['mysql_host'];
-	$tpl['mysql_port'] = $_POST['mysql_port'];
-	$tpl['mysql_db_name'] = $_POST['mysql_db_name'];
-	$tpl['mysql_username'] = $_POST['mysql_username'];
-	$tpl['mysql_password'] = $_POST['mysql_password'];
-	$tpl['mysql_prefix'] = @$_POST['mysql_prefix'];
+	$tpl['mysql_host'] = clear_quotes($_POST['mysql_host']);
+	$tpl['mysql_port'] = clear_quotes($_POST['mysql_port']);
+	$tpl['mysql_db_name'] = clear_quotes($_POST['mysql_db_name']);
+	$tpl['mysql_username'] = clear_quotes($_POST['mysql_username']);
+	$tpl['mysql_password'] = clear_quotes($_POST['mysql_password']);
+	$tpl['mysql_prefix'] = clear_quotes(@$_POST['mysql_prefix']);
+
+	if ( !check_input_data ($tpl['mysql_prefix'], 'db_prefix') )
+		die('bad mysql_prefix');
 }
 
 // проверям, можно ли подключиться к БД
@@ -49,38 +51,41 @@ if ( !isset($tpl['error']) ) {
 		}
 	}
 
-	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			INSERT INTO `".$tpl['mysql_prefix']."my_table` (
-				`user_id`
-			) VALUES (
-				0
-			)");
+	// возможно идет установка пула, тогда ловим файл c user_id;public_key
+	if ($_POST['pool_data']) {
+		$error = pool_add_users ($_POST['pool_data'], $my_queries, $mysqli_link, $prefix);
+		if ($error) die ($error);
+	}
+	else {
+
+		$my_prefix = '';
+		for ($j=0; $j<sizeof($my_queries); $j++) {
+
+			$my_queries[$j] = str_ireplace('[my_prefix]', $my_prefix, $my_queries[$j]);
+			mysqli_multi_query($mysqli_link, $my_queries[$j]);
+			while (@mysqli_next_result($mysqli_link)) {;}
+
+			if ( mysqli_error($mysqli_link) ) {
+				$tpl['error'][] = 'Error performing query (' . $my_queries[$j] . ') - Error message : '. mysqli_error($mysqli_link);
+			}
+		}
+
+		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".$tpl['mysql_prefix']."my_table` (
+					`user_id`
+				)
+				VALUES (
+					0
+				)");
+
+		/*$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".$tpl['mysql_prefix']."my_notifications` (`name`, `email`, `sms`)
+				VALUES ('admin_messages',1,1),('change_in_status',1,0),('fc_came_from',1,0),('fc_sent',1,0),('incoming_cash_requests',1,1),('new_version',1,1),('node_time',1,1),('system_error',1,1),('update_email',1,0),('update_primary_key',1,0),('update_sms_request',1,0),('voting_results',1,0),('voting_time',1,0)
+			");*/
+}
 
 	include ABSPATH.'includes/bad_blocks.php';
 
-	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			INSERT IGNORE INTO `".$tpl['mysql_prefix']."my_notifications` (`name`, `email`, `sms`)
-			VALUES ('admin_messages',1,1),('change_in_status',1,0),('fc_came_from',1,0),('fc_sent',1,0),('incoming_cash_requests',1,1),('new_version',1,1),('node_time',1,1),('system_error',1,1),('update_email',1,0),('update_primary_key',1,0),('update_sms_request',1,0),('voting_results',1,0),('voting_time',1,0)
-			");
-
-/*
-	 * перенесено в blocks_collection.php
-	// Пишем первый блок
-	$bin = file_get_contents(ABSPATH.'tmp/1block.bin');
-	$data_hex = bin2hex($bin);
-	$md5 = md5($bin);
-	$file = save_tmp_644 ('FTT', "{$md5}\t{$data_hex}");
-
-	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			LOAD DATA LOCAL INFILE  '{$file}'
-			IGNORE INTO TABLE `".$tpl['mysql_prefix']."queue_tx`
-			FIELDS TERMINATED BY '\t'
-			(@hash, @data)
-			SET `hash` = UNHEX(@hash),
-				   `data` = UNHEX(@data)
-			");
-	unlink($file);
-*/
 }
 /*
 if ( !$tpl['error'] ) {
@@ -108,8 +113,6 @@ if ( !isset($tpl['error']) ) {
 	}
 }
 
-
-
 if (!isset($tpl['error'])) {
 
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -123,7 +126,7 @@ if (!isset($tpl['error'])) {
 
 	$tpl['php_path'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `php_path`
-			FROM `".$tpl['mysql_prefix']."my_table`
+			FROM `".$tpl['mysql_prefix']."config`
 			", 'fetch_one');
 
 	/*

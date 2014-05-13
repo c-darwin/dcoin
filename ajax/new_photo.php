@@ -1,8 +1,8 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
-	die('!DC_ADMIN');
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
 
 define( 'DC', TRUE);
 
@@ -17,6 +17,9 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 $user_id = $_REQUEST['user_id'];
+
+if ( !check_input_data ($user_id , 'int') )
+	die('error user_id');
 
 $data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `photo_block_id`,
@@ -39,7 +42,6 @@ $host = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				WHERE `miner_id` = {$miner_id}
 				LIMIT 1
 				", 'fetch_one' );
-
 
 echo json_encode(
 	array( 'face'=>"{$host}public/face_{$user_id}.jpg",

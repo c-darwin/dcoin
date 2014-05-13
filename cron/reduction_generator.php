@@ -31,17 +31,21 @@ if (!$block_id) {
 	main_unlock();
 	exit;
 }
+
+$testBlock = new testblock($db, true);
+
 // а майнер ли я ?
-$my_miner_id = get_my_miner_id($db);
+$my_miner_id = $testBlock->miner_id;
+$my_user_id = $testBlock->user_id;
 if (!$my_miner_id) {
 	main_unlock();
+	unset($testBlock);
 	exit;
 }
 
 $variables = ParseData::get_variables($db, array('min_hold_time_promise_amount', 'reduction_period'));
 $time = time();
 $reduction_tx_data = '';
-$my_user_id = get_my_user_id($db);
 $promised_amount = array();
 $reduction_currency_id = false;
 // получаем кол-во обещанных сумм у разных юзеров по каждой валюте. start_time есть только у тех, у кого статус mining/repaid
@@ -103,7 +107,12 @@ while ( $row = $db->fetchArray( $res ) ) {
 }
 
 if ($reduction_currency_id) {
-	$node_private_key = get_node_private_key($db);
+
+	if (get_community_users($db))
+		$my_prefix = $testBlock->user_id.'_';
+	else
+		$my_prefix = '';
+	$node_private_key = get_node_private_key($db, $my_prefix);
 
 	// подписываем нашим нод-ключем данные транзакции
 	$data_for_sign = ParseData::findType('new_reduction').",{$time},{$my_user_id},{$reduction_currency_id},{$reduction_pct}";

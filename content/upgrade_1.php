@@ -5,7 +5,7 @@ if (!defined('DC')) die("!defined('DC')");
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `video_url_id`,
 					 `video_type`
-		FROM `'.DB_PREFIX.'my_table
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_table
 		');
 $row = $db->fetchArray($res);
 switch ($row['video_type']) {
@@ -24,11 +24,13 @@ switch ($row['video_type']) {
 
 }
 
-if ( file_exists( ABSPATH . '/public/user_profile.jpg' ) )
-	$tpl['user_profile'] = 'public/user_profile.jpg';
+$path = 'public/'.$_SESSION['user_id'].'_user_profile.jpg';
+if ( file_exists( ABSPATH . $path ) )
+	$tpl['user_profile'] = $path;
 
-if ( file_exists( ABSPATH . '/public/user_face.jpg' ) )
-	$tpl['user_face'] = 'public/user_face.jpg';
+$path = 'public/'.$_SESSION['user_id'].'_user_face.jpg';
+if ( file_exists( ABSPATH . $path ) )
+	$tpl['user_face'] = $path;
 
 if ( file_exists( ABSPATH . '/public/user_video.mp4' ) )
 	$tpl['user_video_mp4'] = 'public/user_video.mp4';
@@ -38,7 +40,6 @@ if ( file_exists( ABSPATH . '/public/user_video.ogv' ) )
 
 if ( file_exists( ABSPATH . '/public/user_video.webm' ) )
 	$tpl['user_video_webm'] = 'public/user_video.webm';
-
 
 require_once( ABSPATH . 'templates/upgrade_1.tpl' );
 

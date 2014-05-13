@@ -1,11 +1,10 @@
 <?php
 session_start();
 
-if ( $_SESSION['DC_ADMIN'] != 1 )
+if ( empty($_SESSION['user_id']) )
 	die(json_encode(array('block_id'=>0, 'alert'=>'')));
 
 define( 'DC', TRUE);
-
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
 set_time_limit(0);
@@ -15,6 +14,7 @@ require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 
 if (file_exists(ABSPATH . 'db_config.php')) {
+
 	require_once( ABSPATH . 'db_config.php' );
 	require_once( ABSPATH . 'includes/class-parsedata.php' );
 
@@ -32,17 +32,21 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 
 	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
+	define( 'MY_PREFIX', get_my_prefix($db) );
 	$my_notice = get_my_notice_data();
 
-	$my_user_id = get_my_user_id($db);
-	$cash_request = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT count(`id`)
-			FROM `".DB_PREFIX."cash_requests`
-			WHERE `to_user_id` = {$my_user_id} AND
-						 `status` = 'pending' AND
-						 `for_repaid_del_block_id` = 0 AND
-						 `del_block_id` = 0
-			", 'fetch_one' );
+	$cash_request = '';
+	if (empty($_SESSION['restricted'])) {
+		$my_user_id = get_my_user_id($db);
+		$cash_request = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`id`)
+				FROM `".DB_PREFIX."cash_requests`
+				WHERE `to_user_id` = {$my_user_id} AND
+							 `status` = 'pending' AND
+							 `for_repaid_del_block_id` = 0 AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+	}
 	print json_encode(
 			array(
 				'main_status'=>$my_notice['main_status'],

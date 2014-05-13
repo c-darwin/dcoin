@@ -34,6 +34,7 @@ $('#next').bind('click', function () {
 				$("#wallets").css("display", "none");
 				$("#sign").css("display", "block");
 				$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+$('#to_user_id').val()+','+$('#amount').val()+','+$('#commission').val()+','+data+','+$('#currency_id').val());
+				doSign();
 
 			});
 	}
