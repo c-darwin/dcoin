@@ -10,7 +10,7 @@ $('#send_data').bind('click', function () {
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
 			'promised_amount_id' : <?php echo $tpl['del_id']?>,
-						'signature1': $('#signature1').val(),
+			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 			}, function (data) {
@@ -38,8 +38,10 @@ $('#send_data').bind('click', function () {
 
     </div>
 
-
 	<input type="hidden" id="user_id" value="<?php echo $_SESSION['user_id']?>">
 	<input type="hidden" id="time" value="<?php echo time()?>">
+	<script>
+		doSign();
+	</script>
 </div>
 <!-- /container -->

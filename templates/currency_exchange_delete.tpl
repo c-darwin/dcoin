@@ -37,6 +37,8 @@ $('#send_data').bind('click', function () {
 		<button class="btn" id="send_data"><?php echo $lng['send_to_net']?></button>
 
     </div>
-
+	<script>
+		doSign();
+	</script>
 </div>
 <!-- /container -->

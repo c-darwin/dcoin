@@ -90,7 +90,7 @@ $lng['race_1'] = 'Монголоидная';
 $lng['race_2'] = 'Европеоидная';
 $lng['race_3'] = 'Негроидная';
 $lng['change_key_pass'] = 'Изменить<br>ключ/пароль';
-$lng['login_text'] = 'Введите ключ и пароль, затем - нажмите "Sign"';
+$lng['login_text'] = 'Введите ключ и пароль, затем - нажмите "Log in"';
 $lng['new_version'] = 'Пожалуйста, установите новую версию движка! <button class="btn" id="btn_install">install [ver]</button><br>Или залейте скрипты вручуню и нажмите <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
 $lng['new_version_wo_block'] = 'Залита новая версия движка. Нажмите <button class="btn" id="btn_upgrade">Upgrade to [ver]</button>';
 $lng['new_version_pulls'] = 'Пожалуйста, установите новую версию движка!';

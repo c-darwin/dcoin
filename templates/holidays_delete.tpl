@@ -10,7 +10,7 @@ $('#save').bind('click', function () {
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
 			'holidays_id' : <?php echo $tpl['del_id']?>,
-						'signature1': $('#signature1').val(),
+			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 			}, function (data) {

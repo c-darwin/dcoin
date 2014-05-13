@@ -49,7 +49,7 @@ if (substr($binary_data, 0, 7)=='[error]')
 	die($binary_data);
 /*
  * структура данных:
- * user_id - 4 байта
+ * user_id - 5 байт
  * type - 1 байт. 0 - блок, 1 - список тр-ий
  * {если type==1}:
  * <любое кол-во следующих наборов>
@@ -76,7 +76,7 @@ $block_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 //main_unlock();
 
 // user_id отправителя, чтобы знать у кого брать данные, когда они будут скачиваться другим скриптом
-$new_data['user_id'] = binary_dec(string_shift($binary_data, 4));
+$new_data['user_id'] = binary_dec(string_shift($binary_data, 5));
 // данные могут быть отправлены юзером, который уже не майнер
 $miner_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
@@ -171,11 +171,10 @@ $host = $data['host'];
 $node_public_key = $data['node_public_key'];
 debug_print($new_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-// user_id получателя (нужно для пулов)
-$need_tx = dec_binary($new_data['user_id'], 5).$need_tx;
-
 // шифруем данные. ключ $key будем использовать для расшифровки ответа
 $encrypted_data = encrypt_data ($need_tx, $node_public_key, $db, $my_key);
+// user_id получателя (нужно для пулов)
+$encrypted_data = dec_binary($new_data['user_id'], 5).$encrypted_data;
 
 debug_print('$encrypted_data='.$encrypted_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 

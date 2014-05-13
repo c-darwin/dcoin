@@ -148,7 +148,7 @@ $('#amount').keyup(function(e) {
 	<?php
 	if (isset($tpl['wallets']))
 		foreach ($tpl['wallets'] as $id => $data)
-			print "<option value='{$data['currency_id']}'>{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
+			print "<option value='{$data['currency_id']}'>D{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
 	?>
 	</select></td></tr>
 	<tr><td><?php echo $lng['to_account']?></td><td><input type="text" id="to_user_id"></td></tr>
@@ -164,7 +164,7 @@ $('#amount').keyup(function(e) {
 	if ($tpl['wallets']) {
 		echo '<h3>'.$lng['wallets'].'</h3><table class="table" style="width:500px">';
 		foreach ($tpl['wallets'] as $id => $data) {
-		print "<tr><td>{$tpl['currency_list'][$data['currency_id']]}</td><td>{$data['amount']}</td></tr>";
+		print "<tr><td>D{$tpl['currency_list'][$data['currency_id']]}</td><td>{$data['amount']}</td></tr>";
 		}
 		echo '</table>';
 	}

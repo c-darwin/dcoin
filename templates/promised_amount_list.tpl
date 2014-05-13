@@ -53,6 +53,8 @@ function calc_commission (id) {
 			echo "<thead><tr><th>ID</th><th>{$lng['status']}</th><th>{$lng['currency']}</th><th style='text-align: center'>{$lng['amount']}</th><th>DC</th><th style='text-align: center'>{$lng['in_wallet']}</th><th>Max other currencies</th><th style='text-align:center'>{$lng['delete']}</th></tr></thead>";
 			echo '<tbody>';
 			foreach($tpl['promised_amount_list']['accepted'] as $data) {
+					if ($data['tdc'] > 0.01)
+						$to_wallet = $data['tdc']-0.01;
 					echo "<tr>";
 					echo "<td>{$data['id']}</td>";
 					echo "<td>{$data['status_text']}</td>";
@@ -62,7 +64,7 @@ function calc_commission (id) {
 					else
 						echo "<td style='text-align: center'><input type='text' class='input-mini' id='amount-input-{$data['id']}' onkeyup=\"clear_amount('amount-input-{$data['id']}')\" value='{$data['amount']}'><br><button onclick=\"change_amount_click({$data['id']})\" class='btn' style='width:70px'>{$lng['change']}</button>(max: {$data['max_amount']})</td>";
 					echo "<td>{$data['tdc']}</td>";
-					echo "<td style='text-align: center'><input type='text' class='input-mini' id='repaid-input-{$data['id']}' onkeyup=\"calc_commission('{$data['id']}')\"><br><span id='commission-{$data['id']}'></span><br><button onclick=\"mining_click({$data['id']})\" class='btn' style='width:130px'>{$lng['put_in_a_wallet']}</button></td>";
+					echo "<td style='text-align: center'><input type='text' class='input-mini' id='repaid-input-{$data['id']}' onkeyup=\"calc_commission('{$data['id']}')\" value='{$to_wallet}'><br><span id='commission-{$data['id']}'></span><br><button onclick=\"mining_click({$data['id']})\" class='btn' style='width:130px'>{$lng['put_in_a_wallet']}</button></td>";
 					echo "<td>{$data['max_other_currencies']}</td>";
 					if ($data['currency_id'] > 1)
 						echo "<td><a href='#' onclick=\"fc_navigate('promised_amount_delete', {'del_id':'".$data['id']."'})\">Del</a></td>";

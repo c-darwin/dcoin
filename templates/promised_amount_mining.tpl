@@ -42,6 +42,9 @@ $('#send_data').bind('click', function () {
 
 	<input type="hidden" id="amount" value="<?php echo $_REQUEST['parameters']['amount']?>">
 	<input type="hidden" id="promised_amount_id" value="<?php echo $_REQUEST['parameters']['promised_amount_id']?>">
+	<script>
+		doSign();
+	</script>
 
 </div>
 <!-- /container -->

@@ -74,9 +74,10 @@ $nodes_ids = $testBlock->getOurLevelNodes();
 
 // временно для теста выключим
 // проверим, верный ли ID блока
-if ( $new_testblock['block_id'] != $testBlock->block_info['block_id']+1 )
+if ( $new_testblock['block_id'] != $testBlock->block_info['block_id']+1 ){
+	main_unlock();
 	die("error {$new_testblock['block_id']}!={$testBlock->block_info['block_id']}+1");
-
+}
 
 /*
  * Проблема одновременных попыток локнуть

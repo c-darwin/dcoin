@@ -14,7 +14,7 @@
 			else if (data.alert == 1 && i%2 != 0)
 				$('#bar_alert').css("display", "none");
 
-			setTimeout(doPoll,1000);
+			setTimeout(doPoll,30000);
 
 		}, 'json' );
 	}

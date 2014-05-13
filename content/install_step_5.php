@@ -35,7 +35,7 @@ if (!$tpl['error'] && $_POST['save_private_key']) {
 
 	if (!$tpl['error']) {
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				INSERT INTO `".DB_PREFIX.MY_PREFIX."my_keys`(
+				INSERT INTO `".DB_PREFIX."my_keys`(
 					`public_key`,
 					`private_key`,
 					`password_hash`,
@@ -51,7 +51,7 @@ if (!$tpl['error'] && $_POST['save_private_key']) {
 }
 else if (!$tpl['error']) {
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		INSERT INTO `".DB_PREFIX.MY_PREFIX."my_keys`(
+		INSERT INTO `".DB_PREFIX."my_keys`(
 			`public_key`,
 			`status`
 		)

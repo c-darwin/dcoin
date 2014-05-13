@@ -18,9 +18,9 @@
 							'type' : '<?php echo $tpl['data']['type']?>',
 							'user_id' : <?php echo $tpl['data']['user_id']?>,
 							'time' : <?php echo $tpl['data']['time']?>,
-										'signature1': $('#signature1').val(),
-			'signature2': $('#signature2').val(),
-			'signature3': $('#signature3').val()
+							'signature1': $('#signature1').val(),
+							'signature2': $('#signature2').val(),
+							'signature3': $('#signature3').val()
 							}, function (data) {
 			fc_navigate ('upgrade', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
 		});
@@ -28,7 +28,9 @@
 	</script>
 
 	<button class="btn btn-success"  type="button" id="save_queue"><?php echo $lng['send_to_net']?></button>
-
+	<script>
+		doSign();
+	</script>
 
 </div>
 <!-- /container -->

@@ -2,7 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
-    <title><?php echo @$tpl['title']; ?></title>
+    <title>Democratic Coin</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="description" content="">
     <meta name="author" content="">
@@ -364,7 +364,7 @@
 				<label>Key</label>
 				<textarea rows="3" style="width:500px" id="modal_key"></textarea>
 				
-				<label>Password (is exists)</label>
+				<label>Password (if exists)</label>
 				<input type="password"  style="width:500px" id="modal_password">
 				</fieldset>
 				</form>

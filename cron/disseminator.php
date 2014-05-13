@@ -65,7 +65,7 @@ while (true) {
 				FROM `".DB_PREFIX."miners_data`
 				WHERE `user_id` = {$my_config['static_node_user_id']}
 				", 'fetch_array');
-		$hosts[] = array('host'=>$my_config['local_gate_ip'], 'node_public_key'=>$node_data['node_public_key']);
+		$hosts[] = array('host'=>$my_config['local_gate_ip'], 'node_public_key'=>$node_data['node_public_key'], 'user_id'=>$my_config['static_node_user_id'] );
 	}
 
 	debug_print($hosts, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -118,7 +118,7 @@ while (true) {
 		/*
 		 * Составляем данные на отправку
 		 * */
-		// 4 байта = наш user_id. Но они будут не первые, т.к. m_curl допишет вперед user_id получателя (нужно для пулов)
+		// 5 байт = наш user_id. Но они будут не первые, т.к. m_curl допишет вперед user_id получателя (нужно для пулов)
 		$to_be_sent = dec_binary($my_user_id, 5);
 		if ($data) { // блок
 			// если 5-й байт = 0, то на приемнике будем читать блок, если = 1 , то сразу хэши тр-ий
