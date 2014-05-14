@@ -114,7 +114,7 @@ if ($new_max_ver && $my_ver) {
 			    </div>";
 }
 
-if (empty($_SESSION['restricted'])) {
+if (empty($_SESSION['restricted']) && !defined('COMMUNITY')) {
 	$variables_ = ParseData::get_variables($db, array('alert_error_time'));
 	$my_miner_id = get_my_miner_id($db);
 	// если юзер уже майнер, то у него должно быть настроено точное время
