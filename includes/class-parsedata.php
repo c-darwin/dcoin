@@ -3155,7 +3155,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	private function new_user_rollback()
 	{
 		// если работаем в режиме пула, то ищем тех, у кого записан такой ключ
-		$community = get_community_users($this->$db);
+		$community = get_community_users($this->db);
 		if ($community) {
 			for ($i=0; $i<sizeof($community); $i++) {
 
@@ -10482,7 +10482,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->rollbackAI('log_forex_orders_main');
 
 		// если работаем в режиме пула
-		$community = get_community_users($this->$db);
+		$community = get_community_users($this->db);
 		if ($community) {
 			for ($i=0; $i<sizeof($community); $i++) {
 
