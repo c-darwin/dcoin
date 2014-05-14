@@ -2458,7 +2458,7 @@ function decrypt_data (&$binary_tx, $db, &$decrypted_key='')
 				FROM `".DB_PREFIX."{$my_prefix}my_node_keys`
 				WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."{$my_prefix}my_node_keys`)
 				", 'fetch_one' );
-	debug_print('$private_key='.$private_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	//debug_print('$private_key='.$private_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	if (!$private_key)
 		return '[error]!$my_private_key';
 

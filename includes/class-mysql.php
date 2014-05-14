@@ -104,7 +104,8 @@ class MySQLidb {
 		$this->method = $method;
 
 		// не логируем my_keys и my_node_keys, т.к. логи могут выкладываться в паблик
-		if (!preg_match('/(my_keys|my_node_keys)/i', $query))
+		// в my_cash_requests может содержаться код, а в my_table|config логин/пароль к почте
+		if (!preg_match('/(my_keys|my_node_keys|my_cash_requests|my_table|config)/i', $query))
 			debug_print( $query, $file, $line,  $fns,  $class, $method);
 
 		$this->query = $query;
