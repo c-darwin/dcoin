@@ -40,7 +40,8 @@
 						<li><a href="#" onclick="fc_navigate('change_primary_key')"><?php echo $lng['change_master_key']?></a></li>
 	            <?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'change_node_key\')">'.$lng['change_node_key'].'</a></li>':''?>
 						<li><a href="#" onclick="fc_navigate('change_host')"><?php echo $lng['change_host']?></a></li>
-						<li><a href="#" onclick="fc_navigate('notifications')"><?php echo $lng['sms_and_email_notifications']?></a></li>
+	                    <li><a href="#" onclick="fc_navigate('notifications')"><?php echo $lng['sms_and_email_notifications']?></a></li>
+	                    <li><a href="#" onclick="fc_navigate('interface')"><?php echo $lng['interface']?></a></li>
 					</ul>
 				</li>  
               

@@ -35,7 +35,7 @@ if ($main_lock && (time()-WAIT_LOCK > $main_lock) ) {
 
 	foreach($tables_array as $table) {
 		//if (!in_array($table, $exceptions))
-		if (substr($table, 0, 3) != 'my_' && $table!='install') {
+		if (substr($table, 0, 3) != 'my_' && $table!='install' && $table!='config') {
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 					TRUNCATE TABLE `".DB_PREFIX."{$table}`
 					");

@@ -1,5 +1,5 @@
 <script>
-	function send_data() {
+	$('#send_to_net').bind('click', function () {
 		$.post( 'ajax/save_queue.php', {
 			'type' : '<?php echo $tpl['data']['type']?>',
 			'time' : '<?php echo $tpl['data']['time']?>',
@@ -21,12 +21,12 @@
 			'signature3': $('#signature3').val()
 		}, function (data) {
 			if (!data)
-				alert = '<?php echo $lng['sent_to_the_net'] ?>';
+				var my_alert = '<?php echo $lng['sent_to_the_net'] ?>';
 			else
-				alert = data;
-			fc_navigate ('upgrade', {'alert': alert} );
+				var my_alert = data;
+			fc_navigate ('upgrade', {'alert': my_alert} );
 		});
-	}
+	} );
 </script>
 
 <!-- container -->
@@ -58,10 +58,11 @@
 	
 	</textarea><br>
 
-	<button class="btn btn-success" onclick="send_data()"><?php echo $lng['send_to_net']?></button>
+	<button class="btn btn-success" onclick="send_to_net()"><?php echo $lng['send_to_net']?></button>
 	
 	<script>
 		doSign();
+		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
 
 		

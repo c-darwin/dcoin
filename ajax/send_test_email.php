@@ -26,30 +26,33 @@ require_once( ABSPATH . 'includes/class.smtp.php');
 define('MY_PREFIX', get_my_prefix($db));
 
 // делаем выборку, т.к. данные для smtp могли быть записаны юзером ранее
-$smtp = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT * FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
+$mail_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT *
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
 		', 'fetch_array' );
 
 $mail                = new PHPMailer();
-if ($smtp['use_smtp'] && $smtp['smtp_server'])
+//$mail->Mailer = 'sendmail';
+if ($mail_data['use_smtp'] && $mail_data['smtp_server'])
 {
 	$mail->IsSMTP();
-	$mail->SMTPAuth      = ($smtp['smtp_auth']?true:false);
-	$mail->SMTPSecure    = ($smtp['smtp_ssl']?'ssl':'');
-	$mail->Host          = $smtp['smtp_server'];
-	$mail->Port          = $smtp['smtp_port'];
-	$mail->Username      = $smtp['smtp_username'];
-	$mail->Password      = $smtp['smtp_password'];
+	$mail->SMTPAuth      = ($mail_data['smtp_auth']?true:false);
+	$mail->SMTPSecure    = ($mail_data['smtp_ssl']?'ssl':'');
+	$mail->Host          = $mail_data['smtp_server'];
+	$mail->Port          = $mail_data['smtp_port'];
+	$mail->Username      = $mail_data['smtp_username'];
+	$mail->Password      = $mail_data['smtp_password'];
+	$mail->SetFrom($mail_data['email'], 'Server');
 }
-$mail->SetFrom($smtp['email'], 'Server');
+//$mail->SetFrom('root@democratic-coin.com', 'democratic-coin.com');
 
 $mail->Subject       = "test";
 $mail->Body    = "test";
-$mail->AddAddress($smtp['email'], 'Server');
+$mail->AddAddress($mail_data['email']);
 
 if(!$mail->Send()) {
 	echo json_encode(
-				array('error'=>'Mailer Error (' . str_replace("@", "&#64;", $smtp["email"]) . ') ' . $mail->ErrorInfo . '<br />')
+				array('error'=>'Mailer Error (' . str_replace("@", "&#64;", $mail_data["email"]) . ') ' . $mail->ErrorInfo . '<br />')
 			);
 } else {
 	echo json_encode(

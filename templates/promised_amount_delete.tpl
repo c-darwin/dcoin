@@ -3,7 +3,7 @@
 
 <script>
 
-$('#send_data').bind('click', function () {
+$('#send_to_net').bind('click', function () {
 
 	$.post( 'ajax/save_queue.php', {
 			'type' : '<?php echo $tpl['data']['type']?>',
@@ -34,7 +34,7 @@ $('#send_data').bind('click', function () {
 	    }
 	    ?>
 	    <br>
-		<button class="btn" id="send_data"><?php echo $lng['send_to_net']?></button>
+		<button class="btn" id="send_to_net"><?php echo $lng['send_to_net']?></button>
 
     </div>
 
@@ -42,6 +42,7 @@ $('#send_data').bind('click', function () {
 	<input type="hidden" id="time" value="<?php echo time()?>">
 	<script>
 		doSign();
+		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
 </div>
 <!-- /container -->

@@ -20,6 +20,7 @@ $('#next').bind('click', function () {
 		$("#sign").css("display", "block");
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+$('#cash_request_id').val()+','+$('#code').val());
 		doSign();
+		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	}
 
 } );

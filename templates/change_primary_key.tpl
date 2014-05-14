@@ -28,6 +28,10 @@ $('#save2').bind('click', function () {
 	$("#show_key").css("display", "none");
 	$("#public_keys").css("display", "block");
 
+	if ($("#three_keys").prop('checked')==false) {
+		$("#save3").trigger("click");
+	}
+
 } );
 
 $('#save3').bind('click', function () {
@@ -37,7 +41,7 @@ $('#save3').bind('click', function () {
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key_1").val()+','+$("#public_key_2").val()+','+$("#public_key_3").val() );
 	doSign();
-
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 } );
 
 
@@ -78,6 +82,7 @@ $('#send_to_net').bind('click', function () {
 				if (!defined('COMMUNITY'))
 					echo '<label class="checkbox"><input type="checkbox" id="save_private_key"> '.$lng['save_key'].'</label>';
 				?>
+				<label class="checkbox"><input type="checkbox" id="three_keys"><?php echo $lng['3_keys']?></label>
 				<br>
 				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
 			</fieldset>

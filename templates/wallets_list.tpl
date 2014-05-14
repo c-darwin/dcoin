@@ -35,6 +35,7 @@ $('#next').bind('click', function () {
 				$("#sign").css("display", "block");
 				$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+$('#to_user_id').val()+','+$('#amount').val()+','+$('#commission').val()+','+data+','+$('#currency_id').val());
 				doSign();
+				<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 
 			});
 	}
@@ -195,6 +196,7 @@ if (isset($tpl['my_dc_transactions']))
 			print "<td>{$data['status']}</td><td>{$data['block_id']}</td></tr>";
 		}
 		echo '</table>';
+		echo "<p>{$lng['error_in_tx']}</p>";
 	}
 	?>
 

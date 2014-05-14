@@ -24,7 +24,7 @@ $('#save').bind('click', function () {
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+json_data);
 	doSign();
-
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 });
 
 $('#send_to_net').bind('click', function () {

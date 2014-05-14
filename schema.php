@@ -932,6 +932,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_table` (
   `api_token_hash` varchar(64) NOT NULL,
   `sms_http_get_request` varchar(255) NOT NULL,
   `notification_sms_http_get_request` int(11) NOT NULL,
+  `show_sign_data` tinyint(1) NOT NULL COMMENT 'Если 0, тогда не показываем данные для подписи, если у юзера только один праймари ключ',
   `uniq` set('1') NOT NULL DEFAULT '1',
   UNIQUE KEY `uniq` (`uniq`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -1539,17 +1540,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `in_connections` int(11) NOT NULL COMMENT 'Кол-во нодов и просто юзеров, от кого принимаем данные. Считаем кол-во ip за 1 минуту',
   `out_connections` int(11) NOT NULL COMMENT 'Кол-во нодов, кому шлем данные',
   `bad_blocks` text NOT NULL COMMENT 'Номера и sign плохих блоков. Нужно, чтобы не подцепить более длинную, но глючную цепочку блоков',
-  `email` varchar(100) NOT NULL,
-  `use_smtp` tinyint(1) NOT NULL,
-  `smtp_server` varchar(100) NOT NULL,
-  `smtp_port` int(11) NOT NULL,
-  `smtp_ssl` tinyint(1) NOT NULL,
-  `smtp_auth` tinyint(1) NOT NULL,
-  `smtp_username` varchar(100) NOT NULL,
-  `smtp_password` varchar(100) NOT NULL,
-  `sms_http_get_request` varchar(255) NOT NULL,
-  `pool_admin_user_id`  int(11) NOT NULL,
-  `pool_password` binary(32) NOT NULL
+  `pool_admin_user_id`  int(11) NOT NULL
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";

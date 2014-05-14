@@ -89,9 +89,16 @@ if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') 
 		define('COMMUNITY', true);
 	}
 
-	if (isset($db))
+	if (isset($db)) {
 		define('MY_PREFIX', get_my_prefix($db));
-
+		// если у юзера только 1 праймари ключ, то выдавать форму, где показываются данные для подписи и форма ввода подписи не нужно. Только если он сам не захочет.
+		$show_sign_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+				SELECT `show_sign_data`
+				FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
+				', 'fetch_one');
+		if ($show_sign_data || $count_sign > 1)
+			define('SHOW_SIGN_DATA', true);
+	}
 	// уведомления
 	$tpl['alert'] = @$_REQUEST['parameters']['alert'];
 	if (isset($db))

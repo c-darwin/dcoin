@@ -27,6 +27,7 @@ $lng['demons'] = 'Demons';
 $lng['db_info'] = 'Db info';
 $lng['exchange'] = 'Exchange';
 $lng['logout'] = 'Logout';
+$lng['interface'] = 'Interface';
 
 // periods
 $lng['day'] = 'day';
@@ -254,6 +255,7 @@ $lng['change_primary_key_title'] = 'Changing the master key';
 $lng['new_pass_for_key'] = 'Specify the new password for the new master key';
 $lng['save_key'] = 'Save master key on the server for password authentication';
 $lng['block'] = 'Block';
+$lng['3_keys'] = 'Check this box if you have two keys that you have generated in third-party software and want to use them';
 $lng['change_primary_key_limits_text'] = 'Changing the master key is permissible - no more than [limit] times [period].';
 $lng['your_new_key'] = 'Your new master key';
 $lng['your_new_key_rules'] = 'The new key will enter into force only after it will DC-network until the act is either the old master key.';
@@ -340,6 +342,7 @@ $lng['send'] = 'Send';
 $lng['wallets'] = 'Wallets';
 $lng['transactions'] = 'Transactions';
 $lng['type'] = 'Type';
+$lng['error_in_tx'] = 'The information in the table "transactions" may be wrong. Wallets balances are displayed without errors.';
 
 // banknote_delete
 $lng['banknote_delete_title'] = 'Deleting promised amount';
@@ -429,6 +432,8 @@ $lng['sell_orders'] = 'Sell orders';
 $lng['buy_orders'] = 'Buy orders';
 $lng['price'] = 'Price';
 
+// change_promised_amount
+$lng['change_promised_amount'] = 'Change promised amount';
 
 
 ?>

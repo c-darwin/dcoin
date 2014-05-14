@@ -30,6 +30,7 @@
 	<button class="btn btn-success"  type="button" id="save_queue"><?php echo $lng['send_to_net']?></button>
 	<script>
 		doSign();
+		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
 
 </div>

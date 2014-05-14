@@ -27,6 +27,7 @@
 		}
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['user_info']['vote_id']}"?>,'+result+','+comment);
 		doSign();
+		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	}
 
 	$('#btn-bad').bind('click', function () {
@@ -106,7 +107,7 @@ $('#btn-step4').bind('click', function () {
 
 } );
 
-$('#send_data').bind('click', function () {
+$('#send_to_net').bind('click', function () {
 	
 	$.post( 'ajax/save_queue.php', {
 			'type' : '<?php echo $tpl['data']['type']?>',
@@ -269,7 +270,7 @@ $('#send_data').bind('click', function () {
 	    ?>
 		<br>
 		<button class="btn btn-success" id="btn-step3-back"><?php echo $lng['back']?></button>
-		<button class="btn" id="send_data"><?php echo $lng['send_to_net']?></button>
+		<button class="btn" id="send_to_net"><?php echo $lng['send_to_net']?></button>
 
     </div>
     

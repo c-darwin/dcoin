@@ -164,7 +164,7 @@
 		<div class="control-group">
 			<label class="control-label" for="inputEmail">SMTP port</label>
 			<div class="controls">
-				<input type="text" id="smtp_port" class="input-xlarge" value="<?php echo $tpl['data']['smtp_port']?>">
+				<input type="text" id="smtp_port" class="input-xlarge" value="<?php echo $tpl['data']['smtp_port']?$tpl['data']['smtp_port']:465 ?>">
 			</div>
 		</div>
 
@@ -172,8 +172,8 @@
 			<label class="control-label" for="inputEmail">Requires SSL</label>
 			<div class="controls">
 				<select id="smtp_ssl" class="input-xlarge">
-					<option value="1" <?php echo ($tpl['data']['smtp_ssl'])?'selected':''?>>Yes</option>
-					<option value="0" <?php echo ($tpl['data']['smtp_ssl'])?'':'selected'?>>No</option>
+					<option value="1" <?php echo (!$tpl['data']['use_smtp'] || $tpl['data']['smtp_ssl'])?'selected="selected"':''?>>Yes</option>
+					<option value="0" <?php echo (!$tpl['data']['use_smtp'] || $tpl['data']['smtp_ssl'])?'':'selected="selected"'?>>No</option>
 				</select>
 			</div>
 		</div>
@@ -182,8 +182,8 @@
 			<label class="control-label" for="inputEmail">Requires authentication</label>
 			<div class="controls">
 				<select id="smtp_auth" class="input-xlarge">
-					<option value="1" <?php echo ($tpl['data']['smtp_auth'])?'selected':''?>>Yes</option>
-					<option value="0" <?php echo ($tpl['data']['smtp_auth'])?'':'selected'?>>No</option>
+					<option value="1" <?php echo (!$tpl['data']['use_smtp'] || $tpl['data']['smtp_auth'])?'selected="selected"':''?>>Yes</option>
+					<option value="0" <?php echo (!$tpl['data']['use_smtp'] || $tpl['data']['smtp_auth'])?'':'selected="selected"'?>>No</option>
 				</select>
 			</div>
 		</div>

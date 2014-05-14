@@ -45,7 +45,7 @@ $('#next').bind('click', function () {
 			$("#sign").css("display", "block");
 			$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+$('#to_user_id').text()+','+$('#send_amount').val()+','+data+','+$('#currency_id').val()+','+$('#hash_code').val() );
 			doSign();
-
+			<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 		});
 	}
 } );

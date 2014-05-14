@@ -13,7 +13,7 @@ $('#btn-bad,#btn-bad2,#btn-bad3').bind('click', function () {
 	
 	$("#for-signature").val( '5,'+$('#time').val()+','+$('#user_id').val()+','+$('#contender_id').val()+','+$('#result').val() );
 	doSign();
-	
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 } );
 
 $('#btn-step2').bind('click', function () {
@@ -42,10 +42,10 @@ $('#btn-step4').bind('click', function () {
 	
 	$("#for-signature").val( '5,'+$('#time').val()+','+$('#user_id').val()+','+$('#contender_id').val()+','+$('#result').val() );
 	doSign();
-
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 } );
 
-$('#send_data').bind('click', function () {
+$('#send_to_net').bind('click', function () {
 	
 	$.post( 'ajax/save_queue.php', {
 			'type' : 'votes_miner',

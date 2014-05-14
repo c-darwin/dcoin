@@ -43,7 +43,7 @@ if ($tpl['user_id']!='wait') {
 		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
 				FROM `".DB_PREFIX.MY_PREFIX."my_dc_transactions`
-				ORDER BY `time` DESC
+				ORDER BY `id` DESC
 				LIMIT 0, 100
 				");
 		while ( $row = $db->fetchArray($res) ) {

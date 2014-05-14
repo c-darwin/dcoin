@@ -475,11 +475,17 @@ foreach($notifications_array as $name => $notification_info) {
 		// Расхождение времени сервера более чем на 5 сек
 		case 'node_time':
 
-			// если работаем в режиме пула, то нужно слать инфу админу пула, его данные хранятся в config
+			// если работаем в режиме пула, то нужно слать инфу админу пула
 			if ($community) {
+				$pool_admin_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `pool_admin_user_id`
+						FROM `".DB_PREFIX."config`
+						", 'fetch_one' );
+
 				$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT *
-						FROM `".DB_PREFIX."config`
+						FROM `".DB_PREFIX."my_table`
+						WHERE `user_id` = {$pool_admin_user_id}
 						",	'fetch_array');
 			}
 			else {
@@ -492,19 +498,22 @@ foreach($notifications_array as $name => $notification_info) {
 					break;
 			}
 
-			$my_data['subj'] = $subj;
+			if ($my_data) {
 
-			$t = ntp_time();
-			if ($t>5 || !is_int($t)) {
-				if (is_int($t))
-					$my_data['text'] = "Divergence time {$t} sec";
-				else
-					$my_data['text'] = "Time error: {$t}";
+				$my_data['subj'] = $subj;
 
-				if ($my_data['email'])
-					send_mail($my_data);
-				if ($my_data['sms_http_get_request'])
-					send_sms($my_data['sms_http_get_request'], $my_data['text']);
+				$t = ntp_time();
+				if ($t>5 || !is_int($t)) {
+					if (is_int($t))
+						$my_data['text'] = "Divergence time {$t} sec";
+					else
+						$my_data['text'] = "Time error: {$t}";
+
+					if ($my_data['email'])
+						send_mail($my_data);
+					if ($my_data['sms_http_get_request'])
+						send_sms($my_data['sms_http_get_request'], $my_data['text']);
+				}
 			}
 
 			break;

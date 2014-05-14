@@ -8,6 +8,7 @@ function next_step()
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#latitude").val()+','+$("#longitude").val()+','+$("#country").val() );
 	doSign();
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 }
 
 $('#send_to_net').bind('click', function () {

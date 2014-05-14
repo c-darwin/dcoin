@@ -8,6 +8,7 @@ function add_holidays() {
 	$("#sign").css("display", "block");
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+startDateTextBox.datetimepicker("getDate").getTime() / 1000+','+endDateTextBox.datetimepicker("getDate").getTime() / 1000 );
 	doSign();
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 
 }
 
