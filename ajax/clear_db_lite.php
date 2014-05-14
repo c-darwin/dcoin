@@ -16,7 +16,7 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 if (!node_admin_access($db))
 	die ('Permission denied');
 
-// таблицы my_ сотаются как есть, поэтому могут быть проблемы с my_keys/my_node_keys
+// таблицы my_ остаются как есть, поэтому могут быть проблемы с my_keys/my_node_keys
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 			INSERT IGNORE INTO `".DB_PREFIX."main_lock` (
 					`lock_time`,

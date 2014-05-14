@@ -53,8 +53,21 @@ if ( !isset($tpl['error']) ) {
 
 	// возможно идет установка пула, тогда ловим файл c user_id;public_key
 	if ($_POST['pool_data']) {
-		$error = pool_add_users ($_POST['pool_data'], $my_queries, $mysqli_link, $prefix);
+
+		if ( !check_input_data ($_POST['pool_admin_user_id'], 'int') )
+			die('bad pool_admin_user_id');
+
+		$error = pool_add_users ($_POST['pool_data'], $my_queries, $mysqli_link, $prefix, true);
 		if ($error) die ($error);
+
+		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX."config` (
+					`pool_admin_user_id`
+				)
+				VALUES (
+					{$_POST['pool_admin_user_id']}
+				)");
+
 	}
 	else {
 

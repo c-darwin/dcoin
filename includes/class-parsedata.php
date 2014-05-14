@@ -818,8 +818,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->my_user_ids = $collective;
 			// есть ли юзер, который задействован среди юзеров нашего пула
 			if (in_array($user_id, $collective)) {
-				$this->my_user_id = $user_id;
 				$this->my_prefix = $user_id.'_';
+				// чтобы не было проблем с change_primary_key нужно получить user_id только тогда, когда он был реально выдан
+				// в будущем можно будет переделать, чтобы user_id можно было указывать всем и всегда заранее. тогда при сбросе будут собираться более полные таблы my_, а не только те, что заполнятся в change_primary_key
+				$this->my_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."{$this->my_prefix}my_table`
+						", 'fetch_one');
 			}
 		}
 		else {
@@ -2067,6 +2072,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		debug_print('$promised_amount_:'.print_r_hex($promised_amount), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+		if (empty($promised_amount[$this->tx_data['currency_id']]))
+			return 'empty promised_amount';
+
 		// берем все голоса юзеров по данной валюте
 		$count_votes = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(`currency_id`) as `votes`
@@ -2075,8 +2083,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 `currency_id` = {$this->tx_data['currency_id']} AND
 							 `pct` = {$this->tx_data['pct']}
 				", 'fetch_one');
-		if ($count_votes <= $promised_amount[$row['currency_id']] / 2)
-			return 'error count_votes ('.$count_votes.' <= '.($promised_amount[$row['currency_id']] / 2).')';
+		if ($count_votes <= $promised_amount[$this->tx_data['currency_id']] / 2)
+			return 'error count_votes ('.$count_votes.' <= '.($promised_amount[$this->tx_data['currency_id']] / 2).')';
 
 	}
 
@@ -9492,13 +9500,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print('my_user_id='.$this->my_user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print('$my_public_key='.$my_public_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		// возможна ситуация, когда юзер зарегался по уже занятому ключу. В этом случае тут будет новый ключ, а my_keys не будет
+		// возможна ситуация, когда юзер зарегался по уже занятому ключу. В этом случае тут будет новый ключ, а в my_keys не будет
+		// my_user_id он уже успел заполучить в предыдущих блоках
 		if ( $this->tx_data['user_id'] == $this->my_user_id && $my_public_key != $this->new_public_keys_hex[0] && $this->my_block_id <= $this->block_data['block_id'] ) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."{$this->my_prefix}my_table`
 					SET `status` = 'bad_key'
 					");
 		}
+		// если есть user_id, значит уже точно нету bad_key и в прошлых блоках уже было соотвествие my_key с ключем в new_public_keys_hex
 		else if ( ( $this->tx_data['user_id'] == $this->my_user_id || $my_public_key == $this->new_public_keys_hex[0]) && $this->my_block_id <= $this->block_data['block_id']) {
 
 			// обновим статус в нашей локальной табле.

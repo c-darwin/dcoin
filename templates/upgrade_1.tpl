@@ -294,7 +294,7 @@
 
 	<br>
 
-	<button class="btn btn-success" onclick="fc_navigate('upgrade_2')">Step 2</button>
+	<button class="btn btn-success" onclick="$('#save_youtube').trigger('click');fc_navigate('upgrade_2');">Step 2</button>
 	
 	
 	<br><br><br><br><br><br><br>

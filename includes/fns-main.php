@@ -801,7 +801,7 @@ function node_admin_access($db)
 }
 
 
-function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix)
+function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix, $install=false)
 {
 	$pool_data = explode("\n", $pool_data);
 	for ($i=0; $i<sizeof($pool_data); $i++) {
@@ -812,7 +812,7 @@ function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix)
 		$my_public_key = trim($data[1]);
 
 		if ( !check_input_data ($my_public_key, 'public_key') )
-			return 'bad public_key';
+			return 'bad public_key - '.$my_public_key;
 
 		for ($j=0; $j<sizeof($my_queries); $j++) {
 
@@ -833,12 +833,18 @@ function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix)
 					{$user_id}
 				)");
 
+		// чтобы не было проблем с change_primary_key нужно иметь 0 в my_table и уже через change_primary_key получить user_id, если была смена ключа
+		if ($install)
+			$my_user_id = 0;
+		else
+			$my_user_id = $user_id;
+
 		mysqli_query($mysqli_link, "
 				INSERT INTO `{$prefix}{$my_prefix}my_table` (
 					`user_id`
 				)
 				VALUES (
-					{$user_id}
+					{$my_user_id}
 				)");
 
 		mysqli_query($mysqli_link, "
@@ -2255,6 +2261,10 @@ function print_r_hex ($arr)
 function debug_print($text, $file, $line, $function, $class, $method)
 {
 	global $LOG_MARKER;
+	global $db;
+	global $my_lock;
+	global $global_current_block_id;
+
 	$new_text =  "\n### ".date('H:i:s').':'.microtime(true)." | ".$file.":".$line." | ".getmypid()." |  ".wordwrap(memory_get_usage(), 3, " ", true)." | ".get_script_name()." | {$LOG_MARKER} | ";
 	//$new_text =  "\n### ".date('H:i:s')." | ".$file.":".$line." | ".getmypid()." | ";
 	
@@ -2270,7 +2280,16 @@ function debug_print($text, $file, $line, $function, $class, $method)
 
 	$new_text.=  "\n";
 
-	ob_save($new_text);
+	$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+	$log_fns = explode('|', $ini_array['main']['log_fns']);
+	if ($ini_array['main']['log'] == 1 || in_array($function, $log_fns) || ($global_current_block_id >= $ini_array['main']['log_block_id_begin'] && $global_current_block_id <= $ini_array['main']['log_block_id_end'] && $ini_array['main']['log_block_id_begin'] && $ini_array['main']['log_block_id_end']))
+	{
+		if ($my_lock)
+			$file = ABSPATH . 'log/gen_main.log';
+		else
+			$file = ABSPATH . 'log/'. get_script_name().'.log';
+		@file_put_contents($file, $new_text,  FILE_APPEND);
+	}
 }
 
 
@@ -2279,11 +2298,6 @@ function ob_save($text, $error=false)
 	global $db;
 	global $my_lock;
 	global $global_current_block_id;
-	//$out1 = ob_get_contents();
-	// если есть tesblock_lock или main_lock, то пишем в 1 файл
-	//$main_lock_script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"SELECT `script_name` FROM `".DB_PREFIX."main_lock`", 'fetch_one' );
-	//$testblock_lock_script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"SELECT `script_name` FROM `".DB_PREFIX."testblock_lock`", 'fetch_one' );
-	//if ($main_lock_script_name==get_script_name())
 
 	$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
 	if ($ini_array['main']['log'] == 1 || ($global_current_block_id >= $ini_array['main']['log_block_id_begin'] && $global_current_block_id <= $ini_array['main']['log_block_id_end'] && $ini_array['main']['log_block_id_begin'] && $ini_array['main']['log_block_id_end']))

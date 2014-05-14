@@ -52,7 +52,7 @@ $('#send_to_net').bind('click', function () {
 
 	<div id="change_commission">
 
-		<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button><br><br>
+		<button type="submit" class="btn" id="save"><?php echo $lng['save']?></button><br><br>
 
 		<table>
 			<tr><th><?php echo $lng['currency']?></th><th>%</th><th><?php echo $lng['min']?></th><th><?php echo $lng['max']?></th></tr>

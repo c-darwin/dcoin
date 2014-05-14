@@ -484,8 +484,7 @@ foreach($notifications_array as $name => $notification_info) {
 
 				$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT *
-						FROM `".DB_PREFIX."my_table`
-						WHERE `user_id` = {$pool_admin_user_id}
+						FROM `".DB_PREFIX."{$pool_admin_user_id}_my_table`
 						",	'fetch_array');
 			}
 			else {

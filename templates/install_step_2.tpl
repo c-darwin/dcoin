@@ -10,7 +10,8 @@
 			'mysql_db_name' : $('#mysql_db_name').val(),
 			'mysql_username' : $('#mysql_username').val(),
 			'mysql_password' : $('#mysql_password').val(),
-			'pool_data' : $('#pool_data').val()
+			'pool_data' : $('#pool_data').val(),
+			'pool_admin_user_id' : $('#pool_admin_user_id').val()
 		}, function (data) { $('.fc_content').html( data ); }, 'html' );
 	} );
 </script>
@@ -35,6 +36,7 @@
 	<tr><td>username</td><td><input type="text" id="mysql_username" value="<?php echo $tpl['mysql_username']?>"></td></tr>
 	<tr><td>password</td><td><input type="password" id="mysql_password" value=""></td></tr>
 	<tr><td>pool_data (if present)</td><td><textarea id="pool_data"></textarea></td></tr>
+	<tr><td>pool_admin_user_id (if present)</td><td><input type="text" id="pool_admin_user_id" value=""></td></tr>
 	<tr><td colspan="2"><button id="next" class="btn btn-success"><?php echo $lng['next']?></button></td></tr>
 
 
