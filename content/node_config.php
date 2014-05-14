@@ -8,11 +8,14 @@ $tpl['data'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METH
 		FROM `'.DB_PREFIX.'config`
 		', 'fetch_array');
 
-$tpl['data']['host'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `host`
-		FROM `".DB_PREFIX."miners_data`
-		WHERE `user_id` = {$user_id}
+$script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `script_name`
+		FROM `".DB_PREFIX."main_lock`
 		", 'fetch_one');
+if ($script_name == 'my_lock')
+	$tpl['my_status'] = 'OFF';
+else
+	$tpl['my_status'] = 'ON';
 
 $tpl['config_ini'] = file_get_contents( ABSPATH . 'config.ini' );
 

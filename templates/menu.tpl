@@ -36,9 +36,9 @@
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#"><?php echo $lng['settings']?><b class="caret"></b></a>
 					<ul class="dropdown-menu">
-						<li><a href="#" onclick="fc_navigate('node_config')"><?php echo $lng['config_node']?></a></li>
+						<?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'node_config\')">'.$lng['config_node'].'</a></li>':''?>
 						<li><a href="#" onclick="fc_navigate('change_primary_key')"><?php echo $lng['change_master_key']?></a></li>
-						<li><a href="#" onclick="fc_navigate('change_node_key')"><?php echo $lng['change_node_key']?></a></li>
+	            <?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'change_node_key\')">'.$lng['change_node_key'].'</a></li>':''?>
 						<li><a href="#" onclick="fc_navigate('change_host')"><?php echo $lng['change_host']?></a></li>
 						<li><a href="#" onclick="fc_navigate('notifications')"><?php echo $lng['sms_and_email_notifications']?></a></li>
 					</ul>
@@ -54,8 +54,6 @@
 						<li><a href="#" onclick="fc_navigate('db_info')"><?php echo $lng['db_info']?></a></li>
 						<li><a href="#" onclick="fc_navigate('abuse')"><?php echo $lng['complaints_miners']?></a></li>
 						<li><a href="#" onclick="fc_navigate('bug_reporting')"><?php echo $lng['bug_reporting']?></a></li>
-						<li><a href="#" onclick="fc_navigate('start_stop')"><?php echo $lng['start_stop']?></a></li>
-						<li><a href="#" onclick="fc_navigate('nulling')"><?php echo $lng['nulling']?></a></li>
 						<?php echo defined('POOL_ADMIN')?'<li><a href="#" onclick="fc_navigate(\'pool_admin\')">Pool admin</a></li>':'' ?>
 						<li><a href="#" onclick="logout()"><?php echo $lng['logout']?></a></li>
 					</ul>

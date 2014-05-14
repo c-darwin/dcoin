@@ -31,7 +31,10 @@ if (!isset($lang))
 if (!preg_match('/^[a-z]{2}$/iD', $lang))
 	die('lang error');
 
-if ( isset($db) && get_community_users($db) ) {
+if ( isset($db) && get_community_users($db) )
+	define('COMMUNITY', true);
+
+if ( defined('COMMUNITY') ) {
 	$pool_admin_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `pool_admin_user_id`
 				FROM `".DB_PREFIX."config`

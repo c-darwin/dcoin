@@ -36,7 +36,7 @@
 
 	function fc_navigate (page, parameters) {
 
-	$.post("content.php", { tpl_name: page, parameters: parameters },
+	$.post("content.php?page="+page, { tpl_name: page, parameters: parameters },
 			function(data) {
 				$('.fc_content').html( data );
 			}, "html");

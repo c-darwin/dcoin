@@ -23,9 +23,10 @@
 
   <legend><h2><?php echo $lng['start_stop_title']?></h2></legend>
  	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
-	<div class="alert alert-success" id="wait" style="display:none"></div>
 
-    
+
+<div class="alert alert-success" id="wait" style="display:none"></div>
+
     <div id="new">
 	    Status: <span id="status"><?php echo $tpl['my_status']?></span><br>
 	    <button class="btn" id="start">Start</button> 	<button class="btn" id="stop">Stop</button>

@@ -176,7 +176,7 @@ $encrypted_data = encrypt_data ($need_tx, $node_public_key, $db, $my_key);
 // user_id получателя (нужно для пулов)
 $encrypted_data = dec_binary($new_data['user_id'], 5).$encrypted_data;
 
-debug_print('$encrypted_data='.$encrypted_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+debug_print('$encrypted_data='.bin2hex($encrypted_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 $url = "{$host}/get_tx.php";
 debug_print($url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);

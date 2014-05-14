@@ -1,14 +1,4 @@
 <!-- container -->
-<script>
-
-	$('#clear_daemons_time').bind('click', function () {
-		$.post( 'ajax/clear_daemons_time.php', { } ,
-				function () {
-					fc_navigate ('db_info', {'alert': 'Complete!'} );
-				});
-	});
-
-</script>
 <div class="container">
 
 	<legend><h2><?php echo $lng['db_info']?></h2></legend>
@@ -72,7 +62,6 @@
 	echo '</table>';
 	?>
 
-	<button class="btn" id="clear_daemons_time">clear_daemons_time</button>
 
 
 </div>
