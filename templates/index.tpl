@@ -286,19 +286,12 @@
 
 </script>
 
-
 	<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
-
 
 <link rel="stylesheet" href="bootstrap-datetimepicker-0.0.11/css/bootstrap-datetimepicker.min.css"/>
 
-
-
-
-
 	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui.css" />
 	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
-
 
   
   </head>
@@ -322,7 +315,7 @@
           <a class="brand" href="#">Dcoin</a>
           <div>
 
-	          <div style="float: left; margin-right:10px; ">
+	          <div style="float: left; width: 300px; height: 30px">
 			    <!-- Button to trigger modal -->
 				<div style="float: left; padding-right:20px; " id="key-password">
 
@@ -338,12 +331,10 @@
 
 				</div>
 
+				  <div style="padding-top: 10px;padding-right: 15px; float: left"><a href="#" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</a></div>
 
+		          <div style="padding-top: 10px; float: left"><a href="mailto: dcoin@hotmail.com">dcoin@hotmail.com</a></div>
 
-				<!--<button type="button" class="btn" data-toggle="button"  onclick="logout()" style="margin-left:30px">logout</button>-->
-
-				  <a href="#" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</a>
-		          <span id="cur_block_id-"></span>
 	          </div>
 	          <div id="bar_alert" style="display: none"><a href="#" onclick="fc_navigate('cash_requests_in')"><img src="img/alert.png"></a></div>
           </div><!--/.nav-collapse -->
