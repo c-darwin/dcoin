@@ -5680,7 +5680,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$user_holidays =  self::getHolidays($user_id, $this->db);
 		$exists_cash_requests = $this->check_cash_requests ($user_id, $this->db);
 
-		if ($data['status'] == 'mining' && !$exists_cash_requests)
+		// для WOC майнинг не зависит от неудовлетворенных cash_requests, т.к. WOC юзер никому не обещал отдавать. Также, WOC не бывает repaid
+		if ($data['status'] == 'mining' && (!$exists_cash_requests || $data['currency_id']==1))
 			$new_tdc = $data['tdc_amount'] + self::calc_profit ( $data['amount']+$data['tdc_amount'], $data['tdc_amount_update'], $time, $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $user_id) );
 		else  if ($data['status'] == 'repaid' && !$exists_cash_requests)
 			$new_tdc = $data['tdc_amount'] + self::calc_profit ( $data['tdc_amount'], $data['tdc_amount_update'], $time, $this->pct[$data['currency_id']], $points_status );
