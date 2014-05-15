@@ -1,6 +1,9 @@
 <?php
 session_start();
 
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
+
 define( 'DC', TRUE);
 
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
@@ -9,10 +12,6 @@ set_time_limit(0);
 
 //require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
-
-if ( empty($_SESSION['user_id']) ) {
-	die('Permission denied');
-}
 
 if (!empty($_SESSION['restricted']))
 	die('Permission denied');

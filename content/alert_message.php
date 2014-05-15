@@ -151,6 +151,7 @@ if (empty($_SESSION['restricted'])) {
 				WHERE `block_id` > 0
 				LIMIT 1
 				", 'fetch_one');
+		$my_miner_id = get_my_miner_id($db);
 		if (!$my_node_key && $my_miner_id>0) {
 			echo "<div class=\"container\"><div class='alert alert-error' >
 				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
@@ -162,7 +163,7 @@ if (empty($_SESSION['restricted'])) {
 	//}
 }
 // просто информируем, что в данном разделе у юзера нет прав
-$skip_community = array('node_config', 'change_node_key', 'nulling', 'start_stop');
+$skip_community = array('node_config', 'nulling', 'start_stop');
 $skip_restricted_users = array('node_config', 'change_node_key', 'nulling', 'start_stop', 'cash_requests_in', 'cash_requests_out', 'upgrade', 'notifications');
 if ( (!node_admin_access($db) && in_array($tpl_name, $skip_community)) ||  (!empty($_SESSION['restricted']) && in_array($tpl_name, $skip_restricted_users)) ) {
 	echo "<div class=\"container\"><div class='alert alert-error' >

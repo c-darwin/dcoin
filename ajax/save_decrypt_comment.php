@@ -21,10 +21,10 @@ if (!empty($_SESSION['restricted']))
 if ( !check_input_data ($_REQUEST['id'] , 'int') )
 	die('error id');
 
-if ( !check_input_data ($data['parent_id'] , 'int') )
+if ( !empty($data['parent_id']) && !check_input_data ($data['parent_id'] , 'int') )
 	die('error parent_id');
 
-if ( $_REQUEST['type']!='dc_transactions' && $_REQUEST['type']!='cash_requests' )
+if ( $_REQUEST['type']!=='dc_transactions' && $_REQUEST['type']!=='cash_requests' )
 	die('error type');
 
 // $_REQUEST['comment'] - может содержать зловред
@@ -32,6 +32,7 @@ $comment = filter_var($_REQUEST['comment'], FILTER_SANITIZE_STRING);
 $comment = str_ireplace(array('\'', '"'),  array('', ''), $comment);
 $comment = $db->escape($comment);
 
+define('MY_PREFIX', get_my_prefix($db));
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_{$_REQUEST['type']}`

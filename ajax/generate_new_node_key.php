@@ -23,8 +23,8 @@ require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
 require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
 require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 
-if (!node_admin_access($db))
-	die ('Permission denied');
+if (!empty($_SESSION['restricted']))
+	die('Permission denied');
 
 $rsa = new Crypt_RSA();
 extract($rsa->createKey(2048));

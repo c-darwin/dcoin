@@ -1,5 +1,8 @@
 <?php
 
+if ( empty($_SESSION['user_id']) )
+	die('!user_id');
+
 if (!defined('DC'))
 	die('!DC');
 

@@ -149,12 +149,12 @@ ArraySort = function(array, sortFunc){
 	<?php
 	if ($tpl['promised_amount_currency_list']) {
 	?>
-	<?php echo $lng['voting_message']?>
+	<div style="width: 600px"><?php echo $lng['voting_message']?></div>
 	<table class="table" style="width: 500px">
 		<tr><th><?php echo $lng['currency']?></th><th><?php echo $lng['voting_miner_pct']?></th><th><?php echo $lng['voting_user_pct']?></th><th><?php echo $lng['voting_max_promised_amount']?></th><th><?php echo $lng['voting_max_other_currencies']?></th><th><?php echo $lng['voting_reduction']?></th></tr>
 		<?php
 		 foreach($tpl['promised_amount_currency_list'] as $currency_id=>$data) {
-			print "<tr><td>{$data['name']}<input type='hidden' name='currency_id' value='{$currency_id}'></td><td><select style='width: 80px' name='miner_pct'>";
+			print "<tr><td>D{$data['name']}<input type='hidden' name='currency_id' value='{$currency_id}'></td><td><select style='width: 80px' name='miner_pct'>";
 			foreach($tpl['AllPct'] as $pct_y=>$pct_sec)
 				print "<option value='{$pct_sec}'>{$pct_y}</option>";
 			print "</select></td><td><select style='width: 80px' name='user_pct'>";

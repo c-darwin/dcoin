@@ -211,6 +211,9 @@ do {
 
 	list(, $tx_hex ) = unpack( "H*", $tx_binary_data );
 
+	if (!$tx_binary_data)
+		continue;
+
 	// проверим размер
 	if ( strlen($tx_binary_data) > $variables['max_tx_size'] ) {
 		debug_print('strlen($binary_tx) > $variables[max_tx_size]', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);

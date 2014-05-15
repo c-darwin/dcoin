@@ -54,7 +54,7 @@ $('#send_to_net').bind('click', function () {
 	?>
 	<div id="wallets">
 	
-		<table class="table" style="width:300px">
+		<table class="table" style="width:500px">
 		<?php
 		print "<tr><td><strong>{$lng['currency']}</strong></td><td>{$tpl['currency_list'][$tpl['data']['currency_id']]}</td></tr>";
 		print "<tr><td><strong>{$lng['amount']}</strong></td><td>{$tpl['data']['amount']}</td></tr>";
