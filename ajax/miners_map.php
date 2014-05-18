@@ -24,6 +24,14 @@ $my_user_id = $_SESSION['user_id'];
 
 $min_amount = $_REQUEST['min_amount'];
 $currency_id = $_REQUEST['currency_id'];
+$ps_id = $_REQUEST['payment_system_id'];
+
+if ( !check_input_data ($min_amount , 'amount') )
+	die('error min_amount');
+if ( !check_input_data ($currency_id , 'int') )
+	die('error currency_id');
+if ( !check_input_data ($ps_id , 'int') )
+	die('error payment_system_id');
 
 $max_promised_amounts = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `amount`
@@ -32,6 +40,11 @@ $max_promised_amounts = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS_
 		ORDER BY `time` DESC
 		LIMIT 1
 		", 'fetch_one');
+
+if ($ps_id)
+	$add_sql = " (`ps1` = {$ps_id} OR `ps2` = {$ps_id} OR `ps3` = {$ps_id} OR `ps4` = {$ps_id} OR `ps5` = {$ps_id}) AND";
+else
+	$add_sql = "";
 
 $print = '';
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -43,6 +56,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."promised_amount`.`user_id`
 		WHERE `".DB_PREFIX."promised_amount`.`status` = 'mining' AND
 					 `currency_id` = {$currency_id} AND
+					   {$add_sql}
 					  `".DB_PREFIX."promised_amount`.`user_id`!={$my_user_id} AND
 					  `del_block_id` = 0
 		");
