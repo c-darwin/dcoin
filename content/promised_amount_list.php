@@ -4,9 +4,14 @@ if (!defined('DC')) die("!defined('DC')");
 // уведомления
 $tpl['alert'] = @$_REQUEST['parameters']['alert'];
 
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, 'SELECT `id`, `full_name` FROM `'.DB_PREFIX.'currency` ORDER BY `full_name`' );
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT `id`,
+					  `name`
+		FROM `'.DB_PREFIX.'currency`
+		 ORDER BY `name`
+		 ');
 while ($row = $db->fetchArray($res)) 
-	$tpl['currency_list'][$row['id']] = $row['full_name'];
+	$tpl['currency_list'][$row['id']] = $row['name'];
 
 $tpl['currency_id'] = @$_REQUEST['parameters']['currency_id'];
 if (!$tpl['currency_id'])
@@ -85,6 +90,15 @@ while ($row = $db->fetchArray($res)) {
 	if ($row['status'] == 'repaid') {
 		$row['amount'] = 0;
 	}
+
+	$pct = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `miner`
+				FROM `".DB_PREFIX."pct`
+				WHERE `currency_id` = {$row['currency_id']}
+				ORDER BY `block_id` DESC
+				LIMIT 1
+				", 'fetch_one');
+	$row['pct'] = round((pow(1+$pct, 3600*24*365)-1)*100, 2);
 
 	// тут accepted значит просто попало в блок
 	$tpl['promised_amount_list']['accepted'][] = $row;

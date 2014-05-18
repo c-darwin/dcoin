@@ -21,6 +21,13 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_list_name'][$row['id']] = $row['name'];
 }
 
+$tpl['payment_systems'] =  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT `id`,
+					 `name`
+		FROM `'.DB_PREFIX.'payment_systems`
+		ORDER BY `name`
+		', 'list', array('id', 'name'));
+
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `currency_id`,
 					 `amount`
