@@ -34,7 +34,15 @@ if ($tpl['user_id']!='wait') {
 							 `del_block_id` = 0
 				", 'fetch_one' );
 		$row['amount'] -= $forex_orders_amount;
-		$tpl['wallets'][] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount']);
+		$pct = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user`
+				FROM `".DB_PREFIX."pct`
+				WHERE `currency_id` = {$row['currency_id']}
+				ORDER BY `block_id` DESC
+				LIMIT 1
+				", 'fetch_one');
+		$pct = round((pow(1+$pct, 3600*24*365)-1)*100, 2);
+		$tpl['wallets'][] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount'], 'pct' => $pct);
 
 	}
 
