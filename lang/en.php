@@ -37,6 +37,7 @@ $lng['month'] = 'month';
 $lng['year'] = 'year';
 
 // general
+$lng['cash'] = 'Cash';
 $lng['close'] = 'Close';
 $lng['log_in'] = 'Log in';
 $lng['delete'] = 'Delete';
@@ -109,11 +110,14 @@ $lng['limits_text'] = 'Add/remove promised amounts: [limit] per [period]';
 $lng['in_wallet'] = 'In wallet';
 $lng['put_in_a_wallet'] = 'Put in a wallet';
 $lng['found_in_blocks'] = 'Found in blocks';
+$lng['max_other_currencies'] = 'Max other currencies';
+
 
 // promised_amount_add
 $lng['promised_amount_add_title'] = 'New promised amount';
 $lng['bill_has_been_added'] = 'promised amount has been added';
 $lng['promised_amount_add_video_text'] = 'Record video in which you say, "I promise to give <span id="promised_amount"></span> <span id="promised_amount_currency_full_name"></span> in exchange for  <span id="promised_amount2"></span> D<span id="promised_amount_currency_name"></span>"';
+$lng['promised_amount_payment_systems'] = 'If you have the opportunity to pay the promised amount using the transfer for any payment system, you can mark it; - if not, just leave gaps';
 
 // tfc-fc
 $lng['mining_text'] = 'mining_text';
