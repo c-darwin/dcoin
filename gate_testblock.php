@@ -30,7 +30,10 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
  *
  */
 
-
+$current_block_id = get_block_id($db);
+if (!$current_block_id) {
+	die('$current_block_id');
+}
 
 /*
  * Пробуем работать без локов
