@@ -142,11 +142,14 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		$amount = $_REQUEST['amount'];
 		$video_type = $_REQUEST['video_type'];
 		$video_url_id = $_REQUEST['video_url_id'];
+		$payment_systems_ids = $_REQUEST['payment_systems_ids'];
 
 		if ( !check_input_data ($currency_id, 'int' ) )
 			die('error currency_id');
 		if ( !check_input_data ($amount, 'amount' ) )
 			die('error amount');
+		if ( !check_input_data ($payment_systems_ids, 'payment_systems_ids' ) )
+			die('error payment_systems_ids');
 
 		$data = dec_binary ($type, 1) .
 					dec_binary ($time, 4) .
@@ -155,6 +158,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 					encode_length(strlen($amount)) . $amount .
 					encode_length(strlen($video_type)) . $video_type .
 					encode_length(strlen($video_url_id)) . $video_url_id .
+					encode_length(strlen($payment_systems_ids)) . $payment_systems_ids .
 					$bin_signatures;
 
 		if (empty($_SESSION['restricted'])) {
