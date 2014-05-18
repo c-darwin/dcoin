@@ -66,6 +66,11 @@ function check_input_data ($data, $type, $info='')
 				return true;
 			break;
 
+		case 'payment_systems_ids' :
+			if ( preg_match ("/^([0-9]{1,4},){0,4}[0-9]{1,4}$/D", $data) )
+				return true;
+			break;
+
 		case 'db_prefix' :
 			if ( preg_match ("/^[0-9a-z\-\_]{0,20}$/Di", $data) )
 				return true;
@@ -2025,7 +2030,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			// обязательно проходимся по блокам в обратном порядке
 			krsort($blocks);
 			foreach ( $blocks as $int2_block_id => $tmp_file_name ) {
-				$LOG_MARKER.="int2_block_id={$int2_block_id}";
+				@$LOG_MARKER.="int2_block_id={$int2_block_id}";
 				debug_print("int2_block_id={$int2_block_id}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				if ($int2_block_id>=$int_block_id)
 					continue;
