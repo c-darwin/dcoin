@@ -13,7 +13,7 @@
             <ul class="nav">
               <li class="active"><a href="#" onclick="fc_navigate('home')">Home</a></li>
              
-              <li><a href="#" onclick="fc_navigate('wallets_list')"><?php echo $lng['wallet']?></a></li>
+              <li><a href="#" onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
               
 				<li class="dropdown">
 					<a class="dropdown-toggle" data-toggle="dropdown" href="#"><?php echo $lng['mining']?><b class="caret"></b></a>

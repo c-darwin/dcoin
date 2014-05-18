@@ -80,6 +80,7 @@ var map;
 
 var currency_name;
 var currency_id;
+var payment_system;
 
 var currency_data = '{<?php print $tpl['json_currency_wallets']?>}';
 currency_data = JSON.parse(currency_data);
@@ -95,12 +96,13 @@ $('#show_map').bind('click', function () {
 	min_amount=100;
 
 	currency_id = $("#need_currency :selected").val();
+	payment_system = $("#payment_system :selected").val();
 	$("#currency_id").val(currency_id);
 	currency_name = currency_data[currency_id][0];
 	$("#available").text(currency_data[currency_id][1]+' D'+currency_name);
 	$("[id = 'currency_name']").text(currency_name);
 
-	$.post('ajax/miners_map.php', {'min_amount': min_amount, 'currency_id': currency_id}, function(data) {
+	$.post('ajax/miners_map.php', {'min_amount': min_amount, 'currency_id': currency_id, 'payment_system_id': payment_system}, function(data) {
 
 					var markers = [];
 
@@ -124,9 +126,12 @@ $('#show_map').bind('click', function () {
 								e.preventDefault();
 							}
 
-							min = Math.ceil(amount/<?php echo $tpl['min_promised_amount']?>)
-							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min.toFixed(0)+'<br>max:'+amount);
-							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min.toFixed(0)+'<br>max:'+amount);
+							min = amount/<?php echo $tpl['min_promised_amount']?>;
+							min = min.toFixed(2);
+							if (min<0.01)
+							  min =  0.01;
+							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min.toFixed(2)+'<br>max:'+amount);
+							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min.toFixed(2)+'<br>max:'+amount);
 							$("#to_user_id").text(user_id);
 							$('#send_amount').val(min);
 							$("#amount_due").text(min);
@@ -172,12 +177,19 @@ $('#send_amount').keyup(function(e) {
 	<div id="onmap">
 		<h3><?php echo $lng['search']?></h3>
 		<div class="form-inline" style="padding-bottom: 10px">
-				<select id="need_currency" class="span2">
-					<?php
+			<select id="need_currency" class="span2">
+				<?php
 					foreach ($tpl['available_currency'] as $k => $currency_id)
-						print "<option value='{$currency_id}'>{$tpl['currency_list'][$currency_id]}</option>";
-					?>
-				</select>
+				print "<option value='{$currency_id}'>{$tpl['currency_list'][$currency_id]}</option>";
+				?>
+			</select>
+			<select id="payment_system" class="span2">
+				<option value='0'><?php echo $lng['cash']?></option>
+				<?php
+					foreach ($tpl['payment_systems'] as $id => $name)
+				print "<option value='{$id}'>{$name}</option>";
+				?>
+			</select>
 			<button class="btn" id="show_map"><?php echo $lng['find_on_map']?></button>
 		</div>
 

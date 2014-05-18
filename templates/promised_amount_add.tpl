@@ -41,6 +41,7 @@ var currency_name = new Array();
 
 var video_url_id = '';
 var video_type = '';
+var payment_systems_ids = '';
 
 $('#add_promised_amount').bind('click', function () {
 
@@ -57,9 +58,21 @@ $('#add_promised_amount').bind('click', function () {
 	else
 		video_type='youtube';
 
+	var ps_id;
+	for (i=1; i<6; i++)	{
+		ps_id = $('#ps'+i).val();
+		if ( ps_id > 0 ) {
+			payment_systems_ids = payment_systems_ids+ps_id+',';
+		}
+	}
+	if (payment_systems_ids.length>1)
+		payment_systems_ids = payment_systems_ids.substr(0, payment_systems_ids.length-1);
+	else
+		payment_systems_ids = '0';
+
 	$("#add").css("display", "none");
 	$("#sign").css("display", "block");
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+video_type+','+video_url_id );
+	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+video_type+','+video_url_id+','+payment_systems_ids );
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 
@@ -75,6 +88,7 @@ $('#send_to_net').bind('click', function () {
 				'amount' :  $('#amount').val(),
 				'video_type' :  video_type,
 				'video_url_id' :  video_url_id,
+				'payment_systems_ids' :  payment_systems_ids,
 				'signature1': $('#signature1').val(),
 				'signature2': $('#signature2').val(),
 				'signature3': $('#signature3').val()
@@ -135,6 +149,19 @@ $( "#currency_id" ).change(function () {
 		<label><?php echo $lng['amount']?></label>
 		<input id="amount" class="input-mini" type="text"> max: <span id="max_promised_amount"></span>
 		<br>
+	    <label><?php echo $lng['promised_amount_payment_systems']?></label>
+		 <?php
+		 for ($i=1; $i<6; $i++) {
+		    echo '<select id="ps'.$i.'" style="width:100px">';
+	        echo '<option value="0">----</option>';
+			foreach ($tpl['payment_systems'] as $id => $name)
+			    echo "<option value='{$id}'>{$name}</option>";
+	        echo ' </select>';
+	     }
+		 ?>
+
+	    <br>
+
 	    <?php echo $lng['promised_amount_add_video_text']?>
 
 	    <div>

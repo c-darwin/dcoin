@@ -143,7 +143,7 @@ $('#amount').keyup(function(e) {
 	   
 	<p><?php echo $lng['your_account_number']?>: <strong><?php echo $tpl['user_id']?></strong></p>
 	
-	<p><?php echo $lng['send_dc']?>:</p>
+	<p><strong><?php echo $lng['send_dc']?></strong>:</p>
 	<table class="table" style="width: 300px">
 	<tr><td><?php echo $lng['currency']?></td><td><select id="currency_id">
 	<?php
@@ -163,9 +163,10 @@ $('#amount').keyup(function(e) {
 	<?php
 	if (isset($tpl['wallets']))
 	if ($tpl['wallets']) {
-		echo '<h3>'.$lng['wallets'].'</h3><table class="table" style="width:500px">';
+		echo '<h3>'.$lng['wallets'].'</h3><table class="table" style="width:400px">';
+		echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
 		foreach ($tpl['wallets'] as $id => $data) {
-		print "<tr><td>D{$tpl['currency_list'][$data['currency_id']]}</td><td>{$data['amount']}</td></tr>";
+		print "<tr><td>D{$tpl['currency_list'][$data['currency_id']]}</td><td>{$data['amount']}</td><td>{$data['pct']}</td></tr>";
 		}
 		echo '</table>';
 	}
