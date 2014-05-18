@@ -227,6 +227,11 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}promised_amount` (
   `amount` decimal(13,2) NOT NULL COMMENT 'Обещанная сумма. На неё влияет reduction и она будет урезаться при обновлении max_promised_amount (очень важно на случай деноминации фиата). Если же статус = repaid, то тут храниться кол-во денег, которые майнер отдал. Нужно хранить только чтобы знать общую сумму и не превысить max_promised_amount. Для WOC  amount не нужен, т.к. WOC полностью зависит от max_promised_amount',
   `amount_backup` decimal(13,2) NOT NULL COMMENT 'Нужно для откатов при reduction',
   `currency_id` tinyint(3) unsigned NOT NULL,
+  `ps1` smallint (5) unsigned NOT NULL COMMENT 'ID платежной системы, в валюте которой он готов сделать перевод в случае входящего запроса',
+  `ps2` smallint (5) unsigned NOT NULL,
+  `ps3` smallint (5) unsigned NOT NULL,
+  `ps4` smallint (5) unsigned NOT NULL,
+  `ps5` smallint (5) unsigned NOT NULL,
   `start_time` int(11) NOT NULL COMMENT 'Используется, когда нужно узнать, кто имеет право голосовать за данную валюту, т.е. прошло ли 60 дней с момента получения статуса miner или repaid(учитывая время со статусом miner). Изменяется при каждой смене статуса. Сущетвует только со статусом mining и repaid. Это защита от атаки клонов, когда каким-то образом 100500 майнеров прошли проверку, добавили какую-то валюту и проголосовали за reduction 90%. 90 дней - это время админу, чтобы заметить и среагировать на такую атаку',
   `status` enum('pending','mining','rejected','repaid','change_geo','suspended') NOT NULL DEFAULT 'pending' COMMENT 'pending - при первом добавлении или при повтороном запросе.  change_geo ставится когда идет смена местоположения, suspended - когда админ разжаловал майнера в юзеры. TDC набегают только когда статус mining, repaid с майнерским или же юзерским % (если статус майнера = passive_miner)',
   `status_backup` enum('pending','mining','rejected','repaid','change_geo','suspended','') NOT NULL DEFAULT '' COMMENT 'Когда админ банит майнера, то в status пишется suspended, а сюда - статус из  status',
@@ -333,6 +338,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_miners_data` (
   `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` int(11) NOT NULL,
   `miner_id` int(11) NOT NULL,
+  `reg_time` int(11) NOT NULL,
   `status` enum('miner','user','passive_miner','suspended_miner') NOT NULL,
   `node_public_key` varbinary(512) NOT NULL,
   `face_hash` varchar(128) NOT NULL,
@@ -348,7 +354,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_miners_data` (
   `latitude` decimal(8,5) NOT NULL,
   `longitude` decimal(8,5) NOT NULL,
   `country` tinyint(3) unsigned NOT NULL,
-  `reg_users` tinyint(3) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`log_id`)
@@ -683,6 +688,7 @@ $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}miners_data`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}miners_data` (
   `user_id` int(11) NOT NULL,
   `miner_id` int(11) NOT NULL COMMENT 'Из таблицы miners',
+  `reg_time` int(11) NOT NULL COMMENT 'Время, когда майнер получил miner_id по итогам голосования. Определеяется один раз и не меняется. Нужно, чтобы не давать новым майнерам генерить тр-ии регистрации новых юзеров и исходящих запросов',
   `ban_block_id` int(11) NOT NULL COMMENT 'В каком блоке майнер был разжалован в suspended_miner. Нужно для исключения пересечения тр-ий разжалованного майнера и самой тр-ии разжалования',
   `status` enum('miner','user','passive_miner','suspended_miner') NOT NULL DEFAULT 'user' COMMENT 'Измнеения вызывают персчет TDC в promised_amount',
   `node_public_key` varbinary(512) NOT NULL,
@@ -699,15 +705,11 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}miners_data` (
   `latitude` decimal(8,5) NOT NULL COMMENT 'Местоположение можно сменить без проблем, но это одновременно ведет запуск голосования у promised_amount по всем валютам, где статус mining или hold',
   `longitude` decimal(8,5) NOT NULL,
   `country` tinyint(3) unsigned NOT NULL,
-  `reg_users` tinyint(3) NOT NULL COMMENT 'Сколько юзеров зарегал майнер',
   `log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 
 ";
-
-
-
 
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_admin_messages`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_admin_messages` (
@@ -1529,6 +1531,19 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}community` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Если не пусто, то работаем в режиме пула';
 
 ";
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}payment_systems`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}payment_systems` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(255) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Для тех, кто не хочет встречаться для обмена кода на наличные';
+
+";
+$queries[] = "INSERT INTO `{$db_name}`.`{$prefix}payment_systems` (`name`)
+					VALUES ('Adyen'),('Alipay'),('Amazon Payments'),('AsiaPay'),('Atos'),('Authorize.Net'),('BIPS'),('BPAY'),('Braintree'),('CentUp'),('Chargify'),('Citibank'),('ClickandBuy'),('Creditcall'),('CyberSource'),('DataCash'),('DigiCash'),('Digital River'),('Dwolla'),('ecoPayz'),('Edy'),('Elavon'),('Euronet Worldwide'),('eWAY'),('Flooz'),('Fortumo'),('Google'),('GoCardless'),('Heartland Payment Systems'),('HSBC'),('iKobo'),('iZettle'),('IP Payments'),('Klarna'),('Live Gamer'),('Mobilpenge'),('ModusLink'),('MPP Global Solutions'),('Neteller'),('Nochex'),('Ogone'),('Paymate'),('PayPal'),('Payoneer'),('PayPoint'),('Paysafecard'),('PayXpert'),('Payza'),('Peppercoin'),('Playspan'),('Popmoney'),('Realex Payments'),('Recurly'),('RBK Money'),('Sage Group'),('Serve'),('Skrill (Moneybookers)'),('Stripe'),('Square, Inc.'),('TFI Markets'),('TIMWE'),('Use My Services (UMS)'),('Ukash'),('V.me by Visa'),('VeriFone'),('Vindicia'),('WebMoney'),('WePay'),('Wirecard'),('Western Union'),('WorldPay'),('Yandex money')";
+
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}config`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
