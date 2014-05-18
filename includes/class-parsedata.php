@@ -3,6 +3,8 @@
 if (!defined('DC'))
 	die('!DC');
 
+require_once( ABSPATH . 'includes/old.php' );
+
 // на сколько может бежать время в тр-ии
 define('MAX_TX_FORW', 0);
 // тр-ия может блуждать по сети сутки и потом попасть в блок
@@ -22,7 +24,8 @@ define( 'NODE_BAN_TIME', 600 );
 
 $reduction_dc = array(0,10,25,50,90);
 
-class ParseData {
+
+class ParseData extends OldParseData {
 
 	protected static $_instance;
 
@@ -375,7 +378,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	static function find_min_pct ($need_time, $pct_array, $status='')
 	{
 		$return = 0;
-		$find_time = 0;
+		$find_time = -1;
 		debug_print( '$need_time:'.$need_time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$status:'.$status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -388,7 +391,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 			$find_time = $time;
 		}
-		if ($find_time) {
+		if ($find_time>=0) {
 			debug_print( '$find_time:'.$find_time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			if ($status)
 				$pct = $pct_array[$find_time][$status];
@@ -396,6 +399,34 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$pct = $pct_array[$find_time];
 		}
 		return $pct;
+	}
+
+	static function get_max_promised_amount_calc_profit($amount, $repaid_amount, $max_promised_amount, $currency_id)
+	{
+		debug_print( '$amount:'.$amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print( '$repaid_amount:'.$repaid_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print( '$max_promised_amount:'.$max_promised_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print( '$currency_id:'.$currency_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+		// для WOC $repaid_amount всегда = 0, т.к. cash_request на WOC послать невозможно
+		// если наша сумма больше, чем максимально допустимая ($find_min_array[$i]['amount'])
+		if ($amount+$repaid_amount > $max_promised_amount)
+			$amount_ = $max_promised_amount - $repaid_amount;
+		// для WOC разрешено брать max_promised_amount вместо promised_amount, если promised_amount < max_promised_amount
+		else if ($amount < $max_promised_amount && $currency_id==1)
+			$amount_ = $max_promised_amount;
+		else
+			$amount_ = $amount;
+		return $amount_;
+	}
+
+	// определяет, какой calc_profit будет вызван
+	function calc_profit_($amount, $time_start, $time_finish, $pct_array, $points_status_array, $holidays_array=array(), $max_promised_amount_array=array(), $currency_id=0, $repaid_amount=0)
+	{
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=24946)
+			return self::calc_profit_24946($amount, $time_start, $time_finish, $pct_array, $points_status_array, $holidays_array, $max_promised_amount_array, $currency_id, $repaid_amount);
+		else
+			return self::calc_profit($amount, $time_start, $time_finish, $pct_array, $points_status_array, $holidays_array, $max_promised_amount_array, $currency_id, $repaid_amount);
 	}
 
 	/**
@@ -427,6 +458,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	static function calc_profit( $amount, $time_start, $time_finish, $pct_array, $points_status_array, $holidays_array=array(), $max_promised_amount_array=array(), $currency_id=0, $repaid_amount=0 )
 	{
 
+		// для WOC майнинг останавливается только если майнера забанил админ, каникулы на WOC не действуют
+		if ($currency_id==1)
+			$holidays_array = array();
+
 		debug_print( '$amount:'.$amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$repaid_amount:'.$repaid_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$time_start:'.$time_start, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -455,20 +490,36 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$last_status = false;
 		// нужно получить массив вида time=>pct, совместив $pct_array и $points_status_array
 		foreach ($pct_array as $time=>$status_pct_array) {
+
 			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print( '$status_pct_array:'.print_r_hex($status_pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$find_min_array = self::find_min_points_status($time, $points_status_array, 'status');
 			debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 			for ($i=0; $i<sizeof($find_min_array); $i++) {
+
 				debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-				if ($find_min_array[$i]['time'] < $time) {
-					$new_arr[$find_min_array[$i]['time']] = self::find_min_pct($find_min_array[$i]['time'], $pct_array, $find_min_array[$i]['status']);
+
+				//if ($find_min_array[$i]['time'] < $time) {
+				if ($find_min_array[$i]['time'] <= $time) {
+
+					$find_min_pct = self::find_min_pct($find_min_array[$i]['time'], $pct_array, $find_min_array[$i]['status']);
+					$new_arr[$find_min_array[$i]['time']] = $find_min_pct;
+					debug_print( '$new_arr['.$find_min_array[$i]['time'].'] = '.$find_min_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 					$last_status = $find_min_array[$i]['status'];
+					debug_print( 'last_status='.$last_status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				}
 			}
-			if (!$find_min_array && !$last_status)
-				$find_min_array[0]['status']='user';
-			else if (!$find_min_array && $last_status) // есть проценты, но кончились points_status
-				$find_min_array[0]['status']='miner';
+			if (!$find_min_array && !$last_status) {
+				debug_print( '$find_min_array[0][status]=user', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				$find_min_array[0]['status'] = 'user';
+			}
+			else if (!$find_min_array && $last_status) { // есть проценты, но кончились points_status
+				debug_print( '$find_min_array[0][status]=miner', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//$find_min_array[0]['status'] = 'miner';
+				$find_min_array[0]['status'] = $last_status;
+			}
+			debug_print( '$new_arr['.$time.'] = '.$status_pct_array[$find_min_array[sizeof($find_min_array)-1]['status']], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$new_arr[$time] = $status_pct_array[$find_min_array[sizeof($find_min_array)-1]['status']];
 			$status_pct_array_ = $status_pct_array;
 		}
@@ -516,29 +567,48 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$last_amount = $amount;
 		// нужно получить массив вида time=>pct, совместив $pct_array и $max_promised_amount_array
 		foreach ($pct_array as $time=>$pct) {
+
 			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$find_min_array = self::find_min_points_status($time, $max_promised_amount_array, 'amount');
 			debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 			for ($i=0; $i<sizeof($find_min_array); $i++) {
+
 				debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-				// добавляем новый элемент, только если наша сумма больше, чем максимально допустимая ($find_min_array[$i]['amount'])
-				if ($amount+$repaid_amount > $find_min_array[$i]['amount'])
-					$amount_ = $find_min_array[$i]['amount'] - $repaid_amount;
-				// для WOC разрешено брать max_promised_amount вместо promised_amount, если promised_amount < max_promised_amount
-				else if ($amount < $find_min_array[$i]['amount'] && $currency_id==1)
-					$amount_ = $find_min_array[$i]['amount'];
-				else
-					$amount_ = $amount;
+
+				$amount_ = self::get_max_promised_amount_calc_profit($amount, $repaid_amount, $find_min_array[$i]['amount'], $currency_id);
+				debug_print( '$amount_:'.$amount_, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 				if ($find_min_array[$i]['time'] <= $time) {
-					$new_arr[$find_min_array[$i]['time']]['pct'] = self::find_min_pct($find_min_array[$i]['time'], $pct_array);
+
+					$find_min_pct = self::find_min_pct($find_min_array[$i]['time'], $pct_array);
+
+					debug_print( '$new_arr['.$find_min_array[$i]['time'].'][pct]:'.$find_min_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					debug_print( '$new_arr['.$find_min_array[$i]['time'].'][amount]:'.$amount_, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					$new_arr[$find_min_array[$i]['time']]['pct'] = $find_min_pct;
 					$new_arr[$find_min_array[$i]['time']]['amount'] = $amount_;
+
 					$last_amount = $amount_;
+					debug_print( '$last_amount:'.$last_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				}
 			}
 
+			debug_print( '$new_arr['.$time.'][pct]:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print( '$new_arr['.$time.'][amount]:'.$last_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$new_arr[$time]['pct'] = $pct;
 			$new_arr[$time]['amount'] = $last_amount;
+			$pct_ = $pct;
 		}
+
+		// если в max_promised_amount больше чем в pct
+		if ($max_promised_amount_array) {
+			debug_print( 'remainder $max_promised_amount_array:'.print_r_hex($max_promised_amount_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			foreach ($max_promised_amount_array as $time=>$max_promised_amount) {
+				$new_arr[$time]['pct'] = $pct_;
+				$new_arr[$time]['amount'] = $amount_ = self::get_max_promised_amount_calc_profit($amount, $repaid_amount, $max_promised_amount, $currency_id);
+			}
+		}
+
 		debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$pct:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		/*
@@ -551,19 +621,21 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 		}
 		*/
-		// массив, где ключи - это время из pct и points_status, а значения - проценты.
-		debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		$pct_array = $new_arr;
 
-		// добавим сразу время окончания
-		$pct_array[$time_finish] = $pct;
+		if (max(array_keys($new_arr))<$time_finish)
+			$new_arr[$time_finish] = $pct; // добавим сразу время окончания
+
+		debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$amount_ = $amount;
 		$new = array();
 		$start_holidays = false;
 		$old_time = 0;
 		$old_pct_and_amount = array();
-		foreach ($pct_array as $time=>$pct_and_amount) {
+		foreach ($new_arr as $time=>$pct_and_amount) {
+
+			if ($time > $time_finish)
+				continue;
 
 			if ($time > $time_start) {
 
@@ -580,8 +652,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					}
 
 					// полные каникулы в промежутке между time и old_time
-					if ( @$holidays_array[$j][0] && $work_time >= @$holidays_array[$j][0] && @$holidays_array[$j][1] && $work_time >= @$holidays_array[$j][1] ) {
-					//if ( @$holidays_array[$j][0] && $old_time <= @$holidays_array[$j][0] && @$holidays_array[$j][1] && $work_time >= @$holidays_array[$j][1] ) {
+					//if ( @$holidays_array[$j][0] && $work_time >= @$holidays_array[$j][0] && @$holidays_array[$j][1] && $work_time >= @$holidays_array[$j][1] ) {
+					if ( isset($holidays_array[$j][0]) && $old_time <= $holidays_array[$j][0] && isset($holidays_array[$j][1]) && $work_time >= $holidays_array[$j][1] ) {
 
 						$time = $holidays_array[$j][0];
 						unset($holidays_array[$j][0]);
@@ -597,7 +669,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						debug_print( 'unset($holidays_array[$j][1])', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 					}
-					if ( @$holidays_array[$j][0] && $work_time >= @$holidays_array[$j][0] ) {
+					if ( isset($holidays_array[$j][0]) && $work_time >= $holidays_array[$j][0] ) {
 
 						debug_print( "holidays [0] ={$holidays_array[$j][0]} in $work_time\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 						$start_holidays = true; // есть начало каникул, но есть ли конец?
@@ -608,14 +680,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						unset($holidays_array[$j][0]);
 						debug_print( 'unset($holidays_array[$j][0])', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 					}
-					else if ($work_time < $holidays_array[$j][1] && !@$holidays_array[$j][0]) {
+					else if (isset($holidays_array[$j][1]) && $work_time < $holidays_array[$j][1] && !isset($holidays_array[$j][0])) {
 
 						// конец каникул заканчивается после $work_time
 						debug_print( "no end holidays in current $work_time\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 						$time = $old_time;
 						continue;
 					}
-					else if ( @$holidays_array[$j][1] && $work_time >= @$holidays_array[$j][1] ) {
+					else if ( isset($holidays_array[$j][1]) && $work_time >= $holidays_array[$j][1] ) {
 
 						debug_print( "holidays [1]={$holidays_array[$j][1]} in $work_time\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -1125,7 +1197,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$points_status = array(0=>'user');
 			// holidays не нужны, т.к. это не TDC, а DC
 			// то, что выросло на кошельке
-			$new_DC_sum = $wallet_data['amount'] + self::calc_profit ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'],	$this->pct[$currency_id], $points_status );
+			$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'],	$this->pct[$currency_id], $points_status );
 			debug_print( '$new_DC_sum='.$new_DC_sum, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			// итоговая сумма DC
@@ -1251,7 +1323,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print( '$to_user_id='.$to_user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$comment='.$comment, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		$new_DC_sum = $wallet_data['amount'] + self::calc_profit ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'], $this->pct[$currency_id], $points_status ) - $amount - $commission;
+		$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'], $this->pct[$currency_id], $points_status ) - $amount - $commission;
 		debug_print(  'user sender $new_DC_sum='.$new_DC_sum, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3005,6 +3077,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->variables = self::get_all_variables($this->db);
 	}
 
+	function check_miner_newbie()
+	{
+		if (isset($this->block_data['time']))
+			$time = $this->block_data['time'];
+		else
+			$time = $this->tx_data['time'];
+
+		$reg_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `reg_time`
+		        FROM `".DB_PREFIX."miners_data`
+		        WHERE `user_id` = {$this->tx_data['user_id']}
+		        LIMIT 1
+		        ", 'fetch_one');
+		if (!isset($this->block_data['block_id']) || isset($this->block_data['block_id']) && $this->block_data['block_id'] > 29047)
+			if ( $reg_time > ($time - $this->variables['miner_newbie_time']) && $this->tx_data['user_id'] != 1)
+				return "error miner_newbie ({$reg_time} > {$time}-{$this->variables['miner_newbie_time']})";
+	}
+
 	// 1
 	private function new_user_front()
 	{
@@ -3015,6 +3105,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// является ли данный юзер майнером
 		if ( !$this->check_miner($this->tx_data['user_id']) )
 			return 'only for miners';
+
+		// прошло ли 30 дней с момента регистрации майнера
+		$error = $this->check_miner_newbie();
+		if ($error)
+			return $error;
 
 		// чтобы не записали слишком мелкий или слишком крупный ключ
 		if ( !check_input_data ($this->tx_data['public_key_hex'], 'public_key') )
@@ -3940,7 +4035,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 21
 	private function admin_variables_front()
 	{
-		$VARIABLES_COUNT = 71;
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 29047)
+			$VARIABLES_COUNT = 71;
+		else
+			$VARIABLES_COUNT = 72;
 
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4033,6 +4131,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				case 'cash_request_time' :
 				case 'limit_for_repaid_fix' :
 				case 'limit_for_repaid_fix_period' :
+				case 'miner_newbie_time' :
 
 					if ( !check_input_data ($value, 'bigint') )
 						return $error_text.$name;
@@ -4074,7 +4173,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// данные, которые восстановим
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `data`,
-				           `log_id`
+				             `log_id`
 				FROM `".DB_PREFIX."log_variables`
 				ORDER BY `log_id` DESC
 				LIMIT 1
@@ -4134,11 +4233,29 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		foreach ( $variables as $name=>$value ) {
 
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."variables`
-					SET `value` = '{$value}'
+			$exists = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `name`
+					FROM `".DB_PREFIX."variables`
 				    WHERE `name` = '{$name}'
-				   ");
+				   ", 'fetch_one');
+			if ($exists) {
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."variables`
+						SET `value` = '{$value}'
+					    WHERE `name` = '{$name}'
+					   ");
+			}
+			else {
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."variables` (
+							`name`,
+							`value`
+						)
+						VALUES (
+							'{$name}',
+							'{$value}'
+						)");
+			}
 		}
 	}
 
@@ -5385,7 +5502,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$tdc_sum = $data['amount'] + $data['tdc_amount'];
 
 		// то, что успело набежать
-		$new_tdc = $data['tdc_amount'] + self::calc_profit ( $tdc_sum, $data['tdc_amount_update'], $this->block_data['time'], $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $this->tx_data['user_id']) );
+		$new_tdc = $data['tdc_amount'] + $this->calc_profit_ ( $tdc_sum, $data['tdc_amount_update'], $this->block_data['time'], $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $this->tx_data['user_id']) );
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."promised_amount`
@@ -5449,7 +5566,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// Если было delete=1, то перезаписываем
 	private function new_promised_amount_init()
 	{
-		$error = $this->get_tx_data(array('currency_id', 'amount', 'video_type', 'video_url_id', 'sign'));
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 27134)
+			$error = $this->get_tx_data(array('currency_id', 'amount', 'video_type', 'video_url_id', 'sign'));
+		else
+			$error = $this->get_tx_data(array('currency_id', 'amount', 'video_type', 'video_url_id', 'payment_systems_ids', 'sign'));
 		if ($error) return $error;
 		//$this->variables = self::get_variables($this->db,  array('limit_promised_amount', 'limit_promised_amount_period') );
 		$this->variables = self::get_all_variables($this->db);
@@ -5470,6 +5590,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'error video_type';
 		if ( !check_input_data ($this->tx_data['video_url_id'], 'video_url_id') )
 			return 'error video_url_id';
+
+		if (!isset($this->block_data['block_id']) || isset($this->block_data['block_id']) && $this->block_data['block_id'] > 27134)
+			if ( !check_input_data ($this->tx_data['payment_systems_ids'], 'payment_systems_ids') )
+				return 'error payment_systems_ids';
 
 		// проверим, существует ли такая валюта
 		if ( !$this->checkCurrency($this->tx_data['currency_id']) )
@@ -5578,7 +5702,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 
 		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['amount']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']}";
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 27134)
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['amount']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']}";
+		else
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['amount']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['payment_systems_ids']}";
+
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 		if ($error)
 			return $error;
@@ -5614,12 +5742,27 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 3
 	private function new_promised_amount()
 	{
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 27134) {
+			$add_sql_names = '';
+			$add_sql_values = '';
+		}
+		else {
+			$payment_systems_ids = explode(',',$this->tx_data['payment_systems_ids']);
+			$add_sql_names = '';
+			$add_sql_values = '';
+			for ($i=0; $i<sizeof($payment_systems_ids); $i++) {
+				$add_sql_names .= '`ps'.($i+1).'`,';
+				$add_sql_values .= $payment_systems_ids[$i].',';
+			}
+		}
+
 		//добавляем promised_amount в БД
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."promised_amount` (
 						`user_id`,
 						`amount`,
 						`currency_id`,
+						{$add_sql_names}
 						`video_type`,
 						`video_url_id`,
 						`votes_start_time`
@@ -5628,6 +5771,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						{$this->tx_data['user_id']},
 						{$this->tx_data['amount']},
 						{$this->tx_data['currency_id']},
+						{$add_sql_values}
 						'{$this->tx_data['video_type']}',
 						'{$this->tx_data['video_url_id']}',
 						{$this->block_data['time']}
@@ -5682,9 +5826,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		// для WOC майнинг не зависит от неудовлетворенных cash_requests, т.к. WOC юзер никому не обещал отдавать. Также, WOC не бывает repaid
 		if ($data['status'] == 'mining' && (!$exists_cash_requests || $data['currency_id']==1))
-			$new_tdc = $data['tdc_amount'] + self::calc_profit ( $data['amount']+$data['tdc_amount'], $data['tdc_amount_update'], $time, $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $user_id) );
+			$new_tdc = $data['tdc_amount'] + $this->calc_profit_ ( $data['amount']+$data['tdc_amount'], $data['tdc_amount_update'], $time, $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $user_id) );
 		else  if ($data['status'] == 'repaid' && !$exists_cash_requests)
-			$new_tdc = $data['tdc_amount'] + self::calc_profit ( $data['tdc_amount'], $data['tdc_amount_update'], $time, $this->pct[$data['currency_id']], $points_status );
+			$new_tdc = $data['tdc_amount'] + $this->calc_profit_ ( $data['tdc_amount'], $data['tdc_amount_update'], $time, $this->pct[$data['currency_id']], $points_status );
 		else // rejected/change_geo/suspended
 			$new_tdc = $data['tdc_amount'];
 
@@ -6071,7 +6215,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."miners_data`
 						SET  `status` = 'user',
-								`miner_id` = 0
+								`miner_id` = 0,
+								`reg_time` = 0
 						WHERE `user_id` = {$user_id}
 						LIMIT 1
 						");
@@ -6204,7 +6349,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."miners_data`
 						SET `status` = 'miner',
-							   `miner_id` = {$miner_id}
+							   `miner_id` = {$miner_id},
+							   `reg_time` = {$this->block_data['time']}
 						WHERE `user_id` = {$user_id}
 						LIMIT 1
 						");
@@ -6642,7 +6788,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				// то, от чего будем вычислять набежавшие %
 				$tdc_sum = $data['amount'] + $data['tdc_amount'];
 				// то, что успело набежать
-				$new_tdc = $data['tdc_amount'] + self::calc_profit ( $tdc_sum, $data['tdc_amount_update'], $this->block_data['time'], $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $this->tx_data['user_id']) );
+				$new_tdc = $data['tdc_amount'] + $this->calc_profit_ ( $tdc_sum, $data['tdc_amount_update'], $this->block_data['time'], $this->pct[$data['currency_id']], $points_status, $user_holidays, $this->max_promised_amounts[$data['currency_id']], $data['currency_id'], $this->get_repaid_amount($data['currency_id'], $this->tx_data['user_id']) );
 			}
 			else {
 				// для статуса 'pending', 'change_geo' нечего пересчитывать, т.к. во время этих статусов ничего не набегает
@@ -7566,7 +7712,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		//$user_status = $this->getUserStatus($this->tx_data['user_id']);
 		$points_status = array(0=>'user');
 		// getTotalAmount используется только на front, значит используем время из тр-ии - $this->tx_data['time']
-		return $data['amount'] + self::calc_profit( $data['amount'], $data['last_update'], $this->tx_data['time'], $this->pct[$this->tx_data['currency_id']], $points_status );
+		return $data['amount'] + $this->calc_profit_ ($data['amount'], $data['last_update'], $this->tx_data['time'], $this->pct[$this->tx_data['currency_id']], $points_status );
 	}
 
 	private function getLastBlockId () {
@@ -8070,6 +8216,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['hash_code'], 'sha256') )
 			return 'cash_request_out_front hash_code';
 
+		// прошло ли 30 дней с момента регистрации майнера
+		$error = $this->check_miner_newbie();
+		if ($error)
+			return $error;
+
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['amount']},".bin2hex($this->tx_data['comment']).",{$this->tx_data['currency_id']},{$this->tx_data['hash_code']}";
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
@@ -8102,13 +8253,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return "max_promised_amount ( {$this->tx_data['amount']} + {$repaid_amount} > {$max_promised_amount} )";
 
 		// не даем превысить общий лимит
+		$promised_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`
+				FROM `".DB_PREFIX."promised_amount`
+				WHERE `status` = 'mining' AND
+							 `currency_id` = {$this->tx_data['currency_id']} AND
+							 `user_id` = {$this->tx_data['to_user_id']} AND
+							 `del_block_id` = 0
+				", 'fetch_one');
 		$rest = $max_promised_amount - $repaid_amount;
 		if ($rest < $promised_amount)
 			$promised_amount = $rest;
 
-		// минимальная сумма
+		// минимальная сумма. теоретически может делиться на min_promised_amount пока не достигнет 0.01
 		if ($this->tx_data['amount'] < $promised_amount / $this->variables['min_promised_amount'])
 			return "error min amount ( {$this->tx_data['amount']} < {$promised_amount} / {$this->variables['min_promised_amount']} )";
+
+		if ($this->tx_data['amount'] < 0.01)
+			return "error amount<0.01";
 
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
