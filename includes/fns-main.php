@@ -2067,13 +2067,14 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 	debug_print("# # удаляем блоки из block_chain и заносим новые", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 	// если всё занеслось без ошибок, то удаляем блоки из block_chain и заносим новые
-	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 			DELETE
 			FROM `".DB_PREFIX."block_chain`
 			WHERE `id` > {$block_id}
 			");
-
-	debug_print($prev_block, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+	debug_print("blocks:".print_r_hex($blocks), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+	debug_print($prev_block, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 
 	// проходимся по новым блокам
 	foreach ( $blocks as $block_id => $tmp_file_name ) {
@@ -2263,7 +2264,7 @@ function print_r_hex ($arr)
 
 
 
-function debug_print($text, $file, $line, $function, $class, $method)
+function debug_print($text, $file, $line, $function, $class, $method, $all_log=false)
 {
 	global $LOG_MARKER;
 	global $db;
@@ -2287,7 +2288,7 @@ function debug_print($text, $file, $line, $function, $class, $method)
 
 	$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
 	$log_fns = explode('|', $ini_array['main']['log_fns']);
-	if ($ini_array['main']['log'] == 1 || in_array($function, $log_fns) || ($global_current_block_id >= $ini_array['main']['log_block_id_begin'] && $global_current_block_id <= $ini_array['main']['log_block_id_end'] && $ini_array['main']['log_block_id_begin'] && $ini_array['main']['log_block_id_end']))
+	if ($ini_array['main']['log'] == 1 || (in_array($function, $log_fns) && $function) || ($global_current_block_id >= $ini_array['main']['log_block_id_begin'] && $global_current_block_id <= $ini_array['main']['log_block_id_end'] && $ini_array['main']['log_block_id_begin'] && $ini_array['main']['log_block_id_end']) || $all_log)
 	{
 		if ($my_lock)
 			$file = ABSPATH . 'log/gen_main.log';
