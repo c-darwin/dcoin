@@ -2085,15 +2085,27 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 		$file = save_tmp_644 ('FBC', "{$block_id}\t{$prev_block[$block_id]['hash']}\t{$prev_block[$block_id]['head_hash']}\t{$block_hex}");
 		debug_print("{$block_id} ==> LOAD DATA LOCAL INFILE  '{$file}' IGNORE INTO TABLE `".DB_PREFIX."block_chain`", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."info_block`
+				SET  `hash` = 0x{$prev_block['hash']},
+						`head_hash` = 0x{$prev_block['head_hash']},
+						`block_id`= {$prev_block['block_id']},
+						`time`= {$prev_block['time']},
+						`level`= {$prev_block['level']},
+						`sent` = 0
+				");
+
 		// т.к. эти данные создали мы сами, то пишем их сразу в таблицу проверенных данных, которые будут отправлены другим нодам
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-			LOAD DATA LOCAL INFILE  '{$file}' IGNORE INTO TABLE `".DB_PREFIX."block_chain`
-			FIELDS TERMINATED BY '\t'
-			(`id`, @hash, @head_hash, @data)
-			SET `hash` = UNHEX(@hash),
-				   `head_hash` = UNHEX(@head_hash),
-				   `data` = UNHEX(@data)
-			");
+				LOAD DATA LOCAL INFILE  '{$file}' IGNORE INTO TABLE `".DB_PREFIX."block_chain`
+				FIELDS TERMINATED BY '\t'
+				(`id`, @hash, @head_hash, @data)
+				SET `hash` = UNHEX(@hash),
+					   `head_hash` = UNHEX(@head_hash),
+					   `data` = UNHEX(@data)
+				");
+		debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+		debug_print($db->getAffectedRows(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 		unlink($file);
 		unlink($tmp_file_name);
 	}
