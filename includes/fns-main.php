@@ -2087,11 +2087,11 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."info_block`
-				SET  `hash` = 0x{$prev_block['hash']},
-						`head_hash` = 0x{$prev_block['head_hash']},
-						`block_id`= {$prev_block['block_id']},
-						`time`= {$prev_block['time']},
-						`level`= {$prev_block['level']},
+				SET  `hash` = 0x{$prev_block[$block_id]['hash']},
+						`head_hash` = 0x{$prev_block[$block_id]['head_hash']},
+						`block_id`= {$prev_block[$block_id]['block_id']},
+						`time`= {$prev_block[$block_id]['time']},
+						`level`= {$prev_block[$block_id]['level']},
 						`sent` = 0
 				");
 
