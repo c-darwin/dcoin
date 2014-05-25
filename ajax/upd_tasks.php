@@ -97,7 +97,8 @@ if (version_compare($cur_ver, '0.0.2b7') == -1) {
 			", 'array');
 
 	foreach($tables_array as $table) {
-		if (substr($table, 0, 3) != 'my_' && substr($table, 0, 3) != '_my' && $table!='install' && $table!='daemons') {
+		//if (substr($table, 0, 3) != 'my_' && substr($table, 0, 3) != '_my' && $table!='install' && $table!='daemons') {
+		if (!preg_match('/(my_|install|config|daemons)/i', $table)) {
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 					TRUNCATE TABLE `".DB_PREFIX."{$table}`
 					");
