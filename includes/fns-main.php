@@ -1802,6 +1802,8 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 {
 	global $db,  $variables;
 
+	debug_print('$block_id='.$block_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+
 	$blocks = array();
 	$count = 0;
 	do {
@@ -1841,7 +1843,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 		else
 			$url = "{$host}/{$get_block_script_name}?id={$block_id}{$add_node_host}";
 
-		debug_print($url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print($url, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 		$ch = curl_init();
 		curl_setopt($ch, CURLOPT_CONNECTTIMEOUT , 10);
 		curl_setopt($ch, CURLOPT_TIMEOUT, 60);
@@ -1861,12 +1863,12 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 		ParseData::string_shift($binary_block, 1); // уберем 1-й байт - тип (блок/тр-я)
 		// распарсим заголовок блока
 		$block_data = parse_block_header ($binary_block);
-		debug_print('$block_data:', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		//print_r_hex($block_data);
+		debug_print("block_data=".print_r_hex($block_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 
 		// если существуют глючная цепочка, тот тут мы её проигнорируем
 		$bad_blocks = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-				SELECT `bad_blocks` FROM `".DB_PREFIX."config`
+				SELECT `bad_blocks`
+				FROM `".DB_PREFIX."config`
 				" , 'fetch_one');
 		$bad_blocks = json_decode($bad_blocks, true);
 		debug_print('$bad_blocks='.print_r_hex($bad_blocks), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -1875,6 +1877,11 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			return "bad_block = {$block_data['block_id']}=>{$bad_blocks[$block_data['block_id']]}";
 		}
 
+		if ($block_data['block_id'] != $block_id) {
+			debug_print("bad block_data['block_id']", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+			clear_tmp($blocks);
+			return "bad block_data['block_id']";
+		}
 
 		// размер блока не может быть более чем max_block_size
 		if ( strlen($binary_block) > $variables['max_block_size'] ) {
@@ -1925,7 +1932,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 		// качаем предыдущие блоки до тех пор, пока отличается хэш предудущего.
 		// другими словами, пока подпись с $prev_block_hash будет неверной, т.е. пока что-то есть в $error
 		if ( !$error ) {
-			debug_print("===========Вилка найдена\nСошлись на блоке {$block_data['block_id']}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print("===========Вилка найдена\nСошлись на блоке {$block_data['block_id']}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 			break;
 		}
 
@@ -1996,7 +2003,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 	// проходимся по новым блокам
 	foreach ( $blocks as $int_block_id => $tmp_file_name ) {
 
-		debug_print("# # # проходимся по новым блокам\nblock_id={$int_block_id}\ntmp_file_name={$tmp_file_name}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print("# # # проходимся по новым блокам\nblock_id={$int_block_id}\ntmp_file_name={$tmp_file_name}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 
 		// проверяем и заносим данные
 		$binary_block = file_get_contents($tmp_file_name);
@@ -2014,6 +2021,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			$parsedata->prev_block['block_id'] = $prev_block[$int_block_id-1]['block_id'];
 		}
 		// если вернулась ошибка, значит переданный блок уже откатился
+		// info_block и config.my_block_id обновляются только если ошибки не было
 		$error = $parsedata->ParseDataFull();
 		// для последующей обработки получим хэши и time
 		if (!$error) $prev_block[$int_block_id] = $parsedata->GetBlockInfo();
@@ -2022,7 +2030,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 		// если есть ошибка, то откатываем все предыдущие блоки из новой цепочки
 		if ($error) {
 
-			debug_print("[error]={$error}\nесть ошибка,  откатываем все предыдущие блоки из новой цепочки\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print("[error]={$error}\nесть ошибка,  откатываем все предыдущие блоки из новой цепочки\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 
 			// баним на 1 час хост, который дал нам ложную цепочку;
 			nodes_ban ($db, $user_id, $error."\n".__FILE__.', '.__LINE__.', '. __FUNCTION__.', '.__CLASS__.', '. __METHOD__);
@@ -2042,7 +2050,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			}
 
 			// заносим наши данные из block_chain, которые были ранее
-			debug_print("заносим наши данные из block_chain, которые были ранее", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print("заносим наши данные из block_chain, которые были ранее", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 			$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 					SELECT *
 					FROM `".DB_PREFIX."block_chain`
@@ -2051,6 +2059,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			");
 			while ( $row = $db->fetchArray( $res ) ) {
 
+				debug_print('$block_id='.$block_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 				debug_print("[{$int_block_id}] ParseDataFull start\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				debug_print($row, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -2058,6 +2067,31 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 				$parsedata->ParseDataFull();
 				unset($parsedata);
 			}
+			// т.к. в предыдущем запросе к block_chain могло не быть данных, т.к. $block_id больше чем наш самый большой id в block_chain
+			// то значит info_block мог не обновится и остаться от занесения новых блоков, что приведет к пропуску блока в block_chain
+			$last_my_block = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+					SELECT *
+					FROM `".DB_PREFIX."block_chain`
+					ORDER BY `id` DESC
+					LIMIT 1
+					", 'fetch_array');
+			ParseData::string_shift($last_my_block['data'], 1); // уберем 1-й байт - тип (блок/тр-я)
+			$last_my_block_data = parse_block_header($last_my_block['data']);
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."info_block`
+					SET  `hash` = 0x".bin2hex($last_my_block['hash']).",
+							`head_hash` = 0x".bin2hex($last_my_block['head_hash']).",
+							`block_id`= {$last_my_block_data['block_id']},
+							`time`= {$last_my_block_data['time']},
+							`level`= {$last_my_block_data['level']},
+							`sent` = 0
+					");
+			debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."config`
+					SET `my_block_id` = {$last_my_block_data['block_id']}
+					");
 
 			clear_tmp($blocks);
 			return 'get_block error '.$error; // переходим к следующему блоку в queue_blocks
@@ -2072,9 +2106,19 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			FROM `".DB_PREFIX."block_chain`
 			WHERE `id` > {$block_id}
 			");
+	debug_print($db->getAffectedRows(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 	debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 	debug_print("blocks:".print_r_hex($blocks), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 	debug_print($prev_block, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+
+	// для поиска бага
+	$max_block_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `id`
+			FROM `".DB_PREFIX."block_chain`
+			ORDER BY `id` DESC
+			LIMIT 1
+			", 'fetch_one');
+	debug_print('$max_block_id='.$max_block_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 
 	// проходимся по новым блокам
 	foreach ( $blocks as $block_id => $tmp_file_name ) {
@@ -2094,6 +2138,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 						`level`= {$prev_block[$block_id]['level']},
 						`sent` = 0
 				");
+		debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 
 		// т.к. эти данные создали мы сами, то пишем их сразу в таблицу проверенных данных, которые будут отправлены другим нодам
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
@@ -2104,10 +2149,20 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 					   `head_hash` = UNHEX(@head_hash),
 					   `data` = UNHEX(@data)
 				");
-		debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 		debug_print($db->getAffectedRows(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+		debug_print($db->printsql(), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
 		unlink($file);
 		unlink($tmp_file_name);
+
+		// для поиска бага
+		$max_block_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `id`
+			FROM `".DB_PREFIX."block_chain`
+			ORDER BY `id` DESC
+			LIMIT 1
+			", 'fetch_one');
+		debug_print('$max_block_id='.$max_block_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, true);
+
 	}
 
 	debug_print("-------------------------HAPPY END ---------------------------", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
