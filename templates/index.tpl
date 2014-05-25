@@ -312,8 +312,8 @@
       <div class="navbar-inner">
         <div class="container">
           
-          <a class="brand" href="#">Dcoin</a>
-          <div>
+          <!--<a class="brand" href="#">Dcoin</a>--><img src="img/logo.png" style="float: left; padding-top: 5px; margin-right: 20px;">
+	        <div>
 
 	          <div style="float: left; width: 300px; height: 30px">
 			    <!-- Button to trigger modal -->

@@ -87,7 +87,7 @@ $('#send_to_net').bind('click', function () {
 				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
 			</fieldset>
 		</form>
-
+		<br>
 
 		<?php
 		if ($tpl['my_keys']) {
