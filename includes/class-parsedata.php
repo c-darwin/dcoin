@@ -2164,34 +2164,35 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	private function new_reduction()
 	{
 		$d = (100 - $this->tx_data['pct']) / 100;
+		if ( $this->tx_data['pct'] > 0 ) {
+			 // т.к. невозможо 2 отката подряд из-за промежутка в 14 дней между reduction,
+			// то можем использовать только бекап на 1 уровень назад вместо _log
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."wallets`
+					SET  `amount_backup` = `amount`,
+							`amount` = `amount`*({$d})
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
 
-		 // т.к. невозможо 2 отката подряд из-за промежутка в 14 дней между reduction,
-		// то можем использовать только бекап на 1 уровень назад вместо _log
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."wallets`
-				SET  `amount_backup` = `amount`,
-						`amount` = `amount`*({$d})
-				WHERE `currency_id` = {$this->tx_data['currency_id']}
-				");
+			// если бы не урезали amount, то пришлось бы делать пересчет tdc по всем, у кого есть данная валюта
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+					SET  `tdc_amount_backup` = `tdc_amount`,
+							`tdc_amount` = `tdc_amount`*({$d}),
+							`amount_backup` = `amount`,
+							`amount` = `amount`*({$d})
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
 
-		// если бы не урезали amount, то пришлось бы делать пересчет tdc по всем, у кого есть данная валюта
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."promised_amount`
-				SET  `tdc_amount_backup` = `tdc_amount`,
-						`tdc_amount` = `tdc_amount`*({$d}),
-						`amount_backup` = `amount`,
-						`amount` = `amount`*({$d})
-				WHERE `currency_id` = {$this->tx_data['currency_id']}
-				");
-
-		// все текущие cash_requests, т.е. по которым не прошло 2 суток
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."cash_requests`
-				SET  `del_block_id` = {$this->block_data['block_id']}
-				WHERE `currency_id` = {$this->tx_data['currency_id']} AND
-							`status` = 'pending' AND
-							`time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
-				");
+			// все текущие cash_requests, т.е. по которым не прошло 2 суток
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."cash_requests`
+					SET  `del_block_id` = {$this->block_data['block_id']}
+					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
+								`status` = 'pending' AND
+								`time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
+					");
+		}
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."reduction` (
@@ -2216,25 +2217,27 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 45
 	private function new_reduction_rollback()
 	{
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."wallets`
-				SET  `amount` = `amount_backup`,
-						`amount_backup` = 0
-				WHERE `currency_id` = {$this->tx_data['currency_id']}
-				");
+		if ( $this->tx_data['pct'] > 0 ) {
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."wallets`
+					SET  `amount` = `amount_backup`,
+							`amount_backup` = 0
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
 
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."promised_amount`
-				SET `tdc_amount` = `tdc_amount_backup`,
-					   `amount` = `amount_backup`
-				WHERE `currency_id` = {$this->tx_data['currency_id']}
-				");
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+					SET `tdc_amount` = `tdc_amount_backup`,
+						   `amount` = `amount_backup`
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
 
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."cash_requests`
-				SET  `del_block_id` = 0
-				WHERE `del_block_id` = {$this->block_data['block_id']}
-				");
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."cash_requests`
+					SET  `del_block_id` = 0
+					WHERE `del_block_id` = {$this->block_data['block_id']}
+					");
+		}
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."reduction`
