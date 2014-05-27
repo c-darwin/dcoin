@@ -5,7 +5,7 @@ http://democratic-coin.com
 How to become an anonymous Dcoin user
 ----------------
 1. Get the key for registration in the DC-network <a href="http://pool.democratic-coin.com/tools/available_keys.php">here</a> or from any miner.
-2. Visit any of the pools in your browser – for example, <a href="http://pool.democratic-coin.com/index.php">here</a> – or raise your node by setting <a href="https://github.com/c-darwin/dcoin">the source</a>.
+2. Visit any of the pools in your browser – for example, <a href="http://pool.democratic-coin.com/index.php">here</a> – or raise your node by setting the <a href="https://github.com/c-darwin/dcoin/archive/master.zip">source</a>.
 3. Enter the key you have for your account.
 4. Change the key under “Settings” – “Change primary key”. Be sure to save the new key. Wait for the status change to “Accepted”.
 5. Refresh your browser page and enter a new key with a password.
