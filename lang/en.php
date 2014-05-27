@@ -3,7 +3,7 @@
 $lng['wallet'] = 'Wallet';
 $lng['upgrade_to_miner'] = 'Upgrade to miner';
 $lng['geolocation'] = 'Location';
-$lng['inbox'] = 'Inbox request';
+$lng['inbox'] = 'Incoming requests';
 $lng['outgoing'] = 'Exchange for cash';
 $lng['holidays'] = 'Holidays';
 $lng['tasks'] = 'Tasks';
@@ -75,7 +75,7 @@ $lng['clear'] = 'Clear';
 $lng['back'] = 'Back';
 $lng['invites'] = 'Invites';
 $lng['video'] = 'Video';
-$lng['status_approved'] = 'Approved';
+$lng['status_approved'] = 'Accepted';
 $lng['status_pending'] = 'Pending';
 $lng['status_my_pending'] = 'During the addition of the network';
 $lng['status_mining'] = 'Mining';
@@ -130,9 +130,9 @@ $lng['current_geolocation'] = 'Current geolocation';
 $lng['change_geolocation'] = 'Change location';
 $lng['add_geolocation'] = 'Add geolocation';
 $lng['new_geolocation'] = 'New geolocation';
-$lng['geolocation_limits_text'] = 'Add new or change current: [limit] per [period]';
+$lng['geolocation_limits_text'] = 'You can’t add new location or change your current location more often than [limit] a [period]';
 $lng['your_location'] = 'Your location';
-$lng['location_alert'] = 'Attention! Change location automatically convert all your promised amount (except WOC) in a frozen state. To unfreeze them will need to undergo the procedure again adding each promised amount';
+$lng['location_alert'] = 'Attention! Change of your location will automatically freeze all your promised amounts (except WOC). To unfreeze them, you will need to undergo the procedure of adding each promised amount again';
 
 // geolocation_current
 $lng['geolocation_current_title'] = 'Current geolocation';
@@ -165,7 +165,7 @@ $lng['after_transfer'] = 'after transfer';
 $lng['cash_request_out_limits_text'] = 'Max [limit] requests per  [period]';
 $lng['including_commission'] = 'including commission';
 $lng['you_requests'] = 'your requests';
-$lng['approved'] = 'approved';
+$lng['approved'] = 'accepted';
 $lng['rejected'] = 'rejected';
 
 // tasks
@@ -196,22 +196,22 @@ $lng['no'] = 'No';
 // upgrade
 $lng['upgrade_title'] = 'Upgrade to miner';
 $lng['your_race'] = 'Your race';
-$lng['find_your_race'] = 'If you do not belong to any of the three races, just select the closest option. <br> Select a race as needed when checking for new miners, inspection easier to find inconsistencies in users of its race. <Br>';
+$lng['find_your_race'] = 'If you don’t belong to any of these three races, just choose the closest option. <br> You are kindly required to specify your race because it is easier for supervisor to find inconsistencies in users of their own race when verifying new miners. <Br>';
 $lng['country'] = 'Country';
-$lng['any_country'] = 'You can select the country from which you want to check on you miner was';
+$lng['any_country'] = 'You can select the country from which you want your verifying miner to originate from.';
 
-$lng['upload_2_photo'] = 'Upload 2 photo with your face';
-$lng['upload_2_photo_rules'] = '<ul> <li> photos must be cut at the edges, as in the examples </li> <li> head should place the file completely as examples </li> <li> impossible to smile or something else to change facial expressions </li> <li> hair must be removed, glasses removed </li> <li> size of 350x500px </li> <li> quality - clear as examples </li> </ul>';
-$lng['upload_face_video'] = 'Upload 1 video with your face';
-$lng['upload_face_video_rules'] = '<ul> <li> length should be between 10 to 15 seconds </li> <li> proportions person in the photo must be identical to the proportions of the face in the video </li> <li> head must place the file in full, as in the examples above </li> <li> you can not smile or otherwise change the face </li> <li> hair must be removed, glasses removed </li> <li> quality - the clear, as in the examples above </li> </ul>';
-$lng['upload_face_video_rules2'] = '<strong> The video should be: <br> </strong> <ol> <li> face front view </li> <li> turning your head to the left hand side </li> <li> turning your head to the side of the right hand </li> </ol>';
+$lng['upload_2_photo'] = 'Upload 2 images of your face';
+$lng['upload_2_photo_rules'] = '<ul> <li>images must be cut at the edges, as in the example</li> <li> the entire head should be seen, as in the example</li> <li>no smiling or other facial expressions that change your face allowed</li> <li> hair should be pulled back, glasses taken off  </li> <li> dimensions start from 350x500px </li> <li> quality – clear as in the example </li> </ul>';
+$lng['upload_face_video'] = 'Upload 1 video of your face';
+$lng['upload_face_video_rules'] = '<ul> <li>length of the video should be 10 to 15 seconds </li> <li> proportions of the face in the image must be identical to those of the face in the video  </li> <li> the entire head should be seen, as in the example above </li> <li> no smiling or other facial expressions that change your face allowed </li> <li> hair and glasses should be taken off  </li> <li> quality – clear as in the example </li> </ul>';
+$lng['upload_face_video_rules2'] = '<strong> The video should clearly show: <br> </strong> <ol> <li> face front view </li> <li> turning your head to the left hand side </li> <li> turning your head to the right hand side </li> </ol>';
 
 $lng['crop_img'] = 'Highlight the area on your photos<br> and click Save ';
-$lng['put_points_on_photo'] = 'Apply dots on your photos as examples';
-$lng['your_host'] = 'The host to which your node is available from the network';
+$lng['put_points_on_photo'] = 'Apply dots to your images as in the examples';
+$lng['your_host'] = 'The link which makes your node available from the web';
 $lng['save_and_goto_step_4'] = 'save and goto step 4';
 $lng['invalid_host'] = 'invalid host';
-$lng['host_example'] = '<em>Example: http://mybestnode.com/</em><br>domains or ipv4 available<br>http or https<br>any port<br>';
+$lng['host_example'] = '<em>Example: http://mybestnode.com/</em><br>domains or ipv4 are allowed<br>http or https<br>any port<br>';
 $lng['sending_data_to_net'] = 'Sending data to DC-network';
 $lng['upgrade_limit_text'] = 'Send the request to obtain the status of  "miner" can be no more than 10 times. So before you send a request, make sure that all data is correct.';
 
@@ -255,12 +255,12 @@ $lng['file_successfully_downloaded'] = 'file successfully downloaded';
 $lng['upgrade_resend_title'] = 'Resending data';
 
 // change primary key
-$lng['change_primary_key_title'] = 'Changing the master key';
-$lng['new_pass_for_key'] = 'Specify the new password for the new master key';
+$lng['change_primary_key_title'] = 'Change primary key';
+$lng['new_pass_for_key'] = 'Specify new password for your new primary key or leave the field blank if you don’t want to use a password';
 $lng['save_key'] = 'Save master key on the server for password authentication';
 $lng['block'] = 'Block';
-$lng['3_keys'] = 'Check this box if you have two keys that you have generated in third-party software and want to use them';
-$lng['change_primary_key_limits_text'] = 'Changing the master key is permissible - no more than [limit] times [period].';
+$lng['3_keys'] = 'Check this box if you have two keys generated by the third-party software and you want to use them';
+$lng['change_primary_key_limits_text'] = 'You can’t change the primary key more often than [limit] a [period].';
 $lng['your_new_key'] = 'Your new master key';
 $lng['your_new_key_rules'] = 'The new key will enter into force only after it will DC-network until the act is either the old master key.';
 $lng['your_public_keys_1'] = 'Your public_key 1';
@@ -276,28 +276,28 @@ $lng['notifications_title'] = 'SMS and email notifications';
 $lng['mail_problems'] = 'There are problems with sending mail?';
 $lng['hide_smtp'] = 'hide  SMTP';
 $lng['use_smtp'] = 'use SMTP';
-$lng['after_saving_changes_to_the_email'] = 'After saving changes to the "Email" certainly send a test email';
+$lng['after_saving_changes_to_the_email'] = 'After saving changes to “email” make sure to send a test email';
 $lng['send_test_email'] = 'Send a test email';
-$lng['after_saving_changes_to_the_sms'] = 'After saving changes to "SMS HTTP GET-request" certainly send a test sms';
+$lng['after_saving_changes_to_the_sms'] = 'After saving changes to “SMS HTTP GET-request” make sure to send a test SMS';
 $lng['send_a_test_sms'] = 'Send a test SMS';
-$lng['configuring_notifications'] = 'Configuring notifications';
+$lng['configuring_notifications'] = 'Notifications settings';
 $lng['sms_sent'] = 'SMS sent';
 $lng['mail_sent'] = 'letter sent';
 $lng['email_and_sms_change'] = 'e-mail and SMS HTTP GET-request to change';
 
-$lng['notifications_admin_messages']='Important message from the creator of DC-network';
-$lng['notifications_node_time']='Divergence time server for more than 5 seconds.';
-$lng['notifications_fc_came_from']='receipt of funds';
-$lng['notifications_fc_sent']='debit';
-$lng['notifications_incoming_cash_requests']='Incoming requests to exchange notes on DC';
-$lng['notifications_new_version']='Need to update the DC-engine';
-$lng['notifications_system_error']='System malfunction node';
-$lng['notifications_update_primary_key']='Change master-key';
-$lng['notifications_update_email']='change email';
-$lng['notifications_update_sms_request']='Change sms-request';
-$lng['notifications_voting_time']='It\'s been 2 weeks since your vote for %';
-$lng['notifications_voting_results']='Voting results for% for currencies available to you';
-$lng['notifications_change_in_status'] ='Changing the status of a "miner" to "user" or "semi-miner" (for example, non-compliance with assignments)';
+$lng['notifications_admin_messages']='Important message from the DC-network creator';
+$lng['notifications_node_time']='Divergence in server time exceeding 5 seconds';
+$lng['notifications_fc_came_from']='Receipt of funds';
+$lng['notifications_fc_sent']='Writing off of amounts';
+$lng['notifications_incoming_cash_requests']='Incoming requests to exchange DC for cash';
+$lng['notifications_new_version']='Necessity to update the DC-engine	';
+$lng['notifications_system_error']='System malfunction in node operation';
+$lng['notifications_update_primary_key']='Change of primary key';
+$lng['notifications_update_email']='Change of email';
+$lng['notifications_update_sms_request']='Change of SMS-request';
+$lng['notifications_voting_time']='2 weeks past you voted for %';
+$lng['notifications_voting_results']='Voting results on % for currencies you own';
+$lng['notifications_change_in_status'] ='Change of status from "miner" to "user" or "semi-miner" (for example, after nonfulfillment of tasks)';
 $lng['warn'] = 'Warning!';
 
 // node_config
@@ -309,7 +309,7 @@ $lng['out_connections'] = 'Total number of concurrent outbound connections';
 
 // change_host
 $lng['change_host_title'] = 'Change host';
-$lng['change_host_limits_text'] = 'Changing host no more than [limit] operations for [period]';
+$lng['change_host_limits_text'] = 'You can’t change host more often than [limit] times per [period]';
 
 // votes_pct
 $lng['votes_pct_title'] = 'Voting for interest';
@@ -381,10 +381,10 @@ $lng['install_php_path'] = 'Path to php';
 $lng['account_status'] = 'Account Status';
 $lng['you_can'] = 'You can';
 $lng['become_a_miner'] = 'become a miner';
-$lng['home_text'] = '1. Wait for obtaining the status of "User"<br>2. Wait until the blockchain upgraded <br>3. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Change primary-key</a><br>4. Make <a href="#" onclick="fc_navigate(\'upgrade\')">upgrade to miner </a><br>5. Add <a href="#" onclick="fc_navigate(\'promised_amount_list\')">promised amount </a><Br>6. Adjust <a href="#" onclick="fc_navigate(\'notifications\')">notice</a><br>7. Set <a href="#" onclick="fc_navigate(\'change_commission\')">the commission</a> you want to receive <br>8. Periodically perform <a href="#" onclick="fc_navigate(\'tasks\')">tasks</a> by checking other miners<br>';
+$lng['home_text'] = '1. Wait until the status upgrades to "User"<br>2. Wait until the block chain upgrades  <br>3. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Change your primary key</a><br>4. <a href="#" onclick="fc_navigate(\'upgrade\')">Upgrade to miner</a><br>5. Add <a href="#" onclick="fc_navigate(\'promised_amount_list\')">promised amount </a><Br>6. Customize <a href="#" onclick="fc_navigate(\'notifications\')">notifications</a><br>7. Set the <a href="#" onclick="fc_navigate(\'change_commission\')">commission</a> you want to charge <br>8.  Perform <a href="#" onclick="fc_navigate(\'tasks\')">tasks</a> on verifying other miners from time to time<br>';
 $lng['script_version'] = 'v. [ver]';
 $lng['downloading_blocks'] = 'Downloading block chain, please wait before continuing';
-$lng['downloading_complete'] = 'Block chain is up-to-date, DCoin is ready to use';
+$lng['downloading_complete'] = 'Block chain is updated, DCoin is ready to use';
 $lng['number_of_blocks'] = 'Number of blocks in block chain';
 $lng['time_last_block'] = 'Time of the last block';
 
@@ -413,9 +413,9 @@ $lng['change_country_race_title'] = 'Change country and race';
 // points
 $lng['points'] = 'Points';
 $lng['points_status'] = 'Change of status from points';
-$lng['points_min'] = 'Current minimum number of points to get the status "miner"';
-$lng['points_yours'] = 'Your number of points';
-$lng['points_votes'] = 'Over the past 4 weeks did you vote for';
+$lng['points_min'] = 'The current minimum number of points required to get "miner" status';
+$lng['points_yours'] = 'Your score';
+$lng['points_votes'] = 'Voting within the past 4 weeks';
 
 // start_stop
 $lng['start_stop_title'] = 'Start/Stop';
