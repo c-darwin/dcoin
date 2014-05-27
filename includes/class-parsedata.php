@@ -2067,7 +2067,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// Эту транзакцию имеет право генерить только нод, который генерит данный блок
 	// подписана нодовским ключом.
 	// 45
-	private function new_reduction_init()
+	function new_reduction_init()
 	{
 		$error = $this->get_tx_data(array('currency_id', 'pct', 'sign'));
 		if ($error) return $error;
@@ -2076,7 +2076,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 45
-	private function new_reduction_front()
+	function new_reduction_front()
 	{
 		global $reduction_dc;
 
@@ -2161,7 +2161,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 45
-	private function new_reduction()
+	function new_reduction()
 	{
 		$d = (100 - $this->tx_data['pct']) / 100;
 		if ( $this->tx_data['pct'] > 0 ) {
@@ -2210,12 +2210,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 45
-	private function new_reduction_rollback_front() {
+	function new_reduction_rollback_front() {
 
 	}
 
 	// 45
-	private function new_reduction_rollback()
+	function new_reduction_rollback()
 	{
 		if ( $this->tx_data['pct'] > 0 ) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
