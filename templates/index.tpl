@@ -331,9 +331,9 @@
 
 				</div>
 
-				  <div style="padding-top: 10px;padding-right: 15px; float: left"><a href="#" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</a></div>
+				  <!--<div style="padding-top: 10px;padding-right: 15px; float: left"><a href="#" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</a></div>-->
 
-		          <div style="padding-top: 10px; float: left"><a href="mailto: dcoin@hotmail.com">dcoin@hotmail.com</a></div>
+		          <div style="padding-top: 10px; float: left"><a href="mailto: c-darwin@hotmail.com">c-darwin@hotmail.com</a></div>
 
 	          </div>
 	          <div id="bar_alert" style="display: none"><a href="#" onclick="fc_navigate('cash_requests_in')"><img src="img/alert.png"></a></div>
