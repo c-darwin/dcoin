@@ -116,8 +116,8 @@ $lng['max_other_currencies'] = 'Max other currencies';
 // promised_amount_add
 $lng['promised_amount_add_title'] = 'New promised amount';
 $lng['bill_has_been_added'] = 'promised amount has been added';
-$lng['promised_amount_add_video_text'] = 'Record video in which you say, "I promise to give <span id="promised_amount"></span> <span id="promised_amount_currency_full_name"></span> in exchange for  <span id="promised_amount2"></span> D<span id="promised_amount_currency_name"></span>"';
-$lng['promised_amount_payment_systems'] = 'If you have the opportunity to pay the promised amount using the transfer for any payment system, you can mark it; - if not, just leave gaps';
+$lng['promised_amount_add_video_text'] = 'Record video of you saying "I promise to give <span id="promised_amount"></span> <span id="promised_amount_currency_full_name"></span> in exchange for  <span id="promised_amount2"></span> D<span id="promised_amount_currency_name"></span>"';
+$lng['promised_amount_payment_systems'] = 'If you can pay the promised amount via the transfer from any payment system, you can mark it; otherwise just leave gaps';
 
 // tfc-fc
 $lng['mining_text'] = 'mining_text';
