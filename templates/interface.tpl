@@ -25,8 +25,10 @@
 			    </select>
 		    </div>
 	    </div>
-
 		<button class="btn" id="save"><?php echo $lng['save']?></button>
+		<br><br>
+
+	    <button class="btn" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</button> <button class="btn" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</button>
 
     </div>
 
