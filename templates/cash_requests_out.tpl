@@ -81,7 +81,7 @@ var map;
 var currency_name;
 var currency_id;
 var payment_system;
-
+var min;
 var currency_data = '{<?php print $tpl['json_currency_wallets']?>}';
 currency_data = JSON.parse(currency_data);
 
@@ -125,13 +125,15 @@ $('#show_map').bind('click', function () {
 								e.stopPropagation();
 								e.preventDefault();
 							}
-
+							console.log('amount='+amount);
 							min = amount/<?php echo $tpl['min_promised_amount']?>;
+							console.log('min='+min);
 							min = min.toFixed(2);
 							if (min<0.01)
 							  min =  0.01;
-							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min.toFixed(2)+'<br>max:'+amount);
-							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min.toFixed(2)+'<br>max:'+amount);
+							console.log('min='+min);
+							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min+'<br>max:'+amount);
+							infowindow.setContent('User ID: '+user_id+'<input type="hidden" id="find_user_id" value="'+user_id+'"><br>min:<Br>'+min+'<br>max:'+amount);
 							$("#to_user_id").text(user_id);
 							$('#send_amount').val(min);
 							$("#amount_due").text(min);
