@@ -1242,11 +1242,23 @@ class testblock {
 				$block_id = $this->prev_block['block_id'] - $i;
 				if ($block_id < 1)
 					break;
-				$entropy = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+
+				// bug fixed
+				//if ($this->prev_block['block_id']>10) {
+					$new_head_hash = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+							SELECT LOWER(HEX(`head_hash`)) as `head_hash`
+							FROM `".DB_PREFIX."block_chain`
+							WHERE `id` = {$block_id}
+							", 'fetch_one' );
+					$entropy = self::get_entropy($new_head_hash);
+				/*}
+				else {
+					$entropy = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 						SELECT `head_hash`
 						FROM `".DB_PREFIX."block_chain`
 						WHERE `id` = {$block_id}
 						", 'fetch_one' );
+				}*/
 			}
 			debug_print('$entropy='.$entropy, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			debug_print('$max_miner_id='.$max_miner_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
