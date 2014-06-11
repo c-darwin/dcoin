@@ -169,7 +169,7 @@ $lng['rejected'] = 'Сделка отклонена';
 
 // tasks
 $lng['tasks_title'] = 'Задания';
-$lng['tasks_title_new_miner'] = 'Проверка нового майнера';
+$lng['tasks_title_new_miner'] = 'Проверка претендента в майнеры';
 $lng['tasks_new_miner_spots'] = 'Проверьте расположение точек на фото';
 $lng['tasks_new_miner_clones'] = 'Поиск клонов';
 $lng['tasks_new_miner_video'] = 'На фото и на видео должно быть идентичное лицо';
