@@ -58,7 +58,7 @@
 	
 	</textarea><br>
 
-	<button class="btn btn-success" onclick="send_to_net()"><?php echo $lng['send_to_net']?></button>
+	<button class="btn btn-success" id="send_to_net"><?php echo $lng['send_to_net']?></button>
 	
 	<script>
 		doSign();
