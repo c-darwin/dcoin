@@ -35,8 +35,8 @@
 	<tr><td>db_name</td><td><input type="text" id="mysql_db_name" value="<?php echo $tpl['mysql_db_name']?>"></td></tr>
 	<tr><td>username</td><td><input type="text" id="mysql_username" value="<?php echo $tpl['mysql_username']?>"></td></tr>
 	<tr><td>password</td><td><input type="password" id="mysql_password" value=""></td></tr>
-	<tr><td>pool_data (if present)</td><td><textarea id="pool_data"></textarea></td></tr>
-	<tr><td>pool_admin_user_id (if present)</td><td><input type="text" id="pool_admin_user_id" value=""></td></tr>
+	<tr><td>pool_data (<?php echo $lng['if_present'] ?>)</td><td><textarea id="pool_data"></textarea></td></tr>
+	<tr><td>pool_admin_user_id (<?php echo $lng['if_present'] ?>)</td><td><input type="text" id="pool_admin_user_id" value=""></td></tr>
 	<tr><td colspan="2"><button id="next" class="btn btn-success"><?php echo $lng['next']?></button></td></tr>
 
 
