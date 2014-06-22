@@ -893,6 +893,15 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
+		case 'actualization_promised_amounts' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				encode_length(strlen($user_id)) . $user_id .
+				$bin_signatures;
+
+			break;
+
 		case 'change_commission' :
 
 			$commission = $_REQUEST['commission'];
