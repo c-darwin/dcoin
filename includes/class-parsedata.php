@@ -20,7 +20,53 @@ define( 'USD_CURRENCY_ID', 71 );
 define( 'NODE_KEY_UPD_TIME', 3600*24*7 );
 
 // на какое время баним нода, давшего нам плохие данные
-define( 'NODE_BAN_TIME', 600 );
+define( 'NODE_BAN_TIME', 3600 );
+
+// кол-во удовлетворенных запросов на наличные за последние X часов
+define( 'AUTO_REDUCTION_CASH_PERIOD', 3600*48 );
+
+// на сколько % автоматически урезаем денежную массу
+define( 'AUTO_REDUCTION_PCT', 10 );
+
+$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+// для локальных тестов
+if (isset($ini_array['local']['local'])) {
+	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 1 );
+	define( 'AUTO_REDUCTION_CASH_MIN', 1 );
+	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_PCT', 2 ); // X*100%
+	define( 'AUTO_REDUCTION_CASH_PCT', 0.5 );
+	define( 'AUTO_REDUCTION_PERIOD', 120 );
+	define( 'limit_actualization', 1 );
+	define( 'limit_actualization_period', 300 );
+}
+else {
+	//  есть ли хотябы X юзеров, у которых на кошелках есть от 0.01 данной валюты
+	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 1000 );
+	//define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 1 );
+
+	// урезание возможно только если запросов наличных за 48 часа было более X
+	define( 'AUTO_REDUCTION_CASH_MIN', 1000 );
+	//define( 'AUTO_REDUCTION_CASH_MIN', 1 );
+
+	// сколько должно быть процентов PROMISED_AMOUNT от кол-ва DC на кошельках, чтобы запустилось урезание
+	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_PCT', 1 ); // X*100%
+	//define( 'AUTO_REDUCTION_PROMISED_AMOUNT_PCT', 2); // X*100%
+
+	// если кол-во удовлетворенных запросов менее чем X*100% от общего кол-вав
+	define( 'AUTO_REDUCTION_CASH_PCT', 0.3 );
+	//define( 'AUTO_REDUCTION_CASH_PCT', 0.5 );
+
+	// через сколько можно делать следующее урезание.
+	// важно учитывать то, что не должно быть роллбеков дальше чем на 1 урезание
+	// т.к. при урезании используется backup в этой же табле вместо отдельной таблы log_
+	define( 'AUTO_REDUCTION_PERIOD', 3600*48 );
+	//define( 'AUTO_REDUCTION_PERIOD', 120 );
+
+	define( 'limit_actualization', 1 );
+	define( 'limit_actualization_period', 3600*24*7 );
+}
+
+
 
 $reduction_dc = array(0,10,25,50,90);
 
@@ -280,7 +326,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			26 => 'abuses',
 			// майнер хочет, чтобы в указанные дни ему не приходили запросы на обмен DC
 			27 => 'new_holidays',
-			28 => '__________________',
+			28 => 'actualization_promised_amounts',
 			29 => 'mining',
 			// Голосование нода за фото нового майнера
 			30 => 'votes_node_new_miner',
@@ -321,7 +367,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return array_search($type, self::$MainArray);
 	}
 
-	private function DataPre()
+	function DataPre()
 	{
 		$this->block_hash_hex = hash ( 'sha256', hash ( 'sha256', $this->binary_data ) );
 
@@ -754,7 +800,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $profit;
 	}
 
-	private function check_miner ($user_id) {
+	function check_miner ($user_id) {
 
 		$add_sql = '';
 
@@ -832,7 +878,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
         return $length;
     }
 
-	private function pp_length ($p1, $p2) {
+	function pp_length ($p1, $p2) {
 
 		return sqrt( pow ( ($p1[0]-$p2[0]), 2) + pow ( ($p1[1]-$p2[1]), 2) );
 	}
@@ -861,7 +907,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function get_my_miners_ids()
+	function get_my_miners_ids()
 	{
 		$collective = get_community_users($this->db);
 		if ($collective) {// если работаем в пуле
@@ -881,7 +927,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $my_miners_ids;
 	}
 
-	private function get_my_user_id($user_id)
+	function get_my_user_id($user_id)
 	{
 		$this->my_user_id = 0;
 		$this->my_prefix = '';
@@ -912,7 +958,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_one');
 	}
 
-	private function getUserStatus($user_id) {
+	function getUserStatus($user_id) {
 
 		$user_status = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `status`
@@ -1025,7 +1071,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 
-	private function parse_transaction (&$transaction_binary_data) {
+	function parse_transaction (&$transaction_binary_data) {
 
 		$return_array = array();
 		$tx_data = array();
@@ -1075,7 +1121,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function general_rollback( $table, $where_user_id='', $add_where = '', $A_I = false ) {
+	function general_rollback( $table, $where_user_id='', $add_where = '', $A_I = false ) {
 
 		$where = ($where_user_id?"WHERE `user_id` = {$where_user_id}":'');
 
@@ -1152,7 +1198,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	/*
 	 * Начисляем новые DC юзеру, пересчитав ему % от того, что уже было на кошельке
 	 * */
-	private function update_recipient_wallet ( $to_user_id, $currency_id, $amount, $from='', $from_id='', $comment='', $comment_status='encrypted' )
+	function update_recipient_wallet ( $to_user_id, $currency_id, $amount, $from='', $from_id='', $comment='', $comment_status='encrypted' )
 	{
 
 		$from_id = intval($from_id);
@@ -1271,7 +1317,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function update_sender_wallet($from_user_id, $currency_id, $amount, $commission, $from, $from_id, $to_user_id, $comment, $comment_status)
+	function update_sender_wallet($from_user_id, $currency_id, $amount, $commission, $from, $from_id, $to_user_id, $comment, $comment_status)
 	{
 
 		$from_id = intval($from_id);
@@ -1392,7 +1438,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 
-	private function general_check_admin() {
+	function general_check_admin() {
 
 		if ( !check_input_data ($this->tx_data['user_id'], 'admin_id') )
 			return 'error admin_id';
@@ -1426,7 +1472,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// общая проверка для всех _front кроме new_user_front
-	private function general_check()
+	function general_check()
 	{
 		debug_print( $this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -1468,7 +1514,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	 * чтобы получить новый набор майнеров,
 	 * которые должны сохранить фото у себя
 	 */
-	private function new_miner_update_init()
+	function new_miner_update_init()
 	{
 		$error = $this->get_tx_data(array('sign'));
 		if ($error) return $error;
@@ -1477,7 +1523,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 31
-	private function new_miner_update_front()
+	function new_miner_update_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -1525,7 +1571,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 31
-	private function new_miner_update()
+	function new_miner_update()
 	{
 		// отменяем голосования по всем предыдущим
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -1564,13 +1610,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 31
-	private function new_miner_update_rollback_front()
+	function new_miner_update_rollback_front()
 	{
 		$this->limit_requests_rollback('votes_miners');
 	}
 
 	// 31
-	private function new_miner_update_rollback() {
+	function new_miner_update_rollback() {
 
 		// отменяем отмену голосования
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -1593,14 +1639,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->rollbackAI('votes_miners');
 	}
 
-	private function new_max_promised_amounts_init()
+	function new_max_promised_amounts_init()
 	{
 		$error = $this->get_tx_data(array('new_max_promised_amounts', 'sign'));
 		if ($error) return $error;
 		$this->variables = self::get_all_variables($this->db);
 	}
 
-	private function new_max_promised_amounts_front()
+	function new_max_promised_amounts_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -1690,7 +1736,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function new_max_promised_amounts()
+	function new_max_promised_amounts()
 	{
 		$new_max_promised_amounts = json_decode($this->tx_data['new_max_promised_amounts'], true);
 		debug_print($new_max_promised_amounts, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -1712,12 +1758,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function new_max_promised_amounts_rollback_front()
+	function new_max_promised_amounts_rollback_front()
 	{
 
 	}
 
-	private function new_max_promised_amounts_rollback()
+	function new_max_promised_amounts_rollback()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."max_promised_amounts`
@@ -1727,14 +1773,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->rollbackAI('max_promised_amounts', $AffectedRows);
 	}
 
-	private function new_max_other_currencies_init()
+	function new_max_other_currencies_init()
 	{
 		$error = $this->get_tx_data(array('new_max_other_currencies', 'sign'));
 		if ($error) return $error;
 		$this->variables = self::get_all_variables($this->db);
 	}
 
-	private function new_max_other_currencies_front()
+	function new_max_other_currencies_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -1815,7 +1861,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'new_max_other_currencies error';
 	}
 
-	private function new_max_other_currencies()
+	function new_max_other_currencies()
 	{
 		$new_max_other_currencies = json_decode($this->tx_data['new_max_other_currencies'], true);
 		foreach ($new_max_other_currencies as $currency_id => $count) {
@@ -1856,12 +1902,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					)");
 	}
 
-	private function new_max_other_currencies_rollback_front()
+	function new_max_other_currencies_rollback_front()
 	{
 
 	}
 
-	private function new_max_other_currencies_rollback()
+	function new_max_other_currencies_rollback()
 	{
 		$new_max_other_currencies = json_decode($this->tx_data['new_max_other_currencies'], true);
 		krsort ($new_max_other_currencies);
@@ -1907,7 +1953,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// Эту транзакцию имеет право генерить только нод, который генерит данный блок
 	// подписана нодовским ключом
 	// 33
-	private function new_pct_init()
+	function new_pct_init()
 	{
 		$error = $this->get_tx_data(array('new_pct', 'sign'));
 		if ($error) return $error;
@@ -1916,7 +1962,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 33
-	private function new_pct_front()
+	function new_pct_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -1936,24 +1982,35 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if  ( !$this->node_public_key )
 			return 'error user_id';
 
+		$new_pct_tx = json_decode($this->tx_data['new_pct'], true);
+		if (!$new_pct_tx)
+			return 'error $new_pct_tx';
+
+		// раньше не было рефских
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=77951) {
+			$new_pct_tx['currency'] = $new_pct_tx;
+		}
+		else {
+			if (!isset($new_pct_tx['currency'], $new_pct_tx['referral']))
+				return 'error currency referral';
+		}
+
+		if (!is_array($new_pct_tx['currency']))
+			return 'error $new_pct_tx[currency])';
+
 		// проверим, верно ли указаны ID валют
-		preg_match_all ( '/\"(\d{1,3})\"/', $this->tx_data['new_pct'], $currency_list);
-		//print_r($currency_list);
 		$currency_ids_sql = '';
 		$count_currency = 0;
-		foreach($currency_list[1] as $id) {
+		foreach($new_pct_tx['currency'] as $id=>$_data) {
 			$currency_ids_sql.=$id.',';
 			$count_currency++;
 		}
-		$currency_ids_sql = substr($currency_ids_sql, 0, strlen($currency_ids_sql)-1);
-
-		////print $currency_ids_sql;
+		$currency_ids_sql = substr($currency_ids_sql, 0, -1);
 		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(`id`)
 				FROM `".DB_PREFIX."currency`
 				WHERE `id` IN ({$currency_ids_sql})
 				", 'fetch_one' );
-		////print $this->db->printsql();
 		if ( $count != $count_currency )
 			return 'error count_currency';
 
@@ -1994,16 +2051,39 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		debug_print( $pct_votes, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+		$new_pct = array();
 		foreach ( $pct_votes as $currency_id => $data ) {
 			$pct_arr = ParseData::makePctArray($data['miner_pct']);
 			$key = get_max_vote($pct_arr, 0, 1000, 100);
-			$new_pct[$currency_id]['miner_pct'] = ParseData::getPctValue($key);
+			$new_pct['currency'][$currency_id]['miner_pct'] = ParseData::getPctValue($key);
 
 			$pct_arr = ParseData::makePctArray($data['user_pct']);
 			$key = get_max_vote($pct_arr, 0, 1000, 100);
-			$new_pct[$currency_id]['user_pct'] = ParseData::getPctValue($key);
+			$new_pct['currency'][$currency_id]['user_pct'] = ParseData::getPctValue($key);
 		}
 
+
+		// раньше не было рефских
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=77951) {
+			$new_pct = $new_pct['currency'];
+		}
+		else {
+			$ref_levels = array('first', 'second', 'third');
+			for ($i=0; $i<sizeof($ref_levels); $i++) {
+				$level = $ref_levels[$i];
+				$votes_referral = array();
+				// берем все голоса
+				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `{$level}`,
+									  count(`user_id`) as `votes`
+						FROM `".DB_PREFIX."votes_referral`
+						GROUP BY  `{$level}`
+						");
+				while ( $row = $this->db->fetchArray( $res ) )
+					$votes_referral[$row[$level]] = $row['votes'];
+				$new_pct['referral'][$level] = get_max_vote($votes_referral, 0, 30, 10);
+			}
+		}
 		debug_print( $new_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$json_data = json_encode($new_pct);
@@ -2015,18 +2095,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 33
-	private function new_pct() {
+	function new_pct()
+	{
+		$new_pct_data = json_decode($this->tx_data['new_pct'], true);
+		if ($this->block_data['block_id']<=77951) {
+			$new_pct_data['currency'] = $new_pct_data;
+		}
 
-		/*$pct_values = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `pct_year`,
-							 `pct_sec`
-				FROM `".DB_PREFIX."pct_values`
-				",	'list', array('pct_year', 'pct_sec'));*/
-
-		$new_pct = json_decode($this->tx_data['new_pct'], true);
-		//print_r($new_pct);
-
-		foreach ($new_pct as $currency_id => $data) {
+		foreach ($new_pct_data['currency'] as $currency_id => $data) {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."pct` (
 					`time`,
@@ -2034,7 +2110,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					`miner`,
 					`user`,
 					`block_id`
-				) VALUES (
+				)
+				VALUES (
 					{$this->block_data['time']},
 					{$currency_id},
 					{$data['miner_pct']},
@@ -2043,15 +2120,22 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				)");
 		}
 
+		if ($this->block_data['block_id'] > 77951) {
+			$this->selective_logging_and_upd (array('first', 'second', 'third'), array($new_pct_data['referral']['first'], $new_pct_data['referral']['second'], $new_pct_data['referral']['third']), 'referral');
+		}
 	}
 
 	// 33
-	private function new_pct_rollback_front() {
-
+	function new_pct_rollback_front()
+	{
 	}
 
 	// 33
-	private function new_pct_rollback() {
+	function new_pct_rollback()
+	{
+		if ($this->block_data['block_id'] > 77951) {
+			$this->selective_rollback (array('first', 'second', 'third'), 'referral');
+		}
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."pct`
@@ -2060,16 +2144,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$AffectedRows = $this->db->getAffectedRows();
 		debug_print( '$AffectedRows='.$AffectedRows, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$this->rollbackAI('pct', $AffectedRows);
-
 	}
-
 
 	// Эту транзакцию имеет право генерить только нод, который генерит данный блок
 	// подписана нодовским ключом.
 	// 45
 	function new_reduction_init()
 	{
-		$error = $this->get_tx_data(array('currency_id', 'pct', 'sign'));
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 85849)
+			$error = $this->get_tx_data(array('currency_id', 'pct', 'sign'));
+		else
+			$error = $this->get_tx_data(array('currency_id', 'pct', 'reduction_type', 'sign'));
+
 		if ($error) return $error;
 		$this->variables = self::get_all_variables($this->db);
 		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -2094,6 +2180,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !in_array($this->tx_data['pct'], $reduction_dc) )
 			return 'error pct';
 
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 85849) {
+			// для всех тр-ий из старых блоков просто присваем manual, т.к. там не было других типов
+			$this->tx_data['reduction_type'] = 'manual';
+		}
+		else {
+			if ( !check_input_data ($this->tx_data['reduction_type'], 'reduction_type') )
+				return 'error reduction_type';
+		}
+
 		// получим public_key
 		$this->node_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `node_public_key`
@@ -2112,52 +2207,143 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'error currency';
 
 		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['pct']}";
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 85849)
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['pct']}";
+		else
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['pct']},{$this->tx_data['reduction_type']}";
 		$error = self::checkSign ($this->node_public_key, $for_sign, $this->tx_data['sign'], true);
 		if ($error)
 			return $error;
 
-		// проверим, прошло ли 2 недели с момента последнего reduction
-		$pct_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		$reduction_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT max(`time`)
 				FROM `".DB_PREFIX."reduction`
 				WHERE `currency_id` = {$this->tx_data['currency_id']}
 				", 'fetch_one' );
-		if ( $this->tx_data['time'] - $pct_time <= $this->variables['reduction_period'] )
-			return 'reduction_period error ('.($this->tx_data['time'] - $pct_time).' <= '.$this->variables['reduction_period'].')';
+		// проверим, прошло ли 2 недели с момента последнего reduction
+		if ($this->tx_data['reduction_type'] == 'manual') {
+			if ( $this->tx_data['time'] - $reduction_time <= $this->variables['reduction_period'] )
+				return 'reduction_period error ('.($this->tx_data['time'] - $reduction_time).' <= '.$this->variables['reduction_period'].')';
+		}
+		else {
+			// или 48 часов, если это авто-урезание
+			if ( $this->tx_data['time'] - $reduction_time <= AUTO_REDUCTION_PERIOD )
+				return 'reduction_period error ('.($this->tx_data['time'] - $reduction_time).' <= '.AUTO_REDUCTION_PERIOD.')';
+		}
 
-		// получаем кол-во обещанных сумм у разных юзеров по каждой валюте. start_time есть только у тех, у кого статус mining/repaid
-		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `currency_id`, count(`user_id`) as `count`
-				FROM (
-						SELECT `currency_id`, `user_id`
-						FROM `".DB_PREFIX."promised_amount`
-						WHERE `start_time` < ".($this->tx_data['time'] - $this->variables['min_hold_time_promise_amount'])."  AND
-									 `del_block_id` = 0 AND
-									 `status` IN ('mining', 'repaid')
-						GROUP BY  `user_id`, `currency_id`
-						) as t1
-				GROUP BY  `currency_id`
-				");
-		while ( $row = $this->db->fetchArray( $res ) )
-			$promised_amount[$row['currency_id']] = $row['count'];
+		if ($this->tx_data['reduction_type'] == 'manual') {
+			// получаем кол-во обещанных сумм у разных юзеров по каждой валюте. start_time есть только у тех, у кого статус mining/repaid
+			$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `currency_id`, count(`user_id`) as `count`
+					FROM (
+							SELECT `currency_id`, `user_id`
+							FROM `".DB_PREFIX."promised_amount`
+							WHERE `start_time` < ".($this->tx_data['time'] - $this->variables['min_hold_time_promise_amount'])."  AND
+										 `del_block_id` = 0 AND
+										 `del_mining_block_id` = 0 AND
+										 `status` IN ('mining', 'repaid')
+							GROUP BY  `user_id`, `currency_id`
+							) as t1
+					GROUP BY  `currency_id`
+					");
+			while ( $row = $this->db->fetchArray( $res ) )
+				$promised_amount[$row['currency_id']] = $row['count'];
 
-		debug_print('$promised_amount_:'.print_r_hex($promised_amount), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print('$promised_amount_:'.print_r_hex($promised_amount), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		if (empty($promised_amount[$this->tx_data['currency_id']]))
-			return 'empty promised_amount';
+			if (empty($promised_amount[$this->tx_data['currency_id']]))
+				return 'empty promised_amount';
 
-		// берем все голоса юзеров по данной валюте
-		$count_votes = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT count(`currency_id`) as `votes`
-				FROM `".DB_PREFIX."votes_reduction`
-				WHERE `time` > ".($this->tx_data['time'] - $this->variables['reduction_period'])." AND
-							 `currency_id` = {$this->tx_data['currency_id']} AND
-							 `pct` = {$this->tx_data['pct']}
-				", 'fetch_one');
-		if ($count_votes <= $promised_amount[$this->tx_data['currency_id']] / 2)
-			return 'error count_votes ('.$count_votes.' <= '.($promised_amount[$this->tx_data['currency_id']] / 2).')';
+			// берем все голоса юзеров по данной валюте
+			$count_votes = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT count(`currency_id`) as `votes`
+					FROM `".DB_PREFIX."votes_reduction`
+					WHERE `time` > ".($this->tx_data['time'] - $this->variables['reduction_period'])." AND
+								 `currency_id` = {$this->tx_data['currency_id']} AND
+								 `pct` = {$this->tx_data['pct']}
+					", 'fetch_one');
+			if ($count_votes <= $promised_amount[$this->tx_data['currency_id']] / 2)
+				return 'error count_votes ('.$count_votes.' <= '.($promised_amount[$this->tx_data['currency_id']] / 2).')';
+		}
+		/*else if ($this->tx_data['reduction_type'] == 'cash') {
 
+			// и недопустимо для WOC
+			if ($this->tx_data['currency_id'] == 1)
+				return 'WOC AUTO_REDUCTION_CASH';
+
+			// получаем кол-во запросов на наличные за последние 48 часов
+			$all_cash_requests = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT count(`id`)
+					FROM `".DB_PREFIX."cash_requests`
+					WHERE `time` > ".($this->tx_data['time'] - AUTO_REDUCTION_CASH_PERIOD)." AND
+								 `del_block_id` = 0 AND
+								 `currency_id` = {$this->tx_data['currency_id']}
+					", 'fetch_one');
+
+			// урезание возможно только если за 48 часов есть более 1000 запросов на наличные по данной валюте
+			if ($all_cash_requests < AUTO_REDUCTION_CASH_MIN)
+				return '$all_cash_requests < '.AUTO_REDUCTION_CASH_MIN;
+
+			// получаем кол-во удовлетворенных запросов на наличные за последние 48 часов
+			$approved_cash_requests = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT count(`id`)
+					FROM `".DB_PREFIX."cash_requests`
+					WHERE `time` > ".($this->tx_data['time'] - AUTO_REDUCTION_CASH_PERIOD)." AND
+								 `del_block_id` = 0 AND
+								 `status` = 'approved' AND
+								 `currency_id` = {$this->tx_data['currency_id']}
+					", 'fetch_one');
+			// если кол-во удовлетворенных запросов менее чем 30% от общего кол-ва, то всё норм, если нет - ошибка
+			if ( $approved_cash_requests >= $all_cash_requests * AUTO_REDUCTION_CASH_PCT ) {
+				return $approved_cash_requests.' >= '.$all_cash_requests.' * '.AUTO_REDUCTION_CASH_PCT.'';
+			}
+		}*/
+		else if ($this->tx_data['reduction_type'] == 'promised_amount') {
+
+			// и недопустимо для WOC
+			if ($this->tx_data['currency_id'] == 1)
+				return 'WOC AUTO_REDUCTION_CASH';
+
+			// проверим, есть ли хотябы 1000 юзеров, у которых на кошелках есть или была данная валюты
+			$count_users = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT count(`user_id`)
+					FROM `".DB_PREFIX."wallets`
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					", 'fetch_one');
+			if ($count_users < AUTO_REDUCTION_PROMISED_AMOUNT_MIN) {
+				return $count_users.' < AUTO_REDUCTION_PROMISED_AMOUNT_MIN';
+			}
+
+			// получаем кол-во DC на кошельках
+			$sum_wallets = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT sum(`amount`)
+					FROM `".DB_PREFIX."wallets`
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					", 'fetch_one');
+
+			// получаем кол-во TDC на обещанных суммах
+			$sum_promised_amount_tdc = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT sum(`tdc_amount`)
+					FROM `".DB_PREFIX."promised_amount`
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					", 'fetch_one');
+			$sum_wallets += $sum_promised_amount_tdc;
+
+			// получаем суммы обещанных сумм. при этом не берем те, что имеют просроченные cash_request_out
+			$sum_promised_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT  sum(`amount`)
+					FROM `".DB_PREFIX."promised_amount`
+					WHERE `status` = 'mining' AND
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0 AND
+								 `currency_id` = {$this->tx_data['currency_id']} AND
+								 (`cash_request_out_time` = 0 OR `cash_request_out_time` > ".($this->tx_data['time'] - $this->variables['cash_request_time']).")
+					", 'fetch_one');
+			// если обещанных сумм менее чем 100% от объема DC на кошельках, то всё норм, если нет - ошибка
+			if ( $sum_promised_amount >= $sum_wallets * AUTO_REDUCTION_PROMISED_AMOUNT_PCT ) {
+				return 'error reduction $sum_promised_amount '.$sum_promised_amount.' >= '.$sum_wallets.' * '.AUTO_REDUCTION_PROMISED_AMOUNT_PCT.'';
+			}
+		}
 	}
 
 	// 45
@@ -2165,7 +2351,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		$d = (100 - $this->tx_data['pct']) / 100;
 		if ( $this->tx_data['pct'] > 0 ) {
-			 // т.к. невозможо 2 отката подряд из-за промежутка в 14 дней между reduction,
+			 // т.к. невозможо 2 отката подряд из-за промежутка в 2 дня между reduction,
 			// то можем использовать только бекап на 1 уровень назад вместо _log
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."wallets`
@@ -2175,13 +2361,21 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 
 			// если бы не урезали amount, то пришлось бы делать пересчет tdc по всем, у кого есть данная валюта
+			// после 87826 блока убрано `amount_backup` = `amount`, `amount` = `amount`*({$d}) т.к. теряется смысл в reduction c type=promised_amount
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."promised_amount`
 					SET  `tdc_amount_backup` = `tdc_amount`,
-							`tdc_amount` = `tdc_amount`*({$d}),
-							`amount_backup` = `amount`,
-							`amount` = `amount`*({$d})
+							`tdc_amount` = `tdc_amount`*({$d})
 					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
+
+			// все свежие cash_request_out_time отменяем
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+					SET  `cash_request_out_time_backup` = `cash_request_out_time`,
+							`cash_request_out_time` = 0
+					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
+								 `cash_request_out_time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
 					");
 
 			// все текущие cash_requests, т.е. по которым не прошло 2 суток
@@ -2225,11 +2419,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `currency_id` = {$this->tx_data['currency_id']}
 					");
 
+			// после 87826 блока убрано  `amount` = `amount_backup` т.к. теряется смысл в reduction c type=promised_amount
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."promised_amount`
-					SET `tdc_amount` = `tdc_amount_backup`,
-						   `amount` = `amount_backup`
+					SET  `tdc_amount` = `tdc_amount_backup`
 					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+					SET  `cash_request_out_time` = `cash_request_out_time_backup`
+					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
+								 `cash_request_out_time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
 					");
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -2252,7 +2453,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// если смог загрузить фото к себе и хэш сошелся - 1, если нет - 0
 	// эту транзакцию генерит нод со своим ключом
 	// 30
-	private function votes_node_new_miner_init()
+	function votes_node_new_miner_init()
 	{
 		$error = $this->get_tx_data(array('vote_id', 'result', 'sign'));
 		if ($error) return $error;
@@ -2261,7 +2462,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 30
-	private function votes_node_new_miner_front()
+	function votes_node_new_miner_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -2321,7 +2522,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 	}
 
-	private function miners_check_my_miner_id_and_votes_0 ($data)
+	function miners_check_my_miner_id_and_votes_0 ($data)
 	{
 		if ( array_intersect ($data['my_miners_ids'], $data['miners_ids']) && ( $data[ 'votes_0'] > $data['min_miners_keepers'] || $data[ 'votes_0'] == sizeof($data['miners_ids']) ) )
 			return true;
@@ -2329,7 +2530,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return false;
 	}
 
-	private function miners_check_votes_1 ($data)
+	function miners_check_votes_1 ($data)
 	{
 		if ( $data[ 'votes_1'] >= $data['min_miners_keepers'] || $data[ 'votes_1'] == sizeof($data['miners_ids']) /*|| $this->tx_data['user_id'] == 1*/ )
 			return true;
@@ -2338,7 +2539,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 30
-	private function votes_node_new_miner()
+	function votes_node_new_miner()
 	{
 		/*$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id` FROM `".DB_PREFIX."{$this->my_prefix}my_table`", 'fetch_one');*/
@@ -2532,13 +2733,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 30
-	private function votes_node_new_miner_rollback_front()
+	function votes_node_new_miner_rollback_front()
 	{
 		$this -> limit_requests_rollback('votes_nodes');
 	}
 
 	// 30
-	private function votes_node_new_miner_rollback()
+	function votes_node_new_miner_rollback()
 	{
 		/*$my_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `miner_id`
@@ -2669,7 +2870,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 2
-	private function new_miner_init()
+	function new_miner_init()
 	{
 		$error = $this->get_tx_data(array('race', 'country', 'latitude', 'longitude', 'host', 'face_coords', 'profile_coords', 'face_hash', 'profile_hash', 'video_type', 'video_url_id', 'node_public_key', 'sign'));
 		if ($error) return $error;
@@ -2679,7 +2880,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 2
-	private function new_miner_front()
+	function new_miner_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -2759,7 +2960,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 2
-	private function new_miner()
+	function new_miner()
 	{
 		// получим массив майнеров, которые должны скопировать к себе 2 фото лица юзера
 		$max_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3071,7 +3272,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 1
-	private function new_user_init()
+	function new_user_init()
 	{
 		$error = $this->get_tx_data(array('public_key', 'sign'));
 		if ($error) return $error;
@@ -3099,7 +3300,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 1
-	private function new_user_front()
+	function new_user_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -3149,17 +3350,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-
 	// 1
-	private function new_user()
+	function new_user()
 	{
 		// пишем в БД нового юзера
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."users` (
-						`public_key_0`
+						`public_key_0`,
+						`referral`
 				)
 				VALUES (
-					0x{$this->tx_data['public_key_hex']}
+					0x{$this->tx_data['public_key_hex']},
+					{$this->tx_data['user_id']}
 				)");
 
 		// новый user_id
@@ -3252,13 +3454,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 1
-	private function new_user_rollback_front()
+	function new_user_rollback_front()
 	{
 		$this->limit_requests_rollback('new_user');
 	}
 
 	// 1
-	private function new_user_rollback()
+	function new_user_rollback()
 	{
 		// если работаем в режиме пула, то ищем тех, у кого записан такой ключ
 		$community = get_community_users($this->db);
@@ -3326,7 +3528,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 24
-	private function admin_message_init()
+	function admin_message_init()
 	{
 		$error = $this->get_tx_data(array('message', 'currency_list', 'sign'));
 		if ($error) return $error;
@@ -3334,7 +3536,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 24
-	private function admin_message_front()
+	function admin_message_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -3355,7 +3557,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 24
-	private function admin_message()
+	function admin_message()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
 		$this->tx_data['message'] = $this->db->escape($this->tx_data['message']);
@@ -3375,11 +3577,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 24
-	private function admin_message_rollback_front()
+	function admin_message_rollback_front()
 	{
 
 	}
-	private function admin_message_rollback() {
+	function admin_message_rollback() {
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,  "
 				DELETE FROM `".DB_PREFIX."alert_messages`
@@ -3390,7 +3592,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 19
-	private function admin_1block_init()
+	function admin_1block_init()
 	{
 		$error = $this->get_tx_data(array('data', 'sign'));
 		if ($error) return $error;
@@ -3398,7 +3600,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 19
-	private function admin_1block_front()
+	function admin_1block_front()
 	{
 		// public_key админа еще нет, он в этом блоке
 	/*	$error = $this -> general_check_admin();
@@ -3412,12 +3614,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 19
-	private function admin_1block_rollback ()
+	function admin_1block_rollback ()
 	{
 	}
 
 	// 19
-	private function admin_1block ()
+	function admin_1block ()
 	{
 		$data = json_decode($this->tx_data['data'], true);
 
@@ -3538,7 +3740,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 24
-	private function admin_unban_miners_init()
+	function admin_unban_miners_init()
 	{
 		$this->getPct();
 		$error = $this->get_tx_data(array('users_ids', 'sign'));
@@ -3548,7 +3750,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 24
-	private function admin_unban_miners_front()
+	function admin_unban_miners_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -3580,7 +3782,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 24
-	private function admin_unban_miners()
+	function admin_unban_miners()
 	{
 		$this->getPct ();
 
@@ -3616,7 +3818,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `log_id`
 					FROM`".DB_PREFIX."promised_amount`
 					WHERE `user_id` = {$users_ids[$i]} AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					ORDER BY `id` ASC
 					");
 			$new_tdc = 0;
@@ -3663,11 +3866,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function admin_unban_miners_rollback_front() {
+	function admin_unban_miners_rollback_front() {
 
 	}
 
-	private function admin_unban_miners_rollback() {
+	function admin_unban_miners_rollback() {
 
 		$users_ids = explode(",", $this->tx_data['users_ids'] );
 		for ($i=sizeof($users_ids)-1; $i>=0; $i--) {
@@ -3711,7 +3914,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `log_id`
 					FROM `".DB_PREFIX."promised_amount`
 					WHERE `user_id` = {$users_ids[$i]} AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					ORDER BY `id` DESC
 					");
 			while ($row = $this->db->fetchArray($res)) {
@@ -3744,7 +3948,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 20
-	private function admin_ban_miners_init()
+	function admin_ban_miners_init()
 	{
 		$this->getPct();
 		$error = $this->get_tx_data(array('users_ids', 'sign'));
@@ -3754,7 +3958,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 20
-	private function admin_ban_miners_front()
+	function admin_ban_miners_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -3795,7 +3999,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 20
-	private function admin_ban_miners()
+	function admin_ban_miners()
 	{
 		$this->getPct();
 		$this->getMaxPromisedAmount();
@@ -3874,7 +4078,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `log_id`
 					FROM`".DB_PREFIX."promised_amount`
 					WHERE `user_id` = {$users_ids[$i]} AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					ORDER BY `id` ASC
 					");
 			$new_tdc = 0;
@@ -3924,11 +4129,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function admin_ban_miners_rollback_front() {
+	function admin_ban_miners_rollback_front() {
 		
 	}
 
-	private function admin_ban_miners_rollback() {
+	function admin_ban_miners_rollback() {
 
 		$users_ids = explode(",", $this->tx_data['users_ids'] );
 		//print_R($users_ids);
@@ -3995,7 +4200,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `log_id`
 					FROM `".DB_PREFIX."promised_amount`
 					WHERE `user_id` = {$users_ids[$i]} AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					ORDER BY `id` DESC
 					");
 			while ($row = $this->db->fetchArray($res)) {
@@ -4028,7 +4234,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 21
-	private function admin_variables_init()
+	function admin_variables_init()
 	{
 		$error = $this->get_tx_data(array('variables', 'sign'));
 		if ($error) return $error;
@@ -4036,7 +4242,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 21
-	private function admin_variables_front()
+	function admin_variables_front()
 	{
 		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 29047)
 			$VARIABLES_COUNT = 71;
@@ -4120,7 +4326,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				case 'node_voting_period' :
 				case 'rollback_blocks_1' :
 				case 'rollback_blocks_2' :
-				case 'system_commission' :
 				case 'limit_change_host' :
 				case 'limit_change_host_period' :
 				case 'min_miners_of_voting' :
@@ -4148,6 +4353,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					$i++;
 					break;
 
+				case 'system_commission' :
+
+					if ( !check_input_data ($value, 'int') || $value > 15 )
+						return $error_text.$name;
+					$i++;
+					break;
+
 				case 'sleep' :
 
 					if ( !check_input_data ($value, 'sleep_var') )
@@ -4171,7 +4383,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 21
-	private function admin_variables_rollback() {
+	function admin_variables_rollback() {
 
 		// данные, которые восстановим
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -4212,7 +4424,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 21
-	private function admin_variables()
+	function admin_variables()
 	{
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 				SELECT *
@@ -4263,7 +4475,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 22
-	private function admin_spots_init()
+	function admin_spots_init()
 	{
 		$error = $this->get_tx_data(array('example_spots', 'segments', 'tolerances', 'compatibility', 'sign'));
 		if ($error) return $error;
@@ -4271,7 +4483,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 22
-	private function admin_spots_front()
+	function admin_spots_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4299,7 +4511,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 22
-	private function admin_spots() {
+	function admin_spots() {
 
 		# логируем текущий набор точек
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SELECT * FROM `".DB_PREFIX."spots_compatibility`", 'fetch_array');
@@ -4340,12 +4552,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 22
-	private function admin_spots_rollback_front() {
+	function admin_spots_rollback_front() {
 
 	}
 
 	// 22
-	private function admin_spots_rollback() {
+	function admin_spots_rollback() {
 
 		// получим log_id, по которому можно найти данные, которые были до этого
 		$log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -4384,7 +4596,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 41
-	private function admin_blog_init()
+	function admin_blog_init()
 	{
 		$error = $this->get_tx_data(array('lng', 'title', 'message', 'sign'));
 		if ($error) return $error;
@@ -4392,7 +4604,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 41
-	private function admin_blog_front()
+	function admin_blog_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4413,7 +4625,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 41
-	private function admin_blog()
+	function admin_blog()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -4433,12 +4645,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 41
-	private function admin_blog_rollback_front() {
+	function admin_blog_rollback_front() {
 
 	}
 
 	// 41
-	private function admin_blog_rollback() {
+	function admin_blog_rollback() {
 
 		$this->tx_data['title'] = $this->tx_data['title'];
 		$this->tx_data['message'] = $this->tx_data['message'];
@@ -4459,7 +4671,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 39
-	private function admin_answer_init()
+	function admin_answer_init()
 	{
 		$error = $this->get_tx_data(array('to_user_id', 'encrypted_message', 'sign'));
 		if ($error) return $error;
@@ -4467,7 +4679,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->variables = self::get_all_variables($this->db);
 	}
 
-	private function admin_answer_front()
+	function admin_answer_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4487,7 +4699,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function admin_answer()
+	function admin_answer()
 	{
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id($this->tx_data['to_user_id']);
@@ -4520,7 +4732,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function admin_answer_rollback() {
+	function admin_answer_rollback() {
 
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id($this->tx_data['to_user_id']);
@@ -4548,12 +4760,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function admin_answer_rollback_front()
+	function admin_answer_rollback_front()
 	{
 	}
 
 	// 38
-	private function message_to_admin_init()
+	function message_to_admin_init()
 	{
 		$error = $this->get_tx_data(array('encrypted_message', 'sign'));
 		if ($error) return $error;
@@ -4563,7 +4775,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 38
-	private function message_to_admin_front()
+	function message_to_admin_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -4593,7 +4805,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	// 38
 	// пишется только в локальную таблицу юзера-отправителя и админа
-	private function message_to_admin()
+	function message_to_admin()
 	{
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id($this->tx_data['user_id']);
@@ -4646,14 +4858,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 38
-	private function message_to_admin_rollback_front()
+	function message_to_admin_rollback_front()
 	{
 		$this->limit_requests_rollback('message_to_admin');
 
 	}
 
 	// 38
-	private function message_to_admin_rollback() {
+	function message_to_admin_rollback() {
 
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id($this->tx_data['user_id']);
@@ -4684,7 +4896,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	// 37
 	// не каждая загруженная версия будет сопровождаться alert-ом. могут быть промежуточные версии.
-	private function admin_new_version_alert_init()
+	function admin_new_version_alert_init()
 	{
 		$error = $this->get_tx_data(array('soft_type', 'version', 'sign'));
 		if ($error) return $error;
@@ -4692,7 +4904,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 37
-	private function admin_new_version_alert_front() {
+	function admin_new_version_alert_front() {
 
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4740,7 +4952,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 37
-	private function admin_new_version_alert() {
+	function admin_new_version_alert() {
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."new_version`
@@ -4752,7 +4964,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 37
-	private function admin_new_version_alert_rollback()
+	function admin_new_version_alert_rollback()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."new_version`
@@ -4763,7 +4975,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 37
-	private function admin_new_version_alert_rollback_front()
+	function admin_new_version_alert_rollback_front()
 	{
 
 	}
@@ -4771,7 +4983,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 36
-	private function admin_new_version_init()
+	function admin_new_version_init()
 	{
 		$error = $this->get_tx_data(array('soft_type', 'version', 'file', 'format', 'sign'));
 		if ($error) return $error;
@@ -4785,7 +4997,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 36
-	private function admin_new_version_front()
+	function admin_new_version_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4822,7 +5034,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 36
-	private function admin_new_version()
+	function admin_new_version()
 	{
 		file_put_contents( ABSPATH . "public/{$this->tx_data['version']}.{$this->tx_data['format']}", $this->tx_data['file']) ;
 
@@ -4836,11 +5048,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 36
-	private function admin_new_version_rollback_front() {
+	function admin_new_version_rollback_front() {
 
 	}
 
-	private function admin_new_version_rollback() {
+	function admin_new_version_rollback() {
 
 		unlink( ABSPATH . "public/{$this->tx_data['version']}.zip");
 
@@ -4852,14 +5064,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 34
-	private function admin_add_currency_init()
+	function admin_add_currency_init()
 	{
 		$error = $this->get_tx_data(array('currency_name','currency_full_name','max_promised_amount','max_other_currencies', 'sign'));
 		if ($error) return $error;
 	}
 
 	// 34
-	private function admin_add_currency_front()
+	function admin_add_currency_front()
 	{
 		$error = $this -> general_check_admin();
 		if ($error)
@@ -4896,7 +5108,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 34
-	private function admin_add_currency()
+	function admin_add_currency()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."currency` (
@@ -4925,7 +5137,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 34
-	private function admin_add_currency_rollback()
+	function admin_add_currency_rollback()
 	{
 		$currency_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
@@ -4950,14 +5162,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function admin_add_currency_rollback_front()
+	function admin_add_currency_rollback_front()
 	{
 	}
 
 
 
 	//26
-	private function abuses_init()
+	function abuses_init()
 	{
 		$error = $this->get_tx_data(array('abuses', 'sign'));
 		if ($error) return $error;
@@ -4967,7 +5179,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 26
-	private function abuses_front()
+	function abuses_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -5012,7 +5224,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function abuses()
+	function abuses()
 	{
 		$abuses = json_decode( $this->tx_data['abuses'], true );
 		foreach  ($abuses as $user_id => $comment ) {
@@ -5034,14 +5246,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function abuses_rollback_front () {
+	function abuses_rollback_front () {
 
 		$this->limit_requests_rollback('abuses');
 
 	}
 
 	// 26
-	private function abuses_rollback ()
+	function abuses_rollback ()
 	{
 		$abuses = json_decode( $this->tx_data['abuses'], true );
 
@@ -5058,7 +5270,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 43
-	private function change_commission_init()
+	function change_commission_init()
 	{
 		$error = $this->get_tx_data(array('commission', 'sign'));
 		if ($error) return $error;
@@ -5067,7 +5279,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 43
-	private function change_commission_front()
+	function change_commission_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -5123,7 +5335,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 43
-	private function change_commission () {
+	function change_commission () {
 
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT * FROM `".DB_PREFIX."commission`
@@ -5170,14 +5382,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 43
-	private function change_commission_rollback_front () {
+	function change_commission_rollback_front () {
 
 		$this->limit_requests_rollback('commission');
 
 	}
 
 	// 43
-	private function change_commission_rollback () {
+	function change_commission_rollback () {
 
 		$this->general_rollback( 'commission', $this->tx_data['user_id'] );
 	}
@@ -5185,14 +5397,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 2
-	private function new_miner_rollback_front() {
+	function new_miner_rollback_front() {
 
 		$this->limit_requests_rollback('new_miner');
 
 	}
 
 	// 2
-	private function new_miner_rollback() {
+	function new_miner_rollback() {
 
 		$this->general_rollback( 'faces' , $this->tx_data['user_id'] );
 
@@ -5234,7 +5446,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 /*
-	private function general_log ( $table ) {
+	function general_log ( $table ) {
 
 		// проверим, есть ли в БД запись, которую надо залогировать
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SELECT *
@@ -5302,7 +5514,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 */
 
-	private function limit_requests_rollback ($type) {
+	function limit_requests_rollback ($type) {
 
 		//$time = $this->block_data['time']?$this->block_data['time']:$this->tx_data['time'];
 		$time = $this->tx_data['time'];
@@ -5318,7 +5530,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function limit_requests ($limit, $type, $period=86400) {
+	function limit_requests ($limit, $type, $period=86400) {
 
 		//$time = $this->block_data['time']?$this->block_data['time']:$this->tx_data['time'];
 		$time = $this->tx_data['time'];
@@ -5352,7 +5564,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function checkCurrency($currency_id)
+	function checkCurrency($currency_id)
 	{
 		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
@@ -5369,7 +5581,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// просто смена суммы
-	private function change_promised_amount_init()
+	function change_promised_amount_init()
 	{
 		$error = $this->get_tx_data(array('promised_amount_id', 'amount', 'sign'));
 		if ($error) return $error;
@@ -5395,11 +5607,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `status` = 'repaid' AND
 							 `currency_id` = {$currency_id} AND
 							 `user_id` = {$user_id} AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'fetch_one');
 	}
 
-	private function  change_promised_amount_front()
+	function  change_promised_amount_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -5424,7 +5637,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `id` = {$this->tx_data['promised_amount_id']} AND
 							 `status` = 'mining' AND
 							 `currency_id` > 1 AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'fetch_array');
 		if (!$promised_amount_data['id'])
 			return '$promised_amount_id';
@@ -5462,7 +5676,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function change_promised_amount()
+	function change_promised_amount()
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($this->tx_data['user_id']);
@@ -5518,12 +5732,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function change_promised_amount_rollback_front() {
+	function change_promised_amount_rollback_front() {
 
 		$this->limit_requests_rollback('promised_amount');
 	}
 
-	private function change_promised_amount_rollback()
+	function change_promised_amount_rollback()
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['user_id']);
@@ -5567,7 +5781,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// если из-за смены местоположения или изначально после new_promised_amount получили rejected,
 	// то просто шлем новый запрос. возможно был косяк с видео-файлом.
 	// Если было delete=1, то перезаписываем
-	private function new_promised_amount_init()
+	function new_promised_amount_init()
 	{
 		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 27134)
 			$error = $this->get_tx_data(array('currency_id', 'amount', 'video_type', 'video_url_id', 'sign'));
@@ -5579,7 +5793,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 3
-	private function new_promised_amount_front()
+	function new_promised_amount_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -5613,6 +5827,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."promised_amount`
 				WHERE `currency_id` = {$this->tx_data['currency_id']} AND
 							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0 AND
 							 `user_id` = {$this->tx_data['user_id']}
 				", 'fetch_array');
 		if ($data['status'])
@@ -5645,7 +5860,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SELECT `currency_id`
 				FROM `".DB_PREFIX."promised_amount`
 				WHERE `user_id` = {$this->tx_data['user_id']} AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				GROUP BY `currency_id`
 				", 'array');
 
@@ -5721,7 +5937,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 3
-	private function new_promised_amount_rollback()
+	function new_promised_amount_rollback()
 	{
 		// чистим таблу promised_amount
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -5737,13 +5953,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 3
-	private function new_promised_amount_rollback_front()
+	function new_promised_amount_rollback_front()
 	{
 		$this->limit_requests_rollback('promised_amount');
 	}
 
 	// 3
-	private function new_promised_amount()
+	function new_promised_amount()
 	{
 		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 27134) {
 			$add_sql_names = '';
@@ -5793,7 +6009,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 4
-	private function mining_init()
+	function mining_init()
 	{
 		$this->getPct();
 		$error = $this->get_tx_data(array('promised_amount_id', 'amount', 'sign'));
@@ -5822,6 +6038,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."promised_amount`
 				WHERE `id` = {$promised_amount_id}
 				", 'fetch_array');
+		//print_R($data);
 		debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$points_status = self::getPointsStatus($user_id, $this->db, false, $this->variables['points_update_time']);
 		$user_holidays =  self::getHolidays($user_id, $this->db);
@@ -5839,7 +6056,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 4
-	private function mining_front()
+	function mining_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -5863,7 +6080,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `id` = {$this->tx_data['promised_amount_id']} AND
 							`user_id` = {$this->tx_data['user_id']} AND
 							`status` != 'pending' AND
-							`del_block_id` = 0
+							`del_block_id` = 0 AND
+							`del_mining_block_id` = 0
 				LIMIT 1
 				", 'fetch_one' );
 		if ( $num == 0 )
@@ -5879,20 +6097,51 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
         if ($this->tx_data['amount'] < 0.02)
             return "error amount ({$this->tx_data['amount']}<0.02)";
 
-		// юзер может создавать не более X запросов в день на снятие DC с банкнот
+		// юзер может создавать не более X запросов в день на снятие DC
 		$error = $this -> limit_requests( $this->variables['limit_mining'], 'mining', $this->variables['limit_mining_period'] );
 		if ($error)
 			return $error;
 	}
 
+	function get_refs($user_id)
+	{
+		// получим рефов
+		$refs[0] = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `referral`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$user_id}
+				", 'fetch_one');
+		if ($refs[0]) {
+			$refs[1] = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `referral`
+					FROM `".DB_PREFIX."users`
+					WHERE `user_id` = {$refs[0]}
+					", 'fetch_one');
+			if ($refs[1]) {
+				$refs[2] = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `referral`
+						FROM `".DB_PREFIX."users`
+						WHERE `user_id` = {$refs[1]}
+						", 'fetch_one');
+			}
+		}
+		return $refs;
+	}
+
 	/* $del_block_id указывается, когда майнинг происходит как побочный результат удаления обещанной суммы
 	 * */
-	private function mining($del_mining_block_id=0)
+	function mining($del_mining_block_id=0)
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($this->tx_data['user_id']);
 
-		//$this->get_my_user_id();
+		$refs = $this->get_refs($this->tx_data['user_id']);
+		if (@$refs[0]>0)
+			$this->points_update_main($refs[0]);
+		if (@$refs[1]>0)
+			$this->points_update_main($refs[1]);
+		if (@$refs[2]>0)
+			$this->points_update_main($refs[2]);
 
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `status`,
@@ -5930,18 +6179,19 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				UPDATE `".DB_PREFIX."promised_amount`
 				SET  `tdc_amount` = ".($new_tdc - $this->tx_data['amount']).",
 						`tdc_amount_update` = {$this->block_data['time']},
-						`del_block_id` = {$del_mining_block_id},
+						`del_mining_block_id` = {$del_mining_block_id},
 						`log_id` = {$log_id}
 				WHERE `id` = {$this->tx_data['promised_amount_id']}
 				");
 
 		// комиссия системы
 		$system_commission = round ($this->tx_data['amount'] * ($this->variables['system_commission'] / 100), 2 );
-        $system_commission = ($system_commission==0)?0.01:$system_commission;
-        if ($system_commission >= $this->tx_data['amount'])
-            $system_commission = 0;
-		debug_print( '$system_commission='.$system_commission."\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+		$system_commission = ($system_commission==0)?0.01:$system_commission;
+		if ($system_commission >= $this->tx_data['amount'])
+			$system_commission = 0;
+		debug_print( '$system_commission='.$system_commission."\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		/*
 		// то, что остается юзеру за вычетом комиссии
 		$amount = $this->tx_data['amount'] - $system_commission;
 
@@ -5951,15 +6201,43 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
         // теперь начисляем комиссию системе
         if ($system_commission > 0)
 		    $this -> update_recipient_wallet( 1, $currency_id, $system_commission, 'system_commission', $this->tx_data['promised_amount_id'] );
+		*/
 
+		// теперь начисляем DC, залогировав предыдущее значение
+		$this -> update_recipient_wallet( $this->tx_data['user_id'], $currency_id, $this->tx_data['amount'], 'from_mining_id', $this->tx_data['promised_amount_id'] );
+
+		// теперь начисляем комиссию системе
+		if ($system_commission > 0)
+			$this -> update_recipient_wallet( 1, $currency_id, $system_commission, 'system_commission', $this->tx_data['promised_amount_id'] );
+
+		// реферальные
+		$ref_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."referral`
+				", 'fetch_array');
+		if (@$refs[0]>0) {
+			$ref_amount = round ($this->tx_data['amount'] * ($ref_data['first'] / 100), 2 );
+			if ($ref_amount > 0)
+				$this -> update_recipient_wallet( $refs[0], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+		}
+		if (@$refs[1]>0) {
+			$ref_amount = round ($this->tx_data['amount'] * ($ref_data['second'] / 100), 2 );
+			if ($ref_amount > 0)
+				$this -> update_recipient_wallet( $refs[1], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+		}
+		if (@$refs[2]>0) {
+			$ref_amount = round ($this->tx_data['amount'] * ($ref_data['third'] / 100), 2 );
+			if ($ref_amount > 0)
+				$this -> update_recipient_wallet( $refs[2], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+		}
 	}
 
-	private function mining_rollback_front()
+	function mining_rollback_front()
 	{
 		$this -> limit_requests_rollback( 'mining' );
 	}
 
-	private function mining_rollback()
+	function mining_rollback()
     {
         $promised_amount_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
@@ -5967,16 +6245,54 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `id` = {$this->tx_data['promised_amount_id']}
 				", 'fetch_array');
 
+	    $refs = $this->get_refs($this->tx_data['user_id']);
+	    if (@$refs[2]>0)
+		    $this->points_update_main($refs[2]);
+	    if (@$refs[1]>0)
+		    $this->points_update_main($refs[1]);
+	    if (@$refs[0]>0)
+		    $this->points_update_main($refs[0]);
+
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['user_id']);
 
+	    $users_wallets_rollback = array();
+	    // реферальные
+	    $ref_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."referral`
+				", 'fetch_array');
+	    if (@$refs[2]>0) {
+		    $ref_amount = round( $this->tx_data['amount'] * ($ref_data['third'] / 100), 2 );
+		    if ($ref_amount > 0) {
+			    $this->general_rollback('wallets', $refs[2], "AND `currency_id` = {$promised_amount_data['currency_id']}");
+			    $users_wallets_rollback[] = $refs[2];
+		    }
+	    }
+	    if (@$refs[1]>0) {
+		    $ref_amount = round( $this->tx_data['amount'] * ($ref_data['second'] / 100), 2 );
+		    if ($ref_amount > 0) {
+			    $this->general_rollback('wallets', $refs[1], "AND `currency_id` = {$promised_amount_data['currency_id']}");
+			    $users_wallets_rollback[] = $refs[1];
+		    }
+	    }
+	    if (@$refs[0]>0) {
+		    $ref_amount = round( $this->tx_data['amount'] * ($ref_data['first'] / 100), 2 );
+		    if ($ref_amount > 0) {
+			    $this->general_rollback('wallets', $refs[0], "AND `currency_id` = {$promised_amount_data['currency_id']}");
+			    $users_wallets_rollback[] = $refs[0];
+		    }
+	    }
+
         // откатим комиссию системы
         $system_commission = round ($this->tx_data['amount'] * ($this->variables['system_commission'] / 100), 2 );
-        $system_commission = ($system_commission==0)?0.01:$system_commission;
+       /* $system_commission = ($system_commission==0)?0.01:$system_commission;
         if ($system_commission >= $this->tx_data['amount'])
-            $system_commission = 0;
-        if ($system_commission > 0)
+            $system_commission = 0;*/
+        if ($system_commission > 0) {
             $this->general_rollback('wallets', 1, "AND `currency_id` = {$promised_amount_data['currency_id']}");
+	        $users_wallets_rollback[] = 1;
+        }
 
 		// откатим начисленные DC
 		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$promised_amount_data['currency_id']}");
@@ -6007,7 +6323,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->rollbackAI('log_promised_amount');
 
 		$this->get_my_user_id($this->tx_data['user_id']);
-		if ($this->tx_data['user_id'] == $this->my_user_id /*&& $this->my_block_id <= $this->block_data['block_id']*/) {
+		if ($this->tx_data['user_id'] == $this->my_user_id || in_array($this->my_user_id, $users_wallets_rollback)) {
 
 			// откатим транзакцию в локальных отчетах, по которой нам начисляются DC
 			// могут захватится другие тр-ии, но это не страшно: всё равно их откатывать надо
@@ -6050,7 +6366,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'error $cash_request_status';
 	}
 
-	private function max_day_votes_rollback() {
+	function max_day_votes_rollback() {
 
 		//$time = $this->block_data['time']?$this->block_data['time']:$this->tx_data['time'];
 		$time = $this->tx_data['time'];
@@ -6063,7 +6379,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 	}
 
-	private function max_day_votes() {
+	function max_day_votes() {
 
 		//$time = $this->block_data['time']?$this->block_data['time']:$this->tx_data['time'];
 		$time = $this->tx_data['time'];
@@ -6095,7 +6411,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	/* 5
 	 * Майнер голосует за то, чтобы юзер мог стать или не стать майнером
 	 * */
-	private function votes_miner_init()
+	function votes_miner_init()
 	{
 		$error = $this->get_tx_data(array('vote_id', 'result', 'comment', 'sign'));
 		if ($error) return $error;
@@ -6105,7 +6421,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 5
-	private function votes_miner_front()
+	function votes_miner_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -6162,13 +6478,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 5
-	private function votes_miner_rollback_front()
+	function votes_miner_rollback_front()
 	{
 		$this -> max_day_votes_rollback();
 	}
 
 	// 5
-	private function votes_miner_rollback()
+	function votes_miner_rollback()
 	{
 		// вычитаем баллы
 		$this->points_rollback($this->variables['miner_points']);
@@ -6407,7 +6723,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 5
-	private function votes_miner()
+	function votes_miner()
 	{
 		// начисляем баллы
 		$this->points($this->variables['miner_points']);
@@ -6541,7 +6857,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 9
-	private function change_geolocation_init()
+	function change_geolocation_init()
 	{
 		$error = $this->get_tx_data(array('latitude', 'longitude', 'country', 'sign'));
 		if ($error) return $error;
@@ -6552,7 +6868,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 9
-	private function change_geolocation_front()
+	function change_geolocation_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -6595,9 +6911,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 	}
 
-	// откат не всех полей, а только указанных
-	function selective_rollback ($fields, $table, $where) {
-
+	// откат не всех полей, а только указанных, либо 1 строку, если нет where
+	function selective_rollback ($fields, $table, $where='')
+	{
+		if ($where)
+			$where = " WHERE {$where}";
 		$add_sql_fields = '';
 		foreach ($fields as $field){
 			$add_sql_fields.='`'.$field.'`,';
@@ -6607,7 +6925,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `log_id`
 				FROM `".DB_PREFIX."{$table}`
-				WHERE {$where}
+				{$where}
 				", 'fetch_one' );
 
 		if ($log_id) {
@@ -6627,7 +6945,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					UPDATE `".DB_PREFIX."{$table}`
 			        SET {$add_sql_update}
 			              `log_id` = {$log_data['prev_log_id']}
-					WHERE {$where}
+					{$where}
 					");
 
 			// подчищаем _log
@@ -6641,7 +6959,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		else {
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."{$table}`
-					WHERE {$where}
+					{$where}
 					LIMIT 1
 					");
 		}
@@ -6649,9 +6967,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $log_data;
 	}
 
-	// в $this->tx_data должно быть соответствие $fields
-	function selective_logging_and_upd ($fields, $values, $table, $where_fields, $where_values) {
-
+	function selective_logging_and_upd ($fields, $values, $table, $where_fields=array(), $where_values=array())
+	{
 		$add_sql_fields = '';
 		foreach ($fields as $field)
 			$add_sql_fields.='`'.$field.'`,';
@@ -6659,14 +6976,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$add_sql_where = '';
 		for ($i=0; $i<sizeof($where_fields); $i++)
 			$add_sql_where.="`{$where_fields[$i]}`='{$where_values[$i]}' AND ";
-		$add_sql_where = substr($add_sql_where, 0, -5);
+		if ($add_sql_where)
+			$add_sql_where = ' WHERE '.substr($add_sql_where, 0, -5);
 
 		// если есть, что логировать
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT {$add_sql_fields}
 							 `log_id`
 				FROM `".DB_PREFIX."{$table}`
-				WHERE {$add_sql_where}
+				{$add_sql_where}
 				", 'fetch_array');
 		if ($log_data) {
 
@@ -6688,17 +7006,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$log_id = $this->db->getInsertId();
 
 			$add_sql_update= '';
-			for($i=0; $i<sizeof($fields); $i++)
+			for ($i=0; $i<sizeof($fields); $i++)
 				$add_sql_update.="`{$fields[$i]}` = '{$values[$i]}',";
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."{$table}`
 				SET $add_sql_update
 					   `log_id` = {$log_id}
-				WHERE {$add_sql_where}
+				{$add_sql_where}
 				");
-
-		} else {
+		}
+		else {
 
 			$add_sql_ins0 = '';
 			$add_sql_ins1 = '';
@@ -6706,7 +7024,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$add_sql_ins0.="`{$fields[$i]}`,";
 				$add_sql_ins1.=" '{$values[$i]}',";
 			}
-			$add_sql_where = '';
 			for ($i=0; $i<sizeof($where_fields); $i++){
 				$add_sql_ins0.="`{$where_fields[$i]}`,";
 				$add_sql_ins1.=" '{$where_values[$i]}',";
@@ -6723,7 +7040,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 9
-	private function change_geolocation()
+	function change_geolocation()
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($this->tx_data['user_id']);
@@ -6757,7 +7074,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `status` IN ('mining', 'pending', 'change_geo') AND
 							 `user_id` = {$this->tx_data['user_id']} AND
 							 `currency_id` > 1 AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				ORDER BY `id` ASC
 				");
 		while ($data = $this->db->fetchArray($res)) {
@@ -6825,13 +7143,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 9
-	private function change_geolocation_rollback_front()
+	function change_geolocation_rollback_front()
 	{
 		$this -> limit_requests_rollback( 'change_geolocation' );
 	}
 
 	// 9
-	private function change_geolocation_rollback()
+	function change_geolocation_rollback()
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['user_id']);
@@ -6844,7 +7162,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."promised_amount`
 				WHERE `status` = 'change_geo' AND
 				             `user_id` = {$this->tx_data['user_id']} AND
-				             `del_block_id` = 0
+				             `del_block_id` = 0 AND
+				             `del_mining_block_id` = 0
 				ORDER BY `id` DESC
 				");
 		while ($data = $this->db->fetchArray($res)) {
@@ -6898,7 +7217,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 10
-	private function votes_promised_amount_init()
+	function votes_promised_amount_init()
 	{
 		$error = $this->get_tx_data(array('promised_amount_id', 'result', 'comment', 'sign'));
 		if ($error) return $error;
@@ -6906,7 +7225,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 10
-	private function votes_promised_amount_front()
+	function votes_promised_amount_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -6930,7 +7249,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SELECT `status`
 				FROM `".DB_PREFIX."promised_amount`
 				WHERE `id` = {$this->tx_data['promised_amount_id']} AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				LIMIT 1
 				", 'fetch_one' );
 		if ($status!='pending')
@@ -6962,13 +7282,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 10
-	private function votes_promised_amount_rollback_front()
+	function votes_promised_amount_rollback_front()
 	{
 		$this -> max_day_votes_rollback();
 	}
 
 	// 10
-	private function votes_promised_amount_rollback()
+	function votes_promised_amount_rollback()
 	{
 		//$this->get_my_user_id();
 
@@ -7412,7 +7732,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 10
-	private function votes_promised_amount()
+	function votes_promised_amount()
 	{
 		// начисляем баллы
 		$this->points($this->variables['promised_amount_points']);
@@ -7566,7 +7886,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 11
-	private function del_promised_amount_init()
+	function del_promised_amount_init()
 	{
 		$error = $this->get_tx_data(array('promised_amount_id', 'sign'));
 		if ($error) return $error;
@@ -7575,7 +7895,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 11
-	private function del_promised_amount_front()
+	function del_promised_amount_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -7592,6 +7912,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE  `id` = {$this->tx_data['promised_amount_id']} AND
 							 `user_id` = {$this->tx_data['user_id']} AND
 							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0 AND
 							 `currency_id`>1
 				", 'fetch_one');
 		if ( !$id )
@@ -7601,7 +7922,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$time = $this->block_data['time'];
 		else // голая тр-ия
 			$time = time()-30; // просто на всякий случай небольшой запас
-		// У юзера должно либо вообще не быть cash_requests, либо должен быть последний со статусом approved. Иначе у него заморожен весь майнинг
+		// У юзера не должно быть cash_requests с pending
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
 		if ($error)
 			return $error;
@@ -7624,12 +7945,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 11
-	private function del_promised_amount_rollback_front()
+	function del_promised_amount_rollback_front()
 	{
 		$this -> limit_requests_rollback('promised_amount');
 	}
 
-	private function del_promised_amount_rollback()
+	function del_promised_amount_rollback()
 	{
 		$del_mining_block_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `del_mining_block_id`
@@ -7669,7 +7990,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 11
-	private function del_promised_amount()
+	function del_promised_amount()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."promised_amount`
@@ -7687,7 +8008,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function getWalletsBufferAmount () {
+	function getWalletsBufferAmount () {
 
 		return $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 							SELECT sum(`amount`)
@@ -7700,7 +8021,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// сколько на кошельке юзера денег, включая %
-	private function getTotalAmount () {
+	function getTotalAmount () {
 
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 							SELECT `amount`,
@@ -7718,7 +8039,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $data['amount'] + $this->calc_profit_ ($data['amount'], $data['last_update'], $this->tx_data['time'], $this->pct[$this->tx_data['currency_id']], $points_status );
 	}
 
-	private function getLastBlockId () {
+	function getLastBlockId () {
 
 		$this->LastBlockId =  $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 							SELECT `block_id`
@@ -7788,7 +8109,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $points_status;
 	}
 
-	private function getPct ()
+	function getPct ()
 	{
 		$this->pct = array();
 		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7803,7 +8124,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		//debug_print('$this->pct:'.print_r_hex($this->pct), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	}
 
-	private function updateWalletsBuffer ($WalletsBufferAmount, $amount) {
+	function updateWalletsBuffer ($WalletsBufferAmount, $amount) {
 
 		// добавим нашу сумму в буфер кошельков, чтобы юзер не смог послать запрос на вывод всех DC с кошелька.
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7822,7 +8143,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 12
-	private function send_dc_init()
+	function send_dc_init()
 	{
 		$this->getPct();
 		$error = $this->get_tx_data(array('to_user_id', 'currency_id', 'amount', 'commission', 'comment', 'sign'));
@@ -7953,7 +8274,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 12
-	private function send_dc_front()
+	function send_dc_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -8052,7 +8373,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 12
-	private function send_dc()
+	function send_dc()
 	{
 
 		// нужно отметить в log_time_money_orders, что тр-ия прошла в блок
@@ -8106,7 +8427,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 12
-	private function send_dc_rollback_front() {
+	function send_dc_rollback_front() {
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."wallets_buffer`
@@ -8131,7 +8452,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 12
-	private function send_dc_rollback() {
+	function send_dc_rollback() {
 
 		// нужно отметить в log_time_money_orders, что тр-ия НЕ прошла в блок
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8187,7 +8508,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 13
-	private function cash_request_out_init()
+	function cash_request_out_init()
 	{
 		$error = $this->get_tx_data(array('to_user_id', 'amount', 'comment', 'currency_id', 'hash_code', 'sign'));
 		if ($error) return $error;
@@ -8196,7 +8517,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 13
-	private function cash_request_out_front()
+	function cash_request_out_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -8220,9 +8541,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'cash_request_out_front hash_code';
 
 		// прошло ли 30 дней с момента регистрации майнера
-		$error = $this->check_miner_newbie();
-		if ($error)
-			return $error;
+		$miner_newbie = $this->check_miner_newbie();
+		if ($miner_newbie) {
+			// возможно, что майнер отдал наличные за DC и у него есть общенные суммы с repaid
+			// нужно дать возможность вывести ровно столько, сколько он отдал
+			$repaid_amount = $this->get_repaid_amount($this->tx_data['currency_id'], $this->tx_data['user_id']);
+			$repaid_amount = intval($repaid_amount);
+			// сколько уже получил наличных
+			$amount_cash_requests = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT sum(`amount`)
+					FROM `".DB_PREFIX."cash_requests`
+					WHERE `status` = 'approved' AND
+								 `currency_id` = {$this->tx_data['currency_id']} AND
+								 `from_user_id` = {$this->tx_data['user_id']}
+					", 'fetch_one');
+			$amount_cash_requests = intval($amount_cash_requests);
+			if ($amount_cash_requests + $this->tx_data['amount'] > $repaid_amount)
+				return $miner_newbie.' / '.$amount_cash_requests.' + '.$this->tx_data['amount'].' > '.$repaid_amount;
+		}
 
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['amount']},".bin2hex($this->tx_data['comment']).",{$this->tx_data['currency_id']},{$this->tx_data['hash_code']}";
@@ -8247,7 +8583,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `status` = 'mining' AND
 							 `currency_id` = {$this->tx_data['currency_id']} AND
 							 `user_id` = {$this->tx_data['to_user_id']} AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'fetch_one');
 
 		$max_promised_amount = $this->get_max_promised_amount($this->tx_data['currency_id']);
@@ -8262,7 +8599,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `status` = 'mining' AND
 							 `currency_id` = {$this->tx_data['currency_id']} AND
 							 `user_id` = {$this->tx_data['to_user_id']} AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'fetch_one');
 		$rest = $max_promised_amount - $repaid_amount;
 		if ($rest < $promised_amount)
@@ -8361,7 +8699,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// откатываем ID на кол-во затронутых строк, по дефолту = 1
-	private function rollbackAI($table, $num=1)
+	function rollbackAI($table, $num=1)
 	{
 
 		if ($num>0) {
@@ -8383,7 +8721,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 13
-	private function cash_request_out_rollback_front_0()
+	function cash_request_out_rollback_front_0()
 	{
 		$this -> limit_requests_rollback( 'cash_requests' );
 	}
@@ -8393,7 +8731,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->cash_request_out_rollback_front_1_=1;
 	}
 
-	private function cash_request_out_rollback_front_1()
+	function cash_request_out_rollback_front_1()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 				DELETE FROM `".DB_PREFIX."wallets_buffer`
@@ -8403,14 +8741,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 13
-	private function cash_request_out_rollback_front()
+	function cash_request_out_rollback_front()
 	{
 		$this -> cash_request_out_rollback_front_0();
 		$this -> cash_request_out_rollback_front_1();
 	}
 
 	// 13
-	private function cash_request_out_rollback()
+	function cash_request_out_rollback()
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['to_user_id']);
@@ -8426,7 +8764,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				", 'fetch_one' );
 		if ($cash_request_count == 1)
-			$this->upd_promised_amounts_rollback($this->tx_data['to_user_id']);
+			$this->upd_promised_amounts_rollback($this->tx_data['to_user_id'], true);
+		else
+			$this->upd_promised_amounts_cash_request_out_time_rollback($this->tx_data['to_user_id']);
 
 		// при откате учитываем то, что от 1 юзера не может быть более, чем 1 запроса за сутки
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8477,34 +8817,88 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	function upd_promised_amounts($user_id, $get_tdc=true)
+
+	function upd_promised_amounts_cash_request_out_time($user_id)
 	{
 		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`,
-							 `currency_id`,
-							 `amount`,
-							 `tdc_amount`,
-							 `tdc_amount_update`,
+							 `cash_request_out_time`,
 							 `log_id`
 				FROM `".DB_PREFIX."promised_amount`
 				WHERE `status` IN ('mining', 'repaid') AND
 							 `user_id` = {$user_id} AND
 							 `currency_id` > 1 AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0 AND
+							 `cash_request_out_time` = 0
 				ORDER BY `id` ASC
 				");
 		while ($data = $this->db->fetchArray($res)) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO `".DB_PREFIX."log_promised_amount` (
+							`cash_request_out_time`,
+							`block_id`,
+							`prev_log_id`
+					)
+					VALUES (
+							{$data['cash_request_out_time']},
+							{$this->block_data['block_id']},
+							{$data['log_id']}
+					)");
+			$log_id = $this->db->getInsertId();
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+					SET  `cash_request_out_time` = {$this->block_data['time']},
+							`log_id` = {$log_id}
+					WHERE `id` = {$data['id']}
+					");
+		}
+	}
+
+	function upd_promised_amounts($user_id, $get_tdc=true, $cash_request_out_time=false)
+	{
+		$sql_name_cash_request_out_time = '';
+		$sql_value_cash_request_out_time = '';
+		$sql_udp_cash_request_out_time = '';
+		if ($cash_request_out_time!==false) {
+			$sql_name_cash_request_out_time = '`cash_request_out_time`, ';
+			$sql_udp_cash_request_out_time = "`cash_request_out_time` = {$cash_request_out_time}, ";
+		}
+		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`,
+							 `currency_id`,
+							 `amount`,
+							 `tdc_amount`,
+							 `tdc_amount_update`,
+							 {$sql_name_cash_request_out_time}
+							 `log_id`
+				FROM `".DB_PREFIX."promised_amount`
+				WHERE `status` IN ('mining', 'repaid') AND
+							 `user_id` = {$user_id} AND
+							 `currency_id` > 1 AND
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
+				ORDER BY `id` ASC
+				");
+		while ($data = $this->db->fetchArray($res)) {
+
+			if ($cash_request_out_time!==false)
+				$sql_value_cash_request_out_time = $data['cash_request_out_time'].', ';
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO `".DB_PREFIX."log_promised_amount` (
 							`tdc_amount`,
 							`tdc_amount_update`,
+							{$sql_name_cash_request_out_time}
 							`block_id`,
 							`prev_log_id`
 					)
 					VALUES (
 							{$data['tdc_amount']},
 							{$data['tdc_amount_update']},
+							{$sql_value_cash_request_out_time}
 							{$this->block_data['block_id']},
 							{$data['log_id']}
 					)");
@@ -8520,13 +8914,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					UPDATE `".DB_PREFIX."promised_amount`
 					SET  `tdc_amount` = {$new_tdc},
 							`tdc_amount_update` = {$this->block_data['time']},
+							{$sql_udp_cash_request_out_time}
 							`log_id` = {$log_id}
 					WHERE `id` = {$data['id']}
 					");
 		}
 	}
 
-	function upd_promised_amounts_rollback($user_id)
+	function upd_promised_amounts_cash_request_out_time_rollback($user_id)
 	{
 		// идем в обратном порядке (DESC)
 		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8535,7 +8930,54 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `status` IN ('mining', 'repaid') AND
 							 `user_id` = {$user_id} AND
 							 `currency_id` > 1 AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0 AND
+							 `cash_request_out_time` = {$this->block_data['time']}
+				ORDER BY `id` DESC
+				");
+		while( $data = $this->db->fetchArray($res) ) {
+
+			// данные, которые восстановим
+			$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `cash_request_out_time`,
+								 `prev_log_id`
+					FROM `".DB_PREFIX."log_promised_amount`
+			        WHERE `log_id` = {$data['log_id']}
+			        ", 'fetch_array' );
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+			        SET  `cash_request_out_time` = {$log_data['cash_request_out_time']},
+			                `log_id` = {$log_data['prev_log_id']}
+					WHERE `log_id` = {$data['log_id']}
+					");
+
+			// подчищаем _log
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."log_promised_amount`
+					WHERE `log_id` = {$data['log_id']}
+					LIMIT 1
+					");
+			$this->rollbackAI('log_promised_amount');
+		}
+	}
+
+	function upd_promised_amounts_rollback($user_id, $cash_request_out_time=false)
+	{
+		$sql_name_cash_request_out_time = '';
+		$sql_upd_cash_request_out_time = '';
+		if ($cash_request_out_time) {
+			$sql_name_cash_request_out_time = '`cash_request_out_time`, ';
+		}
+		// идем в обратном порядке (DESC)
+		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `log_id`
+				FROM `".DB_PREFIX."promised_amount`
+				WHERE `status` IN ('mining', 'repaid') AND
+							 `user_id` = {$user_id} AND
+							 `currency_id` > 1 AND
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				ORDER BY `id` DESC
 				");
 		while( $data = $this->db->fetchArray($res) ) {
@@ -8544,15 +8986,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `tdc_amount`,
 								 `tdc_amount_update`,
+								 {$sql_name_cash_request_out_time}
 								 `prev_log_id`
 					FROM `".DB_PREFIX."log_promised_amount`
 			        WHERE `log_id` = {$data['log_id']}
 			        ", 'fetch_array' );
 
+			if ($cash_request_out_time)
+				$sql_upd_cash_request_out_time = "`cash_request_out_time` = {$log_data['cash_request_out_time']}, ";
+
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."promised_amount`
 			        SET  `tdc_amount` = {$log_data['tdc_amount']},
 			                `tdc_amount_update` = {$log_data['tdc_amount_update']},
+			                 {$sql_upd_cash_request_out_time}
 			                `log_id` = {$log_data['prev_log_id']}
 					WHERE `log_id` = {$data['log_id']}
 					");
@@ -8568,7 +9015,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 13
-	private function cash_request_out()
+	function cash_request_out()
 	{
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($this->tx_data['to_user_id']);
@@ -8578,7 +9025,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// обновление нужно, только если данный cash_request единственный с pending, иначе делать пересчет tdc_amount нельзя, т.к. уже были ранее пересчитаны
 		$exists_requests = $this->check_cash_requests ($this->tx_data['to_user_id'], $this->db);
 		if (!$exists_requests)
-			$this->upd_promised_amounts($this->tx_data['to_user_id']);
+			$this->upd_promised_amounts($this->tx_data['to_user_id'], true, $this->block_data['time']);
+		else
+			$this->upd_promised_amounts_cash_request_out_time($this->tx_data['to_user_id']); // записываем cash_request_out_time во всех обещанных суммах, после того, как юзер вызвал актуализацию. акутализацию юзер вызывал т.к. у него есть непогашенные cash_request.
 
 		// пишем запрос в БД
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8744,9 +9193,66 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
+	/*
+	 * актуалзиация обещанных сумм нужна для того, чтобы обещанные суммы снова стали учитываться
+	 * при подсчете сумм обещанных сумм, когда решается, нужно ли делать урезание DC
+	 */
+	function actualization_promised_amounts_init()
+	{
+		$error = $this->get_tx_data(array('sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function actualization_promised_amounts_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		// есть ли что актуализировать
+		$promised_amount_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."promised_amount`
+				WHERE `status` = 'mining' AND
+							 `user_id` = {$this->tx_data['user_id']} AND
+							 `currency_id` > 1 AND
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0 AND
+							 (`cash_request_out_time` > 0 AND  `cash_request_out_time` < ".($this->tx_data['time'] - $this->variables['cash_request_time']).")
+				", 'fetch_one');
+		if (!$promised_amount_id)
+			return '!$promised_amount_id';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		$error = $this -> limit_requests( limit_actualization, 'actualization', limit_actualization_period );
+		if ($error)
+			return $error;
+	}
+
+	function actualization_promised_amounts()
+	{
+		$this->upd_promised_amounts($this->tx_data['user_id'], false, 0);
+	}
+
+	function actualization_promised_amounts_rollback()
+	{
+		$this->upd_promised_amounts_rollback($this->tx_data['user_id'], true);
+	}
+
+	function actualization_promised_amounts_rollback_front()
+	{
+		$this -> limit_requests_rollback( 'actualization' );
+	}
+
 	/* Если юзер имеет статус for_repaid, и в это время произойдет уменьшение max_promised_amount до значения менее чем сумма promised_amount со статусами mining и repaid данного юзера, то будет невозможно послать запрос cash_request_out к данному юзеру по этой валюте, а это значит статус аккаунта for_repaid будет невозможно снять.
 	 * */
-	private function for_repaid_fix_init()
+	function for_repaid_fix_init()
 	{
 		$this->getPct();
 		$error = $this->get_tx_data(array('sign'));
@@ -8754,7 +9260,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->variables = self::get_all_variables($this->db);
 	}
 
-	private function for_repaid_fix_front()
+	function for_repaid_fix_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -8772,7 +9278,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function for_repaid_fix()
+	function for_repaid_fix()
 	{
 		// возможно больше нет mining ни по одной валюте (кроме WOC) у данного юзера
 		$for_repaid_currency_ids = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8782,7 +9288,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 `user_id` = {$this->tx_data['user_id']} AND
 							 `amount` > 0 AND
 							 `currency_id` > 1 AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'array');
 
 		$i=0;
@@ -8798,7 +9305,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if (!$for_repaid_currency_ids ) {
 
-			$this->upd_promised_amounts($this->tx_data['user_id'], false);
+			$this->upd_promised_amounts($this->tx_data['user_id'], false, 0);
 
 			// просроченным cash_requests ставим for_repaid_del_block_id, чтобы cash_request_out не переводил более обещанные суммы данного юзера в for_repaid из-за просроченных cash_requests
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -8811,7 +9318,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function for_repaid_fix_rollback()
+	function for_repaid_fix_rollback()
 	{
 		$for_repaid_del_block_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
@@ -8826,11 +9333,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `to_user_id` = {$this->tx_data['user_id']} AND
 								 `for_repaid_del_block_id` = {$this->block_data['block_id']}
 					");
-			$this->upd_promised_amounts_rollback($this->tx_data['user_id']);
+			$this->upd_promised_amounts_rollback($this->tx_data['user_id'], true);
 		}
 	}
 
-	private function for_repaid_fix_rollback_front()
+	function for_repaid_fix_rollback_front()
 	{
 		$this -> limit_requests_rollback( 'for_repaid_fix' );
 	}
@@ -8838,7 +9345,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	/* Если майнера забанил админ после того, как к нему пришел запрос cash_request_out,
 	 * то он всё равно должен отдать свои обещанные суммы, которые получат статус repaid.
 	*/
-	private function cash_request_in_init()
+	function cash_request_in_init()
 	{
 		$this->getPct();
 		$error = $this->get_tx_data(array('cash_request_id', 'code', 'sign'));
@@ -8848,13 +9355,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	/* не забываем, что cash_request_OUT_front проверяет формат amount,
-	 * можно ли делать запрос банкнот указанному юзеру, есть ли у юзера
+	 * можно ли делать запрос указанному юзеру, есть ли у юзера
 	 * обещанные суммы на сумму amount, есть ли нужное кол-во DC у отправителя,
 	 * является ли отправитель майнером
 	 *
 	 * */
 	// 14
-	private function cash_request_in_front()
+	function cash_request_in_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -8907,7 +9414,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 14
-	private function cash_request_in()
+	function cash_request_in()
 	{
 		$this->cash_request_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
@@ -8940,7 +9447,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `user_id` = {$this->tx_data['user_id']} AND
 								 `currency_id` = {$this->cash_request_data['currency_id']} AND
 								 `status_backup` = 'repaid' AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					", 'fetch_one');
         }
         else {
@@ -8952,7 +9460,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `user_id` = {$this->tx_data['user_id']} AND
 								 `currency_id` = {$this->cash_request_data['currency_id']} AND
 								 `status` = 'repaid' AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					", 'fetch_one');
         }
 
@@ -9026,7 +9535,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `user_id` = {$this->tx_data['user_id']} AND
 							 `currency_id` = {$this->cash_request_data['currency_id']} AND
 							 `status` = 'mining' AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'fetch_array');
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9067,8 +9577,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `status` = 'approved'
 				WHERE `id` = {$this->tx_data['cash_request_id']}
 				");
-		// возможно, что данный cash_requests с approved был единственный, и последующий вызов метода mining начислит новые TDC в соответствии с имеющимся % роста,. значит необходимо обновить tdc_amount и tdc_amount_update
-		$this->upd_promised_amounts($this->tx_data['user_id'], false);
 
 		// возможно, больше нет mining ни по одной валюте (кроме WOC) у данного юзера
 		$for_repaid_currency_ids = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9078,7 +9586,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 `user_id` = {$this->tx_data['user_id']} AND
 							 `amount` > 0 AND
 							 `currency_id` > 1 AND
-							 `del_block_id` = 0
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0
 				", 'array');
 		debug_print('$for_repaid_currency_ids='.print_r_hex($for_repaid_currency_ids), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -9108,6 +9617,23 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 		}
 
+		$exists_requests = $this->check_cash_requests ($this->tx_data['user_id'], $this->db);
+		// возможно, что данный cash_requests с approved был единственный, и последующий вызов метода mining начислит новые TDC в соответствии с имеющимся % роста,. значит необходимо обновить tdc_amount и tdc_amount_update
+		if ( !$for_repaid_currency_ids || !$exists_requests ) { // у юзера нет долгов, нужно ставить ему cash_request_out_time=0
+			$this->upd_promised_amounts($this->tx_data['user_id'], false, 0);
+		}
+		else {
+			// для того, чтобы было проще делать rollback пишем время cash_request_out_time, хотя по сути cash_request_out_time будет таким же каким и был
+			$cash_request_out_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `cash_request_out_time`
+					FROM `".DB_PREFIX."promised_amount`
+					WHERE `user_id` = {$this->tx_data['user_id']} AND
+								 `cash_request_out_time` > 0
+					LIMIT 1
+					", 'fetch_one');
+			$this->upd_promised_amounts($this->tx_data['user_id'], false, $cash_request_out_time);
+		}
+
 		$cash_requests_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `from_user_id`
 					FROM `".DB_PREFIX."cash_requests`
@@ -9135,14 +9661,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function cash_request_in_rollback_front()
+	function cash_request_in_rollback_front()
 	{
 
 	}
 
-	private function cash_request_in_rollback()
+	function cash_request_in_rollback()
 	{
-		$this->upd_promised_amounts_rollback($this->tx_data['user_id']);
+		$this->upd_promised_amounts_rollback($this->tx_data['user_id'], true);
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."cash_requests`
@@ -9173,7 +9699,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// откатим DC, списанные с кошелька отправителя DC
 		$this->general_rollback('wallets', $this->cash_request_data['from_user_id'], "AND `currency_id` = {$this->cash_request_data['currency_id']}");
 
-		// откатываем обещанные суммы
+		// откатываем обещанные суммы, у которых было затронуто amount
 		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT  `id`,
 							  `log_id`
@@ -9181,7 +9707,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `user_id` = {$this->tx_data['user_id']} AND
 				             `currency_id` = {$this->cash_request_data['currency_id']} AND
 				             `cash_request_in_block_id` = {$this->block_data['block_id']} AND
-				             `del_block_id` = 0
+				             `del_block_id` = 0 AND
+				             `del_mining_block_id` = 0
 				ORDER BY `log_id` DESC
 				");
 		while( $data = $this->db->fetchArray($res) ) {
@@ -9266,7 +9793,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 15
-	private function votes_complex_init()
+	function votes_complex_init()
 	{
 		$error = $this->get_tx_data(array('json_data', 'sign'));
 		if ($error) return $error;
@@ -9275,7 +9802,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 15
-	private function votes_complex_front()
+	function votes_complex_front()
 	{
 		global $reduction_dc;
 
@@ -9301,6 +9828,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
+		// прошло ли 30 дней с момента регистрации майнера
+		$error = $this->check_miner_newbie();
+		if ($error)
+			return $error;
+
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['json_data']}";
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
@@ -9318,7 +9850,23 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		$double_check = array();
 		debug_print($json_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		foreach ($json_data as $currency_id=>$data) {
+
+		// раньше не было рефских
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=77951)
+			$currency_votes = $json_data;
+		else {
+			if (!isset($json_data['currency']) || !isset($json_data['referral']))
+				return 'error json_data currency';
+			$currency_votes = $json_data['currency'];
+			// и проверяем голоса за реф. %
+			if ( !check_input_data (@$json_data['referral']['first'] , 'referral') || !check_input_data (@$json_data['referral']['second'] , 'referral') || !check_input_data (@$json_data['referral']['third'] , 'referral') )
+				return '!referral';
+		}
+
+		if (!is_array($currency_votes))
+			return 'error json_data currency_votes';
+
+		foreach ($currency_votes as $currency_id=>$data) {
 
 			debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -9349,7 +9897,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `status` IN ('mining', 'repaid') AND
 								 `start_time` < ".($time - $this->variables['min_hold_time_promise_amount'])." AND
 								 `start_time` > 0 AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					", 'fetch_one');
 			if ( !$id )
 				return 'no currency in promised_amount <('.$time.' - '.$this->variables['min_hold_time_promise_amount'].')';
@@ -9362,7 +9911,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `del_block_id` = 0 AND
 								 `status` IN ('mining', 'repaid') AND
 								 `currency_id` = {$currency_id} AND
-								 `del_block_id` = 0
+								 `del_block_id` = 0 AND
+								 `del_mining_block_id` = 0
 					GROUP BY `user_id`
 					", 'num_rows' );
 			if ($count_miners < $this->variables['min_miners_of_voting'])
@@ -9406,26 +9956,35 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 15
-	private function votes_complex_rollback_front()
+	function votes_complex_rollback_front()
 	{
 		$this -> limit_requests_rollback( 'votes_complex' );
 	}
 
 	// 15
-	private function votes_complex_rollback() {
-
-		//$this->general_rollback( 'pct_votes', $this->tx_data['user_id'] );
-
+	function votes_complex_rollback()
+	{
 		$json_data = json_decode($this->tx_data['json_data'], true);
-		krsort($json_data);
-		foreach ($json_data as $currency_id=>$data) {
+
+		// раньше не было рефских
+		if ($this->block_data['block_id']<=77951)
+			$currency_votes = $json_data;
+		else {
+			$currency_votes = $json_data['currency'];
+			// голоса за реф. %
+			$this->selective_rollback (array('first', 'second', 'third'), 'votes_referral', "`user_id`={$this->tx_data['user_id']}");
+		}
+
+		// сортируем по $currency_id в обратном порядке
+		krsort($currency_votes);
+		foreach ($currency_votes as $currency_id=>$data) {
 
 			// miner_pct
-			$this->selective_rollback (array('pct'), 'votes_miner_pct', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
+			$this->selective_rollback (array('pct', 'time'), 'votes_miner_pct', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
 			// user_pct
 			$this->selective_rollback (array('pct'), 'votes_user_pct', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
 			// reduction
-			$this->selective_rollback (array('pct'), 'votes_reduction', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
+			$this->selective_rollback (array('pct', 'time'), 'votes_reduction', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
 			// max_promised_amount
 			$this->selective_rollback (array('amount'), 'votes_max_promised_amount', "`user_id`={$this->tx_data['user_id']} AND `currency_id` = {$currency_id}");
 			// max_other_currencies
@@ -9445,24 +10004,33 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 15
-	private function votes_complex()
+	function votes_complex()
 	{
 		$json_data = json_decode($this->tx_data['json_data'], true);
 
-		foreach ($json_data as $currency_id=>$data) {
+		// раньше не было рефских
+		if ($this->block_data['block_id']<=77951)
+			$currency_votes = $json_data;
+		else {
+			$currency_votes = $json_data['currency'];
+			// голоса за реф. %
+			$this->selective_logging_and_upd (array('first', 'second', 'third'), array($json_data['referral']['first'], $json_data['referral']['second'], $json_data['referral']['third']), 'votes_referral', array('user_id'), array($this->tx_data['user_id']));
+		}
+
+		foreach ($currency_votes as $currency_id=>$data) {
 
 			// miner_pct
 			$this->tx_data['pct'] = $data[0];
 			$this->selective_logging_and_upd (array('pct', 'time'), array($this->tx_data['pct'], $this->tx_data['time']), 'votes_miner_pct', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
 			// user_pct
 			$this->tx_data['pct'] = $data[1];
-			$this->selective_logging_and_upd (array('pct', 'time'), array($this->tx_data['pct'], $this->tx_data['time']), 'votes_user_pct', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
+			$this->selective_logging_and_upd (array('pct'), array($this->tx_data['pct']), 'votes_user_pct', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
 			// max_promised_amount
 			$this->tx_data['amount'] = $data[2];
-			$this->selective_logging_and_upd (array('amount', 'time'), array($this->tx_data['amount'], $this->tx_data['time']), 'votes_max_promised_amount', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
+			$this->selective_logging_and_upd (array('amount'), array($this->tx_data['amount']), 'votes_max_promised_amount', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
 			// max_other_currencies
 			$this->tx_data['count'] = $data[3];
-			$this->selective_logging_and_upd (array('count', 'time'), array($this->tx_data['count'], $this->tx_data['time']), 'votes_max_other_currencies', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
+			$this->selective_logging_and_upd (array('count'), array($this->tx_data['count']), 'votes_max_other_currencies', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
 			// reduction
 			$this->tx_data['pct'] = $data[4];
 			$this->selective_logging_and_upd (array('pct', 'time'), array($this->tx_data['pct'], $this->tx_data['time']), 'votes_reduction', array('user_id', 'currency_id'), array($this->tx_data['user_id'], $currency_id));
@@ -9484,7 +10052,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 42
-	private function change_host_init()
+	function change_host_init()
 	{
 		$error = $this->get_tx_data(array('host', 'sign'));
 		if ($error) return $error;
@@ -9492,7 +10060,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->variables = self::get_all_variables($this->db);
 	}
 
-	private function change_host_front()
+	function change_host_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -9516,7 +10084,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 	}
 
-	private function change_host()
+	function change_host()
 	{
 		$this->selective_logging_and_upd (array('host'), array($this->tx_data['host']), 'miners_data', array('user_id'), array($this->tx_data['user_id']));
 
@@ -9533,7 +10101,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function change_host_rollback()
+	function change_host_rollback()
 	{
 		self::selective_rollback (array('host'), 'miners_data', "`user_id`={$this->tx_data['user_id']}");
 
@@ -9549,13 +10117,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function change_host_rollback_front()
+	function change_host_rollback_front()
 	{
 		$this->limit_requests_rollback('change_host');
 	}
 
 	// 16
-	private function change_primary_key_init()
+	function change_primary_key_init()
 	{
 		$error = $this->get_tx_data(array('bin_public_keys', 'sign'));
 		if ($error) return $error;
@@ -9585,7 +10153,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 16
-	private function change_primary_key_front()
+	function change_primary_key_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -9611,7 +10179,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 16
-	private function change_primary_key()
+	function change_primary_key()
 	{
 		// Всегда есть, что логировать, т.к. это обновление ключа
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9654,14 +10222,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// проверим, не наш ли это user_id или не наш ли это паблик-ключ
 		$this->get_my_user_id($this->tx_data['user_id']);
 
-		// проверим, не наш ли это public_key, чтобы записать полученный user_id в my_table
-		$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `public_key`
-				FROM `".DB_PREFIX."{$this->my_prefix}my_keys`
-				WHERE `id` = (SELECT max(`id`) FROM `".DB_PREFIX."{$this->my_prefix}my_keys` )
-				LIMIT 1
-				", 'fetch_one' );
-		$my_public_key = bin2hex($my_public_key);
+		$my_public_key = '';
+		if ($this->my_user_id || !get_community_users($this->db)) {
+			// проверим, не наш ли это public_key, чтобы записать полученный user_id в my_table
+			$my_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `public_key`
+					FROM `".DB_PREFIX."{$this->my_prefix}my_keys`
+					WHERE `id` = (SELECT max(`id`) FROM `".DB_PREFIX."{$this->my_prefix}my_keys` )
+					LIMIT 1
+					", 'fetch_one' );
+			$my_public_key = bin2hex($my_public_key);
+		}
 
 		debug_print('my_user_id='.$this->my_user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print('$my_public_key='.$my_public_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -9805,13 +10376,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 16
-	private function change_primary_key_rollback_front()
+	function change_primary_key_rollback_front()
 	{
 		$this->limit_requests_rollback('primary_key');
 	}
 
 	// 16
-	private function change_primary_key_rollback()
+	function change_primary_key_rollback()
 	{
 		// получим log_id, по которому можно найти данные, которые были до этого
 		// $log_id всегда больше нуля, т.к. это откат обновления ключа
@@ -9871,7 +10442,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 17
-	private function change_node_key_init()
+	function change_node_key_init()
 	{
 		$error = $this->get_tx_data(array('new_node_public_key', 'sign'));
 		if ($error) return $error;
@@ -9881,7 +10452,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 17
-	private function change_node_key_front()
+	function change_node_key_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -9920,7 +10491,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 
 	// 17
-	private function change_node_key() {
+	function change_node_key() {
 
 		// Всегда есть, что логировать, т.к. это обновление ключа
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9969,14 +10540,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function change_node_key_rollback_front() {
+	function change_node_key_rollback_front() {
 
 		$this -> limit_requests_rollback('node_key');
 
 	}
 
 	// 17
-	private function change_node_key_rollback() {
+	function change_node_key_rollback() {
 
 		// получим log_id, по которому можно найти данные, которые были до этого
 		// $log_id всегда больше нуля, т.к. это откат обновления ключа
@@ -10031,7 +10602,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function new_holidays_init()
+	function new_holidays_init()
 	{
 		$error = $this->get_tx_data(array('start_time', 'end_time', 'sign'));
 		if ($error) return $error;
@@ -10040,7 +10611,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function new_holidays_front()
+	function new_holidays_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -10114,13 +10685,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function new_holidays_rollback_front()
+	function new_holidays_rollback_front()
 	{
 		$this->limit_requests_rollback('holidays');
 	}
 
 	// 26
-	private function new_holidays_rollback() {
+	function new_holidays_rollback() {
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."holidays`
@@ -10134,7 +10705,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 26
-	private function new_holidays() {
+	function new_holidays() {
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."holidays` (
@@ -10160,14 +10731,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function del_forex_order_init()
+	function del_forex_order_init()
 	{
 		$error = $this->get_tx_data(array('order_id', 'sign'));
 		if ($error) return $error;
 		$this->variables = self::get_all_variables($this->db);
 	}
 
-	private function del_forex_order_front()
+	function del_forex_order_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -10196,7 +10767,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function del_forex_order()
+	function del_forex_order()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."forex_orders`
@@ -10205,7 +10776,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 	}
 
-	private function del_forex_order_rollback()
+	function del_forex_order_rollback()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."forex_orders`
@@ -10214,11 +10785,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 	}
 
-	private function del_forex_order_rollback_front()
+	function del_forex_order_rollback_front()
 	{
 	}
 
-	private function new_forex_order_init()
+	function new_forex_order_init()
 	{
 		$error = $this->get_tx_data(array('sell_currency_id', 'sell_rate', 'amount', 'buy_currency_id', 'commission', 'sign'));
 		if ($error) return $error;
@@ -10235,7 +10806,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 
-	private function limit_requests_money_orders ($limit)
+	function limit_requests_money_orders ($limit)
 	{
 		$num = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(`tx_hash`)
@@ -10260,7 +10831,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function limit_requests_money_orders_rollback()
+	function limit_requests_money_orders_rollback()
 	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."log_time_money_orders`
@@ -10298,7 +10869,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function new_forex_order_front()
+	function new_forex_order_front()
 	{
 		$error = $this -> general_check();
 		if ($error)
@@ -10352,7 +10923,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
-	private function new_forex_order()
+	function new_forex_order()
 	{
 
 		// нужно отметить в log_time_money_orders, что тр-ия прошла в блок
@@ -10539,7 +11110,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function new_forex_order_rollback()
+	function new_forex_order_rollback()
 	{
 
 		// нужно отметить в log_time_money_orders, что тр-ия НЕ прошла в блок
@@ -10683,7 +11254,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	private function new_forex_order_rollback_front()
+	function new_forex_order_rollback_front()
 	{
 		$this->limit_requests_money_orders_rollback();
 	}
@@ -10692,7 +11263,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	/*
 	 * отложим на потом, т.к. некогда думать, что делать с пересчетом TDC по обещанным суммам и входящим запросам, которые не шлются тем, у кого каникулы
 		// 27
-		private function holidays_del_init() {
+		function holidays_del_init() {
 
 			$this->tx_data['hash'] = $this->transaction_array[0];
 			$this->tx_data['type'] = $this->transaction_array[1];
@@ -10706,7 +11277,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// 27
-		private function holidays_del_front() {
+		function holidays_del_front() {
 
 			$error = $this -> general_check();
 			if ($error)
@@ -10743,14 +11314,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// 27
-		private function holidays_del_rollback_front() {
+		function holidays_del_rollback_front() {
 
 			$this -> limit_requests_rollback('holidays');
 
 		}
 
 		// 27
-		private function holidays_del_rollback() {
+		function holidays_del_rollback() {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."holidays`
@@ -10774,7 +11345,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// 27
-		private function holidays_del() {
+		function holidays_del() {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE`".DB_PREFIX."holidays`
@@ -10814,7 +11385,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $binary_data;
 	}
 
-	private function ParseBlock()
+	function ParseBlock()
 	{
 		global $global_current_block_id;
 		/*
@@ -11135,6 +11706,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		debug_print("block_data=".print_r_hex($this->block_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+		// для локальных тестов
+		if ($this->block_data['block_id']==1) {
+			$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+			if (isset($ini_array['local']['start_block_id'])) {
+				$this->block_data['block_id'] = $ini_array['local']['start_block_id'];
+			}
+		}
+
 		// пишем в цепочку блоков
 		$data = "{$this->block_data['block_id']}\t{$this->block_data['hash']}\t{$this->block_data['head_hash']}\t{$this->block_hex}";
 		$file = save_tmp_644 ('FBC', $data);
@@ -11181,12 +11760,19 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	public function upd_block_info()
 	{
-
-		$head_hash_data = "{$this->block_data['user_id']},{$this->block_data['block_id']},{$this->prev_block['head_hash']}";
+		$block_id = $this->block_data['block_id'];
+		// для локальных тестов
+		if ($this->block_data['block_id']==1) {
+			$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+			if (isset($ini_array['local']['start_block_id'])) {
+				$block_id = $ini_array['local']['start_block_id'];
+			}
+		}
+		$head_hash_data = "{$this->block_data['user_id']},{$block_id},{$this->prev_block['head_hash']}";
 		$this->block_data['head_hash'] = ParseData::dsha256($head_hash_data);
 		debug_print("head_hash={$this->block_data['head_hash']}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		$for_sha = "{$this->block_data['block_id']},{$this->prev_block['hash']},{$this->mrkl_root},{$this->block_data['time']},{$this->block_data['user_id']},{$this->block_data['level']}";
+		$for_sha = "{$block_id},{$this->prev_block['hash']},{$this->mrkl_root},{$this->block_data['time']},{$this->block_data['user_id']},{$this->block_data['level']}";
 		debug_print("for_sha={$for_sha}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$this->block_data['hash'] = ParseData::dsha256($for_sha);
@@ -11204,7 +11790,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				) VALUES (
 					0x{$this->block_data['hash']},
 					0x{$this->block_data['head_hash']},
-					{$this->block_data['block_id']},
+					{$block_id},
 					{$this->block_data['time']},
 					{$this->block_data['level']},
 					'{$this->current_version}'
@@ -11214,14 +11800,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					UPDATE `".DB_PREFIX."info_block`
 					SET  `hash` = 0x{$this->block_data['hash']},
 							`head_hash` = 0x{$this->block_data['head_hash']},
-							`block_id`= {$this->block_data['block_id']},
+							`block_id`= {$block_id},
 							`time`= {$this->block_data['time']},
 							`level`= {$this->block_data['level']},
 							`sent` = 0
 					");
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."config`
-					SET `my_block_id` = {$this->block_data['block_id']}
+					SET `my_block_id` = {$block_id}
 					");
 
 
@@ -11469,6 +12055,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (!$this->prev_block) // инфа может быть передана прямо в массиве
 			$this->get_prev_block($this->block_data['block_id']-1);
 		//$this->get_info_block(); убрано, т.к. CheckBlockHeader используется и при сборе новых блоков при вилке
+
+		// для локальных тестов
+		if ($this->prev_block['block_id']==1) {
+			$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+			if (isset($ini_array['local']['start_block_id'])) {
+				$this->prev_block['block_id'] = $ini_array['local']['start_block_id'];
+			}
+		}
 
 		debug_print("this->prev_block: ".print_r_hex($this->prev_block), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print("this->block_data: ".print_r_hex($this->block_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
