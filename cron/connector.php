@@ -46,11 +46,23 @@ while (true) {
 	// в сингл-моде будет только $my_miners_ids[0]
 	$my_miners_ids = get_my_miners_ids($db, $collective);
 
+	$nodes_ban = array();
 	$hosts = array();
 	$urls = array();
 	$del_miners = array();
 	$nodes_inc = '';
 	$nodes_count = 0;
+
+	// забаненные хосты
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `host`, `ban_start`
+				FROM `".DB_PREFIX."nodes_ban`
+				LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."nodes_ban`.`user_id`
+				");
+	while ( $row = $db->fetchArray( $res ) ) {
+		$nodes_ban[$row['host']] = $row['ban_start'];
+	}
+
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `".DB_PREFIX."nodes_connection`.`host`,
 						 `".DB_PREFIX."nodes_connection`.`user_id`,
@@ -60,7 +72,15 @@ while (true) {
 			LEFT JOIN `".DB_PREFIX."nodes_ban` ON `".DB_PREFIX."nodes_ban`.`user_id` = `".DB_PREFIX."nodes_connection`.`user_id`
 			LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."nodes_connection`.`user_id`
 			");
+	$i=0;
 	while ( $row = $db->fetchArray( $res ) ) {
+
+		// отметимся в БД, что мы живы.
+		upd_deamon_time($db);
+
+		// проверим, не нужно нам выйти, т.к. обновилась версия скрипта
+		if (check_deamon_restart($db))
+			exit;
 
 		debug_print($row, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -88,13 +108,14 @@ while (true) {
 					");
 			continue;
 		}
-		$hosts[] = $row['host'];
+		$hosts[$i]['host'] = $row['host'];
+		$hosts[$i]['user_id'] = $row['user_id'];
 		$nodes_inc.="{$row['host']};{$row['user_id']}\n";
 		$nodes_count++;
 	}
 
 	for ($i=0; $i<sizeof($hosts); $i++)
-		$urls[$i]['url'] = $hosts[$i].'ok.php';
+		$urls[$i]['url'] = $hosts[$i]['host'].'ok.php?user_id='.$hosts[$i]['user_id'];
 
 	$result = m_curl ($urls, '', '', '', 5, true, false);
 
@@ -117,6 +138,7 @@ while (true) {
 				FROM `".DB_PREFIX."miners`
 				", 'fetch_one');
 		debug_print("max={$max}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$i1=0;
 		do {
 			if ($max>1)
 				$rand = (rand(1, $max));
@@ -125,7 +147,8 @@ while (true) {
 			$id_array[$rand] = 1;
 			//print $rand."\n";
 			//ob_flush();
-		} while ( sizeof($id_array) < $need && sizeof($id_array) < $max );
+			$i1++;
+		} while ( sizeof($id_array) < $need && sizeof($id_array) < $max && $i1<30 );
 		debug_print("id_array=".print_r_hex($id_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print("my_miners_ids=".print_r_hex($my_miners_ids), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print("del_miners=".print_r_hex($del_miners), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -152,12 +175,18 @@ while (true) {
 					WHERE `miner_id` IN ({$ids})
 					");
 			while ( $row = $db->fetchArray( $res ) ) {
+
+				if (array_key_exists($row['host'], $nodes_ban))
+					if ($nodes_ban[$row['host']] > time() - NODE_BAN_TIME)
+						continue;
+
 				$hosts[] = $row['host'];
 				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT IGNORE INTO `".DB_PREFIX."nodes_connection` (
 							`host`,
 							`user_id`
-						) VALUES (
+						)
+						VALUES (
 							'{$row['host']}',
 							{$row['user_id']}
 						)");
@@ -179,6 +208,11 @@ while (true) {
 			list($host, $user_id) = explode(';', $hosts[$r[$i]]);
 			if ( in_array($user_id, $collective) )
 				continue;
+
+			if (array_key_exists($host, $nodes_ban))
+				if ($nodes_ban[$host] > time() - NODE_BAN_TIME)
+					continue;
+
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT IGNORE INTO `".DB_PREFIX."nodes_connection` (
 						`host`,
