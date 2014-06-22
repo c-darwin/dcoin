@@ -8,10 +8,18 @@ set_time_limit(0);
 
 //require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
+require_once( ABSPATH . 'includes/class-parsedata.php' );
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+
+$variables = ParseData::get_all_variables($db);
+
+$block_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `time`, `block_id`
+		FROM `".DB_PREFIX."info_block`
+		", 'fetch_array');
 
 if ($_REQUEST['table'] && $_REQUEST['row'] && $_REQUEST['col']){
 	$table = $_REQUEST['table'];
@@ -70,15 +78,31 @@ else {
 	$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SHOW TABLES
 			", 'array');
+
 	foreach($tables_array as $table) {
-		if (!preg_match('/my_|_my/', $table)) {
-			$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT count(*)
-					FROM `".DB_PREFIX."{$table}`
-					", 'fetch_one');
-			$all_counts[$table] = $count;
-		}
+
+		if (preg_match('/(my_|_my|config)/i', $table))
+			continue;
+
+		$sql_where = '';
+		if (preg_match('/log_time_(.*)/i', $table, $t_name) && $table!='log_time_money_orders')
+			$sql_where = " WHERE `time` > ".($block_data['time'] - $variables['limit_'.$t_name[1].'_period']);
+		else if (preg_match('/^(log_transactions)$/i', $table) )
+			$sql_where = " WHERE `time` > ".($block_data['time'] - 86400*3);
+		else if (preg_match('/^(log_votes|wallets_buffer|log_time_money_orders)$/i', $table) )
+			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
+		else if (preg_match('/^(log_commission|log_faces|log_forex_orders|log_forex_orders_main|log_miners|log_miners_data|log_points|log_promised_amount|log_recycle_bin|log_spots_compatibility|log_users|log_votes_max_other_currencies|log_votes_max_promised_amount|log_votes_miner_pct|log_votes_reduction|log_votes_user_pct|log_wallets)$/i', $table) )
+			$sql_where = " WHERE `block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
+
+		$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(*)
+				FROM `".DB_PREFIX."{$table}`
+				{$sql_where}
+				", 'fetch_one');
+		$all_counts[$table] = $count;
+		$all_counts['_hash_'.$table] = substr(hash_table_data($db, $table, $sql_where), 0, 6);
 	}
+
 	print json_encode($all_counts);
 }
 ?>
