@@ -4,14 +4,7 @@ if (!defined('DC')) die("!defined('DC')");
 // уведомления
 $tpl['alert'] = @$_REQUEST['parameters']['alert'];
 
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `id`,
-					  `name`
-		FROM `'.DB_PREFIX.'currency`
-		 ORDER BY `name`
-		 ');
-while ($row = $db->fetchArray($res)) 
-	$tpl['currency_list'][$row['id']] = $row['name'];
+$tpl['currency_list'] = get_currency_list($db);
 
 $tpl['currency_id'] = @$_REQUEST['parameters']['currency_id'];
 if (!$tpl['currency_id'])
@@ -49,8 +42,22 @@ while ($row = $db->fetchArray($res)) {
 							 `status` = 'pending'
 				LIMIT 1
 				", 'fetch_one' );
-	if ($cash_request_pending && $row['currency_id'] > 1 && $row['status'] == 'mining')
+	if ($cash_request_pending && $row['currency_id'] > 1 && $row['status'] == 'mining') {
+
 		$row['status'] = 'for_repaid';
+
+		// и заодно проверим, можно ли делать актуализацию обещанных сумм
+		$tpl['actualization_promised_amounts'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."promised_amount`
+				WHERE `status` = 'mining' AND
+							 `user_id` = {$user_id} AND
+							 `currency_id` > 1 AND
+							 `del_block_id` = 0 AND
+							 `del_mining_block_id` = 0 AND
+							 (`cash_request_out_time` > 0 AND `cash_request_out_time` < ".(time() - $tpl['variables']['cash_request_time']).")
+				", 'fetch_one');
+	}
 
 	$row['tdc'] = $row['tdc_amount'];
 	if ($row['del_block_id'])
