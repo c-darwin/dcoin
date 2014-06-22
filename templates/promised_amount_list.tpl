@@ -23,9 +23,9 @@ function clear_amount (id) {
 function calc_commission (id) {
 	clear_amount ('repaid-input-'+id);
 	var amount = $('#repaid-input-'+id).val();
-	var commission = <?php echo $tpl['variables']['system_commission']?>;
-	var new_amount = amount*(100-commission)/100;
-	$("#commission-"+id).text('- commission 5% = '+new_amount.toFixed(2));
+	//var commission = <?php echo $tpl['variables']['system_commission']?>;
+	//var new_amount = amount*(100-commission)/100;
+	//$("#commission-"+id).text('- commission 5% = '+new_amount.toFixed(2));
 }
 
 </script>
@@ -79,6 +79,10 @@ function calc_commission (id) {
 	}
 	?>
 <button  onclick="fc_navigate('promised_amount_add')" class="btn"><?php echo $lng['add_note']?></button>
+<?php
+if (isset($tpl['actualization_promised_amounts']))
+	print '<button  onclick="fc_navigate(\'promised_amount_actualization\')" class="btn">'.$lng['actualize_promised_amounts'].'</button>';
+?>
 <br><br><p><span class="label label-important"><?php echo $lng['limits'] ?></span>  <?php echo $tpl['limits_text'] ?></p>
 <br>
 <a href="#" onclick="fc_navigate('for_repaid_fix')">for_repaid_fix</a>
