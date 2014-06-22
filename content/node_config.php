@@ -17,6 +17,11 @@ if ($script_name == 'my_lock')
 else
 	$tpl['my_status'] = 'ON';
 
+if (!get_community_users($db))
+	$tpl['my_mode'] = 'Single';
+else
+	$tpl['my_mode'] = 'Pool';
+
 $tpl['config_ini'] = file_get_contents( ABSPATH . 'config.ini' );
 
 require_once( ABSPATH . 'templates/node_config.tpl' );
