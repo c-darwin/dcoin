@@ -176,6 +176,12 @@
 						$('.fc_content').html( data );
 					}, "html");
 		}
+		else if (result=='not_available') {
+			alert('Sorry, registration is not available');
+		}
+		else {
+			alert('Sorry, incorrect key');
+		}
 	}
 
 	function save_key () {
@@ -333,7 +339,7 @@
 
 				  <!--<div style="padding-top: 10px;padding-right: 15px; float: left"><a href="#" onclick="fc_navigate('home', 'lang=ru'); load_menu();">ru</a> | <a href="#" onclick="fc_navigate('home', 'lang=en'); load_menu();">en</a></div>-->
 
-		          <div style="padding-top: 10px; float: left"><a href="mailto: c-darwin@outlook.com">c-darwin@outlook.com</a></div>
+		          <div style="padding-top: 10px; float: left"><a href="mailto: admin@democratic-coin.com">admin@democratic-coin.com</a></div>
 
 	          </div>
 	          <div id="bar_alert" style="display: none"><a href="#" onclick="fc_navigate('cash_requests_in')"><img src="img/alert.png"></a></div>
