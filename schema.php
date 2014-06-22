@@ -244,6 +244,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}promised_amount` (
   `votes_0` int(11) NOT NULL,
   `votes_1` int(11) NOT NULL,
   `woc_block_id` int(11) NOT NULL COMMENT 'Нужно для отката добавления woc',
+  `cash_request_out_time` int(11) NOT NULL COMMENT 'Любой cash_request_out приводит к появлению данной записи у получателя запроса. Убирается она только после того, как у юзера не остается непогашенных cash_request-ов. Нужно для reduction_generator, чтобы учитывать только те обещанные суммы, которые еще не заморожены невыполенными cash_request-ами',
+  `cash_request_out_time_backup` int(11) NOT NULL COMMENT 'Используется в new_reduction()',
   `cash_request_in_block_id` int(11) NOT NULL COMMENT 'Нужно для отката cash_request_in',
   `del_mining_block_id` int(11) NOT NULL COMMENT 'Нужно для отката del_promised_amount',
   `log_id` bigint(20) NOT NULL,
@@ -267,6 +269,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_promised_amount` (
   `votes_start_time` int(11) NOT NULL COMMENT 'При каждой смене местоположения начинается новое голосование',
   `votes_0` int(11) NOT NULL,
   `votes_1` int(11) NOT NULL,
+  `cash_request_out_time` int(11) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`log_id`)
@@ -425,6 +428,14 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_spots_compatibility` (
 
 ";
 
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_actualization`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_actualization` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_abuses`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_abuses` (
@@ -600,13 +611,10 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_transactions` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_users`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_users` (
   `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `user_number` int(11) NOT NULL,
-  `gen_block` int(11) NOT NULL,
-  `try_gen_block` int(11) NOT NULL,
   `public_key_0` varbinary(512) NOT NULL,
   `public_key_1` varbinary(512) NOT NULL,
   `public_key_2` varbinary(512) NOT NULL,
-  `chargeback` tinyint(2) NOT NULL,
+  `referral` bigint(20) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`log_id`)
@@ -774,7 +782,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions`
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `status` enum('pending','approved') NOT NULL DEFAULT 'approved' COMMENT 'pending - только при отправки DC с нашего кошелька, т.к. нужно показать юзеру, что запрос принят',
   `notification` tinyint(1) NOT NULL COMMENT 'Уведомления по sms и email',
-  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission') NOT NULL,
+  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral') NOT NULL,
   `type_id` bigint(20) NOT NULL,
   `to_user_id` bigint(20) NOT NULL,
   `amount` decimal(15,2) NOT NULL,
@@ -1040,7 +1048,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}reduction` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_miner_pct`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_miner_pct` (
   `user_id` bigint(20) unsigned NOT NULL,
-  `time` int(11) unsigned NOT NULL,
+  `time` int(11) unsigned NOT NULL COMMENT 'Нужно только для того, чтобы определять, голосовал ли юзер или нет. От этого зависит, будет он получать майнерский или юзерский %',
   `currency_id` tinyint(3) unsigned NOT NULL,
   `pct`  decimal(13,13) NOT NULL,
   `log_id` bigint(20) NOT NULL,
@@ -1050,8 +1058,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_miner_pct` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_votes_miner_pct`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_miner_pct` (
   `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `time` int(10) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
+  `time` int(11) unsigned NOT NULL,
   `pct`  decimal(13,13) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) NOT NULL,
@@ -1066,7 +1074,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_miner_pct` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_user_pct`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_user_pct` (
   `user_id` bigint(20) unsigned NOT NULL,
-  `time` int(11) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `pct`  decimal(13,13) NOT NULL,
   `log_id` bigint(20) NOT NULL,
@@ -1077,7 +1084,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_user_pct` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_votes_user_pct`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_user_pct` (
   `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `time` int(10) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `pct`  decimal(13,13) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
@@ -1091,7 +1097,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_user_pct` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_reduction`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_reduction` (
   `user_id` bigint(20) unsigned NOT NULL,
-  `time` int(11) unsigned NOT NULL,
+  `time` int(11) unsigned NOT NULL COMMENT 'Учитываются только свежие голоса, т.е. один голос только за одно урезание',
   `currency_id` tinyint(3) unsigned NOT NULL,
   `pct` tinyint(2) unsigned NOT NULL,
   `log_id` bigint(20) NOT NULL,
@@ -1115,7 +1121,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_reduction` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_max_promised_amount`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_max_promised_amount` (
   `user_id` bigint(20) unsigned NOT NULL,
-  `time` int(11) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `amount`  int(11) unsigned NOT NULL COMMENT 'Возможные варианты задаются в скрипте, иначе будут проблемы с поиском варианта-победителя',
   `log_id` bigint(20) NOT NULL,
@@ -1125,7 +1130,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_max_promised_amount` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_votes_max_promised_amount`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_max_promised_amount` (
   `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `time` int(11) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `amount`  int(11) unsigned NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
@@ -1139,7 +1143,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_max_promised_amount`
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_max_other_currencies`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_max_other_currencies` (
   `user_id` bigint(20) unsigned NOT NULL,
-  `time` int(11) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `count`  int(11) unsigned NOT NULL COMMENT 'Возможные варианты задаются в скрипте, иначе будут проблемы с поиском варианта-победителя',
   `log_id` bigint(20) NOT NULL,
@@ -1149,7 +1152,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_max_other_currencies` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_votes_max_other_currencies`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_max_other_currencies` (
   `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
-  `time` int(11) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `count`  int(11) unsigned NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
@@ -1354,13 +1356,10 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_commission` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}users`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}users` (
   `user_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'На него будут слаться деньги',
-  `user_number` int(11) NOT NULL COMMENT 'Для определения места юзера треугольнике',
-  `gen_block` int(11) NOT NULL,
-  `try_gen_block` int(11) NOT NULL,
   `public_key_0` varbinary(512) NOT NULL COMMENT 'Открытый ключ которым проверяются все транзакции от юзера',
   `public_key_1` varbinary(512) NOT NULL COMMENT '2-й ключ, если есть',
   `public_key_2` varbinary(512) NOT NULL COMMENT '3-й ключ, если есть',
-  `chargeback` tinyint(2) NOT NULL COMMENT 'В течении скольки блоков юзер может отменить транзакцию',
+  `referral` bigint(20) NOT NULL COMMENT 'Тот, кто зарегал данного юзера и теперь получает с него рефские',
   `log_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
@@ -1395,15 +1394,58 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_miners` (
 
 ";
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_referral`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_referral` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `first` tinyint(2) unsigned NOT NULL,
+  `second` tinyint(2) unsigned NOT NULL,
+  `third` tinyint(2) unsigned NOT NULL,
+  `log_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Голосвание за рефские %. Каждые 14 дней пересчет';
+
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_votes_referral`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_referral` (
+  `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `user_id` bigint(20) unsigned NOT NULL,
+  `first` tinyint(2) unsigned NOT NULL,
+  `second` tinyint(2) unsigned NOT NULL,
+  `third` tinyint(2) unsigned NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}referral`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}referral` (
+  `first` tinyint(2) unsigned NOT NULL,
+  `second` tinyint(2) unsigned NOT NULL,
+  `third` tinyint(2) unsigned NOT NULL,
+  `log_id` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_referral`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_referral` (
+  `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `first` tinyint(2) unsigned NOT NULL,
+  `second` tinyint(2) unsigned NOT NULL,
+  `third` tinyint(2) unsigned NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+";
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}install`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}install` (
   `progress` varchar(10) NOT NULL COMMENT 'На каком шаге остановились'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Используется только в момент установки';
-
-
 ";
-
-
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}wallets`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}wallets` (
@@ -1415,7 +1457,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}wallets` (
   `log_id` bigint(20) NOT NULL COMMENT 'ID log_wallets, откуда будет брать данные при откате на 1 блок. 0 - значит при откате нужно удалить строку',
   PRIMARY KEY (`user_id`,`currency_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='У кого сколько какой валюты';
-
 ";
 
 
@@ -1532,6 +1573,15 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}community` (
 
 ";
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}backup_community`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}backup_community` (
+  `uniq` enum('1') NOT NULL DEFAULT '1',
+  `data` text NOT NULL,
+  PRIMARY KEY (`uniq`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+
+";
+
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}payment_systems`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}payment_systems` (
@@ -1542,7 +1592,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}payment_systems` (
 
 ";
 $queries[] = "INSERT INTO `{$db_name}`.`{$prefix}payment_systems` (`name`)
-					VALUES ('Adyen'),('Alipay'),('Amazon Payments'),('AsiaPay'),('Atos'),('Authorize.Net'),('BIPS'),('BPAY'),('Braintree'),('CentUp'),('Chargify'),('Citibank'),('ClickandBuy'),('Creditcall'),('CyberSource'),('DataCash'),('DigiCash'),('Digital River'),('Dwolla'),('ecoPayz'),('Edy'),('Elavon'),('Euronet Worldwide'),('eWAY'),('Flooz'),('Fortumo'),('Google'),('GoCardless'),('Heartland Payment Systems'),('HSBC'),('iKobo'),('iZettle'),('IP Payments'),('Klarna'),('Live Gamer'),('Mobilpenge'),('ModusLink'),('MPP Global Solutions'),('Neteller'),('Nochex'),('Ogone'),('Paymate'),('PayPal'),('Payoneer'),('PayPoint'),('Paysafecard'),('PayXpert'),('Payza'),('Peppercoin'),('Playspan'),('Popmoney'),('Realex Payments'),('Recurly'),('RBK Money'),('Sage Group'),('Serve'),('Skrill (Moneybookers)'),('Stripe'),('Square, Inc.'),('TFI Markets'),('TIMWE'),('Use My Services (UMS)'),('Ukash'),('V.me by Visa'),('VeriFone'),('Vindicia'),('WebMoney'),('WePay'),('Wirecard'),('Western Union'),('WorldPay'),('Yandex money')";
+					VALUES ('Adyen'),('Alipay'),('Amazon Payments'),('AsiaPay'),('Atos'),('Authorize.Net'),('BIPS'),('BPAY'),('Braintree'),('CentUp'),('Chargify'),('Citibank'),('ClickandBuy'),('Creditcall'),('CyberSource'),('DataCash'),('DigiCash'),('Digital River'),('Dwolla'),('ecoPayz'),('Edy'),('Elavon'),('Euronet Worldwide'),('eWAY'),('Flooz'),('Fortumo'),('Google'),('GoCardless'),('Heartland Payment Systems'),('HSBC'),('iKobo'),('iZettle'),('IP Payments'),('Klarna'),('Live Gamer'),('Mobilpenge'),('ModusLink'),('MPP Global Solutions'),('Neteller'),('Nochex'),('Ogone'),('Paymate'),('PayPal'),('Payoneer'),('PayPoint'),('Paysafecard'),('PayXpert'),('Payza'),('Peppercoin'),('Playspan'),('Popmoney'),('Realex Payments'),('Recurly'),('RBK Money'),('Sage Group'),('Serve'),('Skrill (Moneybookers)'),('Stripe'),('Square, Inc.'),('TFI Markets'),('TIMWE'),('Use My Services (UMS)'),('Ukash'),('V.me by Visa'),('VeriFone'),('Vindicia'),('WebMoney'),('WePay'),('Wirecard'),('Western Union'),('WorldPay'),('Yandex money'),('Qiwi'),('OK Pay'),('Bitcoin'),('Perfect Money')";
 
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}config`;
@@ -1555,6 +1605,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `in_connections` int(11) NOT NULL COMMENT 'Кол-во нодов и просто юзеров, от кого принимаем данные. Считаем кол-во ip за 1 минуту',
   `out_connections` int(11) NOT NULL COMMENT 'Кол-во нодов, кому шлем данные',
   `bad_blocks` text NOT NULL COMMENT 'Номера и sign плохих блоков. Нужно, чтобы не подцепить более длинную, но глючную цепочку блоков',
+  `pool_max_users` int(11) NOT NULL DEFAULT '100',
   `pool_admin_user_id`  int(11) NOT NULL
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
