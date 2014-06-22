@@ -34,6 +34,29 @@ $('#save2').bind('click', function () {
 
 } );
 
+function hex_pkey(public_key_id) {
+	var public_key = $('#'+public_key_id).val();
+	public_key = public_key.replace(/[ \n]+/g, "");
+	if (public_key.indexOf('-----') > -1)  {
+		public_key = public_key.replace("-----BEGINPUBLICKEY-----", "");
+		public_key = public_key.replace("-----ENDPUBLICKEY-----", "");
+		public_key = b64tohex(public_key);
+		$('#'+public_key_id).val(public_key);
+	}
+}
+
+$('#public_key_2').keyup(function() {
+	hex_pkey('public_key_2');
+});
+
+$('#public_key_3').keyup(function() {
+	hex_pkey('public_key_3');
+});
+
+$( 'textarea[name="contentbox"]' ).keyup(function() {
+	alert( "Handler for .keyup() called." );
+});
+
 $('#save3').bind('click', function () {
 
 	$("#public_keys").css("display", "none");
