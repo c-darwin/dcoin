@@ -27,11 +27,20 @@ $tpl['user_id'] = get_my_user_id($db);
 $variables = ParseData::get_all_variables($db);
 // актуальный запрос к нам на получение налички. Может быть только 1.
 $tpl['data'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT *
+		SELECT `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`cash_request_id`,
+					 `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`id`,
+					 `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`comment_status`,
+					 `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`comment`,
+					 `".DB_PREFIX."cash_requests`.`amount`,
+					 `".DB_PREFIX."cash_requests`.`currency_id`,
+					 LOWER(HEX(`".DB_PREFIX."cash_requests`.`hash_code`)) as `hash_code`
 		FROM `".DB_PREFIX.MY_PREFIX."my_cash_requests`
-		WHERE `to_user_id` = {$tpl['user_id']} AND
-					 `status` = 'pending' AND
-					 `time` > ".(time()-$variables['cash_request_time'])."
+		LEFT JOIN `".DB_PREFIX."cash_requests` ON `".DB_PREFIX."cash_requests`.`id` = `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`cash_request_id`
+		WHERE `".DB_PREFIX."cash_requests`.`to_user_id` = {$tpl['user_id']} AND
+					 `".DB_PREFIX."cash_requests`.`status` = 'pending' AND
+					 `".DB_PREFIX."cash_requests`.`time` > ".(time()-$variables['cash_request_time'])." AND
+					 `".DB_PREFIX."cash_requests`.`del_block_id` = 0 AND
+					 `".DB_PREFIX."cash_requests`.`for_repaid_del_block_id` = 0
 		ORDER BY `cash_request_id` DESC
 		LIMIT 1
 		", 'fetch_array' );
