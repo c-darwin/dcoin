@@ -80,20 +80,36 @@ if ( $time - $pct_time > $variables['new_pct_period'] ) {
 		exit;
 	}
 
-	debug_print( $pct_votes, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	debug_print( '$pct_votes:'.print_r_hex($pct_votes), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 	foreach ( $pct_votes as $currency_id => $data ) {
 
 		$pct_arr = ParseData::makePctArray($data['miner_pct']);
 		$key = get_max_vote($pct_arr, 0, 1000, 100);
-		$new_pct[$currency_id]['miner_pct'] = ParseData::getPctValue($key);
+		$new_pct['currency'][$currency_id]['miner_pct'] = ParseData::getPctValue($key);
 
 		$pct_arr = ParseData::makePctArray($data['user_pct']);
 		$key = get_max_vote($pct_arr, 0, 1000, 100);
-		$new_pct[$currency_id]['user_pct'] = ParseData::getPctValue($key);
+		$new_pct['currency'][$currency_id]['user_pct'] = ParseData::getPctValue($key);
 	}
 
-	debug_print( $new_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	$ref_levels = array('first', 'second', 'third');
+	for ($i=0; $i<sizeof($ref_levels); $i++) {
+		$level = $ref_levels[$i];
+		// берем все голоса
+		$votes_referral = array();
+		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `{$level}`,
+							  count(`user_id`) as `votes`
+				FROM `".DB_PREFIX."votes_referral`
+				GROUP BY  `{$level}`
+				");
+		while ( $row = $db->fetchArray( $res ) )
+			$votes_referral[$row[$level]] = $row['votes'];
+		$new_pct['referral'][$level] = get_max_vote($votes_referral, 0, 30, 10);
+	}
+
+	debug_print($new_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 	$testBlock = new testblock($db, true);
 	if (get_community_users($db))
