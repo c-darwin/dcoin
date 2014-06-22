@@ -32,6 +32,23 @@
 					});
 		});
 
+		$('#single_mode').bind('click', function () {
+			$.post( 'ajax/switch_pool_mode.php', { } ,
+					function () {
+						fc_navigate ('node_config', {'alert': 'complete'} );
+						$('#mode').text('Single');
+					});
+		});
+
+		$('#pool_mode').bind('click', function () {
+			$.post( 'ajax/switch_pool_mode.php', { } ,
+					function () {
+						fc_navigate ('node_config', {'alert': 'complete'} );
+						$('#mode').text('Pool');
+					});
+		});
+
+
 		$('#full').bind('click', function () {
 			$('#wait').text('<?php echo $lng['please_wait']?>');
 			$.post( 'ajax/clear_db.php', { } ,
@@ -80,6 +97,14 @@
 		Status: <span id="status"><?php echo $tpl['my_status']?></span><br>
 		<button class="btn" id="start">Start</button> 	<button class="btn" id="stop">Stop</button>
 	</div>
+	<br><br>
+
+	<div>
+		<div class="alert alert-success" id="wait" style="display:none"></div>
+		Mode: <span id="mode"><?php echo $tpl['my_mode']?></span><br>
+		<button class="btn" id="single_mode">Single mode</button> 	<button class="btn" id="pool_mode">Pool mode</button>
+	</div>
+
 	<br><br>
 
 	<div>
