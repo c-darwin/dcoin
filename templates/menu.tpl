@@ -53,6 +53,7 @@
 						<!--<li><a href="#" onclick="fc_navigate('api')">Api</a></li>-->
 						<li><a href="#" onclick="fc_navigate('information')"><?php echo $lng['information']?></a></li>
 						<li><a href="#" onclick="fc_navigate('db_info')"><?php echo $lng['db_info']?></a></li>
+						<li><a href="#" onclick="fc_navigate('statistic')"><?php echo $lng['statistic']?></a></li>
 						<li><a href="#" onclick="fc_navigate('abuse')"><?php echo $lng['complaints_miners']?></a></li>
 						<li><a href="#" onclick="fc_navigate('bug_reporting')"><?php echo $lng['bug_reporting']?></a></li>
 						<?php echo defined('POOL_ADMIN')?'<li><a href="#" onclick="fc_navigate(\'pool_admin\')">Pool admin</a></li>':'' ?>
