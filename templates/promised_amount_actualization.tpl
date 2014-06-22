@@ -18,7 +18,7 @@ $('#send_to_net').bind('click', function () {
 } );
 
 </script>
-  <legend><h2>for_repaid_fix</h2></legend>
+  <legend><h2><?php echo $lng['actualization_promised_amounts']?></h2></legend>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
