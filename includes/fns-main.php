@@ -60,6 +60,16 @@ function check_input_data ($data, $type, $info='')
 {
 	switch ($type) {
 
+		case 'reduction_type' :
+			if ( preg_match ("/^(manual|promised_amount)$/D", $data))
+				return true;
+			break;
+
+		case 'referral' :
+			if ( preg_match ("/^[0-9]{1,2}$/Di", $data) && $data <= 30 )
+				return true;
+			break;
+
 		case 'sleep_var' :
 			//{"is_ready":[0,5,10,15,20,40,80,128,256,512,1024,2048,4096,8192],"generator":[30,30,30,30,30,30,30,30,30,30,30,30,30,30]}
 			if ( preg_match ("/^\{\"is_ready\"\:\[([0-9]{1,5},){1,100}[0-9]{1,5}\],\"generator\"\:\[([0-9]{1,5},){1,100}[0-9]{1,5}\]\}$/D", $data) )
@@ -468,7 +478,7 @@ function m_curl ($urls, $_data, $db, $type='data', $timeout=10, $answer=false, $
 		debug_print('$urls['.$i.']: '.print_r_hex($urls[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		if ($db) {
-			// т.к. на приеме может быть пул, то нужно дописать user_id
+			// т.к. на приеме может быть пул, то нужно дописать user_id, чьим нодовским ключем шифруем
 			$data = encrypt_data ($_data, $urls[$i]['node_public_key'], $db);
 			$data = dec_binary($urls[$i]['user_id'], 5).$data;
 		}
@@ -722,6 +732,19 @@ function send_sms($sms_http_get_request, $text) {
 
 }
 
+function get_currency_list($db)
+{
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT `id`,
+					  `name`
+		FROM `'.DB_PREFIX.'currency`
+		 ORDER BY `name`
+		 ');
+	while ($row = $db->fetchArray($res))
+		$currency_list[$row['id']] = $row['name'];
+	return $currency_list;
+}
+
 function get_block_id($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -809,6 +832,7 @@ function node_admin_access($db)
 function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix, $install=false)
 {
 	$pool_data = explode("\n", $pool_data);
+	debug_print('$pool_data='.print_r_hex($pool_data), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	for ($i=0; $i<sizeof($pool_data); $i++) {
 
 		$data = explode(';', $pool_data[$i]);
@@ -816,10 +840,15 @@ function pool_add_users ($pool_data, $my_queries, $mysqli_link, $prefix, $instal
 		$my_prefix = $user_id.'_';
 		$my_public_key = trim($data[1]);
 
+		debug_print('$my_prefix='.$my_prefix, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print('$my_public_key='.$my_public_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 		if ( !check_input_data ($my_public_key, 'public_key') )
 			return 'bad public_key - '.$my_public_key;
 
 		for ($j=0; $j<sizeof($my_queries); $j++) {
+
+			debug_print(' $my_queries[$j]='. $my_queries[$j], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			$my_query = str_ireplace('[my_prefix]', $my_prefix, $my_queries[$j]);
 			mysqli_multi_query($mysqli_link, $my_query);
@@ -941,8 +970,13 @@ function get_max_vote($array, $min, $max, $step) {
 
 	// если <=10 то тупо берем максимальное кол-во голосов
 	if (sizeof($array)<=10) {
-		$max_votes = max($array);
-		$max_pct = array_search($max_votes, $array);
+		if (sizeof($array)>0) {
+			$max_votes = max($array);
+			$max_pct = array_search($max_votes, $array);
+		}
+		else {
+			$max_pct = 0;
+		}
 		return $max_pct;
 	}
 
@@ -3556,5 +3590,29 @@ function get_my_notice_data()
 
 	return $tpl;
 }
+
+function hash_table_data($db, $table, $where='')
+{
+	$columns = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT GROUP_CONCAT( column_name SEPARATOR ',' )
+			FROM information_schema.columns
+			WHERE table_schema = 'FC'
+			AND table_name = '".DB_PREFIX."{$table}'
+			", 'fetch_one');
+	$columns = str_replace(',notification', '', $columns);
+	$columns = str_replace('notification,', '', $columns);
+	$columns = str_replace(',cron_checked_time', '', $columns);
+	$columns = str_replace('cron_checked_time,', '', $columns);
+	if ($columns) {
+		$columns = '`'.str_replace(',', '`,`', $columns).'`';
+		return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT MD5(GROUP_CONCAT( CONCAT_WS( '#', {$columns}) SEPARATOR '##' )) FROM `".DB_PREFIX."{$table}` {$where}
+			", 'fetch_one');
+	}
+	else
+		return '';
+}
+
+
 
 ?>
