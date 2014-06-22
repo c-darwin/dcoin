@@ -43,18 +43,22 @@ if (!$my_miner_id) {
 	exit;
 }
 
-$variables = ParseData::get_variables($db, array('min_hold_time_promise_amount', 'reduction_period'));
+$variables = ParseData::get_all_variables($db);
 $time = time();
 $reduction_tx_data = '';
 $promised_amount = array();
 $reduction_currency_id = false;
+$reduction_type = '';
+
+// ===== ручное урезание денежной массы
+
 // получаем кол-во обещанных сумм у разных юзеров по каждой валюте. start_time есть только у тех, у кого статус mining/repaid
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `currency_id`, count(`user_id`) as `count`
 		FROM (
 				SELECT `currency_id`, `user_id`
 				FROM `".DB_PREFIX."promised_amount`
-				WHERE `start_time` < ".(time() - $variables['min_hold_time_promise_amount'])."  AND
+				WHERE `start_time` < ".($time - $variables['min_hold_time_promise_amount'])."  AND
 							 `del_block_id` = 0 AND
 							 `status` IN ('mining', 'repaid')
 				GROUP BY  `user_id`, `currency_id`
@@ -67,14 +71,6 @@ while ( $row = $db->fetchArray( $res ) ) {
 
 debug_print('$promised_amount_:'.print_r_hex($promised_amount), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 // берем все голоса юзеров
-/*$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT `currency_id`,
-						  `pct`,
-						  count(`currency_id`) as `votes`
-			FROM `".DB_PREFIX."votes_reduction`
-			WHERE `time` > ".($time - REDUCTION_PERIOD)."
-			GROUP BY  `currency_id`
-			");*/
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `currency_id`,
 						  `pct`,
@@ -97,10 +93,130 @@ while ( $row = $db->fetchArray( $res ) ) {
 					FROM `".DB_PREFIX."reduction`
 					WHERE `currency_id` = {$row['currency_id']}
 					", 'fetch_one' );
+		$pct_time = intval($pct_time);
 		// для тестов = 1 минута
 		if ( $time - $pct_time > $variables['reduction_period'] ) {
 			$reduction_currency_id = $row['currency_id'];
 			$reduction_pct = $row['pct'];
+			$reduction_type = 'manual';
+			debug_print("reduction_currency_id={$reduction_currency_id}\nreduction_pct={$reduction_pct}\nreduction_type={$reduction_type}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			break;
+		}
+	}
+}
+
+/*
+// ======= авто-урезание денежной массы из-за малого кол-ва удовлетворенных запросов на наличные
+
+// получаем кол-во запросов на наличные за последние 48 часов
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `currency_id`,
+					   count(`id`) as count
+		FROM `".DB_PREFIX."cash_requests`
+		WHERE `time` > ".($time - AUTO_REDUCTION_CASH_PERIOD)." AND
+					 `del_block_id` = 0
+		GROUP BY `currency_id`
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	$all_cash_requests[$row['currency_id']] = $row['count'];
+}
+
+// получаем кол-во удовлетворенных запросов на наличные за последние 48 часов
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `currency_id`,
+					   count(`id`) as count
+		FROM `".DB_PREFIX."cash_requests`
+		WHERE `time` > ".($time - AUTO_REDUCTION_CASH_PERIOD)." AND
+					 `del_block_id` = 0 AND
+					 `status` = 'approved'
+		GROUP BY `currency_id`
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	$approved_cash_requests[$row['currency_id']] = $row['count'];
+}
+
+if (isset($all_cash_requests))
+foreach ($all_cash_requests as $currency_id => $count) {
+
+	// урезание возможно только если за 48 часов есть более 1000 запросов на наличные по данной валюте
+	if ($count < AUTO_REDUCTION_CASH_MIN)
+		continue;
+
+	// и недопустимо для WOC
+	if ($currency_id == 1)
+		continue;
+
+	// если кол-во удовлетворенных запросов менее чем 30% от общего кол-ва
+	if ( @$approved_cash_requests[$currency_id] < $count * AUTO_REDUCTION_CASH_PCT ) {
+		$reduction_currency_id = $currency_id;
+		$reduction_pct = AUTO_REDUCTION_PCT;
+		$reduction_type = 'cash';
+		break;
+	}
+}*/
+
+
+// =======  авто-урезание денежной массы из-за малого объема обещанных сумм
+
+// получаем кол-во DC на кошельках
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `currency_id`,
+					   sum(`amount`) as sum_amount
+		FROM `".DB_PREFIX."wallets`
+		GROUP BY `currency_id`
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	$sum_wallets[$row['currency_id']] = $row['sum_amount'];
+}
+
+// получаем кол-во TDC на обещанных суммах
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `currency_id`,
+					   sum(`tdc_amount`) as sum_amount
+		FROM `".DB_PREFIX."promised_amount`
+		GROUP BY `currency_id`
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	if (!isset($sum_wallets[$row['currency_id']]))
+		$sum_wallets[$row['currency_id']] = $row['sum_amount'];
+	else
+		$sum_wallets[$row['currency_id']] += $row['sum_amount'];
+}
+
+// получаем суммы обещанных сумм
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `currency_id`,
+					   sum(`amount`) as sum_amount
+		FROM `".DB_PREFIX."promised_amount`
+		WHERE `status` = 'mining' AND
+					 `del_block_id` = 0 AND
+					  (`cash_request_out_time` = 0 OR `cash_request_out_time` > ".($time - $variables['cash_request_time']).")
+		GROUP BY `currency_id`
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	$sum_promised_amount[$row['currency_id']] = $row['sum_amount'];
+}
+
+if (isset($sum_wallets))
+foreach ($sum_wallets as $currency_id => $sum_amount) {
+
+	// и недопустимо для WOC
+	if ($currency_id == 1)
+		continue;
+
+	// если обещанных сумм менее чем 100% от объема DC на кошельках, то запускаем урезание
+	if ( $sum_promised_amount[$currency_id] < $sum_amount * AUTO_REDUCTION_PROMISED_AMOUNT_PCT ) {
+
+		// проверим, есть ли хотябы 1000 юзеров, у которых на кошелках есть или была данная валюты
+		$count_users = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`user_id`)
+				FROM `".DB_PREFIX."wallets`
+				WHERE `currency_id` = {$currency_id}
+				", 'fetch_one');
+		if ($count_users >= AUTO_REDUCTION_PROMISED_AMOUNT_MIN) {
+			$reduction_currency_id = $currency_id;
+			$reduction_pct = AUTO_REDUCTION_PCT;
+			$reduction_type = 'promised_amount';
 			break;
 		}
 	}
@@ -115,7 +231,7 @@ if ($reduction_currency_id) {
 	$node_private_key = get_node_private_key($db, $my_prefix);
 
 	// подписываем нашим нод-ключем данные транзакции
-	$data_for_sign = ParseData::findType('new_reduction').",{$time},{$my_user_id},{$reduction_currency_id},{$reduction_pct}";
+	$data_for_sign = ParseData::findType('new_reduction').",{$time},{$my_user_id},{$reduction_currency_id},{$reduction_pct},{$reduction_type}";
 	$rsa = new Crypt_RSA();
 	$rsa->loadKey($node_private_key);
 	$rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
@@ -128,6 +244,7 @@ if ($reduction_currency_id) {
 		ParseData::encode_length_plus_data($my_user_id) .
 		ParseData::encode_length_plus_data($reduction_currency_id) .
 		ParseData::encode_length_plus_data($reduction_pct) .
+		ParseData::encode_length_plus_data($reduction_type) .
 		ParseData::encode_length_plus_data($signature) ;
 
 	insert_tx($reduction_tx_data, $db);
