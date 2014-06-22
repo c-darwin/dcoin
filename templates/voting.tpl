@@ -25,7 +25,8 @@ $('#next').bind('click', function () {
 		if ($(this).attr('name')=='reduction')
 			data=data+''+$(this).val()+'],';
 	} );
-	json_data = '{'+data.substr(0, data.length-1)+'}';
+	json_data = '{"currency":{'+data.substr(0, data.length-1)+'},"referral":{"first":"'+$('#ref_first').val()+'","second":"'+$('#ref_second').val()+'","third":"'+$('#ref_third').val()+'"}}';
+	console.log(json_data);
 
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+json_data);
 	doSign();
@@ -147,7 +148,9 @@ ArraySort = function(array, sortFunc){
 
 <div id="voting">
 	<?php
-	if ($tpl['promised_amount_currency_list']) {
+	if (isset($tpl['miner_newbie'])) {
+		echo $tpl['miner_newbie'];
+	} else if ($tpl['promised_amount_currency_list']) {
 	?>
 	<div style="width: 600px"><?php echo $lng['voting_message']?></div>
 	<table class="table" style="width: 500px">
@@ -170,11 +173,6 @@ ArraySort = function(array, sortFunc){
 		}
 		?>
 	</table>
-	<div class="control-group">
-		<div class="controls">
-			<button class="btn" type="button" id="next"><?php echo $lng['next']?></button>
-		</div>
-	</div>
 	<?php
 	}
 	else if ($tpl['wait_voting']) {
@@ -186,6 +184,22 @@ ArraySort = function(array, sortFunc){
 	}
 	else
 		print 'empty';
+
+	// голосование за рефские
+	if (empty($tpl['miner_newbie'])) {
+
+		$refs = array('first', 'second', 'third');
+		for ($i=0; $i<sizeof($refs); $i++) {
+			print "Реферальные ".($i+1)."-го уровня: <select style='width: 60px' id='ref_{$refs[$i]}'>";
+			$rand = rand(0, 30);
+			for ($j=0; $j<=30; $j++)
+				print "<option ".($j==$rand?"selected":"").">{$j}</option>";
+			print "</select>%<br>";
+		}
+	}
+	if ( isset($tpl['promised_amount_currency_list']) || empty($tpl['miner_newbie']) )
+		print '<div class="control-group"><div class="controls"><button class="btn" type="button" id="next">'.$lng['next'].'</button></div></div>';
+
 	?>
 </div>
 
