@@ -1452,7 +1452,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}wallets` (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `amount` decimal(15,2) unsigned NOT NULL ,
-  `amount_backup` decimal(15,2) unsigned NOT NULL,
+  `amount_backup` decimal(15,2) unsigned NOT NULL COMMENT 'Может неравномерно обнуляться из-за обработки, а затем - отката new_reduction()',
   `last_update` int(11) NOT NULL COMMENT 'Время последнего пересчета суммы с учетом % из miner_pct',
   `log_id` bigint(20) NOT NULL COMMENT 'ID log_wallets, откуда будет брать данные при откате на 1 блок. 0 - значит при откате нужно удалить строку',
   PRIMARY KEY (`user_id`,`currency_id`)
