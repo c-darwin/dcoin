@@ -158,17 +158,37 @@ ArraySort = function(array, sortFunc){
 		<?php
 		 foreach($tpl['promised_amount_currency_list'] as $currency_id=>$data) {
 			print "<tr><td>D{$data['name']}<input type='hidden' name='currency_id' value='{$currency_id}'></td><td><select style='width: 80px' name='miner_pct'>";
-			foreach($tpl['AllPct'] as $pct_y=>$pct_sec)
-				print "<option value='{$pct_sec}'>{$pct_y}</option>";
+			foreach($tpl['AllPct'] as $pct_y=>$pct_sec) {
+				if ($data['votes_miner_pct'] == $pct_sec)
+					$sel = 'selected';
+				else
+					$sel = '';
+				print "<option value='{$pct_sec}' {$sel}>{$pct_y}</option>";
+			}
 			print "</select></td><td><select style='width: 80px' name='user_pct'>";
-			foreach($tpl['AllPct'] as $pct_y=>$pct_sec)
-				print "<option value='{$pct_sec}'>{$pct_y}</option>";
+			foreach($tpl['AllPct'] as $pct_y=>$pct_sec) {
+				if ($data['votes_user_pct'] == $pct_sec)
+					$sel = 'selected';
+				else
+					$sel = '';
+				print "<option value='{$pct_sec}' {$sel}>{$pct_y}</option>";
+			}
 			print "</select></td><td><select style='width: 80px' name='max_promised_amount'>";
-			foreach($tpl['AllMaxPromisedAmount'] as $amount)
-				print "<option>{$amount}</option>";
+			foreach($tpl['AllMaxPromisedAmount'] as $amount) {
+					if ($data['votes_max_promised_amount'] == $amount)
+					$sel = 'selected';
+					else
+					$sel = '';
+				print "<option {$sel}>{$amount}</option>";
+			}
 			print "</select></td><td><select style='width: 80px' name='max_other_currencies'>";
-			for ($i=0; $i<$tpl['max_currency_id']; $i++)
-				print "<option>{$i}</option>";
+			for ($i=0; $i<$tpl['max_currency_id']; $i++){
+					if ($data['votes_max_other_currencies'] == $i)
+					$sel = 'selected';
+					else
+					$sel = '';
+				print "<option {$sel}>{$i}</option>";
+			}
 			print "</select></td><td><select style='width: 80px' name='reduction'><option>0</option><option>10</option><option>25</option><option>50</option><option>90</option></select></td></tr>";
 		}
 		?>
