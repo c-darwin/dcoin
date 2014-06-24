@@ -81,7 +81,7 @@ else {
 
 	foreach($tables_array as $table) {
 
-		if (preg_match('/(my_|_my|config)/i', $table))
+		if (preg_match('/(my_|_my|config|_refs)/i', $table))
 			continue;
 
 		$sql_where = '';
