@@ -94,7 +94,7 @@ while (true) {
 		if (!$ok) {
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."nodes_connection`
-					WHERE `host` = '{$row['host']}' AND
+					WHERE `host` = '{$row['host']}' OR
 								 `user_id` = {$row['user_id']}
 					");
 		}
@@ -104,7 +104,7 @@ while (true) {
 			$del_miners[] = $row['miner_id'];
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."nodes_connection`
-					WHERE `host` = '{$row['host']}'
+					WHERE `host` = '{$row['host']}' OR `user_id` = {$row['user_id']}
 					");
 			continue;
 		}
