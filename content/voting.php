@@ -80,7 +80,41 @@ else {
 			continue;
 		}
 
-		$tpl['promised_amount_currency_list'][$row['currency_id']] =  array('name'=>$row['name']);
+		// получим наши предыдущие голоса
+		$votes_user_pct= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `pct`
+				FROM `".DB_PREFIX."votes_user_pct`
+				WHERE `user_id` = {$user_id} AND
+							 `currency_id` = {$row['currency_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		$votes_miner_pct= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `pct`
+				FROM `".DB_PREFIX."votes_miner_pct`
+				WHERE `user_id` = {$user_id} AND
+							 `currency_id` = {$row['currency_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		$votes_max_other_currencies= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `count`
+				FROM `".DB_PREFIX."votes_max_other_currencies`
+				WHERE `user_id` = {$user_id} AND
+							 `currency_id` = {$row['currency_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		$votes_max_promised_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`
+				FROM `".DB_PREFIX."votes_max_promised_amount`
+				WHERE `user_id` = {$user_id} AND
+							 `currency_id` = {$row['currency_id']}
+				LIMIT 1
+				", 'fetch_one' );
+
+		$tpl['promised_amount_currency_list'][$row['currency_id']]['votes_user_pct'] = $votes_user_pct;
+		$tpl['promised_amount_currency_list'][$row['currency_id']]['votes_miner_pct'] = $votes_miner_pct;
+		$tpl['promised_amount_currency_list'][$row['currency_id']]['votes_max_other_currencies'] = $votes_max_other_currencies;
+		$tpl['promised_amount_currency_list'][$row['currency_id']]['votes_max_promised_amount'] = $votes_max_promised_amount;
+		$tpl['promised_amount_currency_list'][$row['currency_id']]['name'] =  $row['name'];
 	}
 }
 
