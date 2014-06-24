@@ -3614,5 +3614,36 @@ function hash_table_data($db, $table, $where='')
 }
 
 
+function find_user_pct($max_user_pct_y)
+{
+	$PctArray = ParseData::getPctArray();
+	//debug_print( '$PctArray='.print_r_hex($PctArray), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	$i=0;
+	foreach ($PctArray as $pct_y =>$pct_ssc) {
+		if ($pct_y>=$max_user_pct_y) {
+			debug_print( '$pct_y<$max_user_pct_y = '.$pct_y.' < '.$max_user_pct_y, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			if ($i>0)
+				return ($i-1);
+			else
+				return 0;
+		}
+		$i++;
+	}
+}
+
+function del_user_pct($pct_arr, $user_max_key)
+{
+	$new = array();
+	foreach ($pct_arr as $key =>$votes) {
+		if ($key>$user_max_key) {
+			break;
+		}
+		else {
+			$new[$key] = $votes;
+		}
+	}
+	return $new;
+}
+
 
 ?>
