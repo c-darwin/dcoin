@@ -2051,17 +2051,39 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		debug_print( $pct_votes, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+		$PctArray = ParseData::getPctArray();
 		$new_pct = array();
 		foreach ( $pct_votes as $currency_id => $data ) {
+
+			// определяем % для майнеров
 			$pct_arr = ParseData::makePctArray($data['miner_pct']);
-			$key = get_max_vote($pct_arr, 0, 1000, 100);
+			$key = get_max_vote($pct_arr, 0, 390, 100);
 			$new_pct['currency'][$currency_id]['miner_pct'] = ParseData::getPctValue($key);
+			debug_print( '$key miner_pct='.$key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
+			// определяем % для юзеров
 			$pct_arr = ParseData::makePctArray($data['user_pct']);
-			$key = get_max_vote($pct_arr, 0, 1000, 100);
-			$new_pct['currency'][$currency_id]['user_pct'] = ParseData::getPctValue($key);
-		}
+			// раньше не было завимости юзерского % от майнерского
+			if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=89687)
+				$user_max_key = 390;
+			else {
+				$pct_y = array_search($new_pct['currency'][$currency_id]['miner_pct'], $PctArray);
+				debug_print( 'miner_pct $pct_y='.$pct_y, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				$max_user_pct_y = round($pct_y/2, 2);
+				debug_print( '$max_user_pct='.$max_user_pct_y, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				$user_max_key = find_user_pct($max_user_pct_y);
+				debug_print( '$user_max_key='.$user_max_key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				// отрезаем лишнее, т.к. поиск идет ровно до макимального возможного, т.е. до miner_pct/2
+				$pct_arr = del_user_pct($pct_arr, $user_max_key);
+				debug_print( '$user_$pct_arr='.print_r_hex($pct_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			}
 
+			$key = get_max_vote($pct_arr, 0, $user_max_key, 100);
+			debug_print( '$key user_pct='.$key, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			$new_pct['currency'][$currency_id]['user_pct'] = ParseData::getPctValue($key);
+			debug_print( 'user_pct='.$new_pct['currency'][$currency_id]['user_pct'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print( 'user pct y='.array_search($new_pct['currency'][$currency_id]['user_pct'], $PctArray), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		}
 
 		// раньше не было рефских
 		if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=77951) {
@@ -2090,7 +2112,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print( $json_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( $this->tx_data['new_pct'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		if ( $this->tx_data['new_pct'] != $json_data )
-			return 'new_pct error';
+			return 'new_pct error '.$json_data;
 
 	}
 
