@@ -3,7 +3,7 @@
 
 	<legend><h2><?php echo $lng['holidays_title']?></h2></legend>
 	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
-
+	<?php echo $lng['holidays_warning']?>
 <p><a href="#" onclick="fc_navigate('new_holidays')">Add holidays</a></p>
 
 <?php
