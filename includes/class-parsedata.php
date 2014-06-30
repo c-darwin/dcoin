@@ -32,38 +32,33 @@ $ini_array = parse_ini_file(ABSPATH . "config.ini", true);
 // для локальных тестов
 if (isset($ini_array['local']['local'])) {
 	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 1 );
-	define( 'AUTO_REDUCTION_CASH_MIN', 1 );
+	//define( 'AUTO_REDUCTION_CASH_MIN', 1 );
 	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_PCT', 2 ); // X*100%
-	define( 'AUTO_REDUCTION_CASH_PCT', 0.5 );
+	//define( 'AUTO_REDUCTION_CASH_PCT', 0.5 );
 	define( 'AUTO_REDUCTION_PERIOD', 120 );
 	define( 'limit_actualization', 1 );
 	define( 'limit_actualization_period', 300 );
 }
 else {
 	//  есть ли хотябы X юзеров, у которых на кошелках есть от 0.01 данной валюты
-	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 1000 );
-	//define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 1 );
+	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_MIN', 10 );
 
 	// урезание возможно только если запросов наличных за 48 часа было более X
-	define( 'AUTO_REDUCTION_CASH_MIN', 1000 );
-	//define( 'AUTO_REDUCTION_CASH_MIN', 1 );
+	//define( 'AUTO_REDUCTION_CASH_MIN', 1000 );
 
 	// сколько должно быть процентов PROMISED_AMOUNT от кол-ва DC на кошельках, чтобы запустилось урезание
 	define( 'AUTO_REDUCTION_PROMISED_AMOUNT_PCT', 1 ); // X*100%
-	//define( 'AUTO_REDUCTION_PROMISED_AMOUNT_PCT', 2); // X*100%
 
 	// если кол-во удовлетворенных запросов менее чем X*100% от общего кол-вав
-	define( 'AUTO_REDUCTION_CASH_PCT', 0.3 );
-	//define( 'AUTO_REDUCTION_CASH_PCT', 0.5 );
+	//define( 'AUTO_REDUCTION_CASH_PCT', 0.3 );
 
 	// через сколько можно делать следующее урезание.
 	// важно учитывать то, что не должно быть роллбеков дальше чем на 1 урезание
 	// т.к. при урезании используется backup в этой же табле вместо отдельной таблы log_
-	define( 'AUTO_REDUCTION_PERIOD', 3600*48 );
-	//define( 'AUTO_REDUCTION_PERIOD', 120 );
+	define( 'AUTO_REDUCTION_PERIOD', 3600*24*2 );
 
 	define( 'limit_actualization', 1 );
-	define( 'limit_actualization_period', 3600*24*7 );
+	define( 'limit_actualization_period', 3600*24*14 );
 }
 
 
@@ -2064,7 +2059,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// определяем % для юзеров
 			$pct_arr = ParseData::makePctArray($data['user_pct']);
 			// раньше не было завимости юзерского % от майнерского
-			if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=89687)
+			if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=95263)
 				$user_max_key = 390;
 			else {
 				$pct_y = array_search($new_pct['currency'][$currency_id]['miner_pct'], $PctArray);
