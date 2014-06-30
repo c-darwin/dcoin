@@ -18,8 +18,8 @@ $reg_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 		        WHERE `user_id` = {$user_id}
 		        LIMIT 1
 		        ", 'fetch_one');
-if ($reg_time > (time() - $variables['miner_newbie_time']) && $this->tx_data['user_id'] != 1) {
-	$tpl['miner_newbie'] = str_ireplace('sec', $variables['miner_newbie_time'] - (time() - $reg_time), $lng['hold_time_wait']);
+if ($reg_time > (time() - $variables['miner_newbie_time']) && $user_id != 1) {
+	$tpl['miner_newbie'] = str_ireplace('[sec]', $variables['miner_newbie_time'] - (time() - $reg_time), $lng['hold_time_wait2']);
 }
 else {
 	// валюты
@@ -116,6 +116,19 @@ else {
 		$tpl['promised_amount_currency_list'][$row['currency_id']]['votes_max_promised_amount'] = $votes_max_promised_amount;
 		$tpl['promised_amount_currency_list'][$row['currency_id']]['name'] =  $row['name'];
 	}
+}
+
+
+$tpl['referral'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `first`, `second`, `third`
+		FROM `".DB_PREFIX."votes_referral`
+		WHERE `user_id` = {$user_id}
+		LIMIT 1
+		", 'fetch_array');
+if (!$tpl['referral']) {
+	$tpl['referral']['first'] = rand(0, 30);
+	$tpl['referral']['second'] = rand(0, 30);
+	$tpl['referral']['third'] = rand(0, 30);
 }
 
 $tpl['max_currency_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
