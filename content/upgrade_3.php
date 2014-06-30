@@ -9,10 +9,11 @@ if (defined('COMMUNITY') && !$host) {
 			SELECT `pool_admin_user_id`
 			FROM `'.DB_PREFIX.'config',
 			'fetch_one' );
-	$host = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+	$host = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `host`
-			FROM `'.DB_PREFIX.$pool_admin_user_id.'_my_table',
-			'fetch_one' );
+			FROM `".DB_PREFIX."miners_data`
+			WHERE `user_id` = {$pool_admin_user_id}
+			", 'fetch_one' );
 }
 $tpl['data']['host'] = $host;
 
