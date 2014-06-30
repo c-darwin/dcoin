@@ -12,6 +12,26 @@ function write_for_signature (result) {
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 }
 
+function reload_photo(user_id, face_id, profile_id) {
+
+	$.post( 'ajax/new_photo.php', {
+		'user_id' : user_id
+	}, function (data) {
+
+		alert(data.face+"\n"+data.profile+"\n"+face_id+"\n"+profile_id);
+		$('#'+face_id).attr('src', ''+data.face+'');
+		$('#'+profile_id).attr('src', ''+data.profile+'');
+
+	}, "json" );
+
+}
+
+$('#reload-user-photos').bind('click', function () {
+
+	reload_photo($('#candidate-id').val(), 'face_img', 'profile_img')
+
+} );
+
 $('#btn-bad').bind('click', function () {
 
 	$('#step_1').css('display', 'none');	
@@ -93,7 +113,8 @@ function init (lat, lng, map_canvas, drag=true) {
 			<tr>
 				<!-- выдаем слева фото юзера -->
 				<td>
-					<img width="300"  src="<?php echo "{$tpl['data']['miner_host']}public/profile_{$tpl['data']['user_info']['user_id']}.jpg"?>"><img width="300"  src="<?php echo "{$tpl['data']['miner_host']}public/face_{$tpl['data']['user_info']['user_id']}.jpg"?>">
+					<button class="btn" id="reload-user-photos"><?php echo $lng['reload']?></button> (<?php echo $lng['if_photo_not_booted']?>)<br>
+					<img id="face_img" width="300"  src="<?php echo "{$tpl['data']['miner_host']}public/profile_{$tpl['data']['user_info']['user_id']}.jpg"?>"><img id="profile_img" width="300"  src="<?php echo "{$tpl['data']['miner_host']}public/face_{$tpl['data']['user_info']['user_id']}.jpg"?>">
 				</td>
 				<!-- а справа - видео юзера -->
 				<td>
@@ -107,6 +128,7 @@ function init (lat, lng, map_canvas, drag=true) {
 				</td>
 			</tr>
 		</table>
+		<input type="hidden" id="candidate-id" value="<?php echo $tpl['data']['user_info']['user_id']?>">
 		<!-- снизу - юзер на  карте -->
 		<?php echo $lng['location_on_map']?>
 		<div id="map_canvas" style="width: 640px; height: 480px;"></div>
