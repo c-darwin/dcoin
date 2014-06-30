@@ -25,13 +25,13 @@ define('MY_PREFIX', get_my_prefix($db));
 $video_url = $_REQUEST['video_url'];
 
 $type = '';
-if (preg_match("/youtu\.be\/([0-9A-Za-z]+)/i", $video_url, $matches)) {
+if (preg_match("/youtu\.be\/([0-9A-Za-z_-]+)/i", $video_url, $matches)) {
 	$type = 'youtube';
 }
-else if (preg_match("/embed\/([0-9A-Za-z]+)/i", $video_url, $matches)) {
+else if (preg_match("/embed\/([0-9A-Za-z_-]+)/i", $video_url, $matches)) {
 	$type = 'youtube';
 }
-else if (preg_match("/watch\?v=([0-9A-Za-z]+)/i", $video_url, $matches)) {
+else if (preg_match("/watch\?v=([0-9A-Za-z_-]+)/i", $video_url, $matches)) {
 	$type = 'youtube';
 }
 
