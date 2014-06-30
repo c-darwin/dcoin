@@ -337,7 +337,7 @@ function check_input_data ($data, $type, $info='')
 
 		case 'video_url_id':
 
-			if (preg_match('/^([0-9a-z]{5,32}|null)$/iD', $data))
+			if (preg_match('/^([0-9a-z_-]{5,32}|null)$/iD', $data))
 				return true;
 			break;
 
@@ -3591,12 +3591,12 @@ function get_my_notice_data()
 	return $tpl;
 }
 
-function hash_table_data($db, $table, $where='')
+function hash_table_data($db, $table, $where='', $order_by='')
 {
 	$columns = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT GROUP_CONCAT( column_name SEPARATOR ',' )
 			FROM information_schema.columns
-			WHERE table_schema = 'FC'
+			WHERE table_schema = '".DB_NAME."'
 			AND table_name = '".DB_PREFIX."{$table}'
 			", 'fetch_one');
 	$columns = str_replace(',notification', '', $columns);
@@ -3604,9 +3604,11 @@ function hash_table_data($db, $table, $where='')
 	$columns = str_replace(',cron_checked_time', '', $columns);
 	$columns = str_replace('cron_checked_time,', '', $columns);
 	if ($columns) {
+		if ($order_by)
+			$order_by = " ORDER BY {$order_by}";
 		$columns = '`'.str_replace(',', '`,`', $columns).'`';
 		return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT MD5(GROUP_CONCAT( CONCAT_WS( '#', {$columns}) SEPARATOR '##' )) FROM `".DB_PREFIX."{$table}` {$where}
+			SELECT MD5(GROUP_CONCAT( CONCAT_WS( '#', {$columns})  {$order_by} )) FROM `".DB_PREFIX."{$table}` {$where}
 			", 'fetch_one');
 	}
 	else
