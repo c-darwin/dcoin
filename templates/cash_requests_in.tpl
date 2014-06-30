@@ -75,6 +75,8 @@ $('#send_to_net').bind('click', function () {
 	</div>
 	<?php
 	}
+	else
+		echo $lng['no_requests'];
 	?>
 
 <?php require_once( 'signatures.tpl' );?>
