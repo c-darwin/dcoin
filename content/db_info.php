@@ -60,6 +60,14 @@ $tpl['transactions'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__
 		FROM `'.DB_PREFIX.'transactions`
 		', 'fetch_one');
 
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT `name`, `value`
+		FROM `'.DB_PREFIX.'variables`
+		');
+while ($row = $db->fetchArray($res)) {
+	$tpl['variables'][$row['name']] = $row['value'];
+}
+
 require_once( ABSPATH . 'templates/db_info.tpl' );
 
 ?>
