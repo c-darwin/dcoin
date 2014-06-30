@@ -205,7 +205,7 @@ foreach ($sum_wallets as $currency_id => $sum_amount) {
 		continue;
 
 	// если обещанных сумм менее чем 100% от объема DC на кошельках, то запускаем урезание
-	if ( $sum_promised_amount[$currency_id] < $sum_amount * AUTO_REDUCTION_PROMISED_AMOUNT_PCT ) {
+	if ( @$sum_promised_amount[$currency_id] < $sum_amount * AUTO_REDUCTION_PROMISED_AMOUNT_PCT ) {
 
 		// проверим, есть ли хотябы 1000 юзеров, у которых на кошелках есть или была данная валюты
 		$count_users = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
