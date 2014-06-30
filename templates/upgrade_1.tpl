@@ -89,30 +89,37 @@
 					prefix:'image',
 					type:type,
 					progress:function(ev){ $p.html(((ev.loaded/ev.total)*100)+'%'); $p.css('width',$p.html()); },
-					error:function(ev){ },
+					error:function(ev){
+						alert('error');
+					},
 					success:function(data){
-						
-						$p.html('100%');
-						$p.css('width',$p.html()); 
-						$('#'+img_id).html('<?php echo $lng['crop_img']?><br><img width="350" src="'+data.url+'?r='+Math.random()+'" id="'+type+'">');
-						
-						if (type=='user_face_tmp') {
-							$('#'+type).Jcrop({
-										onSelect: showCoords_user_face_coords,
-										onChange: showCoords_user_face_coords,
-										bgColor:     'black',
-										bgOpacity:   .4,
-										aspectRatio: 7/10
-									});
+
+						if (data.error !== undefined) {
+							alert(data.error)
 						}
 						else {
-							$('#'+type).Jcrop({
-										onSelect: showCoords_user_profile_coords,
-										onChange: showCoords_user_profile_coords,
-										bgColor:     'black',
-										bgOpacity:   .4,
-										aspectRatio: 7/10
-									});						
+							$p.html('100%');
+							$p.css('width',$p.html());
+							$('#'+img_id).html('<?php echo $lng['crop_img']?><br><img width="350" src="'+data.url+'?r='+Math.random()+'" id="'+type+'">');
+
+							if (type=='user_face_tmp') {
+								$('#'+type).Jcrop({
+											onSelect: showCoords_user_face_coords,
+											onChange: showCoords_user_face_coords,
+											bgColor:     'black',
+											bgOpacity:   .4,
+											aspectRatio: 7/10
+										});
+							}
+							else {
+								$('#'+type).Jcrop({
+											onSelect: showCoords_user_profile_coords,
+											onChange: showCoords_user_profile_coords,
+											bgColor:     'black',
+											bgOpacity:   .4,
+											aspectRatio: 7/10
+										});
+							}
 						}
 					}
 				});
