@@ -98,8 +98,19 @@ while ($row = $db->fetchArray($res)) {
 		$row['amount'] = 0;
 	}
 
+	// последний статус юзера
+	$pct_status = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `status`
+				FROM `".DB_PREFIX."points_status`
+				WHERE `user_id` = {$user_id}
+				ORDER BY `time_start` DESC
+				LIMIT 1
+				", 'fetch_one');
+
+	if (!$pct_status)
+		$pct_status = 'user';
 	$pct = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `miner`
+				SELECT `{$pct_status}`
 				FROM `".DB_PREFIX."pct`
 				WHERE `currency_id` = {$row['currency_id']}
 				ORDER BY `block_id` DESC
