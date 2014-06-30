@@ -110,7 +110,7 @@ else if ($block_id) {
 		$block_data['sign'] = bin2hex($block_data['sign']);
 		print "<tr><td><strong>Block_id</strong></strong></td><td>{$block_data['block_id']}</td></tr>";
 		print "<tr><td><strong>Hash</strong></td><td>{$hash}</td></tr>";
-		print "<tr><td><strong>Time</strong></td><td>".date('d-m-Y H:i:s', $block_data['time'])."</td></tr>";
+		print "<tr><td><strong>Time</strong></td><td>".date('d-m-Y H:i:s', $block_data['time'])." / {$block_data['time']}</td></tr>";
 		print "<tr><td><strong>User_id</strong></td><td>{$block_data['user_id']}</td></tr>";
 		print "<tr><td><strong>Level</strong></td><td>{$block_data['level']}</td></tr>";
 		print "<tr><td><strong>Sign</strong></td><td>".chunk_split($block_data['sign'], 130)."</td></tr>";
