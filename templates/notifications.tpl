@@ -135,6 +135,10 @@
 
 <div id="html_errors" class="alert alert-error" style="display: none"></div>
 
+<a href="http://sms.democratic-coin.com/?lang=<?php echo $lang?>" target="_blank" class="btn"><?php echo $lng['notifications_simple_sms']?></a>
+<br><br>
+<h3><?php echo $lng['notifications_advanced']?></h3>
+
 <form class="form-horizontal">
 
 	<div class="control-group">
@@ -204,6 +208,10 @@
 
 	</div>
 
+<?php
+if (node_admin_access($db)) {
+?>
+<br><br>
 	<div class="control-group">
 		<label class="control-label" for="inputPassword">SMS HTTP GET-request</label>
 		<div class="controls">
@@ -216,19 +224,26 @@
 		</div>
 	</div>
 </form>
-
+<?php
+}
+?>
 <p><span class="label label-important"><?php echo $lng['warn']?></span> <?php echo $lng['after_saving_changes_to_the_email']?></p>
 
 <form class="form-inline">
 
 	<input type="hidden" id="sms_text" value="test test"><button type="submit" class="btn" id="send_test_email"><?php echo $lng['send_test_email']?></button>
 </form>
+<?php
+if (node_admin_access($db)) {
+?>
 <p><span class="label label-important"><?php echo $lng['warn']?></span> <?php echo $lng['after_saving_changes_to_the_sms']?></p>
 
 <form class="form-inline">
 	<button type="submit" class="btn" id="send_test_sms"><?php echo $lng['send_a_test_sms']?></button>
 </form>
-
+<?php
+}
+?>
 
 <h3><?php echo $lng['configuring_notifications']?></h3>
 <div id="notifications">
