@@ -85,14 +85,28 @@ else {
 			continue;
 
 		$sql_where = '';
-		if (preg_match('/log_time_(.*)/i', $table, $t_name) && $table!='log_time_money_orders')
-			$sql_where = " WHERE `time` > ".($block_data['time'] - $variables['limit_'.$t_name[1].'_period']);
-		else if (preg_match('/^(log_transactions)$/i', $table) )
+		$order_by = '';
+		if (preg_match('/log_time_(.*)/i', $table, $t_name) && $table!='log_time_money_orders'){
+			$sql_where = " WHERE `time` > ".($block_data['time'] - @$variables['limit_'.$t_name[1].'_period'])."";
+			$order_by = "`user_id`, `time`";
+		}
+		else if (preg_match('/^(log_transactions)$/i', $table) ) {
 			$sql_where = " WHERE `time` > ".($block_data['time'] - 86400*3);
-		else if (preg_match('/^(log_votes|wallets_buffer|log_time_money_orders)$/i', $table) )
+		}
+		else if (preg_match('/^(log_votes)$/i', $table) ) {
 			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
-		else if (preg_match('/^(log_commission|log_faces|log_forex_orders|log_forex_orders_main|log_miners|log_miners_data|log_points|log_promised_amount|log_recycle_bin|log_spots_compatibility|log_users|log_votes_max_other_currencies|log_votes_max_promised_amount|log_votes_miner_pct|log_votes_reduction|log_votes_user_pct|log_wallets)$/i', $table) )
-			$sql_where = " WHERE `block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
+			$order_by = "`user_id`, `voting_id`";
+		}
+		else if (preg_match('/^(wallets_buffer|log_time_money_orders)$/i', $table) ) {
+			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
+		}
+		else if (preg_match('/^(log_forex_orders|log_forex_orders_main)$/i', $table) ) {
+			$sql_where = " WHERE `block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2'])."";
+		}
+		else if (preg_match('/^(log_commission|log_faces|log_miners|log_miners_data|log_points|log_promised_amount|log_recycle_bin|log_spots_compatibility|log_users|log_votes_max_other_currencies|log_votes_max_promised_amount|log_votes_miner_pct|log_votes_reduction|log_votes_user_pct|log_wallets)$/i', $table) ) {
+			$sql_where = " WHERE `block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2'])."";
+			$order_by = "`log_id`";
+		}
 
 		$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(*)
@@ -100,7 +114,7 @@ else {
 				{$sql_where}
 				", 'fetch_one');
 		$all_counts[$table] = $count;
-		$all_counts['_hash_'.$table] = substr(hash_table_data($db, $table, $sql_where), 0, 6);
+		$all_counts['_hash_'.$table] = substr(hash_table_data($db, $table, $sql_where, $order_by), 0, 6);
 	}
 
 	print json_encode($all_counts);
