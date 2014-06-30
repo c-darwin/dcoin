@@ -22,6 +22,10 @@ if (!empty($_SESSION['restricted']))
 
 define('MY_PREFIX', get_my_prefix($db));
 
+if (!node_admin_access($db)) {
+	$_POST['sms_http_get_request'] = '';
+}
+
 $_POST['email'] = $db->escape($_POST['email']);
 $_POST['smtp_server'] = $db->escape($_POST['smtp_server']);
 $_POST['use_smtp'] = $db->escape($_POST['use_smtp']);
