@@ -8,7 +8,7 @@
 <strong><?php echo $tpl['mean']?></strong><br>
 <?php echo $lng['points_yours']?>: <br>
 <strong><?php echo $tpl['my_points']?></strong><br>
-<?php echo $lng['points_votes']?>: <?php echo $tpl['votes_ok']?><br>
+<?php echo $lng['points_votes']?>: <br><strong><?php echo $tpl['votes_ok']?></strong><br>
 
 <?php
 	if (isset($tpl['points_status'])) {
@@ -25,7 +25,9 @@
 			}
 			echo '</tbody>';
 			echo '</table>';
+echo $lng['points_votes_period'];
 	}
+
 ?>
 
 
