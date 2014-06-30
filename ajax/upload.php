@@ -46,7 +46,10 @@ if ( $type == 'user_video' || substr_count($type, 'promised_amount')>0 ) {
 	}
 }
 
-if ( $type == 'user_face_tmp' ) {
+if ($_FILES['image']['error']>0) {
+
+}
+else if ( $type == 'user_face_tmp' ) {
 
 	$name = 'public/'.$_SESSION['user_id'].'_user_face_tmp.jpg';
 	copy($_FILES['image']['tmp_name'], ABSPATH . $name);
@@ -76,6 +79,9 @@ else if ( substr_count($type, 'promised_amount')>0 && !get_community_users($db))
 	$return_url = $name;
 }
 
-echo json_encode(array('url'=>$return_url));
+if ($_FILES['image']['error']>0)
+	echo json_encode(array('url'=>'', 'error'=>'error. code '.$_FILES['image']['error']));
+else
+	echo json_encode(array('url'=>$return_url));
 
 ?>
