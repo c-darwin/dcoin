@@ -59,6 +59,8 @@ $tpl['limits_text'] = str_ireplace(array('[limit]', '[period]'), array($tpl['var
 
 $tpl['min_promised_amount'] = $tpl['variables']['min_promised_amount'];
 
+$tpl['maxlength'] = 200;
+
 require_once( ABSPATH . 'templates/cash_requests_out.tpl' );
 
 ?>
