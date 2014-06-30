@@ -28,6 +28,7 @@ $lng['db_info'] = 'Db info';
 $lng['exchange'] = 'Exchange';
 $lng['logout'] = 'Logout';
 $lng['interface'] = 'Interface';
+$lng['lang'] = 'Language';
 
 // periods
 $lng['day'] = 'day';
@@ -143,6 +144,7 @@ $lng['holidays_title'] = 'Holidays';
 $lng['start_time'] = 'Start time';
 $lng['end_time'] = 'End time';
 $lng['holidays_limits_text'] = 'Add holidays: [limit] per [period]';
+$lng['holidays_warning'] = 'During holidays your account "frozen". Be careful, remove holidays impossible.';
 
 // new_holidays
 $lng['new_holidays_title'] = 'New holidays';
@@ -153,6 +155,7 @@ $lng['invalid_code'] = 'Invalid code';
 $lng['invalid_amount'] = 'Invalid amount';
 $lng['enter_code'] = 'Enter code received from miner';
 $lng['list_of_requests'] = 'list_of_requests';
+$lng['no_requests'] = 'No requests';
 
 // cash_request_out
 $lng['cash_request_out_title'] = 'Outgoing requests';
@@ -168,6 +171,7 @@ $lng['including_commission'] = 'including commission';
 $lng['you_requests'] = 'your requests';
 $lng['approved'] = 'accepted';
 $lng['rejected'] = 'rejected';
+$lng['empty_wallets'] = 'On your wallets no DC';
 
 // tasks
 $lng['tasks_title'] = 'Tasks';
@@ -285,6 +289,9 @@ $lng['configuring_notifications'] = 'Notifications settings';
 $lng['sms_sent'] = 'SMS sent';
 $lng['mail_sent'] = 'letter sent';
 $lng['email_and_sms_change'] = 'e-mail and SMS HTTP GET-request to change';
+$lng['notifications_advanced'] = 'Advanced Settings';
+$lng['notifications_simple_sms'] = 'Simplified SMS-notification';
+$lng['open'] = 'Open';
 
 $lng['notifications_admin_messages']='Important message from the DC-network creator';
 $lng['notifications_node_time']='Divergence in server time exceeding 5 seconds';
@@ -406,6 +413,7 @@ $lng['voting_max_promised_amount'] = 'Max promised amount';
 $lng['voting_max_other_currencies'] = 'How many currencies can be mined';
 $lng['voting_reduction'] = 'Reduction the money supply';
 $lng['hold_time_wait'] = 'You can vote for this currency through [sec] seconds';
+$lng['hold_time_wait2'] = 'You can vote through [sec] seconds';
 $lng['min_miners_count'] = 'Voting will be available after the typed [miners_count] miners. Remaining [remaining]';
 $lng['wait_voting'] = 'You can vote through [sec] seconds';
 
@@ -417,12 +425,14 @@ $lng['points'] = 'Points';
 $lng['points_status'] = 'Change of status from points';
 $lng['points_min'] = 'The current minimum number of points required to get "miner" status';
 $lng['points_yours'] = 'Your score';
-$lng['points_votes'] = 'Voting within the past 4 weeks';
+$lng['points_votes'] = '<a href="#" onclick="fc_navigate(\'voting\')">Voting</a> within the past 4 weeks';
+$lng['points_votes_period'] = 'Recalculation of points and status change occurs every 30 days';
 
 // start_stop
 $lng['start_stop_title'] = 'Start/Stop';
 
 $lng['alert_change_node_key'] = 'Need <a href="#" onclick="fc_navigate(\'change_node_key\')">to generate a new node-key</a>';
+$lng['alert_change_primary_key'] = 'Need <a href="#" onclick="fc_navigate(\'change_primary_key\')">to generate a new primary-key</a>';
 
 $lng['pct'] = 'Interest';
 $lng['pct_year'] = '%/year';
@@ -437,6 +447,7 @@ $lng['total'] = 'Total';
 $lng['sell_orders'] = 'Sell orders';
 $lng['buy_orders'] = 'Buy orders';
 $lng['price'] = 'Price';
+$lng['forex_alert'] = 'The fee is charged at the time of entering orders in the DC-network. Even if you delete the order, the commission will not be refunded.';
 
 // change_promised_amount
 $lng['change_promised_amount'] = 'Change promised amount';
