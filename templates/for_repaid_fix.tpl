@@ -40,7 +40,7 @@ $('#send_to_net').bind('click', function () {
 	<input type="hidden" id="user_id" value="<?php echo $_SESSION['user_id']?>">
 	<input type="hidden" id="time" value="<?php echo time()?>">
 	<script>
-		doSign();
+		//doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
 </div>
