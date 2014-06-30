@@ -16,6 +16,7 @@ $tpl['my_points'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, _
 		FROM `".DB_PREFIX."points`
 		WHERE `user_id` = {$user_id}
 		", 'fetch_one');
+$tpl['my_points'] = intval($tpl['my_points']);
 
 $tpl['variables'] = ParseData::get_variables ($db,  array('points_factor', 'limit_votes_complex_period') );
 
