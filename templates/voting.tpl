@@ -211,9 +211,8 @@ ArraySort = function(array, sortFunc){
 		$refs = array('first', 'second', 'third');
 		for ($i=0; $i<sizeof($refs); $i++) {
 			print "Реферальные ".($i+1)."-го уровня: <select style='width: 60px' id='ref_{$refs[$i]}'>";
-			$rand = rand(0, 30);
 			for ($j=0; $j<=30; $j++)
-				print "<option ".($j==$rand?"selected":"").">{$j}</option>";
+				print "<option ".($j==$tpl['referral'][$refs[$i]]?"selected":"").">{$j}</option>";
 			print "</select>%<br>";
 		}
 	}
