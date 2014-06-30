@@ -45,6 +45,32 @@ while ( $row = $db->fetchArray( $res ) ) {
 	$sum_promised_amount[$row['currency_id']] = $row['sum_amount'];
 }
 
+// получаем кол-во майнеров по валютам
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `currency_id`, count(`user_id`) as `count`
+					FROM (
+							SELECT `currency_id`, `user_id`
+							FROM `".DB_PREFIX."promised_amount`
+							WHERE  `del_block_id` = 0 AND
+										 `del_mining_block_id` = 0 AND
+										 `status` IN ('mining', 'repaid')
+							GROUP BY  `user_id`, `currency_id`
+							) as t1
+					GROUP BY  `currency_id`
+					");
+while ( $row = $db->fetchArray( $res ) )
+	$promised_amount_miners[$row['currency_id']] = $row['count'];
+
+// получаем кол-во анонимных юзеров по валютам
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `currency_id`, count(`user_id`) as `count`
+		FROM `".DB_PREFIX."wallets`
+		WHERE `amount` > 0
+		GROUP BY  `currency_id`
+		");
+while ( $row = $db->fetchArray( $res ) )
+	$wallets_users[$row['currency_id']] = $row['count'];
+
 require_once( ABSPATH . 'templates/statistic.tpl' );
 
 ?>
