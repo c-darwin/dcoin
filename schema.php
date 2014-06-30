@@ -57,6 +57,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cash_requests` (
   `time` int(10) unsigned NOT NULL COMMENT 'Время создания запроса. От него отсчитываем 48 часов',
   `from_user_id` bigint(20) unsigned NOT NULL,
   `to_user_id` bigint(20) unsigned NOT NULL,
+  `notification` tinyint(1) unsigned NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   `amount` decimal(13,2)  NOT NULL COMMENT 'На эту сумму должны быть выданы наличные',
   `hash_code` binary(32) NOT NULL COMMENT 'Хэш от кода, а сам код пердается при личной встрече. ',
