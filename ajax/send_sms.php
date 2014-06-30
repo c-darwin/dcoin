@@ -20,6 +20,9 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 if (!empty($_SESSION['restricted']))
 	die('Permission denied');
 
+if (!node_admin_access($db))
+	die ('Permission denied');
+
 define('MY_PREFIX', get_my_prefix($db));
 
 $_REQUEST['text'] = $db->escape($_REQUEST['text']);
