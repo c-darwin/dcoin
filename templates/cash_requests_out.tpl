@@ -12,6 +12,17 @@
 
 <!-- container -->
 <div class="container">
+
+<script type="text/javascript">
+	$('#comment').keyup(function () {
+		var left = <?php echo $tpl['maxlength']?> - $(this).val().length;
+		if (left < 0) {
+			left = 0;
+		}
+		$('#counter').text('Characters left: ' + left);
+	});
+</script>
+
 <script>
 $('#next').bind('click', function () {
 
@@ -176,6 +187,9 @@ $('#send_amount').keyup(function(e) {
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
+	<?php
+	if (isset($tpl['available_currency'])) {
+	 ?>
 	<div id="onmap">
 		<h3><?php echo $lng['search']?></h3>
 		<div class="form-inline" style="padding-bottom: 10px">
@@ -195,8 +209,6 @@ $('#send_amount').keyup(function(e) {
 			<button class="btn" id="show_map"><?php echo $lng['find_on_map']?></button>
 		</div>
 
-
-
 		<div id="new" style="display:none">
 
 			<div id="map_canvas" style="width: 640px; height: 320px;"></div>
@@ -215,7 +227,7 @@ $('#send_amount').keyup(function(e) {
 		<tr><td><?php echo $lng['available']?></td><td><span id="available"></span><input id="currency_id" type="hidden"></td></tr>
 		<tr><td><?php echo $lng['you_send']?></td><td><input type="text" id="send_amount" class="input-mini"> D<span id="currency_name"></span></td></tr>
 		<tr><td><?php echo $lng['amount_due']?></td><td><span id="amount_due"></span> <span id="currency_name"></span></td></tr>
-		<tr><td><?php echo $lng['you_contacts']?></td><td><textarea id="comment"></textarea></td></tr>
+		<tr><td><?php echo $lng['you_contacts']?></td><td><textarea id="comment" maxlength="<?php echo $tpl['maxlength']?>"></textarea><p id="counter"></p></td></tr>
 		<tr><td><?php echo $lng['code']?></td><td><?php echo $tpl['code']?><br>(<?php echo $lng['after_transfer']?>)</td></tr>
 		</table>
 		<div id="message"></div>
@@ -223,8 +235,12 @@ $('#send_amount').keyup(function(e) {
 
 		<div style="padding-top:10px"><p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?> </p></div>
 
-
 	</div>
+	<?php
+	}
+	else
+		echo $lng['empty_wallets'];
+	?>
 
 	<?php require_once( 'signatures.tpl' );?>
 
