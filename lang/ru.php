@@ -27,6 +27,7 @@ $lng['db_info'] = 'Инфа из БД';
 $lng['exchange'] = 'Биржа';
 $lng['logout'] = 'Выйти';
 $lng['interface'] = 'Интерфейс';
+$lng['lang'] = 'Язык';
 
 
 // периоды
@@ -141,6 +142,7 @@ $lng['holidays_title'] = 'Каникулы';
 $lng['start_time'] = 'Время начала';
 $lng['end_time'] = 'Время конца';
 $lng['holidays_limits_text'] = 'Добавление каникул - не более [limit] операций за [period]';
+$lng['holidays_warning'] = 'На время каникул Ваш аккаунт "замораживается". Будьте внимательны, удалить каникулы нельзя.';
 
 // new_holidays
 $lng['new_holidays_title'] = 'Новые каникулы';
@@ -151,6 +153,7 @@ $lng['invalid_code'] = 'Неверный код';
 $lng['invalid_amount'] = 'Неверная сумма';
 $lng['enter_code'] = 'Введите код, полученный от майнера, которому Вы отдали наличные';
 $lng['list_of_requests'] = 'Список запросов';
+$lng['no_requests'] = 'Запросов нет';
 
 // cash_request_out
 $lng['cash_request_out_title'] = 'Исходящие запросы';
@@ -166,6 +169,7 @@ $lng['including_commission'] = 'В т.ч. комиссия ';
 $lng['you_requests'] = 'Ваши запросы';
 $lng['approved'] = 'Сделка совершена';
 $lng['rejected'] = 'Сделка отклонена';
+$lng['empty_wallets'] = 'На ваших кошельках нет DC';
 
 // tasks
 $lng['tasks_title'] = 'Задания';
@@ -286,6 +290,10 @@ $lng['configuring_notifications'] = 'Настройка уведомлений';
 $lng['sms_sent'] = 'SMS отправлено';
 $lng['mail_sent'] = 'Письмо отправлено';
 $lng['email_and_sms_change'] = 'e-mail и SMS HTTP GET-request изменены';
+$lng['notifications_advanced'] = 'Расширенные настройки';
+$lng['notifications_simple_sms'] = 'Упрощенное SMS-информирование';
+$lng['open'] = 'Открыть';
+
 
 $lng['notifications_admin_messages']='Важные сообщения от создателя DC-сети';
 $lng['notifications_node_time']='Расхождение времени сервера более чем на 5 сек.';
@@ -301,6 +309,7 @@ $lng['notifications_voting_time']='Прошло 2 недели с момента
 $lng['notifications_voting_results']='Результаты голосования за % по имеющимся к Вас валютам';
 $lng['notifications_change_in_status'] ='Смена статуса "майнер" на "юзер" или "полу-майнер" (например, при невыполнении заданий)';
 $lng['warn'] = 'Внимание!';
+
 
 // node_config
 $lng['node_config_title'] = 'Конфиг нода';
@@ -409,6 +418,7 @@ $lng['voting_max_promised_amount'] = 'Макс. обещанная сумма';
 $lng['voting_max_other_currencies'] = 'Со сколькими валютами можно майнить';
 $lng['voting_reduction'] = 'Урезание всей денежной массы';
 $lng['hold_time_wait'] = 'Вы сможете голосовать за данную валюту через [sec] секунд';
+$lng['hold_time_wait2'] = 'Вы сможете голосовать через [sec] секунд';
 $lng['min_miners_count'] = 'Голосование будет доступно после того, как наберется [miners_count] майнеров. Осталось [remaining]';
 $lng['wait_voting'] = 'Вы сможете проголосовать через [sec] секунд';
 
@@ -420,12 +430,14 @@ $lng['points'] = 'Баллы';
 $lng['points_status'] = 'Смена статуса из-за баллов';
 $lng['points_min'] = 'Текущее минимальное кол-во баллов для получения статуса "майнер"';
 $lng['points_yours'] = 'Ваше кол-во баллов';
-$lng['points_votes'] = 'За последние 4 недели было произведено голосование';
+$lng['points_votes'] = 'За последние 4 недели было произведено <a href="#" onclick="fc_navigate(\'voting\')">голосование</a>';
+$lng['points_votes_period'] = 'Пересчет баллов и смена статуса происходят каждые 30 дней';
 
 // start_stop
 $lng['start_stop_title'] = 'Start/Stop';
 
 $lng['alert_change_node_key'] = 'Необходимо <a href="#" onclick="fc_navigate(\'change_node_key\')">сгенерировать новый node-ключ</a>';
+$lng['alert_change_primary_key'] = 'Необходимо <a href="#" onclick="fc_navigate(\'change_primary_key\')">сгенерировать новый праймари-ключ</a>';
 
 $lng['pct'] = 'Проценты';
 $lng['pct_year'] = '%/год';
@@ -440,6 +452,8 @@ $lng['total'] = 'Всего';
 $lng['sell_orders'] = 'Ордеры на продажу';
 $lng['buy_orders'] = 'Ордеры на покупку';
 $lng['price'] = 'Цена';
+$lng['forex_alert'] = 'Комиссия взимается в момент попадания ордера в DC-сеть. Даже, если Вы удалите ордер, то комиссия возвращена не будет.';
+
 
 // change_promised_amount
 $lng['change_promised_amount'] = 'Изменение обещанной суммы';
@@ -450,5 +464,20 @@ $lng['statistic'] = 'Статистика';
 // actualize_promised_amounts
 $lng['actualize_promised_amounts'] = 'Актуализировать обещанные суммы';
 $lng['actualization_promised_amounts'] = 'Актуализация обещанных сумм';
+
+// variables
+$lng['variables_limit_new_user'] = 'сколько раз майнер может менять набор своих коммисий по валютам';
+$lng['variables_limit_new_user'] = 'сколько юзеров может зарегать майнер';
+$lng['variables_sleep'] = 'is_ready - время, которые нужно на то, чтобы ноды успели обменяться своими tesblock. generator - время на то, что бы ноды успели сгенерировать блок. когда тр-ий будет много, generator надо будет увеличить 1,2,4,8,16,32,64,128,256,512,1024,2048,4096,8192';
+$lng['variables_min_miners_of_voting'] = 'сколько должно набраться майнеров с конкретной валютой, чтобы за неё можно было голосовать';
+$lng['variables_min_hold_time_promise_amount'] = 'сколько времени обещанная сумма должна пролежать у юзера, презде чем он получит право голосовать за данную валюту это защита от атаки клонов, когда каким-то образом 100500 майнеров прошли проверку, добавили какую-то валюту и проголосовали за reduction 50%. 90 дней - это время админу, чтобы заметить и среагировать на такую атаку';
+$lng['variables_min_promised_amount'] = 'на сколько частей можно разбить обещанную сумму, на которую шлется запрос';
+$lng['variables_points_update_time'] = 'на сколько сек выдается статус "майнер"';
+$lng['variables_reduction_period'] = 'раз во сколько секунд можно создавать новое reduction для каждой валюты';
+$lng['variables_new_pct_period'] = 'раз во сколько секунд можно менять % для всех валют вместе';
+$lng['variables_new_max_promised_amount'] = 'раз во сколько секунд можно менять макс. обещанную сумму для всех валют вместе';
+$lng['variables_new_max_other_currencies'] = 'раз во сколько секунд можно менять макс. число других валют для всех валют вместе';
+$lng['variables_cash_request_time'] = 'через сколько сек можно слать новый запрос cash_request_out, если не был создан cash_request_in с верным кодом. оно же - на сколько сек замораживается указанная в cash_request_out сумма, пока статус не станет approved. оно же - через сколько сек можно получить новый запрос, если на предыдущий не был сгенерирован cash_request_in';
+
 
 ?>
