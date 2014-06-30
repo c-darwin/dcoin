@@ -102,7 +102,7 @@
 	<legend><h2><?php echo $lng['currency_exchange']?></h2></legend>
 
 	<div style="width: 700px" id="main">
-
+	<p><?php echo $lng['forex_alert'] ?></p>
 	<div style="text-align: center; width: 100%;">
 	<div class="form-inline" style="padding-bottom: 10px">
 		<select id="buy_currency_id" style="width: 100px">
