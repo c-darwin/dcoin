@@ -34,7 +34,7 @@ function save_img($src, $save_name, $coords) {
 
 	$new = imagecreatetruecolor($coords[4], $coords[5]);	
 	imagecopyresampled($new, $img, 0, 0, $coords[0], $coords[1], $coords[4], $coords[5], $coords[4], $coords[5]);
-	imagejpeg($new, $save_name, 95);
+	imagejpeg($new, $save_name, 85);
 
 	return true;
 }
