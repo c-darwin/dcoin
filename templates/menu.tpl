@@ -41,7 +41,8 @@
 	            <?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'change_node_key\')">'.$lng['change_node_key'].'</a></li>':''?>
 						<li><a href="#" onclick="fc_navigate('change_host')"><?php echo $lng['change_host']?></a></li>
 	                    <li><a href="#" onclick="fc_navigate('notifications')"><?php echo $lng['sms_and_email_notifications']?></a></li>
-	                    <li><a href="#" onclick="fc_navigate('interface')"><?php echo $lng['interface']?></a></li>
+	            <li><a href="#" onclick="fc_navigate('interface')"><?php echo $lng['interface']?></a></li>
+	            <li><a href="#" onclick="fc_navigate('lang')"><?php echo $lng['lang']?></a></li>
 					</ul>
 				</li>  
               
@@ -57,7 +58,9 @@
 						<li><a href="#" onclick="fc_navigate('abuse')"><?php echo $lng['complaints_miners']?></a></li>
 						<li><a href="#" onclick="fc_navigate('bug_reporting')"><?php echo $lng['bug_reporting']?></a></li>
 						<?php echo defined('POOL_ADMIN')?'<li><a href="#" onclick="fc_navigate(\'pool_admin\')">Pool admin</a></li>':'' ?>
-						<li><a href="#" onclick="logout()"><?php echo $lng['logout']?></a></li>
+	                     <li><a href="#" onclick="logout()"><?php echo $lng['logout']?></a></li>
+	                    <li> <a href="mailto: admin@democratic-coin.com">admin@democratic-coin.com</a></li>
+
 					</ul>
 				</li>
             </ul>
