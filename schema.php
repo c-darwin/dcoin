@@ -212,6 +212,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}info_block` (
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_new_users`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_new_users` (
   `user_id` int(10) NOT NULL,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `public_key` varchar(3096) NOT NULL COMMENT 'Нужен просто чтобы опознать в блоке зареганного юзера и отметить approved',
   `private_key` varchar(3096) NOT NULL,
   `status` enum('my_pending','approved') NOT NULL DEFAULT 'my_pending'
@@ -723,6 +724,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}miners_data` (
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_admin_messages`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_admin_messages` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `parent_id` int(11) NOT NULL,
   `subject` varchar(255) CHARACTER SET utf8 NOT NULL COMMENT 'Появляется после расшифровки',
   `message` text CHARACTER SET utf8 NOT NULL,
@@ -741,6 +743,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_admin_messages` 
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_promised_amount`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_promised_amount` (
   `id` tinyint(3) unsigned NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `amount` decimal(13,2) NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
   PRIMARY KEY (`id`)
@@ -752,6 +755,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_promised_amount`
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_cash_requests`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_cash_requests` (
   `id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `time` int(11) unsigned NOT NULL COMMENT 'Время попадания в блок',
   `notification` tinyint(1) NOT NULL,
   `to_user_id` bigint(20) NOT NULL,
@@ -818,6 +822,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}my_geolocation` (
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_holidays`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_holidays` (
   `id` smallint(6) NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `start_time` int(10) unsigned NOT NULL,
   `end_time` int(10) unsigned NOT NULL,
   PRIMARY KEY (`id`)
@@ -830,6 +835,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_holidays` (
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_keys`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_keys` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `notification` tinyint(1) NOT NULL,
   `public_key` varbinary(512) NOT NULL COMMENT 'Нужно для поиска в users',
   `private_key` varchar(3096) NOT NULL COMMENT 'Хранят те, кто не боятся',
@@ -860,6 +866,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_log` (
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_node_keys`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_node_keys` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `public_key` varbinary(512) NOT NULL,
   `private_key` varchar(3096) NOT NULL,
   `status` enum('my_pending','approved') NOT NULL DEFAULT 'my_pending',
@@ -1532,6 +1539,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_money_orders` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}_my_admin_messages`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}_my_admin_messages` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
   `user_int_message_id` int(11) NOT NULL COMMENT 'ID сообщения, который присылает юзер',
   `parent_user_int_message_id` int(11) NOT NULL COMMENT 'Parent_id, который присылает юзер',
   `user_id` bigint(20) NOT NULL,
