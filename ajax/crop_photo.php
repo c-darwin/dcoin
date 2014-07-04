@@ -13,6 +13,14 @@ function save_img($src, $save_name, $coords) {
 	$h = $size[1];
 
 	$koef = $w/350;
+	if ($koef > 2) {
+		$new_w = round(350*2);
+		$new_h = round(500*2);
+	}
+	else {
+		$new_w = round($coords[4]*$koef);
+		$new_h = round($coords[5]*$koef);
+	}
 
 	$coords[0] = round($coords[0]*$koef);
 	$coords[1] = round($coords[1]*$koef);
@@ -21,6 +29,8 @@ function save_img($src, $save_name, $coords) {
 	$coords[4] = round($coords[4]*$koef);
 	$coords[5] = round($coords[5]*$koef);
 
+
+	file_put_contents('coord.txt', "w $w h $h 0 $coords[0]\n1 $coords[1]\n2 $coords[2]\n3 $coords[3]\n4 $coords[4]\n5 $coords[5]\nnew_w $new_w\nnew_h $new_h\n\n");
 
 	switch ($size['mime']) {
 		case 'image/jpeg':
@@ -32,8 +42,8 @@ function save_img($src, $save_name, $coords) {
 		default : return "Unsupported picture type!";
 	}
 
-	$new = imagecreatetruecolor($coords[4], $coords[5]);	
-	imagecopyresampled($new, $img, 0, 0, $coords[0], $coords[1], $coords[4], $coords[5], $coords[4], $coords[5]);
+	$new = imagecreatetruecolor($new_w, $new_h);
+	imagecopyresampled($new, $img, 0, 0, $coords[0], $coords[1], $new_w, $new_h, $coords[4], $coords[5]);
 	imagejpeg($new, $save_name, 85);
 
 	return true;
