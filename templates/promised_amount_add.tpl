@@ -46,7 +46,7 @@ var payment_systems_ids = '';
 $('#add_promised_amount').bind('click', function () {
 
 	if ($("#video_url").val()) {
-		var re = /watch\?v=([0-9A-Za-z]+)/i;
+		var re = /watch\?v=([0-9A-Za-z_-]+)/i;
 		var res;
 		res = re.exec($("#video_url").val());
 		video_url_id = res[1];
