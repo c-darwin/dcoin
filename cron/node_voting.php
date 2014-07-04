@@ -93,8 +93,8 @@ do {
 
 			debug_print('$profile_hash='.$profile_hash."\n".'$face_hash='.$face_hash, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-			// проверяем хэш. Если сходится, то голосуем за, если нет - против
-			if ( $profile_hash == $row['profile_hash'] && $face_hash == $row['face_hash']  ) {
+			// проверяем хэш. Если сходится, то голосуем за, если нет - против и размер не должен быть более 200 Kb.
+			if ( $profile_hash == $row['profile_hash'] && $face_hash == $row['face_hash'] && filesize($profile_path) < 204800 && filesize($face_path) < 204800 ) {
 				$vote = 1;
 				debug_print('VOTE = YES', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			}
