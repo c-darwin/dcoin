@@ -1,7 +1,8 @@
 Democratic Coin
 =====
-Website: http://democratic-coin.com
-Wiki: http://wiki.democratic-coin.com
+http://democratic-coin.com<br>
+http://wiki.democratic-coin.com<br>
+Copyright (c) 2014 Dcoin Developer
 
 License
 =====
