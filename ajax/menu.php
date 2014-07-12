@@ -26,7 +26,7 @@ if (!isset($lang)) {
 		$lang = $_COOKIE['lang'];
 }
 if (!isset($lang))
-	$lang = 'en';
+	$lang = $default_lang;
 
 if (!preg_match('/^[a-z]{2}$/iD', $lang))
 	die('lang error');
