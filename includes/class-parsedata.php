@@ -2489,6 +2489,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (!$this->check_miner($this->tx_data['user_id']))
 			return 'error miner id';
 
+		if ( !check_input_data ($this->tx_data['result'], 'vote') )
+			return 'result error';
+
 		// получим public_key
 		$this->node_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `node_public_key`
