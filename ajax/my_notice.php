@@ -23,7 +23,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	else if (@$_COOKIE['lang'])
 		$lang = $_COOKIE['lang'];
 	if (!isset($lang))
-		$lang = 'en';
+		$lang = $default_lang;
 
 	if (!preg_match('/^[a-z]{2}$/iD', $lang))
 		die('lang error');
