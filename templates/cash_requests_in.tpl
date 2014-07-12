@@ -43,9 +43,50 @@ $('#send_to_net').bind('click', function () {
 				});
 } );
 
-</script>
-<script src="js/js.js"></script>
 
+jQuery.fn.center = function () {
+	this.css("position","absolute");
+	this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
+			$(window).scrollTop()) + "px");
+	this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
+			$(window).scrollLeft()) + "px");
+	return this;
+}
+
+function show_profile (user_id) {
+	$.post( 'ajax/profile.php', {
+		'user_id' : user_id
+	}, function (data) {
+		$("#profile_abuses").html(data.abuses);
+		$("#profile_reg_time").html(data.reg_time);
+		$("#profile_window").css("display", "block");
+		$("#profile_window").center();
+		$('#profile_photo').attr('src', '');
+		reload_photo(user_id, 'profile_photo');
+	}, 'JSON' );
+}
+
+function reload_photo(user_id, face_id) {
+	$.post( 'ajax/new_photo.php', {
+		'user_id' : user_id
+	}, function (data) {
+		$('#'+face_id).attr('src', ''+data.face+'');
+	}, "json" );
+}
+
+$('#profileclose').bind('click', function () {
+	$("#profile_window").css("display", "none");
+});
+
+</script>
+
+<script src="js/js.js"></script>
+	<div id="profile_window" style="display: none; width: 500px;	padding:10px 10px; background-color: #fff; border:  1px solid black; ">
+		<button type="button" class="close" id="profileclose">×</button>
+		<div style="float: left; margin-right: 10px"><img id="profile_photo" width="200"></div>
+		<?php echo $lng['abuses']?>: <span id="profile_abuses"></span><br>
+		<?php echo $lng['reg_time']?>: <span id="profile_reg_time"></span>
+	</div>
 	<legend><h2><?php echo $lng['cash_request_in_title']?></h2></legend>
 	<div id="message"></div>
 
@@ -56,6 +97,7 @@ $('#send_to_net').bind('click', function () {
 	
 		<table class="table" style="width:500px">
 		<?php
+		print "<tr><td><strong>User_id</strong></td><td><a href='#' onclick='show_profile({$tpl['data']['from_user_id']});return false'>{$tpl['data']['from_user_id']}</a></td></tr>";
 		print "<tr><td><strong>{$lng['currency']}</strong></td><td>{$tpl['currency_list'][$tpl['data']['currency_id']]}</td></tr>";
 		print "<tr><td><strong>{$lng['amount']}</strong></td><td>{$tpl['data']['amount']}</td></tr>";
 		print "<tr><td><strong>{$lng['contact']}</strong></td>";
