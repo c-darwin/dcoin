@@ -8,7 +8,7 @@ $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}abuses`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}abuses` (
   `user_id` bigint(20) unsigned NOT NULL,
   `from_user_id` bigint(20) unsigned NOT NULL,
-  `comment` varchar(255) NOT NULL,
+  `comment` varchar(255) CHARACTER SET utf8 NOT NULL,
   `time` int(11) unsigned NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Абузы на майнеров от майнеров';
 ";
