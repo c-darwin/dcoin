@@ -13,6 +13,7 @@ date_default_timezone_set('America/New_York');
 ##########################################################################
 $my_lock = false;
 $lock_time = 0;
+$default_lang = 'ru';
 
 if(substr(PHP_OS, 0, 3) == "WIN")
 	define('OS', 'WIN');
