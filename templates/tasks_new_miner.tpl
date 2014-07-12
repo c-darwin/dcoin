@@ -8,7 +8,6 @@
 	var comment = '';
 
 	function reload_photo(user_id, face_id, profile_id) {
-
 		$.post( 'ajax/new_photo.php', {
 			'user_id' : user_id
 		}, function (data) {
@@ -18,7 +17,18 @@
 			$('#'+profile_id).css('backgroundImage', 'url('+data.profile+')');
 
 		}, "json" );
+	}
 
+	function reload_photo2(user_id, face_id, profile_id) {
+		$.post( 'ajax/new_photo.php', {
+			'user_id' : user_id
+		}, function (data) {
+
+			alert(data.face+"\n"+data.profile+"\n"+face_id+"\n"+profile_id);
+			$('#'+face_id).attr('src', ''+data.face+'');
+			$('#'+profile_id).attr('src', ''+data.profile+'');
+
+		}, "json" );
 	}
 
 	function write_for_signature (result) {
@@ -205,10 +215,10 @@ $('#send_to_net').bind('click', function () {
 
     <div id="step_2" style="display:none; ">
 	    <p><?php echo $lng['tasks_new_miner_clones']?></p>
-
+	    <button class="btn" onclick="reload_photo2(<?php echo $tpl['user_info']['user_id']?>, 'main_face', 'main_profile')"><?php echo $lng['reload']?></button>
 		<div id="xx1" style="width:300px; position:fixed;">
-			<div style="float:left;"><img src="<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
-			<div><img src="<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="float:left; width:150px; height:220px;"></div>
+			<div style="float:left;"><img id="main_face" src="<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
+			<div><img id="main_profile" src="<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="float:left; width:150px; height:220px;"></div>
 		</div>
 
 		<div style="padding-top:220px">
@@ -235,10 +245,10 @@ $('#send_to_net').bind('click', function () {
 	<!-- S T E P   3 -->
 	
     <div id="step_3" style="display:none;">
-	    <p><?php echo $lng['tasks_new_miner_video']?></p>
+	    <p><?php echo $lng['tasks_new_miner_video']?><br><button class="btn" onclick="reload_photo2(<?php echo $tpl['user_info']['user_id']?>, 'step_3_face', 'step_3_pofile')"><?php echo $lng['reload']?></button></p>
 		<div style="width:300px;float: left;">
-			<div style="float: left;"><img src="<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
-			<div><img src="<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
+			<div style="float: left;"><img id="step_3_face" src="<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
+			<div><img id="step_3_pofile" src="<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
 		</div>
 		<div>
 			<?php
