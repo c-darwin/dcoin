@@ -33,6 +33,7 @@ $tpl['data'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METH
 					 `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`comment`,
 					 `".DB_PREFIX."cash_requests`.`amount`,
 					 `".DB_PREFIX."cash_requests`.`currency_id`,
+					 `".DB_PREFIX."cash_requests`.`from_user_id`,
 					 LOWER(HEX(`".DB_PREFIX."cash_requests`.`hash_code`)) as `hash_code`
 		FROM `".DB_PREFIX.MY_PREFIX."my_cash_requests`
 		LEFT JOIN `".DB_PREFIX."cash_requests` ON `".DB_PREFIX."cash_requests`.`id` = `".DB_PREFIX.MY_PREFIX."my_cash_requests`.`cash_request_id`
