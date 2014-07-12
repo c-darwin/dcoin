@@ -102,6 +102,7 @@ $lng['only_for_miners'] = 'Available only for miners. You need to <a href="#" on
 $lng['permission_denied'] = 'Permission denied';
 $lng['attention_title'] = 'Attention!';
 $lng['alert_time'] = 'Time on your server differs from the exact time of [sec] seconds. Necessary to establish the exact time';
+$lng['reg_time'] = 'Date of registration';
 
 // promised_amount
 $lng['promised_amount_title'] = 'My promised amounts';
@@ -330,6 +331,7 @@ $lng['user'] = 'user';
 $lng['alert_messages_title'] = 'Alert messages';
 
 // abuses
+$lng['abuses'] = 'Abuses';
 $lng['abuses_title'] = 'Complaints against miners';
 $lng['abuses_limits_text'] = 'Not more than [limit] miners for [period]';
 
@@ -396,6 +398,11 @@ $lng['downloading_blocks'] = 'Downloading block chain, please wait before contin
 $lng['downloading_complete'] = 'Block chain is updated, DCoin is ready to use';
 $lng['number_of_blocks'] = 'Number of blocks in block chain';
 $lng['time_last_block'] = 'Time of the last block';
+$lng['home_text_risks'] = '<p>Risks in Dcoin: <br>
+1. <a Href="http://dcoinwiki.com/Сокращение_объема_монет" target="_blank"> Reduction of coins </a> <br>
+2. <a Href="http://dcoinwiki.com/Pul" target="_blank"> Poole </a> <br>
+3. If you lose your primary key, you lose access to your account. Restoring without primary key impossible.</p>
+<p>Dcoin - very young project, it was launched in April 2014. If you notice something like a bug, please report it to the email admin@democratic-coin.com </p>';
 
 // change_commission
 $lng['change_commission_title'] = 'Commission';
