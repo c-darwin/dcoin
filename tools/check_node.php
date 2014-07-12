@@ -21,21 +21,27 @@ $block_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHO
 		FROM `".DB_PREFIX."info_block`
 		", 'fetch_array');
 
-if ($_REQUEST['table'] && $_REQUEST['row'] && $_REQUEST['col']){
+if ( isset($_REQUEST['col'], $_REQUEST['row'], $_REQUEST['table']) ) {
 	$table = $_REQUEST['table'];
 	$row = $_REQUEST['row'];
 	$col = $_REQUEST['col'];
 	$all_tables = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SHOW TABLES
 			", 'array');
-	if ( !in_array($table, $all_tables) || substr($table, 0, 3)=='my_' )
+
+	if ( !in_array($table, $all_tables) )
 		die ('error table');
-	if ( !check_input_data ($row, 'bigint') )
+
+	if (preg_match('/(my_|_my|config|_refs)/i', $table))
+		die ('error table');
+
+	if (!preg_match('/^\-?[0-9]{1,10}$/D', $row))
 		die ('error row');
+
 	if ( !check_input_data ($col, 'bigint') )
 		die ('error col');
 
-	if (!$row) {
+	if ($row==-1) {
 		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SHOW TABLE STATUS LIKE '{$table}'
 				", 'fetch_array');
