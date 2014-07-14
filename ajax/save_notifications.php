@@ -20,8 +20,9 @@ if (empty($_SESSION['restricted'])) {
 	define('MY_PREFIX', get_my_prefix($db));
 
 	$_REQUEST['data'] = $db->escape($_REQUEST['data']);
-
+	$_REQUEST['data'] = str_replace('\"', '"', $_REQUEST['data']);
 	$data = json_decode($_REQUEST['data']);
+
 	for ($i=0; $i<sizeof($data); $i++ ) {
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX.MY_PREFIX."my_notifications`
@@ -29,7 +30,7 @@ if (empty($_SESSION['restricted'])) {
 					   `sms` = {$data[$i]->sms}
 			    WHERE `name` = '{$data[$i]->name}'
 				");
-		print $db->printsql()."\n";
+		//print $db->printsql()."\n";
 	}
 	print '{"error":0}';
 }
