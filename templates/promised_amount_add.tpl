@@ -50,6 +50,7 @@ $('#add_promised_amount').bind('click', function () {
 		var res;
 		res = re.exec($("#video_url").val());
 		video_url_id = res[1];
+		console.log(video_url_id);
 	}
 	if (!video_url_id) {
 		video_url_id='null';
