@@ -248,11 +248,16 @@ if (node_admin_access($db)) {
 <h3><?php echo $lng['configuring_notifications']?></h3>
 <div id="notifications">
 <table class="table table-striped" style="width:500px">
-	<tr><th></th><th>SMS</th><th>Email</th></tr>
+	<tr><th></th><?php echo (node_admin_access($db))?'<th>SMS</th>':''?><th>Email</th></tr>
 	<?php
 	$i=0;
 	foreach ($tpl['my_notifications'] as $name=>$data) {
-		echo "<tr><td><input type='hidden' id='names' value='{$name}'><span ".($data['important']?" class='text-error'":"").">{$lng["notifications_".$name]}</span></td><td><input id='{$name}_sms' type='checkbox' ".($data['sms']?"checked":"")."></td><td><input id='{$name}_email' type='checkbox' ".($data['email']?"checked":"")."></td></tr>";
+		echo "<tr><td><input type='hidden' id='names' value='{$name}'><span ".($data['important']?" class='text-error'":"").">{$lng["notifications_".$name]}</span></td>";
+		if (node_admin_access($db))
+			echo "<td><input id='{$name}_sms' type='checkbox' ".($data['sms']?"checked":"")."></td>";
+		else
+			echo "<!--<td><input id='{$name}_sms' type='checkbox' ".($data['sms']?"checked":"")."></td>-->";
+		echo "<td><input id='{$name}_email' type='checkbox' ".($data['email']?"checked":"")."></td></tr>";
 		$i++;
 	}
 	?>
