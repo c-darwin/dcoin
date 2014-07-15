@@ -211,22 +211,22 @@
 <?php
 if (node_admin_access($db)) {
 ?>
-<br><br>
-	<div class="control-group">
+<br><br><div class="control-group">
 		<label class="control-label" for="inputPassword">SMS HTTP GET-request</label>
 		<div class="controls">
 			<textarea id="sms_http_get_request" class="input-xlarge"><?php echo $tpl['data']['sms_http_get_request']?></textarea>
 		</div>
 	</div>
+<?php
+}
+?>
 	<div class="control-group">
 		<div class="controls">
 			<button class="btn" id="save1">Save</button>
 		</div>
 	</div>
 </form>
-<?php
-}
-?>
+
 <p><span class="label label-important"><?php echo $lng['warn']?></span> <?php echo $lng['after_saving_changes_to_the_email']?></p>
 
 <form class="form-inline">
