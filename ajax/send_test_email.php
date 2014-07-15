@@ -44,10 +44,10 @@ if ($mail_data['use_smtp'] && $mail_data['smtp_server'])
 	$mail->Password      = $mail_data['smtp_password'];
 	$mail->SetFrom($mail_data['email'], 'Server');
 }
-//$mail->SetFrom('root@democratic-coin.com', 'democratic-coin.com');
 
-$mail->Subject       = "test";
-$mail->Body    = "test";
+$mail->SetFrom('admin@democratic-coin.com', 'Dcoin');
+$mail->Subject       = "Test";
+$mail->Body    = "Test";
 $mail->AddAddress($mail_data['email']);
 
 if(!$mail->Send()) {
