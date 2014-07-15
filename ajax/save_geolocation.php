@@ -21,9 +21,13 @@ if (!empty($_SESSION['restricted']))
 define('MY_PREFIX', get_my_prefix($db));
 
 $_REQUEST['geolocation'] = $db->escape($_REQUEST['geolocation']);
+$geolocation = explode(', ', $_REQUEST['geolocation']);
+$geolocation[0] = round($geolocation[0], 5);
+$geolocation[1] = round($geolocation[1], 5);
+
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
-		SET `geolocation` = '{$_REQUEST['geolocation']}'
+		SET `geolocation` = '{$geolocation[0]}, {$geolocation[1]}'
 		");
 print '{"error":0}';
 ?>
