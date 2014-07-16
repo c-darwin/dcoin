@@ -56,8 +56,12 @@ function init (lat, lng, map_canvas, drag) {
 		
 		google.maps.event.addListener(marker, "dragend", function() {
 
-			document.getElementById('latitude').value = marker.getPosition().lat().toFixed(5);
-			document.getElementById('longitude').value = marker.getPosition().lng().toFixed(5);
+			var lat = marker.getPosition().lat();
+			lat = lat.toFixed(5);
+			var lng = marker.getPosition().lng();
+			lng = lng.toFixed(5);
+			document.getElementById('latitude').value = lat;
+			document.getElementById('longitude').value = lng;
 			
 		});
 		marker.setMap(map);
