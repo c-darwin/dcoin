@@ -2,7 +2,10 @@
 
 	$('#save').bind('click', function () {
 		$('#alert').css("display", "none");
-		$.post( 'ajax/save_geolocation.php', { 'geolocation' : $('#latitude').val()+', '+$('#longitude').val() } ,
+
+		var latitude = $('#latitude').val();
+		var longitude = $('#longitude').val();
+		$.post( 'ajax/save_geolocation.php', { 'geolocation' : latitude+', '+longitude } ,
 				function (data) {
 					if (data.error) {
 						$('#alert').css("display", "block");
@@ -37,8 +40,12 @@
 
 		google.maps.event.addListener(marker, "dragend", function() {
 
-			document.getElementById('latitude').value = marker.getPosition().lat().toFixed(5);
-			document.getElementById('longitude').value = marker.getPosition().lng().toFixed(5);
+			var lat = marker.getPosition().lat();
+			lat = lat.toFixed(5);
+			var lng = marker.getPosition().lng();
+			lng = lng.toFixed(5);
+			document.getElementById('latitude').value = lat;
+			document.getElementById('longitude').value = lng;
 
 		});
 		marker.setMap(map);
