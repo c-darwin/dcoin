@@ -70,6 +70,13 @@ $tpl['data']['user_id'] = $user_id;
 
 $names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','from_repaid'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission', 'referral'=>'referral');
 
+$tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `miner_id`
+		FROM `".DB_PREFIX."miners_data`
+		WHERE `user_id` = {$user_id}
+		LIMIT 1
+		", 'fetch_one' );
+
 require_once( ABSPATH . 'templates/wallets_list.tpl' );
 
 ?>
