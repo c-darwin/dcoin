@@ -163,7 +163,7 @@ $lng['user_not_selected'] = 'Не выбран пользователь';
 $lng['to'] = 'Кому';
 $lng['amount_due'] = 'Сумма к получению';
 $lng['you_send'] = 'Вы отправляете';
-$lng['you_contacts'] = 'Ваши контактные данные (тел. и пр.)';
+$lng['you_contacts'] = 'Ваши контактные данные и реквизиты платежных систем (если не хотите проводить сделку в оффлайне) ';
 $lng['after_transfer'] = 'Нужно передать только после получения денег';
 $lng['cash_request_out_limits_text'] = 'Не более [limit] запросов за  [period]';
 $lng['including_commission'] = 'В т.ч. комиссия ';
@@ -236,7 +236,7 @@ $lng['request_is_not_sent'] = 'Запрос не отправлялся';
 
 $lng['begin_upgrade'] = 'Начать апгрейд аккаунта';
 $lng['attempts_remaining'] = 'Осталось попыток:';
-$lng['purpose_of_inspections'] = 'Цель фото и видео проверок при апгрейде акканта - исключить регистрацию одним и тем же человеком некольких майнерских аккаунтов';
+$lng['purpose_of_inspections'] = 'Цель фото и видео проверок при апгрейде аккаунта - исключить регистрацию одним и тем же человеком нескольких майнерских аккаунтов';
 
 
 $lng['points-face-1'] = 'левый глаз. центр зрачка';
@@ -397,7 +397,13 @@ $lng['if_present'] = 'если есть';
 $lng['account_status'] = 'Статус аккаунта';
 $lng['you_can'] = 'Вы можете';
 $lng['become_a_miner'] = 'стать майнером';
-$lng['home_text'] = '1. Дождитесь получения статуса "User"<br>2. Дождитесь обновления цепочки блоков<br> 3. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Смените праймари-ключ</a><br>4. Сделайте <a href="#" onclick="fc_navigate(\'upgrade\')">апгрейд до майнера</a><br>5. Добавьте <a href="#" onclick="fc_navigate(\'promised_amount_list\')">обещанную сумму</a><Br>6. Настройте <a href="#" onclick="fc_navigate(\'notifications\')">уведомления</a><br>7. Установите <a href="#" onclick="fc_navigate(\'change_commission\')">комиссию</a> которую хотите получать<br>8. Периодически выполняйте <a href="#" onclick="fc_navigate(\'tasks\')">задания</a> по проверке других майнеров<br>';
+$lng['home_text'] = '1. Дождитесь получения статуса "User"<br>2. Дождитесь обновления цепочки блоков<br>
+ 3. <a href="#" onclick="fc_navigate(\'change_primary_key\')">Смените праймари-ключ</a><br>
+ 4. Настройте <a href="#" onclick="fc_navigate(\'notifications\')">уведомления</a><br>
+ 5. Сделайте <a href="#" onclick="fc_navigate(\'upgrade\')">апгрейд до майнера</a><br>
+ 6. Добавьте <a href="#" onclick="fc_navigate(\'promised_amount_list\')">обещанную сумму</a><Br>
+ 7. Установите <a href="#" onclick="fc_navigate(\'change_commission\')">комиссию</a> которую хотите получать<br>
+ 8. Периодически выполняйте <a href="#" onclick="fc_navigate(\'tasks\')">задания</a> по проверке других майнеров<br>';
 $lng['home_text_risks'] = '<p>Риски в Dcoin:<br>
 1. <a href="http://dcoinwiki.com/Сокращение_объема_монет" target="_blank">Сокращение объема монет</a><br>
 2. <a href="http://dcoinwiki.com/Пул" target="_blank">Пул</a><br>
