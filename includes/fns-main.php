@@ -1569,7 +1569,7 @@ class testblock {
 	static function get_generator_sleep($level, $data)
 	{
 		$sleep = 0;
-		// суммируюем время со всех уровней, которые не успели сгенерить блок до нас
+		// суммируем время со всех уровней, которые не успели сгенерить блок до нас
 		for ($i=0; $i<=$level; $i++)
 			$sleep+=$data[$i];
 		return $sleep;
@@ -2523,7 +2523,6 @@ function setlang($lang)
 	setcookie("lang", $lang, time()+31536000);
 }
 
-// для админа. потом убрать.
 function generate_password()
 {
 	$arr = array_merge(range('a', 'z'), range('A', 'Z'), range('0', '9'));
