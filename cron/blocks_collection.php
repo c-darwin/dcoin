@@ -44,6 +44,33 @@ do {
 	}
 
 	main_lock();
+
+	debug_print(ABSPATH . 'localblocks', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	// если это обработка локальной базы блоков
+	if (file_exists(ABSPATH . 'localblocks')) {
+		debug_print('localblocks', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$i=0;
+		do {
+			$i++;
+			debug_print(ABSPATH.'tools/blocks/'.$i, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			if (!file_exists(ABSPATH.'tools/blocks/'.$i))
+				break;
+			$new_block = file_get_contents(ABSPATH.'tools/blocks/'.$i);
+			$parsedata = new ParseData($new_block, $db);
+			$error = $parsedata->ParseDataFull();
+			if ($error) {
+				print $error;
+				break;
+			}
+			$parsedata->insert_into_blockchain();
+			upd_deamon_time($db);
+			if (check_deamon_restart($db)) {
+				main_unlock();
+				exit;
+			}
+		} while (true);
+	}
+
 	// если это первый запуск во время инсталяции
 	$current_block_id = get_block_id($db);
 	if (!$current_block_id) {
