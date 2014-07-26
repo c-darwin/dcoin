@@ -38,7 +38,7 @@ if (@$_REQUEST['parameters']=='lang=ru') {
 	setlang($lang);
 }
 else if (@$_REQUEST['parameters']=='lang=en') {
-	$lang = $default_lang;
+	$lang = 'en';
 	setlang($lang);
 }
 
