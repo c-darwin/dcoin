@@ -798,6 +798,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions`
   `currency_id` tinyint(3) unsigned NOT NULL,
   `comment` text CHARACTER SET utf8 NOT NULL COMMENT 'Если это перевод средств между юзерами или это комиссия, то тут будет расшифрованный комментарий',
   `comment_status` enum('encrypted','decrypted') NOT NULL DEFAULT 'decrypted',
+  `merchant_checked` tinyint(1) unsigned NOT NULL,
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Нужно только для отчетов, которые показываются юзеру';
 
