@@ -420,9 +420,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		$return = 0;
 		$find_time = -1;
-		debug_print( '$need_time:'.$need_time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		debug_print( '$status:'.$status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$need_time:'.$need_time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$status:'.$status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$pct = 0;
 		foreach ($pct_array as $time=>$arr) {
 			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -499,6 +499,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	static function calc_profit( $amount, $time_start, $time_finish, $pct_array, $points_status_array, $holidays_array=array(), $max_promised_amount_array=array(), $currency_id=0, $repaid_amount=0 )
 	{
 
+		if ($time_start>=$time_finish)
+			return 0;
+
 		// для WOC майнинг останавливается только если майнера забанил админ, каникулы на WOC не действуют
 		if ($currency_id==1)
 			$holidays_array = array();
@@ -513,7 +516,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		 * в $points_status_array крайний элемент массива всегда будет относиться к текущим 30-и дням т.к. перед calc_profit всегда идет вызов points_update
 		 * */
 
-		debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$points_status_array:'.print_r_hex($points_status_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$holidays_array:'.print_r_hex($holidays_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$max_promised_amount_array:'.print_r_hex($max_promised_amount_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -521,7 +524,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		ksort($points_status_array);
 		ksort($pct_array);
 		ksort($max_promised_amount_array);
-		debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$pct_array:'.print_r_hex($pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$points_status_array:'.print_r_hex($points_status_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$holidays_array:'.print_r_hex($holidays_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$max_promised_amount_array:'.print_r_hex($max_promised_amount_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -532,48 +535,48 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// нужно получить массив вида time=>pct, совместив $pct_array и $points_status_array
 		foreach ($pct_array as $time=>$status_pct_array) {
 
-			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-			debug_print( '$status_pct_array:'.print_r_hex($status_pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$status_pct_array:'.print_r_hex($status_pct_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$find_min_array = self::find_min_points_status($time, $points_status_array, 'status');
-			debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			for ($i=0; $i<sizeof($find_min_array); $i++) {
 
-				debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 				//if ($find_min_array[$i]['time'] < $time) {
 				if ($find_min_array[$i]['time'] <= $time) {
 
 					$find_min_pct = self::find_min_pct($find_min_array[$i]['time'], $pct_array, $find_min_array[$i]['status']);
 					$new_arr[$find_min_array[$i]['time']] = $find_min_pct;
-					debug_print( '$new_arr['.$find_min_array[$i]['time'].'] = '.$find_min_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					//debug_print( '$new_arr['.$find_min_array[$i]['time'].'] = '.$find_min_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 					$last_status = $find_min_array[$i]['status'];
-					debug_print( 'last_status='.$last_status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					//debug_print( 'last_status='.$last_status, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				}
 			}
 			if (!$find_min_array && !$last_status) {
-				debug_print( '$find_min_array[0][status]=user', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print( '$find_min_array[0][status]=user', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$find_min_array[0]['status'] = 'user';
 			}
 			else if (!$find_min_array && $last_status) { // есть проценты, но кончились points_status
-				debug_print( '$find_min_array[0][status]=miner', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print( '$find_min_array[0][status]=miner', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				//$find_min_array[0]['status'] = 'miner';
 				$find_min_array[0]['status'] = $last_status;
 			}
-			debug_print( '$new_arr['.$time.'] = '.$status_pct_array[$find_min_array[sizeof($find_min_array)-1]['status']], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$new_arr['.$time.'] = '.$status_pct_array[$find_min_array[sizeof($find_min_array)-1]['status']], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$new_arr[$time] = $status_pct_array[$find_min_array[sizeof($find_min_array)-1]['status']];
 			$status_pct_array_ = $status_pct_array;
 		}
 		// если в points больше чем в pct
 		if ($points_status_array) {
-			debug_print( 'remainder $points_status_array:'.print_r_hex($points_status_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( 'remainder $points_status_array:'.print_r_hex($points_status_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			foreach ($points_status_array as $time=>$status) {
 				$new_arr[$time] = $status_pct_array_[$status];
 			}
 		}
 
 		// массив, где ключи - это время из pct и points_status, а значения - проценты.
-		debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$pct_array = $new_arr;
 
 
@@ -609,33 +612,33 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// нужно получить массив вида time=>pct, совместив $pct_array и $max_promised_amount_array
 		foreach ($pct_array as $time=>$pct) {
 
-			debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$find_min_array = self::find_min_points_status($time, $max_promised_amount_array, 'amount');
-			debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$find_min_array:'.print_r_hex($find_min_array), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			for ($i=0; $i<sizeof($find_min_array); $i++) {
 
-				debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print( '$find_min_array[$i]:'.print_r_hex($find_min_array[$i]), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 				$amount_ = self::get_max_promised_amount_calc_profit($amount, $repaid_amount, $find_min_array[$i]['amount'], $currency_id);
-				debug_print( '$amount_:'.$amount_, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print( '$amount_:'.$amount_, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 				if ($find_min_array[$i]['time'] <= $time) {
 
 					$find_min_pct = self::find_min_pct($find_min_array[$i]['time'], $pct_array);
 
-					debug_print( '$new_arr['.$find_min_array[$i]['time'].'][pct]:'.$find_min_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-					debug_print( '$new_arr['.$find_min_array[$i]['time'].'][amount]:'.$amount_, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					//debug_print( '$new_arr['.$find_min_array[$i]['time'].'][pct]:'.$find_min_pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					//debug_print( '$new_arr['.$find_min_array[$i]['time'].'][amount]:'.$amount_, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 					$new_arr[$find_min_array[$i]['time']]['pct'] = $find_min_pct;
 					$new_arr[$find_min_array[$i]['time']]['amount'] = $amount_;
 
 					$last_amount = $amount_;
-					debug_print( '$last_amount:'.$last_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+					//debug_print( '$last_amount:'.$last_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				}
 			}
 
-			debug_print( '$new_arr['.$time.'][pct]:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-			debug_print( '$new_arr['.$time.'][amount]:'.$last_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$new_arr['.$time.'][pct]:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( '$new_arr['.$time.'][amount]:'.$last_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$new_arr[$time]['pct'] = $pct;
 			$new_arr[$time]['amount'] = $last_amount;
 			$pct_ = $pct;
@@ -650,8 +653,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			}
 		}
 
-		debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		debug_print( '$pct:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$time:'.$time, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$pct:'.$pct, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		/*
 		// если в points больше чем в pct
 		if ($max_promised_amount_array) {
@@ -666,7 +669,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (max(array_keys($new_arr))<$time_finish)
 			$new_arr[$time_finish] = $pct; // добавим сразу время окончания
 
-		debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( '$new_arr:'.print_r_hex($new_arr), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$amount_ = $amount;
 		$new = array();
@@ -748,9 +751,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				//$new[] = array($time - $old_time, $old_pct);
 				if ($time > $time_finish)
 					$time = $time_finish;
-				debug_print( "(end) old_time=$old_time - time=$time (".print_r_hex($old_pct_and_amount).")\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print( "(end) old_time=$old_time - time=$time (".print_r_hex($old_pct_and_amount).")\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$to_new = array( 'num_sec'=>($time-$old_time), 'pct'=>$old_pct_and_amount['pct'], 'amount'=>$old_pct_and_amount['amount'] );
-				debug_print($to_new, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+				//debug_print($to_new, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$new[] = $to_new;
 
 				$old_time = $time;
@@ -773,7 +776,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$new[] = array( 'num_sec'=>$sec, 'pct'=>$old_pct_and_amount['pct'], 'amount'=>$old_pct_and_amount['amount'] );
 		}
 
-		debug_print( $new, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		//debug_print( $new, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		debug_print( '$amount_='.$amount_."\n".'$time_start='.$time_start."\n".'$time_finish='.$time_finish, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -787,7 +790,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			//$profit = ( floor( round( $amount_and_profit*pow($pct, $num), 3)*100 ) / 100 ) - $new[$i]['amount'];
 			// из-за того, что в front был подсчет без обновления points, а в рабочем методе уже с обновлением points, выходило, что в рабочем методе было больше мелких временных промежуток, и получалось profit <0.01, из-за этого было расхождение в front и попадание минуса в БД
 			$profit =  $amount_and_profit*pow($pct, $num) - $new[$i]['amount'];
-			debug_print( "num={$num} pct={$pct} amount={$new[$i]['amount']} profit={$profit}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			//debug_print( "num={$num} pct={$pct} amount={$new[$i]['amount']} profit={$profit}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		}
 
 		debug_print( "total profit w/o amount = ".$profit."\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -6237,18 +6240,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_array');
 		if (@$refs[0]>0) {
 			$ref_amount = round ($this->tx_data['amount'] * ($ref_data['first'] / 100), 2 );
-			if ($ref_amount > 0)
+			if ($ref_amount > 0) {
+				debug_print( 'refs 1', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this -> update_recipient_wallet( $refs[0], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+			}
 		}
 		if (@$refs[1]>0) {
 			$ref_amount = round ($this->tx_data['amount'] * ($ref_data['second'] / 100), 2 );
-			if ($ref_amount > 0)
+			if ($ref_amount > 0) {
+				debug_print( 'refs 2', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this -> update_recipient_wallet( $refs[1], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+			}
 		}
 		if (@$refs[2]>0) {
 			$ref_amount = round ($this->tx_data['amount'] * ($ref_data['third'] / 100), 2 );
-			if ($ref_amount > 0)
+			if ($ref_amount > 0) {
+				debug_print( 'refs 3', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this -> update_recipient_wallet( $refs[2], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+			}
 		}
 	}
 
@@ -6267,11 +6276,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	    $refs = $this->get_refs($this->tx_data['user_id']);
 	    if (@$refs[2]>0)
-		    $this->points_update_main($refs[2]);
+		    $this->points_update_rollback_main($refs[2]);
 	    if (@$refs[1]>0)
-		    $this->points_update_main($refs[1]);
+		    $this->points_update_rollback_main($refs[1]);
 	    if (@$refs[0]>0)
-		    $this->points_update_main($refs[0]);
+		    $this->points_update_rollback_main($refs[0]);
 
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['user_id']);
@@ -6306,9 +6315,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
         // откатим комиссию системы
         $system_commission = round ($this->tx_data['amount'] * ($this->variables['system_commission'] / 100), 2 );
-       /* $system_commission = ($system_commission==0)?0.01:$system_commission;
+        $system_commission = ($system_commission==0)?0.01:$system_commission;
         if ($system_commission >= $this->tx_data['amount'])
-            $system_commission = 0;*/
+            $system_commission = 0;
         if ($system_commission > 0) {
             $this->general_rollback('wallets', 1, "AND `currency_id` = {$promised_amount_data['currency_id']}");
 	        $users_wallets_rollback[] = 1;
