@@ -82,6 +82,11 @@ function decrypt_comment_0 (id, type) {
 	var key = $("#key").text();
 	var pass = $("#password").text();
 	var e_text = $("#encrypt_comment_"+id).val();
+	<?php
+	if ($tpl['miner_id'] > 0) // если майнер, то коммент зашифрован нодовским ключем и тут его не расшифровать
+		echo "var comment = e_text;\n";
+	else {
+	?>
 	if (pass) {
 		text = atob(key.replace(/\n|\r/g,""));
 		var decrypt_PEM = mcrypt.Decrypt(text, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, hex_md5(pass), 'rijndael-128', 'ecb');
@@ -92,12 +97,14 @@ function decrypt_comment_0 (id, type) {
 	var rsa2 = new RSAKey();
 	rsa2.readPrivateKeyFromPEMString(decrypt_PEM); // N,E,D,P,Q,DP,DQ,C
 
-	decrypt_comment = rsa2.decrypt(e_text);
-
+	var comment = rsa2.decrypt(e_text);
+	<?php
+	}
+	?>
 	// decrypt_comment может содержать зловред
 	$.post( 'ajax/save_decrypt_comment.php', {
 		'id' : id,
-		'comment' : decrypt_comment,
+		'comment' : comment,
 		'type' : type
 	}, function (data) {
 		$("#comment_"+id).html(data);
