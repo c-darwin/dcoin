@@ -100,24 +100,28 @@
 			else
 				var decrypt_PEM = key;
 			console.log('decrypt_PEM='+decrypt_PEM);
+			if (decrypt_PEM.indexOf('RSA PRIVATE KEY')==-1) {
+				alert('Incorrect key or password');
+			}
+			else {
+				var rsa = new RSAKey();
+				rsa.readPrivateKeyFromPEMString(decrypt_PEM);
+				var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
+				var modulus = a[1];
+				var exp = a[2];
 
-			var rsa = new RSAKey();
-			rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-			var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-			var modulus = a[1];
-			var exp = a[2];
+				//var hash = CryptoJS.SHA256(forsignature);
+				//var hSig = rsa.signString(forsignature, 'sha256');
 
-			//var hash = CryptoJS.SHA256(forsignature);
-			//var hSig = rsa.signString(forsignature, 'sha256');
+				console.log('forsignature='+forsignature);
+				console.log('hex_md5(pass)='+hex_md5(pass));
 
-			console.log('forsignature='+forsignature);
-			console.log('hex_md5(pass)='+hex_md5(pass));
+				var hSig = rsa.signString(forsignature, 'sha1');
 
-			var hSig = rsa.signString(forsignature, 'sha1');
+				console.log('hSig='+hSig);
 
-			console.log('hSig='+hSig);
-
-			delete rsa;
+				delete rsa;
+			}
 		
 		}
 		if (SIGN_LOGIN || PASS_LOGIN) {
