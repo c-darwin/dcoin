@@ -13,8 +13,8 @@
 		}, function (data) {
 
 			alert(data.face+"\n"+data.profile+"\n"+face_id+"\n"+profile_id);
-			$('#'+face_id).css('backgroundImage', 'url('+data.face+')');
-			$('#'+profile_id).css('backgroundImage', 'url('+data.profile+')');
+			$('#'+face_id).attr('src', data.face);
+			$('#'+profile_id).attr('src', data.profile);
 
 		}, "json" );
 	}
@@ -25,8 +25,8 @@
 		}, function (data) {
 
 			alert(data.face+"\n"+data.profile+"\n"+face_id+"\n"+profile_id);
-			$('#'+face_id).attr('src', ''+data.face+'');
-			$('#'+profile_id).attr('src', ''+data.profile+'');
+			$('#'+face_id).attr('src', data.face);
+			$('#'+profile_id).attr('src', data.profile);
 
 		}, "json" );
 	}
@@ -224,8 +224,8 @@ $('#send_to_net').bind('click', function () {
 		<div style="padding-top:220px">
 			<?php
 			for ($i=0; $i<sizeof($tpl['search']); $i++) {
-				print '<div style="float:left;" id="face_'.$tpl['search'][$i]['user_id'].'"><img src="'.$tpl['search'][$i]['host'].'public/face_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
-						<div style="float:left;" id="profile_'.$tpl['search'][$i]['user_id'].'"><img src="'.$tpl['search'][$i]['host'].'public/profile_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
+				print '<div style="float:left;"><img id="face_'.$tpl['search'][$i]['user_id'].'" src="'.$tpl['search'][$i]['host'].'public/face_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
+						<div style="float:left;"><img id="profile_'.$tpl['search'][$i]['user_id'].'" src="'.$tpl['search'][$i]['host'].'public/profile_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
 						<div style="padding-top: 50px; height: 220px"><button class="btn" onclick="reload_photo('.$tpl['search'][$i]['user_id'].', \'face_'.$tpl['search'][$i]['user_id'].'\', \'profile_'.$tpl['search'][$i]['user_id'].'\')">'.$lng['reload'].'</button><br>('.$lng['if_photo_not_booted'].')<br></div>';
 			}
 			?>
