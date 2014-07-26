@@ -30,7 +30,7 @@ function save_img($src, $save_name, $coords) {
 	$coords[5] = round($coords[5]*$koef);
 
 
-	file_put_contents('coord.txt', "w $w h $h 0 $coords[0]\n1 $coords[1]\n2 $coords[2]\n3 $coords[3]\n4 $coords[4]\n5 $coords[5]\nnew_w $new_w\nnew_h $new_h\n\n");
+	//file_put_contents('coord.txt', "w $w h $h 0 $coords[0]\n1 $coords[1]\n2 $coords[2]\n3 $coords[3]\n4 $coords[4]\n5 $coords[5]\nnew_w $new_w\nnew_h $new_h\n\n");
 
 	switch ($size['mime']) {
 		case 'image/jpeg':

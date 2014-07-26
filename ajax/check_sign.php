@@ -64,7 +64,7 @@ if ($community) {
 			session_start();
 
 			define('MY_PREFIX', $my_prefix);
-			$my_user_id = get_my_user_id($db);
+			$my_user_id = $community[$i];
 
 			unset($_SESSION['restricted']); // убираем ограниченный режим
 
