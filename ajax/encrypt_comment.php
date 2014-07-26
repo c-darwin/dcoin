@@ -28,12 +28,23 @@ if ( !check_input_data ($to_user_id , 'int') )
 if (strlen($_REQUEST['comment'])>1024)
 	die('error comment');
 
-$public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `public_key_0`
-				FROM `".DB_PREFIX."users`
-				WHERE `user_id` = {$to_user_id}
-				LIMIT 1
-				", 'fetch_one' );
+// если получатель майнер, тогда шифруем нодовским ключем
+$miners_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `miner_id`,
+					 `node_public_key`
+		FROM `".DB_PREFIX."miners_data`
+		WHERE `user_id` = {$to_user_id}
+		LIMIT 1
+		", 'fetch_array' );
+if ($miners_data['miner_id'] > 0)
+	$public_key = $miners_data['node_public_key'];
+else
+	$public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `public_key_0`
+			FROM `".DB_PREFIX."users`
+			WHERE `user_id` = {$to_user_id}
+			LIMIT 1
+			", 'fetch_one' );
 
 $rsa = new Crypt_RSA();
 $rsa->loadKey($public_key, CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
