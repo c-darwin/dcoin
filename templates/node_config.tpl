@@ -104,7 +104,6 @@
 		Mode: <span id="mode"><?php echo $tpl['my_mode']?></span><br>
 		<button class="btn" id="single_mode">Single mode</button> 	<button class="btn" id="pool_mode">Pool mode</button>
 	</div>
-
 	<br><br>
 
 	<div>
@@ -114,7 +113,12 @@
 	<br><br>
 
 	<div>
-	<button class="btn" id="clear_daemons_time">clear_daemons_time</button>
+		<button class="btn" id="clear_daemons_time">clear_daemons_time</button>
+	</div>
+	<br><br>
+
+	<div>
+		<button class="btn" onclick="fc_navigate('rewrite_primary_key')">rewrite primary key</button>
 	</div>
 
 </div>
