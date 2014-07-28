@@ -490,7 +490,6 @@ function m_curl ($urls, $_data, $db, $type='data', $timeout=10, $answer=false, $
 
 		// создаем ресурс cURL
 		$ch[$i] = curl_init();
-		//// print $urls[$i];
 		curl_setopt($ch[$i], CURLOPT_URL, $urls[$i]['url']);
 		//curl_setopt($ch[$i], CURLOPT_FAILONERROR, 1);
 		curl_setopt($ch[$i], CURLOPT_CONNECTTIMEOUT , 10); // timeout in seconds
@@ -504,7 +503,6 @@ function m_curl ($urls, $_data, $db, $type='data', $timeout=10, $answer=false, $
 		//$params[] = 'data='.urlencode($data);
 		//curl_setopt($ch[$i], CURLOPT_POSTFIELDS, $params);	
 
-		
 		//добавляем X дескрипторов
 		curl_multi_add_handle($mh, $ch[$i]);
 	}
@@ -513,23 +511,24 @@ function m_curl ($urls, $_data, $db, $type='data', $timeout=10, $answer=false, $
 	
 	//запускаем дескрипторы
 	do {
+		debug_print('curl_multi_exec', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$mrc = curl_multi_exec($mh, $active);
 	} while ($mrc == CURLM_CALL_MULTI_PERFORM);
 	
 	
 	while ($active && $mrc == CURLM_OK) {
-		if (curl_multi_select($mh) != -1) {
-			do {
-				$mrc = curl_multi_exec($mh, $active);
-			} while ($mrc == CURLM_CALL_MULTI_PERFORM);
-
+		if (curl_multi_select($mh) == -1) {
+			usleep(100);
 		}
+		do {
+			$mrc = curl_multi_exec($mh, $active);
+		} while ($mrc == CURLM_CALL_MULTI_PERFORM);
 	}
 
 	$return = array();
 	if ($answer) {
 		for ($i=0; $i<sizeof($urls); $i++) {
-			$return[$urls[$i]['url']] = curl_multi_getcontent ( $ch[$i] );
+			$return[$urls[$i]['user_id']] = curl_multi_getcontent ( $ch[$i] );
 		}
 	}
 
@@ -3599,8 +3598,10 @@ function hash_table_data($db, $table, $where='', $order_by='')
 			WHERE table_schema = '".DB_NAME."'
 			AND table_name = '".DB_PREFIX."{$table}'
 			", 'fetch_one');
-	$columns = str_replace(',notification', '', $columns);
-	$columns = str_replace('notification,', '', $columns);
+	if ($table!='my_table') {
+		$columns = str_replace(',notification', '', $columns);
+		$columns = str_replace('notification,', '', $columns);
+	}
 	$columns = str_replace(',cron_checked_time', '', $columns);
 	$columns = str_replace('cron_checked_time,', '', $columns);
 	if ($columns) {

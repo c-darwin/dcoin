@@ -112,19 +112,24 @@ while (true) {
 		$hosts[$i]['user_id'] = $row['user_id'];
 		$nodes_inc.="{$row['host']};{$row['user_id']}\n";
 		$nodes_count++;
+		$i++;
 	}
 
-	for ($i=0; $i<sizeof($hosts); $i++)
+	for ($i=0; $i<sizeof($hosts); $i++) {
 		$urls[$i]['url'] = $hosts[$i]['host'].'ok.php?user_id='.$hosts[$i]['user_id'];
+		$urls[$i]['user_id'] = $hosts[$i]['user_id'];
+	}
 
 	$result = m_curl ($urls, '', '', '', 5, true, false);
 
+	debug_print("result=".print_r_hex($result), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 	// если нода не отвечает, то удалем её из таблы nodes_connection
-	foreach ($result as $host=>$answer) {
+	foreach ($result as $user_id=>$answer) {
 		if ($answer!='ok'){
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."nodes_connection`
-					WHERE `host` = '{$host}'
+					WHERE `user_id` = {$user_id}
 					");
 		}
 	}
