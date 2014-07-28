@@ -499,8 +499,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	static function calc_profit( $amount, $time_start, $time_finish, $pct_array, $points_status_array, $holidays_array=array(), $max_promised_amount_array=array(), $currency_id=0, $repaid_amount=0 )
 	{
 
-		if ($time_start>=$time_finish)
+		if ($time_start>=$time_finish) {
+			debug_print($time_start.'>='.$time_finish, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			return 0;
+		}
 
 		// для WOC майнинг останавливается только если майнера забанил админ, каникулы на WOC не действуют
 		if ($currency_id==1)
@@ -9381,6 +9383,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error) return $error;
 		//$this->variables = self::get_variables( $this->db, array( 'points_factor', 'limit_votes_complex_period', 'points_update_time' ) );
 		$this->variables = self::get_all_variables($this->db);
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	}
 
 	/* не забываем, что cash_request_OUT_front проверяет формат amount,
@@ -10829,6 +10832,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		buy_currency_id Какая валюта нужна
 		commission Сколько готовы отдать комиссию ноду-генератору
 		*/
+
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		//$this->variables = self::get_variables( $this->db, array( 'points_factor', 'limit_votes_complex_period' ) );
 		$this->variables = self::get_all_variables($this->db);
 		$this->getPct();
