@@ -36,7 +36,7 @@ $miners_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METH
 		WHERE `user_id` = {$to_user_id}
 		LIMIT 1
 		", 'fetch_array' );
-if ($miners_data['miner_id'] > 0)
+if ($miners_data['miner_id'] > 0 && $_POST['type']!='cash_request' && $_POST['type']!='bug_reporting')
 	$public_key = $miners_data['node_public_key'];
 else
 	$public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
