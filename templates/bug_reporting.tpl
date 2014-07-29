@@ -51,6 +51,7 @@
 				$.post( 'ajax/encrypt_comment.php', {
 
 					'to_user_id' : 1,
+					'type' : 'bug_reporting',
 					'comment' : comment
 
 				}, function (data) {
