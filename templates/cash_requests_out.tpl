@@ -43,6 +43,7 @@ $('#next').bind('click', function () {
 		$.post( 'ajax/encrypt_comment.php', {
 
 			'to_user_id' : to_user_id,
+			'type' : 'cash_request',
 			'comment' :  $("#comment").val()
 
 		}, function (data) {
