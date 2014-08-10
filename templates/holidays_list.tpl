@@ -1,7 +1,5 @@
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['holidays_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['holidays_title']?></h1>
 	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
 	<?php echo $lng['holidays_warning']?>
 <p><a href="#" onclick="fc_navigate('new_holidays')">Add holidays</a></p>
@@ -57,5 +55,3 @@ echo '<table class="table table-bordered" style="width:500px"><caption><h3>'.$ln
 <br>
 <p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text'] ?></p>
 
-</div>
-<!-- /container -->
