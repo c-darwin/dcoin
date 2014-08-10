@@ -35,10 +35,8 @@
 	} );
 </script>
 
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['reg_users']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['reg_users']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
 	<div id="div_new_user_0">
@@ -65,5 +63,3 @@
 
 	<?php require_once( 'signatures.tpl' );?>
 
-</div>
-<!-- /container -->
