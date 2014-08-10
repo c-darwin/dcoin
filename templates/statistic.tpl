@@ -1,7 +1,5 @@
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['statistic']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['statistic']?></h1>
 
 <?php
 	echo '<table class="table table-bordered" style="width:600px"><caption>Main</caption>';
@@ -16,7 +14,3 @@
 	echo '</table>';
 	?>
 
-
-</div>
-
-<!-- /container -->
