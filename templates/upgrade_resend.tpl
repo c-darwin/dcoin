@@ -1,7 +1,5 @@
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['upgrade_resend_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['upgrade_resend_title']?></h1>
 
 	<?php echo $lng['data']?>:<br>
 	<textarea id="for-signature" style="width:500px; height:100px"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?></textarea><br>
@@ -32,6 +30,3 @@
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
-
-</div>
-<!-- /container -->
