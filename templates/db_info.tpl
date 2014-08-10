@@ -1,7 +1,5 @@
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['db_info']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['db_info']?></h1>
 
 	<p><?php echo date('d-m-Y H:i:s')?></p>
 
@@ -73,8 +71,3 @@
 	echo '</table>';
 	?>
 
-
-
-</div>
-
-<!-- /container -->
