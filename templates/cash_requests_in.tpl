@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 <script>
 
 $('#next').bind('click', function () {
@@ -87,7 +85,7 @@ $('#profileclose').bind('click', function () {
 		<?php echo $lng['abuses']?>: <span id="profile_abuses"></span><br>
 		<?php echo $lng['reg_time']?>: <span id="profile_reg_time"></span>
 	</div>
-	<legend><h2><?php echo $lng['cash_request_in_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['cash_request_in_title']?></h1>
 	<div id="message"></div>
 
 	<?php
@@ -150,7 +148,3 @@ $('#profileclose').bind('click', function () {
 	<input type="hidden" id="hash_code" value="<?php echo @$tpl['data']['hash_code']?>">
 	<input type="hidden" id="cash_request_id" value="<?php echo @$tpl['data']['cash_request_id']?>">
 
-
-
-</div>
-<!-- /container -->
