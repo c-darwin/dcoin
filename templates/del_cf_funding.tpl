@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -9,18 +7,18 @@ $('#send_to_net').bind('click', function () {
 			'type' : '<?php echo $tpl['data']['type']?>',
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
-			'project_id' : <?php echo $tpl['del_id']?>,
+			'funding_id' : <?php echo $tpl['del_id']?>,
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 			}, function (data) {
 				//alert(data);
-				fc_navigate ('my_cf_projects', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
+				fc_navigate ('wallets_list', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
 			} );
 } );
 
 </script>
-  <legend><h2><?php echo $lng['del_cf_project_title']?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['del_cf_project_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -44,5 +42,3 @@ $('#send_to_net').bind('click', function () {
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
-</div>
-<!-- /container -->
