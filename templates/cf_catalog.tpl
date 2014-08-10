@@ -1,58 +1,61 @@
 <!-- container -->
-<div class="container">
 
-<script>
+<link href="css2/cf.css?2" rel="stylesheet">
 
-$('#save').bind('click', function () {
+<h1 class="page-header"><?php echo $lng['cf_projects_title']?></h1>
 
-	$("#change_host").css("display", "none");
-	$("#sign").css("display", "block");
+<!--	<div class="width_max" style="margin-bottom:70px">
+		<ul class="nav navbar-nav navbar-left" style="padding-top:10px">
+			<button type="button" class="btn btn-outline btn-default">Explore</button>
+			<button type="button" class="btn btn-outline btn-default">Start your campaign</button>
+		</ul>
 
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['project_id']}"; ?>,'+$("#lang").val()+','+$("#comment").val());
-	doSign();
-	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
-});
-
-$('#send_to_net').bind('click', function () {
-
-	$.post( 'ajax/save_queue.php', {
-			'type' : '<?php echo $tpl['data']['type']?>',
-			'time' : '<?php echo $tpl['data']['time']?>',
-			'user_id' : '<?php echo $tpl['data']['user_id']?>',
-			'project_id' : <?php echo $tpl['project_id']?>,
-			'lang' :  $('#lang').val(),
-			'comment' : $('#comment').val(),
-			'signature1': $('#signature1').val(),
-			'signature2': $('#signature2').val(),
-			'signature3': $('#signature3').val()
-		}, function (data) {
-				fc_navigate ('my_cf_projects', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
-		}
-	);
-});
-
-</script>
-
-	<legend><h2><?php echo $lng['add_cf_comment_title']?></h2></legend>
-
-	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
-	
-	<div id="change_host">
-
-		<form>
-			<fieldset>
-				<input type="text" placeholder="lang" id="lang" value=""><br>
-				<input type="text" placeholder="comment" id="comment" value=""><br>
-				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
-			</fieldset>
-		</form>
-
-		<p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?></p>
+		<ul class="nav navbar-nav navbar-right">
+			<li class="dropdown">
+				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Language <span class="caret"></span></a>
+				<ul class="dropdown-menu" role="menu">
+					<li><a href="#">Русский</a></li>
+					<li><a href="#">English</a></li>
+				</ul>
+			</li>
+		</ul>
 
 	</div>
+-->
+	<div style="float:left; width:900px; overflow:auto;">
+		<div style="float:left; width:720px; overflow:auto; min-height: 800px">
+		<?php
+			foreach ($tpl['projects'] as $project_id=>$data) {
+			?>
+			<div class="well project-card" style="float:left; margin-right:20px">
+				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?>, 'lang_id':<?php echo $data['lang_id']?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+				<div>
+					<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
+					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
+					<div class="card-bottom">
+						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['pct']?>%</h5>funded</div>
+						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> DRUB </h5>pledged</div>
+						<div style="float:left; overflow:auto;"><h5><?php echo $data['days']?></h5>days to go</div>
+					</div>
+				</div>
+			</div>
+			<?php
+			}
+		?>
+		</div>
 
-	<?php require_once( 'signatures.tpl' );?>
+		<div class="menu">
+
+			<h3><i class="fa  fa-folder-open-o  fa-fw"></i> Categories</h3>
+			<ul class="navigation">
+				<?php
+
+				foreach ($lng['cf_category'] as $id=>$name )
+					echo "<li><a href='#' onclick=\"fc_navigate('cf_catalog', {'category_id':{$id}})\">{$name}</a></li>";
+				?>
+			</ul>
+		</div>
+	</div>
 
 
-</div>
-<!-- /container -->
+
