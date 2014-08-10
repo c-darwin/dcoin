@@ -1,7 +1,5 @@
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['pct']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['pct']?></h1>
 
 <?php
 	if (isset($tpl['currency_pct'])) {
@@ -22,6 +20,3 @@
 	}
 ?>
 
-
-</div>
-<!-- /container -->
