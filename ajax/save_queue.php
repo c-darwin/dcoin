@@ -69,6 +69,128 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		break;
 
+		case 'del_cf_project' :
+
+			$project_id = $_REQUEST['project_id'];
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($project_id) .
+				$bin_signatures;
+
+		break;
+
+		case 'cf_comment' :
+
+			$project_id = $_REQUEST['project_id'];
+			$lang_id = $_REQUEST['lang_id'];
+			$comment = $_REQUEST['comment'];
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($project_id) .
+				ParseData::encode_length_plus_data($lang_id) .
+				ParseData::encode_length_plus_data($comment) .
+				$bin_signatures;
+
+		break;
+
+	case 'user_avatar' :
+
+		$name = $_REQUEST['name'];
+		$avatar = $_REQUEST['avatar'];
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($name) .
+				ParseData::encode_length_plus_data($avatar) .
+				$bin_signatures;
+
+		break;
+
+		case 'del_cf_funding' :
+
+			$funding_id = $_REQUEST['funding_id'];
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($funding_id) .
+				$bin_signatures;
+
+			break;
+
+	case 'cf_project_change_category' :
+
+		$project_id = $_REQUEST['project_id'];
+		$category_id = $_REQUEST['category_id'];
+
+		$data = dec_binary ($type, 1) .
+			dec_binary ($time, 4) .
+			ParseData::encode_length_plus_data($user_id) .
+			ParseData::encode_length_plus_data($project_id) .
+			ParseData::encode_length_plus_data($category_id) .
+			$bin_signatures;
+
+		break;
+
+	case 'new_cf_project' :
+
+		$currency_id = $_REQUEST['currency_id'];
+		$amount = $_REQUEST['amount'];
+		$end_time = $_REQUEST['end_time'];
+		$latitude = $_REQUEST['latitude'];
+		$longitude = $_REQUEST['longitude'];
+		$category_id = $_REQUEST['category_id'];
+		$currency_name = $_REQUEST['currency_name'];
+
+		$data = dec_binary ($type, 1) .
+			dec_binary ($time, 4) .
+			ParseData::encode_length_plus_data($user_id) .
+			ParseData::encode_length_plus_data($currency_id) .
+			ParseData::encode_length_plus_data($amount) .
+			ParseData::encode_length_plus_data($end_time) .
+			ParseData::encode_length_plus_data($latitude) .
+			ParseData::encode_length_plus_data($longitude) .
+			ParseData::encode_length_plus_data($category_id) .
+			ParseData::encode_length_plus_data($currency_name) .
+			$bin_signatures;
+
+		break;
+
+	case 'cf_project_data' :
+
+		$project_id = $_REQUEST['project_id'];
+		$lang_id = $_REQUEST['lang_id'];
+		$blurb_img = $_REQUEST['blurb_img'];
+		$head_img = $_REQUEST['head_img'];
+		$description_img = $_REQUEST['description_img'];
+		$picture = $_REQUEST['picture'];
+		$video_type = $_REQUEST['video_type'];
+		$video_url_id = $_REQUEST['video_url_id'];
+		$news_img = $_REQUEST['news_img'];
+		$links = $_REQUEST['links'];
+
+		$data = dec_binary ($type, 1) .
+			dec_binary ($time, 4) .
+			ParseData::encode_length_plus_data($user_id) .
+			ParseData::encode_length_plus_data($project_id) .
+			ParseData::encode_length_plus_data($lang_id) .
+			ParseData::encode_length_plus_data($blurb_img) .
+			ParseData::encode_length_plus_data($head_img) .
+			ParseData::encode_length_plus_data($description_img) .
+			ParseData::encode_length_plus_data($picture) .
+			ParseData::encode_length_plus_data($video_type) .
+			ParseData::encode_length_plus_data($video_url_id) .
+			ParseData::encode_length_plus_data($news_img) .
+			ParseData::encode_length_plus_data($links) .
+			$bin_signatures;
+
+		break;
+
 	case 'new_miner' :
 
 		$race = $_REQUEST['race'];
@@ -276,10 +398,10 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				$bin_signatures;
 
 			break;
-			
+
 		case 'send_dc' :
 
-			$to_user_id = $_REQUEST['to_user_id'];
+			$to_user_id = $_REQUEST['to_id'];
 			$currency_id = $_REQUEST['currency_id'];
 			$amount = $_REQUEST['amount'];
 			$commission = $_REQUEST['commission'];
@@ -324,7 +446,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 								'{$comment_text}',
 								'decrypted'
 							)");
-			//print $db->printsql()."\n";
+				//print $db->printsql()."\n";
 			}
 
 			if (!$comment)
@@ -333,14 +455,81 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				$comment = hextobin($comment);
 
 			$data = dec_binary ($type, 1) .
-						dec_binary ($time, 4) .
-						encode_length(strlen($user_id)) . $user_id .
-						encode_length(strlen($to_user_id)) . $to_user_id .
-						encode_length(strlen($currency_id)) . $currency_id .
-						encode_length(strlen($amount)) . $amount .
-						encode_length(strlen($commission)) . $commission .
-						encode_length(strlen($comment)) . $comment .
-						$bin_signatures;
+				dec_binary ($time, 4) .
+				encode_length(strlen($user_id)) . $user_id .
+				encode_length(strlen($to_user_id)) . $to_user_id .
+				encode_length(strlen($currency_id)) . $currency_id .
+				encode_length(strlen($amount)) . $amount .
+				encode_length(strlen($commission)) . $commission .
+				encode_length(strlen($comment)) . $comment .
+				$bin_signatures;
+
+			break;
+
+		case 'cf_send_dc' :
+
+			$project_id = $_REQUEST['to_id'];
+			$amount = $_REQUEST['amount'];
+			$commission = $_REQUEST['commission'];
+			$comment = $_REQUEST['comment'];
+			$comment_text = $_REQUEST['comment_text'];
+
+			if ( !check_input_data ($project_id, 'int' ) )
+				die('error to_user_id');
+			if ( !check_input_data ($amount, 'amount' ) )
+				die('error amount');
+			if ( !check_input_data ($commission, 'amount' ) )
+				die('error commission');
+
+			$comment_text = clear_comment($comment_text, $db);
+
+			$currency_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `currency_id`
+					FROM `".DB_PREFIX."cf_projects`
+					WHERE `id` = {$project_id}
+					LIMIT 1
+					", 'fetch_one' );
+
+			if (empty($_SESSION['restricted'])) {
+				// пишем транзакцкцию к сбе в таблу
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO
+							`".DB_PREFIX.MY_PREFIX."my_dc_transactions` (
+								`status`,
+								`type`,
+								`type_id`,
+								`amount`,
+								`commission`,
+								`currency_id`,
+								`comment`,
+								`comment_status`
+							)
+							VALUES (
+								'pending',
+								'cf_project',
+								{$project_id},
+								{$amount},
+								{$commission},
+								{$currency_id},
+								'{$comment_text}',
+								'decrypted'
+							)");
+			}
+
+			if (!$comment)
+				$comment = 'null';
+			else
+				$comment = hextobin($comment);
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($project_id) .
+				ParseData::encode_length_plus_data($amount) .
+				ParseData::encode_length_plus_data($commission) .
+				ParseData::encode_length_plus_data($comment) .
+				$bin_signatures;
 
 			break;
 
