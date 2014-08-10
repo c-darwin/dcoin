@@ -1,14 +1,11 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
 $('#save').bind('click', function () {
 
-	$("#change_host").css("display", "none");
-	$("#sign").css("display", "block");
+	<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
 
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['project_id']}"; ?>,'+$("#comment").val());
+	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#name").val()+','+$("#avatar").val());
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 });
@@ -19,29 +16,49 @@ $('#send_to_net').bind('click', function () {
 			'type' : '<?php echo $tpl['data']['type']?>',
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
-			'project_id' : <?php echo $tpl['project_id']?>,
-			'comment' : $('#comment').val(),
+			'name' : $('#name').val(),
+			'avatar' : $('#avatar').val(),
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 		}, function (data) {
-				fc_navigate ('my_cf_projects', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
+				fc_navigate ('change_avatar', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
 		}
 	);
 });
 
 </script>
 
-	<legend><h2><?php echo $lng['add_cf_comment_title']?></h2></legend>
+<h1 class="page-header"><?php echo $lng['change_avatar_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
-	<div id="change_host">
+	<div id="main_data">
 
-		<form>
+
+		<form class="form-horizontal">
 			<fieldset>
-				<input type="text" placeholder="comment" id="comment" value=""><br>
-				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="category_id">Имя</label>
+					<div class="col-md-4">
+						<input class="form-control" type="text" id="name" value="<?php echo @$tpl['name']?>"
+						<span class="help-block">Разрешены английские буквы и пробелы</span>
+					</div>
+				</div>
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="category_id">Аватар</label>
+					<div class="col-md-4">
+						<input class="form-control" type="text" id="avatar" value="<?php echo @$tpl['avatar']?>"
+						<span class="help-block">Url. До 30 знаков</span>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="singlebutton"></label>
+					<div class="col-md-4">
+						<button type="button" class="btn btn-outline btn-primary" id="save"><?php echo $lng['send_to_net']?></button>
+					</div>
+				</div>
 			</fieldset>
 		</form>
 
@@ -50,7 +67,3 @@ $('#send_to_net').bind('click', function () {
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>
-
-
-</div>
-<!-- /container -->
