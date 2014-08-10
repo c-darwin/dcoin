@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -36,7 +34,7 @@ $('#save').bind('click', function () {
 
 </script>
 
-	<legend><h2><?php echo $lng['change_primary_key_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['change_primary_key_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
 	<div id="show_key">
@@ -50,5 +48,3 @@ $('#save').bind('click', function () {
 
 	</div>
 
-</div>
-<!-- /container -->
