@@ -62,6 +62,20 @@ else {
 }
 
 
+define( 'limit_new_cf_project', 1 );
+define( 'limit_new_cf_project_period', 3600*24*7 );
+define( 'limit_cf_project_data', 10 );
+define( 'limit_cf_project_data_period', 3600*24 );
+define( 'limit_cf_send_dc', 10 );
+define( 'limit_cf_send_dc_period', 3600*24 );
+define( 'limit_cf_comments', 10 );
+define( 'limit_cf_comments_period', 3600*24 );
+
+// сколько можно делать комментов за сутки за 1 проект
+define( 'limit_time_comments_cf_project', 3600*24 );
+
+define( 'limit_user_avatar', 5 );
+define( 'limit_user_avatar_period', 3600*24 );
 
 $reduction_dc = array(0,10,25,50,90);
 
@@ -333,7 +347,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			33=>'new_pct',
 			// добавление новой валюты
 			34=>'admin_add_currency',
-			35=>'____________',
+			35=>'new_cf_project',
 			// новая версия, которая кладется каждому в диру public
 			36=>'admin_new_version',
 			// после того, как новая версия протестируется, выдаем сообщение, что необходимо обновиться
@@ -342,16 +356,21 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			38=>'message_to_admin',
 			// админ может ответить юзеру
 			39=>'admin_answer',
-			40=>'_____________',
+			40=>'cf_project_data',
 			// блог админа
 			41=>'admin_blog',
 			// майнер меняет свой хост
 			42=>'change_host',
 			// майнер меняет комиссию, которую он хочет получать с тр-ий
 			43=>'change_commission',
-			44=>'_________________',
+			44=>'del_cf_funding',
 			// запуск урезания на основе голосования. генерит нод-генератор блока
-			45=>'new_reduction'
+			45=>'new_reduction',
+			46=>'del_cf_project',
+			47=>'cf_comment',
+			48=>'cf_send_dc',
+			49=>'user_avatar',
+			50=>'cf_project_change_category'
 		);
 
 	}
@@ -1243,7 +1262,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$points_status = array(0=>'user');
 			// holidays не нужны, т.к. это не TDC, а DC
 			// то, что выросло на кошельке
-			$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'],	$this->pct[$currency_id], $points_status );
+			if ($currency_id>=1000) // >=1000 - это CF-валюты, которые не растут
+				$new_DC_sum = $wallet_data['amount'];
+			else
+				$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'],	$this->pct[$currency_id], $points_status );
 			debug_print( '$new_DC_sum='.$new_DC_sum, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			// итоговая сумма DC
@@ -1369,7 +1391,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print( '$to_user_id='.$to_user_id, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print( '$comment='.$comment, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'], $this->pct[$currency_id], $points_status ) - $amount - $commission;
+		if ($currency_id>=1000) // >=1000 - это CF-валюты, которые не растут
+			$new_DC_sum = $wallet_data['amount'];
+		else
+			$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'], $this->pct[$currency_id], $points_status ) - $amount - $commission;
 		debug_print(  'user sender $new_DC_sum='.$new_DC_sum, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -1383,13 +1408,21 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->get_my_user_id($from_user_id);
 		if ($from_user_id == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
+			if ($from == 'cf_project') {
+				$where_0 = '';
+				$set_0 = " `to_user_id` = {$to_user_id}, ";
+			}
+			else {
+				$where_0 = " `to_user_id` = {$to_user_id} AND ";
+				$set_0 = '';
+			}
 			$my_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`
 					FROM `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
 					WHERE `status` = 'pending' AND
 								 `type` = '{$from}' AND
 								 `type_id` = {$from_user_id} AND
-								 `to_user_id` = {$to_user_id} AND
+								  {$where_0}
 								 `amount` = {$amount} AND
 								 `commission` = {$commission} AND
 								 `currency_id` = {$currency_id}
@@ -1397,7 +1430,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($my_id) {
 				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
-						SET `status` = 'approved',
+						SET  `status` = 'approved',
+								 {$set_0}
 								`time` = {$this->block_data['time']},
 								`block_id` = {$this->block_data['block_id']}
 						WHERE `id` = {$my_id}
@@ -2408,6 +2442,23 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								`status` = 'pending' AND
 								`time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
 					");
+
+			// форкс-ордеры
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."forex_orders`
+					SET  `amount_backup` = `amount`,
+							`amount` = `amount`*({$d})
+					WHERE `sell_currency_id` = {$this->tx_data['currency_id']}
+					");
+
+			// круд-фандинг
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."cf_funding`
+					SET  `amount_backup` = `amount`,
+							`amount` = `amount`*({$d})
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
+
 		}
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -2433,12 +2484,36 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 45
 	function new_reduction_rollback()
 	{
+
 		if ( $this->tx_data['pct'] > 0 ) {
+
+			// круд-фандинг
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."wallets`
+					UPDATE `".DB_PREFIX."cf_funding`
 					SET  `amount` = `amount_backup`,
 							`amount_backup` = 0
 					WHERE `currency_id` = {$this->tx_data['currency_id']}
+					");
+
+			// форкс-ордеры
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."forex_orders`
+					SET  `amount` = `amount_backup`,
+							`amount_backup` = 0
+					WHERE `sell_currency_id` = {$this->tx_data['currency_id']}
+					");
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."cash_requests`
+					SET  `del_block_id` = 0
+					WHERE `del_block_id` = {$this->block_data['block_id']}
+					");
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."promised_amount`
+					SET  `cash_request_out_time` = `cash_request_out_time_backup`
+					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
+								 `cash_request_out_time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
 					");
 
 			// после 87826 блока убрано  `amount` = `amount_backup` т.к. теряется смысл в reduction c type=promised_amount
@@ -2449,17 +2524,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."promised_amount`
-					SET  `cash_request_out_time` = `cash_request_out_time_backup`
-					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
-								 `cash_request_out_time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
+					UPDATE `".DB_PREFIX."wallets`
+					SET  `amount` = `amount_backup`,
+							`amount_backup` = 0
+					WHERE `currency_id` = {$this->tx_data['currency_id']}
 					");
 
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."cash_requests`
-					SET  `del_block_id` = 0
-					WHERE `del_block_id` = {$this->block_data['block_id']}
-					");
 		}
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -5321,7 +5391,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					SELECT count(`id`)
 					FROM `".DB_PREFIX."currency`
 					", 'fetch_one');
-		if (sizeof($commission) > $count)
+		if (sizeof($commission) > $count+1) // +1 - это комиссия для всех CF-валют
 			return 'bad currency count';
 
 		foreach  ($commission as $currency_id => $data) {
@@ -5329,7 +5399,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			debug_print('$currency_id='.$currency_id , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-			if ( !check_input_data ($currency_id, 'int') )
+			if ( !check_input_data ($currency_id, 'bigint') )
 				return 'bad $currency_id';
 			// % от 0 до 10
 			if ( !check_input_data ($data[0], 'currency_commission') || $data[0]>10)
@@ -5343,9 +5413,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($data[1]>$data[2] && $data[2])
 				return 'bad currency_max_commission';
 
-			// проверим, есть ли такая валюта
-			if (!$this->checkCurrency($currency_id))
-				return 'bad $currency_id';
+			// проверим, существует ли такая валюта в таблице DC-валют
+			if ( !$this->checkCurrency($currency_id) ) {
+				// если нет, то проверяем список CF-валют
+				if ( !$this->checkCurrencyCF($currency_id) )
+					return 'error currency_id';
+			}
 		}
 
 		// проверяем подпись
@@ -5587,6 +5660,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			
 
 		}
+	}
+
+	function checkCurrencyCF($currency_id)
+	{
+		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_currency`
+				WHERE `id` = {$currency_id}
+				LIMIT 1
+				", 'fetch_one');
+		if ( !$id )
+			return false;
+		else
+			return true;
 	}
 
 	function checkCurrency($currency_id)
@@ -6943,7 +7030,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// откат не всех полей, а только указанных, либо 1 строку, если нет where
-	function selective_rollback ($fields, $table, $where='')
+	function selective_rollback ($fields, $table, $where='', $rollback=false)
 	{
 		if ($where)
 			$where = " WHERE {$where}";
@@ -6993,6 +7080,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					{$where}
 					LIMIT 1
 					");
+			if ($rollback)
+				$this->rollbackAI($table);
 		}
 
 		return $log_data;
@@ -8067,7 +8156,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		//$user_status = $this->getUserStatus($this->tx_data['user_id']);
 		$points_status = array(0=>'user');
 		// getTotalAmount используется только на front, значит используем время из тр-ии - $this->tx_data['time']
-		return $data['amount'] + $this->calc_profit_ ($data['amount'], $data['last_update'], $this->tx_data['time'], $this->pct[$this->tx_data['currency_id']], $points_status );
+		if ($this->tx_data['currency_id']>=1000) // >=1000 - это CF-валюты, которые не растут
+			return $data['amount'];
+		else
+			return $data['amount'] + $this->calc_profit_ ($data['amount'], $data['last_update'], $this->tx_data['time'], $this->pct[$this->tx_data['currency_id']], $points_status );
 	}
 
 	function getLastBlockId () {
@@ -8264,6 +8356,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function get_my_node_commission()
 	{
+		if ($this->tx_data['currency_id']>=1000)
+			$currency_id = 1000;
+		else
+			$currency_id = $this->tx_data['currency_id'];
 		// если это тр-ия без блока, то комиссию нода берем у себя
 		if (!isset($this->block_data['block_id'])) {
 
@@ -8278,8 +8374,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						LIMIT 1
 						", 'fetch_one' );
 				$commission_json = json_decode($commission_json, true);
-				if (isset($commission_json[$this->tx_data['currency_id']]))
-					$tmp_node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
+				if (isset($commission_json[$currency_id]))
+					$tmp_node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$currency_id], $this->db);
 				else
 					$tmp_node_commission = 0;
 				if ($tmp_node_commission > $node_commission)
@@ -8295,8 +8391,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					LIMIT 1
 					", 'fetch_one' );
 			$commission_json = json_decode($commission_json, true);
-			if (isset($commission_json[$this->tx_data['currency_id']]))
-				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$this->tx_data['currency_id']], $this->db);
+			if (isset($commission_json[$currency_id]))
+				$node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$currency_id], $this->db);
 			else
 				$node_commission = 0;
 		}
@@ -8317,7 +8413,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['to_user_id'], 'bigint') )
 			return 'send_dc_front to_user_id';
 
-		if ( !check_input_data ($this->tx_data['currency_id'], 'currency_id') )
+		if ( !check_input_data ($this->tx_data['currency_id'], 'bigint') )
 			return 'send_dc_front currency_id';
 
 		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
@@ -8332,9 +8428,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['comment'], 'comment') )
 			return 'send_dc_front comment';
 
-		// проверим, существует ли такая валюта
-		if ( !$this->checkCurrency($this->tx_data['currency_id']) )
-			return 'error currency_id';
+		// проверим, существует ли такая валюта в таблиуе DC-валют
+		if ( !$this->checkCurrency($this->tx_data['currency_id']) ) {
+			// если нет, то проверяем список CF-валют
+			if ( !$this->checkCurrencyCF($this->tx_data['currency_id']) )
+				return 'error currency_id';
+		}
 
 		$node_commission = $this->get_my_node_commission();
 
@@ -8739,10 +8838,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					", 'fetch_array');
 			debug_print($data , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-			if ( ( ($data['Rows']+$num+1) != $data['Auto_increment']) && substr($table, 0, 3) != 'my_' && substr($table, 0, 4) != 'log_' ) {
+			/*if ( ( ($data['Rows']+$num+1) != $data['Auto_increment']) && substr($table, 0, 3) != 'my_' && substr($table, 0, 4) != 'log_' ) {
 				trigger_error("[ERROR] Auto_increment num={$num} / {$data['Auto_increment']} / {$table}", E_USER_ERROR);
-				/*system('/bin/echo "" >/etc/crontab; /usr/bin/killall php');*/
-			}
+			}*/
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					ALTER TABLE `".DB_PREFIX."{$table}`
@@ -10770,6 +10868,159 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->variables = self::get_all_variables($this->db);
 	}
 
+	function del_cf_project_init()
+	{
+		$error = $this->get_tx_data(array('project_id', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function del_cf_project_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['project_id'], 'int') )
+			return 'project_id';
+
+		// проверим, есть ли такой проект
+		$project_active = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$this->tx_data['project_id']} AND
+							 `user_id` = {$this->tx_data['user_id']} AND
+							 `close_block_id` = 0 AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+		if ( !$project_active )
+			return '$project_id';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+	}
+
+	function del_cf_project()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."cf_projects`
+				SET `del_block_id` = {$this->block_data['block_id']}
+				WHERE `id` = {$this->tx_data['project_id']}
+				");
+	}
+
+	function del_cf_project_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."cf_projects`
+				SET `del_block_id` = 0
+				WHERE `id` = {$this->tx_data['project_id']}
+				");
+	}
+
+	function del_cf_project_rollback_front()
+	{
+	}
+
+
+	function del_cf_funding_init()
+	{
+		$error = $this->get_tx_data(array('funding_id', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function del_cf_funding_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['funding_id'], 'int') )
+			return 'funding_id';
+
+		// проверим, есть ли funding для удаления
+		$project_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `project_id`
+				FROM `".DB_PREFIX."cf_funding`
+				WHERE `id` = {$this->tx_data['funding_id']} AND
+							 `user_id` =  {$this->tx_data['user_id']} AND
+							 `del_block_id` = 0
+				LIMIT 1
+				", 'fetch_one' );
+		if (!$project_id)
+			return 'funding_id';
+
+		// проверим, на завершился ли уже проект
+		$project_active = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$project_id} AND
+							 `close_block_id` = 0 AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+		if ( !$project_active )
+			return '$project_id';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['funding_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+	}
+
+	function del_cf_funding()
+	{
+		// нужно учесть набежавшие %
+		$funding_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`,
+							 `time`,
+							 `project_id`,
+							 `currency_id`
+				FROM `".DB_PREFIX."cf_funding`
+				WHERE `id` = {$this->tx_data['funding_id']}
+				", 'fetch_array');
+		$sum_and_pct = 0;
+		$points_status = array(0=>'user');
+
+		// то, что выросло за время сбора
+		$sum_and_pct = $funding_data['amount'] + $this->calc_profit_ ( $funding_data['amount'], $funding_data['time'], $this->block_data['time'], $this->pct[$funding_data['currency_id']], $points_status );
+
+		$this -> update_recipient_wallet( $this->tx_data['user_id'], $funding_data['currency_id'], $sum_and_pct, 'cf_project_refund', $funding_data['project_id'], 'cf_project_refund', 'decrypted' );
+
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."cf_funding`
+				SET `del_block_id` = {$this->block_data['block_id']}
+				WHERE `id` = {$this->tx_data['funding_id']}
+				");
+	}
+
+	function del_cf_funding_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."cf_funding`
+				SET `del_block_id` = 0
+				WHERE `id` = {$this->tx_data['funding_id']}
+				");
+		$funding_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`,
+							 `time`,
+							 `currency_id`
+				FROM `".DB_PREFIX."cf_funding`
+				WHERE `id` = {$this->tx_data['funding_id']}
+				", 'fetch_array');
+		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$funding_data['currency_id']}");
+	}
+
+	function del_cf_funding_rollback_front()
+	{
+	}
+
 	function del_forex_order_front()
 	{
 		$error = $this -> general_check();
@@ -10819,6 +11070,751 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function del_forex_order_rollback_front()
 	{
+	}
+
+	function cf_send_dc_init()
+	{
+		$error = $this->get_tx_data(array('project_id', 'amount', 'commission', 'comment', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+		$this->getPct();
+	}
+
+	function cf_send_dc_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['project_id'], 'int') )
+			return 'project_id';
+
+		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
+			return 'amount';
+
+		if ( !check_input_data ($this->tx_data['commission'], 'amount') )
+			return 'commission';
+
+		if ($this->tx_data['amount']<0.01) // 0.01 - минимальная сумма
+			return 'error min amount';
+
+		if ( !check_input_data ($this->tx_data['comment'], 'comment') )
+			return 'comment';
+
+		// не закончился ли сбор средств
+		$project_currency_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `currency_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$this->tx_data['project_id']} AND
+							 `close_block_id` = 0 AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+		if ( !$project_currency_id )
+			return '!$project_currency_id';
+
+		$this->tx_data['currency_id'] = $project_currency_id;
+		$node_commission = $this->get_my_node_commission();
+
+		// проверим, удовлетворяет ли нас комиссия, которую предлагает юзер
+		if ( $this->tx_data['commission'] < $node_commission )
+			return 'error commission';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['amount']},{$this->tx_data['commission']},".bin2hex($this->tx_data['comment'])."";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		// Для защиты от несовместимости тр-ий cf_send_dc, new_forex_order, send_dc,cash_requests не могут быть в одном блоке (clear_incompatible_tx()). А cf_send_dc, new_forex_order,cash_requests могут быть только в единичном кол-ве в одном блоке от одного юзера.
+
+		// есть ли нужная сумма в кошельке
+		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
+		$error = $this->check_sender_money();
+		if ($error)
+			return $error;
+
+;
+
+		// разрешено отправлять не более 10-и таких тр-ий за сутки
+		$error = $this -> limit_requests(limit_cf_send_dc, 'cf_send_dc', limit_cf_send_dc_period);
+		if ($error)
+			return $error;
+
+	}
+
+	function cf_send_dc()
+	{
+		$project = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`,
+							  `end_time`,
+							  `currency_id`,
+							  `project_currency_name`,
+							  `user_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$this->tx_data['project_id']}
+				", 'fetch_array' );
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($this->block_data['user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($this->tx_data['user_id']);
+
+		// начисляем комиссию майнеру, который этот блок сгенерил
+		if ($this->tx_data['commission']>=0.01) {
+			$this -> update_recipient_wallet( $this->block_data['user_id'], $project['currency_id'], $this->tx_data['commission'], 'node_commission', $this->block_data['block_id'] );
+		}
+
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX."cf_funding` (
+					`project_id`,
+					`user_id`,
+					`amount`,
+					`currency_id`,
+					`time`,
+					`block_id`
+				)
+				VALUES (
+					{$this->tx_data['project_id']},
+					{$this->tx_data['user_id']},
+					{$this->tx_data['amount']},
+					{$project['currency_id']},
+					{$this->block_data['time']},
+					{$this->block_data['block_id']}
+				)");
+		$funding_id = $this->db->getInsertId ();
+
+		// обновим сумму на кошельке отправителя, залогировав предыдущее значение
+		$this -> update_sender_wallet($this->tx_data['user_id'], $project['currency_id'], $this->tx_data['amount'], $this->tx_data['commission'], 'cf_project', $this->tx_data['user_id'], $funding_id, bin2hex($this->tx_data['comment']), 'encrypted');
+
+
+		// если время сбора средств закончилось
+		if ($project['end_time'] <= $this->block_data['time']) {
+
+			// закрываем проект
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."cf_projects`
+					SET `close_block_id` = {$this->block_data['block_id']}
+					WHERE `id` = {$this->tx_data['project_id']}
+					");
+
+			$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT sum(`amount`)
+					FROM `".DB_PREFIX."cf_funding`
+					WHERE `project_id` = {$this->tx_data['project_id']}
+					", 'fetch_one' );
+
+			$points_status = array(0=>'user');
+
+			// нужная сумма набрана
+			if ($sum >= $project['amount']) {
+
+				// запишем в таблицу CF-валют новую валюту и получим ID
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."cf_currency` (
+							`name`,
+							`project_id`
+						)
+						VALUES (
+							'{$project['project_currency_name']}',
+							{$this->tx_data['project_id']}
+						)");
+				$project_currency_id = $this->db->getInsertId ();
+
+				// начисляем общую сумму на кошелек автора проекта
+				// а также, начисляем бэкерам валюту проекта
+				// нужно учесть набежавшие %
+				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `amount`,
+									 `time`,
+									 `user_id`
+						FROM `".DB_PREFIX."cf_funding`
+						WHERE `project_id` = {$this->tx_data['project_id']}
+						ORDER BY `id` ASC
+						");
+				$sum_and_pct_author = 0;
+				while ( $row =  $this->db->fetchArray( $res ) ) {
+					// то, что выросло за время сбора
+					$amount_and_pct = $row['amount'] + $this->calc_profit_ ( $row['amount'], $row['time'], $this->block_data['time'], $this->pct[$project['currency_id']], $points_status );
+
+					// автору проекта обычные DC
+					$sum_and_pct_author += $amount_and_pct;
+
+					// бэкерам - валюта проекта
+					$this -> update_recipient_wallet( $row['user_id'], $project_currency_id, $amount_and_pct, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
+				}
+
+				$this -> update_recipient_wallet( $project['user_id'], $project['currency_id'], $sum_and_pct, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
+			}
+			else { // нужная сумма не набрана
+
+				// проходимся по всем фундерам и возращаем на их кошельки деньги
+				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `amount`,
+									 `time`,
+									 `user_id`
+						FROM `".DB_PREFIX."cf_funding`
+						WHERE `project_id` = {$this->tx_data['project_id']}
+						ORDER BY `id` ASC
+						");
+				while ( $row =  $this->db->fetchArray( $res ) ) {
+					// то, что выросло за время сбора
+					$new_DC_sum = $row['amount'] + $this->calc_profit_ ( $row['amount'], $row['time'], $this->block_data['time'], $this->pct[$project['currency_id']], $points_status );
+					// возврат
+					$this -> update_recipient_wallet( $row['user_id'], $project['currency_id'], $new_DC_sum, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
+				}
+			}
+		}
+	}
+
+	function cf_send_dc_rollback()
+	{
+		$project = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`,
+							  `end_time`,
+							  `currency_id`,
+							  `project_currency_name`,
+							  `user_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$this->tx_data['project_id']}
+				", 'fetch_array' );
+
+		// если время сбора средств закончилось
+		if ($project['end_time'] <= $this->block_data['time']) {
+
+			$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT sum(`amount`)
+					FROM `".DB_PREFIX."cf_funding`
+					WHERE `project_id` = {$this->tx_data['project_id']}
+					", 'fetch_one' );
+
+			// нужная сумма набрана
+			if ($sum >= $project['amount']) {
+				// откатываем начисление общей суммы на кошелек автора проекта
+				$this->general_rollback('wallets', $project['user_id'], "AND `currency_id` = {$project['currency_id']}");
+
+				// узнаем ID валюты, которая была создана
+				$project_currency_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `id`
+						FROM `".DB_PREFIX."cf_currency`
+						WHERE `name` = '{$project['project_currency_name']}'
+						", 'fetch_one' );
+
+				// проходимся по всем фундерам и забираем у них начисленную валюту проекта
+				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."cf_funding`
+						WHERE `project_id` = {$this->tx_data['project_id']}
+						ORDER BY `DESC`
+						");
+				while ( $row =  $this->db->fetchArray( $res ) ) {
+					// откат возврата
+					$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project_currency_id}");
+				}
+
+			}
+			else { // нужная сумма не набрана
+
+				// проходимся по всем фундерам и возращаем на их кошельки деньги
+				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."cf_funding`
+						WHERE `project_id` = {$this->tx_data['project_id']}
+						ORDER BY `DESC`
+						");
+				while ( $row =  $this->db->fetchArray( $res ) ) {
+					// откат возврата
+					$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project['currency_id']}");
+				}
+			}
+
+			// откатываем закрытие проекта
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."cf_projects`
+					SET `close_block_id` = 0
+					WHERE `id` = {$this->tx_data['project_id']}
+					");
+
+		}
+
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."cf_funding`
+				WHERE `block_id` = {$this->block_data['block_id']} AND
+							 `user_id` = {$this->tx_data['user_id']} AND
+							 `project_id` = {$this->tx_data['project_id']}
+				LIMIT 1
+				");
+		$this->rollbackAI('cf_funding');
+
+		// откат списания средств с кошелька фундера
+		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$project['currency_id']}");
+
+		// откат комиссии
+		if ($this->tx_data['commission']>=0.01) {
+			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$project['currency_id']}");
+		}
+
+		// возможно нужно откатить таблицу points_status
+		$this->points_update_rollback_main($this->tx_data['user_id']);
+		$this->points_update_rollback_main($this->block_data['user_id']);
+	}
+
+	function cf_send_dc_rollback_front()
+	{
+		$this->limit_requests_rollback('cf_send_dc');
+	}
+
+	function user_avatar_init()
+	{
+		$error = $this->get_tx_data(array('name', 'avatar', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function user_avatar_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['name'], 'user_name'))
+			return 'name';
+
+		if ( !check_input_data ($this->tx_data['avatar'], 'img_url') && $this->tx_data['avatar']!=='0')
+			return 'avatar';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['name']},{$this->tx_data['avatar']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		// разрешено отправлять не более 10-и таких тр-ий за сутки
+		$error = $this -> limit_requests(limit_user_avatar, 'user_avatar', limit_user_avatar_period);
+		if ($error)
+			return $error;
+
+	}
+	function user_avatar()
+	{
+		$this->selective_logging_and_upd (array('name', 'avatar'), array($this->tx_data['name'], $this->tx_data['avatar']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function user_avatar_rollback()
+	{
+		$this->selective_rollback (array('name', 'avatar'), 'users', "`user_id`={$this->tx_data['user_id']}");
+	}
+
+	function user_avatar_rollback_front()
+	{
+		$this -> limit_requests_rollback( 'user_avatar' );
+	}
+
+
+	function cf_project_change_category_init()
+	{
+		$error = $this->get_tx_data(array('project_id', 'category_id', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function cf_project_change_category_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['project_id'], 'int') )
+			return 'project_id';
+		if ( !check_input_data ($this->tx_data['category_id'], 'tinyint') )
+			return 'category_id';
+
+		// является ли юзер владельцем данного проекта и есть ли вообще такой проект
+		$project_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+							 `id` = {$this->tx_data['project_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if ( !$project_user_id )
+			return 'project_user_id';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['category_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		// разрешено отправлять не более 10-и таких тр-ий за сутки
+		$error = $this -> limit_requests(limit_cf_project_data, 'cf_project_data', limit_cf_project_data_period);
+		if ($error)
+			return $error;
+	}
+
+	function cf_project_change_category()
+	{
+		$this->selective_logging_and_upd (
+			array('category_id'),
+			array($this->tx_data['category_id']),
+			'cf_projects',
+			array('id'),
+			array($this->tx_data['project_id'])
+		);
+	}
+
+	function cf_project_change_category_rollback()
+	{
+		$this->selective_rollback (array('category_id'), 'cf_projects', "`id`={$this->tx_data['project_id']}", true);
+	}
+
+	function cf_project_change_category_rollback_front()
+	{
+		$this->limit_requests_rollback('cf_project_data');
+	}
+
+
+	/*
+	 * Описание проекта на разных языках
+	 * */
+	function cf_project_data_init()
+	{
+		$error = $this->get_tx_data(array('project_id', 'lang_id', 'blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function cf_project_data_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['project_id'], 'int') )
+			return 'project_id';
+		if ( !check_input_data ($this->tx_data['lang_id'], 'tinyint') )
+			return 'lang_id';
+		if ( !check_input_data ($this->tx_data['blurb_img'], 'img_url') && $this->tx_data['blurb_img']!=='0')
+			return 'blurb_img';
+		if ( !check_input_data ($this->tx_data['head_img'], 'img_url') && $this->tx_data['head_img']!=='0')
+			return 'head_img';
+		if ( !check_input_data ($this->tx_data['description_img'], 'img_url') && $this->tx_data['description_img']!=='0')
+			return 'description_img';
+		if ( !check_input_data ($this->tx_data['picture'], 'img_url') && $this->tx_data['picture']!=='0')
+			return 'picture';
+		if ( !check_input_data ($this->tx_data['video_type'], 'video_type') && $this->tx_data['video_type']!=='0' )
+			return 'video_type';
+		if ( !check_input_data ($this->tx_data['video_url_id'], 'video_url_id') && $this->tx_data['video_url_id']!=='0' )
+			return 'video_url_id';
+		if ( !check_input_data ($this->tx_data['news_img'], 'img_url') && $this->tx_data['news_img']!=='0' )
+			return 'news_img';
+		if ( !check_input_data ($this->tx_data['links'], 'cf_links') && $this->tx_data['links']!=='0' )
+			return 'links';
+
+		// является ли юзер владельцем данного проекта и есть ли вообще такой проект
+		$project_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+							 `id` = {$this->tx_data['project_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if ( !$project_user_id )
+			return 'project_user_id';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['blurb_img']},{$this->tx_data['head_img']},{$this->tx_data['description_img']},{$this->tx_data['picture']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['news_img']},{$this->tx_data['links']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		// разрешено отправлять не более 10-и таких тр-ий за сутки
+		$error = $this -> limit_requests(limit_cf_project_data, 'cf_project_data', limit_cf_project_data_period);
+		if ($error)
+			return $error;
+	}
+
+	function cf_project_data()
+	{
+		// если описания проекта на этом языке еще нет, то добавляем, иначе - логируем и обновляем
+		$this->selective_logging_and_upd (
+			array('blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links'),
+			array($this->tx_data['blurb_img'], $this->tx_data['head_img'], $this->tx_data['description_img'], $this->tx_data['picture'], $this->tx_data['video_type'], $this->tx_data['video_url_id'], $this->tx_data['news_img'], $this->tx_data['links']),
+			'cf_projects_data',
+			array('project_id', 'lang_id'),
+			array($this->tx_data['project_id'], $this->tx_data['lang_id'])
+		);
+	}
+
+	function cf_project_data_rollback()
+	{
+		$this->selective_rollback (array('blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links'), 'cf_projects_data', "`project_id`={$this->tx_data['project_id']} AND `lang_id` = {$this->tx_data['lang_id']}", true);
+	}
+
+	function cf_project_data_rollback_front()
+	{
+		$this->limit_requests_rollback('cf_project_data');
+	}
+
+	function cf_comment_init()
+	{
+		$error = $this->get_tx_data(array('project_id', 'lang_id', 'comment', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+
+	function cf_comment_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['project_id'], 'int') )
+			return 'project_id';
+		if ( !check_input_data ($this->tx_data['lang_id'], 'tinyint') )
+			return 'lang_id';
+		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
+		if ( !check_input_data ($this->tx_data['comment'], 'cf_comment') )
+			return 'comment';
+
+
+		if (isset($this->block_data['time'])) { // тр-ия пришла в блоке
+			$time = $this->block_data['time'];
+		}
+		else { // голая тр-ия с запасом 30 сек на время генерации блока. Т.к. при попадинии в блок время будет уже другим
+			$time = time() - 30;
+		}
+
+		// автор проекта может писать по 1 комменту за каждую языковую версию
+		$author = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+							 `id` = {$this->tx_data['project_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if ($author)
+			$add_sql = " AND `lang_id` = {$this->tx_data['lang_id']}";
+		else
+			$add_sql = "";
+		// проверим, есть ли у данного юзера другие комменты за данный проект
+		$comment_time = (int) $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT max(`time`)
+				FROM `".DB_PREFIX."cf_comments`
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+							 `project_id` = {$this->tx_data['project_id']}
+							 {$add_sql}
+				LIMIT 1
+				", 'fetch_one' );
+
+		// в 1 проект можно писать только 1 комммент в сутки
+		if ($time - $comment_time < limit_time_comments_cf_project)
+			return '$comment_time';
+
+		// финансировал ли данный юзер этот проект
+		$funder = (int) $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_funding`
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+							 `project_id` = {$this->tx_data['project_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if (!$funder) {
+			//  или может быть он его автор
+			$author = (int) $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `id`
+					FROM `".DB_PREFIX."cf_projects`
+					WHERE `user_id` = {$this->tx_data['user_id']} AND
+								 `id` = {$this->tx_data['project_id']}
+					LIMIT 1
+					", 'fetch_one' );
+			if (!$author)
+				return '!$funder || !$author';
+		}
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['comment']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		// разрешено создавать не более 10 комментов за разные проекты за сутки
+		$error = $this -> limit_requests(limit_cf_comments, 'cf_comments', limit_cf_comments_period);
+		if ($error)
+			return $error;
+	}
+
+	function cf_comment()
+	{
+
+		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX."cf_comments` (
+					`user_id`,
+					`project_id`,
+					`lang_id`,
+					`comment`,
+					`time`,
+					`block_id`
+				)
+				VALUES (
+					{$this->tx_data['user_id']},
+					{$this->tx_data['project_id']},
+					{$this->tx_data['lang_id']},
+					'{$this->tx_data['comment']}',
+					{$this->block_data['time']},
+					{$this->block_data['block_id']}
+				)");
+	}
+
+	function cf_comment_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."cf_comments`
+				WHERE `block_id` = {$this->block_data['block_id']} AND
+							 `user_id` = {$this->tx_data['user_id']} AND
+							 `project_id` = {$this->tx_data['project_id']} AND
+							 `lang_id` = {$this->tx_data['lang_id']}
+				LIMIT 1
+				");
+		$this->rollbackAI('cf_comments');
+	}
+
+	function cf_comment_rollback_front()
+	{
+		$this->limit_requests_rollback('cf_comments');
+	}
+
+	function new_cf_project_init()
+	{
+		$error = $this->get_tx_data(array('currency_id', 'amount', 'end_time', 'latitude', 'longitude', 'category_id', 'project_currency_name', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function new_cf_project_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['currency_id'], 'int') )
+			return 'currency_id';
+		if ( !check_input_data ($this->tx_data['amount'], 'int') )
+			return 'amount';
+		if ( !check_input_data ($this->tx_data['end_time'], 'int') )
+			return 'end_time';
+		if ( !check_input_data ($this->tx_data['latitude'], 'coordinate') )
+			return 'latitude';
+		if ( !check_input_data ($this->tx_data['longitude'], 'coordinate') )
+			return 'longitude';
+		if ( !check_input_data ($this->tx_data['category_id'], 'smallint') )
+			return 'category_id';
+		if ( !check_input_data ($this->tx_data['project_currency_name'], 'cf_currency_name') )
+			return 'project_currency_name';
+
+		if (isset($this->block_data['time'])) { // тр-ия пришла в блоке
+			$time1 = $this->block_data['time'];
+			$time2 = $time1;
+		}
+		else { // голая тр-ия с запасом 30 сек на время генерации блока. Т.к. при попадинии в блок время будет уже другим
+			$time1 = time()-30;
+			$time2 = time()+30;
+		}
+		// дата завершения проекта не может быть более чем на 90 дней и менее чем на 7 дней вперед от текущего времени
+		if ($this->tx_data['end_time'] - $time1 > 3600*24*90 || $this->tx_data['end_time'] - $time2 < 3600*24*7)
+			return 'bad end_time';
+
+		if (!$this->checkCurrency($this->tx_data['currency_id']))
+			return 'bad currency';
+
+		if ( $this->tx_data['amount'] <= 0 )
+			return 'amount=0';
+
+		// проверим, не занято ли имя валюты
+		$currency = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `project_currency_name` = '{$this->tx_data['project_currency_name']}' AND
+							 `close_block_id` = 0 AND
+							 `del_block_id` = 0
+				LIMIT 1
+				", 'fetch_one' );
+		if ($currency)
+			return 'exists project_currency_name';
+
+		// проверим, не занято ли имя валюты
+		$currency = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."cf_currency`
+				WHERE `name` = '{$this->tx_data['project_currency_name']}'
+				LIMIT 1
+				", 'fetch_one' );
+		if ($currency)
+			return 'exists cf_currency';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['currency_id']},{$this->tx_data['amount']},{$this->tx_data['end_time']},{$this->tx_data['latitude']},{$this->tx_data['longitude']},{$this->tx_data['category_id']},{$this->tx_data['project_currency_name']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		// разрешено создавать 1 проект в неделю
+		$error = $this -> limit_requests(limit_new_cf_project, 'new_cf_project', limit_new_cf_project_period);
+		if ($error)
+			return $error;
+	}
+
+	function new_cf_project()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX."cf_projects` (
+					`user_id`,
+					`currency_id`,
+					`amount`,
+					`project_currency_name`,
+					`start_time`,
+					`end_time`,
+					`latitude`,
+					`longitude`,
+					`category_id`,
+					`block_id`
+				)
+				VALUES (
+					{$this->tx_data['user_id']},
+					{$this->tx_data['currency_id']},
+					{$this->tx_data['amount']},
+					'{$this->tx_data['project_currency_name']}',
+					{$this->block_data['time']},
+					{$this->tx_data['end_time']},
+					{$this->tx_data['latitude']},
+					{$this->tx_data['longitude']},
+					{$this->tx_data['category_id']},
+					{$this->block_data['block_id']}
+				)");
+	}
+
+	function new_cf_project_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."cf_projects`
+				WHERE `block_id` = {$this->block_data['block_id']} AND
+							 `user_id` = {$this->tx_data['user_id']}
+				LIMIT 1
+				");
+		$this->rollbackAI('cf_projects');
+	}
+
+	function new_cf_project_rollback_front()
+	{
+		$this->limit_requests_rollback('new_cf_project');
 	}
 
 	function new_forex_order_init()
