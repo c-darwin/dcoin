@@ -1,6 +1,3 @@
-<!-- container -->
-<div class="container">
-
 <script>
 
 $('#save').bind('click', function () {
@@ -31,7 +28,7 @@ $('#send_to_net').bind('click', function () {
 
 </script>
 
-	<legend><h2><?php echo $lng['change_host_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['change_host_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
@@ -51,6 +48,3 @@ $('#send_to_net').bind('click', function () {
 
 	<?php require_once( 'signatures.tpl' );?>
 
-
-</div>
-<!-- /container -->
