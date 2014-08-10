@@ -1,8 +1,5 @@
-<!-- container -->
 
-<div class="container">
-
-	<legend><h2><?php echo $lng['alert_messages_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['alert_messages_title']?></h1>
 	
 	<?php
 	echo '<table class="table table-bordered" style="width:600px">';
@@ -16,7 +13,3 @@
 	echo '</table>';
 	?>
      
-
-</div>
-
-<!-- /container -->
