@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -129,7 +127,7 @@
 
 
 </script>
-	<legend><h2><?php echo $lng['notifications_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['notifications_title']?></h1>
 
 <?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -265,10 +263,9 @@ if (node_admin_access($db)) {
 </table>
 </div>
 <br><br>
-</div>
+
 
 <script>
 if	($("#use_smtp").is(':checked'))
 	show_smtp ();
 </script>
-<!-- /container -->
