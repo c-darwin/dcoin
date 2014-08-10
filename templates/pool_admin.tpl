@@ -1,6 +1,3 @@
-<!-- container -->
-<div class="container">
-
 	<script>
 		$('#save').bind('click', function () {
 			$.post( 'ajax/pool_add_users.php', {
@@ -12,7 +9,7 @@
 		});
 	</script>
 
-  <legend><h2>Pool admin</h2></legend>
+  <h1 class="page-header">Pool admin</h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
     <div id="new">
@@ -24,7 +21,3 @@
 
     </div>
      
-    
-
-</div>
-<!-- /container -->
