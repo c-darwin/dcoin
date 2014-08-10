@@ -1,6 +1,3 @@
-<!-- container -->
-<div class="container">
-
 	<script>
 
 		var message_id = 0;
@@ -92,7 +89,7 @@
 
 	</script>
 
-	<legend><h2><?php echo $lng['bug_reporting_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['bug_reporting_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -129,6 +126,3 @@
 	<?php require_once( 'signatures.tpl' );?>
 
 	<input type="hidden" id="encrypted_message">
-
-</div>
-<!-- /container -->
