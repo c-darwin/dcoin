@@ -34,7 +34,9 @@ require_once( ABSPATH . 'lang/'.$lang.'.php' );
 //if ( !empty($_SESSION['user_id']) ) {
 //	$tpl['main_include'] = 'login.tpl';
 //}else{
-require_once( ABSPATH . 'templates/index.tpl' );
+
+
+require_once( ABSPATH . 'templates/index2.tpl' );
 //}
 
 
