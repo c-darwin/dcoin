@@ -9,10 +9,8 @@
 				});
 	});
 </script>
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['change_country_race_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['change_country_race_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -38,6 +36,3 @@
 	
 	<div class="for-signature"></div>
        
-
-</div>
-<!-- /container -->
