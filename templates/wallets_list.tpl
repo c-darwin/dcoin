@@ -8,32 +8,53 @@
 	}
 </style>
 
-<!-- container -->
-<div class="container">
-
+<link href="css2/cf.css?2" rel="stylesheet">
 <script>
-$('#next').bind('click', function () {
 
-	to_user_id = $("#to_user_id").val();
+	var type = '';
+	var to_id = '';
 
-	if ( to_user_id ) {
+$('#next, #cf_next').bind('click', function () {
+
+	var to_user_id = $("#to_user_id").val();
+	var project_id = $("#project_id").val();
+	if (to_user_id) {
+		type = 'user';
+		to_id = to_user_id;
+		var tx_type_id = <?php echo $tpl['data']['user_type_id']?>;
+		var cf = '';
+		var currency_id = ','+$("#currency_id").val();
+	}
+	else if (project_id) {
+		type = 'project';
+		to_id = project_id;
+		var tx_type_id = <?php echo $tpl['data']['project_type_id']?>;
+		var cf = 'cf_';
+		var currency_id = '';
+	}
+	console.log(cf);
+	console.log(to_user_id);
+	console.log(project_id);
+
+	if (to_id) {
 
 		$.post( 'ajax/encrypt_comment.php', {
 
-			'to_user_id' : $("#to_user_id").val(),
-			'comment' :  $("#comment").val()
+			'to_id' : to_id,
+			'type' : type,
+			'comment' :  $("#"+cf+"comment").val()
 
 			}, function (data) {
 
-				if ($("#comment").val()=='') {
+				if ($("#"+cf+"comment").val()=='') {
 					data = '30';
-					$("#comment").val('0');
+					$("#"+cf+"comment").val('0');
 				}
 				$("#comment_encrypted").val(data);
 
-				$("#wallets").css("display", "none");
-				$("#sign").css("display", "block");
-				$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+$('#to_user_id').val()+','+$('#amount').val()+','+$('#commission').val()+','+data+','+$('#currency_id').val());
+				<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#sign").css("display", "block"); $("#wallets").css("display", "none");' ?>
+
+				$("#for-signature").val( tx_type_id+',<?php echo "{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+to_id+','+$('#'+cf+'amount').val()+','+$('#'+cf+'commission').val()+','+data+currency_id);
 				doSign();
 				<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 
@@ -42,18 +63,58 @@ $('#next').bind('click', function () {
 
 } );
 
+	function fill_cf_card(data)
+	{
+		console.log(data);
+		$('#blurb_img').attr('src', data.blurb_img);
+		$('#location').text(data.country+', '+data.city);
+		$('#project_id_info').text(data.id);
+		$('#available_dc').text(data.wallet_amount+' D'+data.currency);
+		$('#cf_pledged').text(data.funding_amount+' D'+data.currency);
+		$('#cf_days').text(data.days);
+		$('#cf_progress').width(data.pct+'%');
+		$('#cf_pct').text(data.pct+'%');
+	}
+
+	$('#cf_next_0').bind('click', function () {
+
+		$("#cf_prject_id").css("display", "none");
+		$("#cf_prject_card").css("display", "block");
+
+		$.post( 'ajax/wallets_list_cf_project.php', {
+			'project_id' : $('#project_id').val()
+		}, function (data) {
+			fill_cf_card(data);
+		}, 'JSON');
+
+	});
+
 $('#send_to_net').bind('click', function () {
 
+	if (type=='user') {
+		var tx_type = '<?php echo $tpl['data']['user_type']?>';
+		var amount = $('#amount').val();
+		var commission = $('#commission').val();
+		var comment = $('#comment').val();
+	}
+	else if (type=='project') {
+		var tx_type = '<?php echo $tpl['data']['project_type']?>';
+		var amount = $('#cf_amount').val();
+		var commission = $('#cf_commission').val();
+		var comment = $('#cf_comment').val();
+	}
+
+
 	$.post( 'ajax/save_queue.php', {
-			'type' : '<?php echo $tpl['data']['type']?>',
+			'type' : tx_type,
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
-			'to_user_id' : $('#to_user_id').val(),
+			'to_id' : to_id,
 			'currency_id' : $('#currency_id').val(),
-			'amount' : $('#amount').val(),
-			'commission' : $('#commission').val(),
+			'amount' : amount,
+			'commission' : commission,
 			'comment' : $('#comment_encrypted').val(),
-			'comment_text' : $('#comment').val(),
+			'comment_text' : comment,
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
@@ -112,15 +173,20 @@ function decrypt_comment_0 (id, type) {
 
 }
 
-$('#amount').keyup(function(e) {
+$('#amount, #cf_amount').keyup(function(e) {
 
-	var amount = $("#amount").val();
+	if (this.id=='cf_amount')
+		var add='cf_';
+	else
+		var add='';
+
+	var amount = $("#"+add+"amount").val();
 	var amount_ = '';
 	amount_ = parseFloat(amount.replace(",", "."));
 	amount_ = amount_.toFixed(2);
 
 	if (amount.indexOf(",")!=-1) {
-		$("#amount").val(amount_);
+		$("#"+add+"amount").val(amount_);
 	}
 	amount = amount_;
 
@@ -134,78 +200,183 @@ $('#amount').keyup(function(e) {
 ///	amount_and_commission = amount_and_commission.toFixed(2);
 //	total = amount_and_commission+'  <?php echo $lng['including_commission']?> '+commission;
 //	$("#total").text(total);
-	$("#commission").val(commission);
+	$("#"+add+"commission").val(commission);
 });
 
 
 </script>
 <script src="js/js.js"></script>
 
-	<legend><h2><?php echo $lng['wallets_list_title']?></h2></legend>
-	
+<h1 class="page-header"><?php echo $lng['wallets_list_title']?></h1>
+
 	<div id="wallets">
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
-	   
-	<p><?php echo $lng['your_account_number']?>: <strong><?php echo $tpl['user_id']?></strong></p>
-	
-	<p><strong><?php echo $lng['send_dc']?></strong>:</p>
-	<table class="table" style="width: 300px">
-	<tr><td><?php echo $lng['currency']?></td><td><select id="currency_id">
-	<?php
-	if (isset($tpl['wallets']))
-		foreach ($tpl['wallets'] as $id => $data)
-			print "<option value='{$data['currency_id']}'>D{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
-	?>
-	</select></td></tr>
-	<tr><td><?php echo $lng['to_account']?></td><td><input type="text" id="to_user_id"></td></tr>
-	<tr><td><?php echo $lng['amount']?></td><td><input type="text" id="amount"></td></tr>
-	<tr><td><?php echo $lng['commission']?></td><td><input type="text" id="commission"></td></tr>
-	<tr><td><?php echo $lng['note']?></td><td><input type="text" id="comment"></td></tr>
-	</table>
-	<button id="next" class="btn btn-primary" type="button"><?php echo $lng['send']?></button>
-	
-	<br><br>
-	<?php
-	if (isset($tpl['wallets']))
-	if ($tpl['wallets']) {
-		echo '<h3>'.$lng['wallets'].'</h3><table class="table" style="width:400px">';
-		echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
-		foreach ($tpl['wallets'] as $id => $data) {
-		print "<tr><td>D{$tpl['currency_list'][$data['currency_id']]}</td><td>{$data['amount']}</td><td>{$data['pct']}</td></tr>";
-		}
-		echo '</table>';
-	}
-	?>
+
+		<div class="panel-body">
+			<!-- Nav tabs -->
+			<ul class="nav nav-tabs" id="myTab">
+				<li class="active"><a href="#send_to_wallet" data-toggle="tab">Перевод на кошелек</a>
+				</li>
+				<li class=""><a href="#send_to_cf" data-toggle="tab">Перевод в crowdfunding проект</a>
+				</li>
+				<li class=""><a href="#" onclick="fc_navigate('currency_exchange')">Обмен валют</a>
+				</li>
+			</ul>
+
+			<!-- Tab panes -->
+			<div class="tab-content">
+				<div class="tab-pane fade active in" id="send_to_wallet">
+					<br>
+					<div style="float: left">
+					<table class="table" style="width: 400px">
+						<tr><td><?php echo $lng['currency']?></td><td><select id="currency_id" class="form-control">
+						<?php
+							if (isset($tpl['wallets']))
+								foreach ($tpl['wallets'] as $id => $data)
+									print "<option value='{$data['currency_id']}'>".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
+									?>
+								</select></td></tr>
+						<tr><td><?php echo $lng['to_account']?></td><td><input class="form-control" type="text" id="to_user_id"></td></tr>
+						<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="amount"></td></tr>
+						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission"></td></tr>
+						<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="comment"></td></tr>
+					</table>
+					<button id="next" class="btn btn-primary" type="button"><?php echo $lng['send']?></button>
 
 
-	<?php
+
+					<h1 class="page-header"><?php echo $lng['your_account_number']?>: <strong><?php echo $tpl['user_id']?></strong></h1>
+
+					<br><br>
+					<?php
+					if (isset($tpl['wallets']))
+					if ($tpl['wallets']) {
+						echo '<h3>'.$lng['wallets'].'</h3><table class="table" style="width:400px">';
+						echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
+						foreach ($tpl['wallets'] as $id => $data) {
+							echo "<tr>";
+
+							if ($data['currency_id']>=1000)
+								echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
+							else
+								echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+
+							echo "<td>{$data['amount']}</td>";
+							echo "<td>{$data['pct']}</td></tr>";
+						}
+						echo '</table>';
+					}
+					?>
+
+					<br><br>
+					</div>
+					<div style="overflow: auto;">
+						<div class="panel panel-success" style="margin-left: 50px; max-width: 400px">
+							<div class="panel-heading">
+								Где взять монеты?
+							</div>
+							<div class="panel-body">
+								<p>Монеты можно купить, например, на <a href="http://dcoinwiki.com/биржи" target="_blank">бирже</a> или самостоятельно намайнить.</p>
+							</div>
+						</div>
+					</div>
+					<div class="clearfix"></div>
+
+					<?php
 
 if (isset($tpl['my_dc_transactions']))
 	if ($tpl['my_dc_transactions']) {
-		echo '<h3>'.$lng['transactions'].'</h3><table class="table" style="width:500px">';
-		echo '<tr><th></th><th>'.$lng['time'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['type'].'</th><th>'.$lng['recipient'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['commission'].'</th><th>'.$lng['note'].'</th><th>'.$lng['status'].'</th><th>Block_id</th></tr>';
-		foreach ($tpl['my_dc_transactions'] as $key => $data) {
-			print "<tr>";
-			if ($data['to_user_id']==$tpl['user_id'])
-				print "<td>+</td>";
-			else
-				print "<td>-</td>";
-			if ($data['time'])
-				print "<td>".date('d-m-Y H:i:s', $data['time'])."</td>";
-			else
-				print "<td></td>";
-			print "<td>{$tpl['currency_list'][$data['currency_id']]}</td><td>{$names[$data['type']]} ({$data['type_id']})</td><td>{$data['to_user_id']}</td><td>{$data['amount']}</td><td>".(($data['commission']>0)?$data['commission']:"")."</td>";
-			if ($data['comment_status']=='decrypted')
-				print "<td>{$data['comment']}</td>";
-			else
-				print "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
-			print "<td>{$data['status']}</td><td>{$data['block_id']}</td></tr>";
-		}
-		echo '</table>';
-		echo "<p>{$lng['error_in_tx']}</p>";
-	}
-	?>
+		echo '<h3>'.$lng['transactions'].'</h3><table class="table" style="width:500px;">';
+						echo '<tr><th></th><th>'.$lng['time'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['type'].'</th><th>'.$lng['recipient'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['commission'].'</th><th>'.$lng['note'].'</th><th>'.$lng['status'].'</th><th>Block_id</th><th>Confirmations</th></tr>';
+						foreach ($tpl['my_dc_transactions'] as $key => $data) {
+						print "<tr>";
+							if ($data['to_user_id']==$tpl['user_id'])
+								echo "<td>+</td>";
+							else
+								echo "<td>-</td>";
+							if ($data['time'])
+								echo "<td>".date('d-m-Y H:i:s', $data['time'])."</td>";
+							else
+								echo "<td></td>";
+								echo "<td>".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}</td>";
+
+							echo "<td>{$names[$data['type']]} ({$data['type_id']})";
+							if ($data['type']=='cf_project')
+								echo "<button class=\"btn\" onclick=\"fc_navigate('del_cf_funding', {'del_id':'{$data['to_user_id']}'})\">Cancel</button>";
+								echo "</td><td>{$data['to_user_id']}</td><td>{$data['amount']}</td><td>".(($data['commission']>0)?$data['commission']:"")."</td>";
+							if ($data['comment_status']=='decrypted')
+								echo "<td><div style=\"width: 200px; overflow: auto\">{$data['comment']}</div></td>";
+							else
+								echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
+					echo "<td>{$data['status']}</td><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$data['block_id']}})\">{$data['block_id']}</a></td><td>".($tpl['data']['current_block_id'] - $data['block_id'])."</td></tr>";
+				}
+				echo '</table>';
+				echo "<p>{$lng['error_in_tx']}</p>";
+				}
+				?>
+
+
+
+
+
+				</div>
+				<div class="tab-pane fade" id="send_to_cf">
+						<br>
+						<div id="cf_prject_id">
+							<div class="form-group">
+								<label>ID проекта</label>
+								<input class="form-control" style="width: 300px" id="project_id">
+							</div>
+							<div class="form-group">
+								<button id="cf_next_0" class="btn btn-primary" type="button"><?php echo $lng['next']?></button>
+							</div>
+						</div>
+
+						<div style="display: none; overflow: auto" id="cf_prject_card">
+
+							<div class="well project-card" style="float:left; margin-right:20px">
+								<img id="blurb_img" style="width:200px; height:310px">
+								<div>
+									<div class="card-location" style="margin-top:10px;font-size: 13px;"><a href="#"><i class="fa  fa-map-marker  fa-fw"></i> <span id="location"><?php echo "{$data['country']},{$data['city']}"?></span></a></div>
+									<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: 0%;" id="cf_progress"></div></div>
+									<div class="card-bottom">
+										<div style="float:left; overflow:auto; padding-right:10px"><h5 id="cf_pct">0%</h5>funded</div>
+										<div style="float:left; overflow:auto; padding-right:10px"><h5 id="cf_pledged">0 </h5>pledged</div>
+										<div style="float:left; overflow:auto;"><h5 id="cf_days">0</h5>days to go</div>
+									</div>
+								</div>
+							</div>
+							<div style="overflow: auto">
+								<table class="table" style="width: 400px">
+									<tr><td>ID проекта</td><td><span id="project_id_info"></span></td></tr>
+									<tr><td>Доступно</td><td><span id="available_dc"></span></td></tr>
+									<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="cf_amount"></td></tr>
+									<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="cf_commission"></td></tr>
+									<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="cf_comment"></td></tr>
+								</table>
+								<button id="cf_next" class="btn btn-primary" type="button"><?php echo $lng['send']?></button>
+								<div class="panel panel-success" style="margin-top: 20px; max-width: 400px">
+									<div class="panel-heading">
+										Где взять монеты?
+									</div>
+									<div class="panel-body">
+										<p>Монеты можно купить, например, на <a href="http://dcoinwiki.com/биржи" target="_blank">бирже</a> или самостоятельно намайнить.</p>
+									</div>
+								</div>
+							</div>
+
+						</div>
+
+				</div>
+
+			<div class="tab-pane fade" id="forex">
+
+			</div>
+
+			</div>
+		</div>
+
 
 	
 	</div>
@@ -214,6 +385,26 @@ if (isset($tpl['my_dc_transactions']))
     
 	<input type="hidden" id="comment_encrypted" value="">
 
+<script>
 
-</div>
-<!-- /container -->
+		<?php
+		if ($tpl['cf_project_id']) {
+		?>
+
+			$('#myTab a[href="#send_to_cf"]').tab('show');
+
+			$("#cf_prject_id").css("display", "none");
+			$("#cf_prject_card").css("display", "block");
+			$("#project_id").val(<?php echo $tpl['cf_project_id']?>);
+
+			$.post( 'ajax/wallets_list_cf_project.php', {
+				'project_id' : <?php echo $tpl['cf_project_id']?>
+			}, function (data) {
+				fill_cf_card(data);
+			}, 'JSON');
+
+		<?php
+		}
+		?>
+
+</script>
