@@ -1,6 +1,4 @@
-<!-- container -->
 
-<div class="container">
 <script>
 	function mining_click(id){
 		fc_navigate('promised_amount_mining',  {'promised_amount_id':id, 'amount':$('#repaid-input-'+id).val()});
@@ -30,7 +28,7 @@ function calc_commission (id) {
 
 </script>
   
-	<legend><h2><?php echo $lng['promised_amount_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['promised_amount_title']?></h1>
 	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
 
 
@@ -86,5 +84,3 @@ if (isset($tpl['actualization_promised_amounts']))
 <br><br><p><span class="label label-important"><?php echo $lng['limits'] ?></span>  <?php echo $tpl['limits_text'] ?></p>
 <br>
 <a href="#" onclick="fc_navigate('for_repaid_fix')">for_repaid_fix</a>
-</div>
-<!-- /container -->
