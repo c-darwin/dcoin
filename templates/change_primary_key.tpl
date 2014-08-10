@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -93,7 +91,7 @@ $('#send_to_net').bind('click', function () {
 
 </script>
 
-	<legend><h2><?php echo $lng['change_primary_key_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['change_primary_key_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
 	<div id="add">
@@ -159,5 +157,3 @@ $('#send_to_net').bind('click', function () {
 
 	<input type="hidden" id="password_hash">
 
-</div>
-<!-- /container -->
