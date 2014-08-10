@@ -17,7 +17,7 @@
 	<script language="JavaScript" type="text/javascript" src="js/base64.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/rsapem-1.1.js"></script>
 	<script language="JavaScript" type="text/javascript" src="js/rsasign-1.2.min.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/asn1hex-1.1.min.js"></script>
+    <script language="JavaScript" type="text/javascript" src="js/asn1hex-1.1.min.js"></script>
 
 
 
@@ -371,9 +371,9 @@
 				</form>
 			</div>
 			<div class="modal-footer">
-			<button class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
+			<button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
 			<!--<button class="btn btn-primary" data-dismiss="modal" aria-hidden="true" onclick="save_key()">Save changes</button>-->
-				<button type="button" class="btn btn-primary" data-toggle="button"  data-dismiss="modal"  onclick="save_key();doSign()">Log in</button>
+			<button type="button" class="btn btn-primary" data-toggle="button"  data-dismiss="modal"  onclick="save_key();doSign()">Log in</button>
 			</div>
 		</div>
     <!-- / Modal -->
@@ -405,6 +405,7 @@
 		function(data) {
 			$('.fc_content').html( data );
 		}, "html");
+
 	</script>
 
 	<script src="https://maps.googleapis.com/maps/api/js?sensor=false" type="text/javascript"></script>
