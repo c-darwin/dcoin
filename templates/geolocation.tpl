@@ -1,6 +1,4 @@
-<!-- container -->
-<div class="container">
-
+<script src="js/index.js"></script>
 <script>
 function next_step()
 {
@@ -28,58 +26,28 @@ $('#send_to_net').bind('click', function () {
 } );
 
 
+$('#show_map').bind('click', function () {
+
+	map_init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
+	google.maps.event.trigger(map, 'resize');
+});
+
 </script>
 
-<script>
-
-function init (lat, lng, map_canvas, drag) {
-
-		$("#"+map_canvas).css("display", "block");
-
-		var point = new google.maps.LatLng(lat, lng);
-		var mapOptions = {
-			center: point,
-			zoom: 15,
-			mapTypeId: google.maps.MapTypeId.ROADMAP,
-			streetViewControl: false
-		};
-		map = new google.maps.Map(document.getElementById(map_canvas), mapOptions);
-
-		var marker = new google.maps.Marker({
-			position: point,
-			map: map,
-			draggable: drag,
-			title: 'You'
-		});
-		
-		google.maps.event.trigger(map, 'resize');
-		
-		google.maps.event.addListener(marker, "dragend", function() {
-
-			var lat = marker.getPosition().lat();
-			lat = lat.toFixed(5);
-			var lng = marker.getPosition().lng();
-			lng = lng.toFixed(5);
-			document.getElementById('latitude').value = lat;
-			document.getElementById('longitude').value = lng;
-			
-		});
-		marker.setMap(map);
-}
-</script>
-
-  <legend><h2><?php echo $lng['geolocation_title']?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['geolocation_title']?></h1>
   <?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	<div id="geo">
 		<p><?php  echo $lng['location_alert']?></p>
 		<br>
 		<strong>Country</strong><br>
 				<?php
-				echo "<select id='country'><option value='0'></option>";
+				echo "<select id='country' class=\"form-control\" style=\"width:300px\"><option value='0'></option>";
 				for ($i=0; $i<sizeof($tpl['countries']); $i++)
 				echo "<option value='{$i}' ".($i==$tpl['country']?'selected':'').">{$tpl['countries'][$i]}</option>\n";
 				echo '</select>';
 				?>
+		<br>
+		<button type="button" class="btn btn-primary" id="show_map">Show map</button><br><br>
 
 		<div id="map_canvas" style="width: 640px; height: 480px; margin-bottom:20px; display:none"></div>
 		<input id="latitude" class="input" type="text" placeholder="latitude" value="<?php echo $tpl['geolocation_lat']?>"><input id="longitude" class="input" type="text" placeholder="longitude" value="<?php echo $tpl['geolocation_lon']?>">
@@ -90,21 +58,13 @@ function init (lat, lng, map_canvas, drag) {
     <div id="new" style="display:none">
 		<label><?php echo $lng['new_geolocation']?></label>
 		<div id="map_canvas" style="width: 640px; height: 480px;"></div>
-		<input id="latitude" class="input" type="text" placeholder="latitude"><input id="longitude" class="input" type="text" placeholder="longitude">
-		<br>
+		<input id="latitude" type="text" placeholder="latitude" class="form-control">
+	    <input id="longitude"  type="text" placeholder="longitude" class="form-control">
+	    <br><br>
 		<button class="btn" onclick="next_step()"><?php echo $lng['next']?></button>
 
     </div>
 
 <?php require_once( 'signatures.tpl' );?>
     
-    <br><br><p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text'] ?></p>
-
-
-</div>
-<!-- /container -->
-
-<script>
-	init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
-	google.maps.event.trigger(map, 'resize');
-</script>
+    <br><br><div class="alert alert-info"><?php echo $lng['limits']?> <?php echo $tpl['limits_text'] ?></div>
