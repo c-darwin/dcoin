@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -20,7 +18,7 @@ $('#save').bind('click', function () {
 
 </script>
 
-  <legend><h2>Удаление holidays</h2></legend>
+  <h1 class="page-header">Удаление holidays</h1>
       
     <div id="sign">
 	
@@ -33,6 +31,3 @@ $('#save').bind('click', function () {
 
     </div>
 
-
-</div>
-<!-- /container -->
