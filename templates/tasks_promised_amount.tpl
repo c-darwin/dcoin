@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -65,12 +63,13 @@ $('#send_to_net').bind('click', function () {
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
-			}, function () { } );
-	fc_navigate ('tasks', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
-	
+			}, function () {
+				fc_navigate ('tasks', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
+		} );
+
 });
 
-function init (lat, lng, map_canvas, drag=true) {
+function init (lat, lng, map_canvas, drag) {
 	$("#"+map_canvas).css("display", "block");
 
 	var point = new google.maps.LatLng(lat, lng);
@@ -102,7 +101,7 @@ function init (lat, lng, map_canvas, drag=true) {
 </script>
 
 
-	<legend><h2><?php echo $lng['tasks_title_promised_amount']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['tasks_title_promised_amount']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
@@ -133,7 +132,7 @@ function init (lat, lng, map_canvas, drag=true) {
 		<?php echo $lng['location_on_map']?>
 		<div id="map_canvas" style="width: 640px; height: 480px;"></div>
 		<script>
-			init (<?php echo $tpl['data']['user_info']['latitude']?>, <?php echo $tpl['data']['user_info']['longitude']?>, 'map_canvas', false);
+			init (<?php echo $tpl['data']['user_info']['latitude']?>, <?php echo $tpl['data']['user_info']['longitude']?>, 'map_canvas');
 		</script>
 
 		<?php echo $lng['main_question']?><br>
@@ -150,5 +149,3 @@ function init (lat, lng, map_canvas, drag=true) {
     <input type="hidden" id="time" value="<?php echo time()?>">
     <input type="hidden" id="result">
     
-</div>
-<!-- /container -->
