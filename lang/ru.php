@@ -210,7 +210,7 @@ $lng['upload_face_video'] = 'Загрузите 1 видео с изображе
 $lng['upload_face_video_rules'] = '<ul><li>Продолжительность ролика должна быть от 10 до 15 секунд</li><li>Пропорции лица на фото должны быть идентичны пропорциям лица на видео</li><li>Голова должна помещаться полностью, как на примерах выше</li><li>Нельзя улыбаться или как-то еще менять выражение лица</li><li>Волосы должны быть убраны, очки сняты</li><li>Качество - четкое, как на примерах выше</li></ul>';
 $lng['upload_face_video_rules2'] = '<strong>На видео должно быть:<br></strong><ol><li>Вид лица спереди</li><li>Поворот головы в сторону левой руки</li><li>Поворот головы в сторону правой руки</li></ol>';
 
-$lng['crop_img'] = 'Выделите мышкой область на Вашем фотографии<br> и нажмите Save';
+$lng['crop_img'] = 'Выделите мышкой область на Вашей фотографии<br> и нажмите "Save"';
 $lng['put_points_on_photo'] = 'Нанесите точки на свои фото, как на примерах';
 $lng['upgrade_title'] = 'Апгрейд аккаунта до майнерского';
 $lng['your_host'] = 'Адрес, по которому Ваш нод доступен из сети';
@@ -493,5 +493,55 @@ $lng['variables_new_max_promised_amount'] = 'раз во сколько секу
 $lng['variables_new_max_other_currencies'] = 'раз во сколько секунд можно менять макс. число других валют для всех валют вместе';
 $lng['variables_cash_request_time'] = 'через сколько сек можно слать новый запрос cash_request_out, если не был создан cash_request_in с верным кодом. оно же - на сколько сек замораживается указанная в cash_request_out сумма, пока статус не станет approved. оно же - через сколько сек можно получить новый запрос, если на предыдущий не был сгенерирован cash_request_in';
 
+//new_cf_project
+$lng['new_cf_project_title'] = 'Новый проект';
+$lng['currency_name_busy'] = 'Имя занято';
+$lng['incorrect_currency_name'] = 'Некорректное имя';
+$lng['name_is_not_occupied'] = 'Название не занято';
+$lng['sent_to_DC_CF'] = 'Запрос отправлен в DC-сеть. Примерно через 5 минут Ваш проект отобразится на данной странице. Если этого не прозойдет, напишите на форум или в саппорт';
+
+$lng['cf_category'][0] = 'Разное';
+$lng['cf_category'][1] = 'Животные';
+$lng['cf_category'][2] = 'Искусство';
+$lng['cf_category'][3] = 'Танцы';
+$lng['cf_category'][4] = 'Дизайн';
+$lng['cf_category'][5] = 'Образование';
+$lng['cf_category'][6] = 'Мода';
+$lng['cf_category'][7] = 'Фильмы';
+$lng['cf_category'][8] = 'Еда';
+$lng['cf_category'][9] = 'Игры';
+$lng['cf_category'][10] = 'Здоровье';
+$lng['cf_category'][11] = 'Музыка';
+$lng['cf_category'][12] = 'Фото';
+$lng['cf_category'][13] = 'Политика';
+$lng['cf_category'][14] = 'Малый бизнес';
+$lng['cf_category'][15] = 'Спорт';
+$lng['cf_category'][16] = 'Технологии';
+$lng['cf_category'][17] = 'Театр';
+
+//my_cf_projects
+$lng['my_cf_projects_title'] = 'Мои проекты';
+
+// new_cf_project_data
+$lng['new_cf_project_data_title'] = 'Новое описание для проекта';
+$lng['edit_cf_project_data_title'] = 'Редактирование описания для проекта';
+
+// cf_catalog
+$lng['cf_projects_title'] = 'Каталог проектов';
+
+// cf_page_preview
+$lng['cf_home'] = 'Описание';
+$lng['cf_news'] = 'Новости';
+$lng['cf_funders'] = 'Спонсоры';
+$lng['cf_comments'] = 'Комментарии';
+
+//del_cf_project
+$lng['del_cf_project_title'] = 'Удаление проекта';
+
+//edit_cf_project
+$lng['cf_project_change_category_title'] = 'Изменение категории';
+
+// change_avatar
+$lng['change_avatar_title'] = 'Изменение имени и аватара';
 
 ?>
