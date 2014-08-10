@@ -4,6 +4,243 @@ defined('DC') or die('');
 
 $queries = array();
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_lang`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_lang` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `name` varchar(200) CHARACTER SET utf8 NOT NULL,
+  PRIMARY KEY (`id`)
+";
+
+$queries[] = "INSERT INTO `{$db_name}`.`{$prefix}cf_lang` (`id`, `name`) VALUES
+(1, 'English (US)'),
+(2, 'Afrikaans'),
+(3, 'Kiswahili'),
+(4, 'Türkçe'),
+(5, '‏עברית‏'),
+(6, '‏العربية‏'),
+(7, 'Español'),
+(8, 'Français (Canada)'),
+(9, 'Guarani'),
+(10, 'Português (Brasil)'),
+(11, 'Azərbaycan dili'),
+(12, 'Bahasa Indonesia'),
+(13, 'Bahasa Melayu'),
+(14, 'Basa Jawa'),
+(15, 'Bisaya'),
+(16, 'Filipino'),
+(17, 'Tiếng Việt'),
+(18, 'Հայերեն'),
+(19, '‏اردو‏'),
+(20, 'हिन्दी'),
+(21, 'বাংলা'),
+(22, 'ਪੰਜਾਬੀ'),
+(23, 'தமிழ்'),
+(24, 'తెలుగు'),
+(25, 'ಕನ್ನಡ'),
+(26, 'മലയാളം'),
+(27, 'සිංහල'),
+(28, 'ภาษาไทย'),
+(29, '한국어'),
+(30, '中文(台灣)'),
+(31, '中文(简体)'),
+(32, '中文(香港)'),
+(33, '日本語'),
+(35, 'Čeština'),
+(36, 'Magyar'),
+(37, 'Polski'),
+(38, 'Română'),
+(39, 'Slovenčina'),
+(40, 'Slovenščina'),
+(41, 'Български'),
+(42, 'Русский'),
+(43, 'Українська'),
+(45, 'Bosanski'),
+(46, 'Català'),
+(47, 'Cymraeg'),
+(48, 'Dansk'),
+(49, 'Deutsch'),
+(50, 'Eesti'),
+(51, 'English (UK)'),
+(52, 'Español (España)'),
+(53, 'Euskara'),
+(54, 'Français (France)'),
+(55, 'Galego'),
+(56, 'Hrvatski'),
+(57, 'Italiano'),
+(58, 'Latviešu'),
+(59, 'Lietuvių'),
+(60, 'Nederlands'),
+(61, 'Norsk (bokmål)'),
+(62, 'Português (Portugal)'),
+(63, 'Shqip'),
+(64, 'Suomi'),
+(65, 'Svenska'),
+(66, 'Ελληνικά'),
+(67, 'Македонски'),
+(68, 'Српски');
+";
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}my_cf_funding`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}my_cf_funding` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `from_user_id` bigint(20) NOT NULL,
+  `project_id` bigint(20) NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `del_block_id` int(11) unsigned NOT NULL COMMENT 'Блок, в котором данная транзакция была отменена',
+  `time` int(10) unsigned NOT NULL COMMENT 'Время, когда транзакцию создал юзер',
+  `block_id` int(10) unsigned NOT NULL COMMENT 'Блок, в котором данная транзакция была запечатана. При откате блока все транзакции с таким block_id будут удалены',
+  `comment` text CHARACTER SET utf8 NOT NULL,
+  `comment_status` enum('encrypted','decrypted') NOT NULL DEFAULT 'decrypted',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Нужно чтобы автор проекта мог узнать, кому какие товары отправлять';
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_user_avatar`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_user_avatar` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_cf_comments`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_cf_comments` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_new_cf_project`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_new_cf_project` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_cf_project_data`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_cf_project_data` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_cf_send_dc`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_cf_send_dc` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_comments`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_comments` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `project_id` int(11) NOT NULL,
+  `lang_id` tinyint(4) NOT NULL,
+  `comment` varchar(255) CHARACTER SET utf8 NOT NULL,
+  `time` int(11) NOT NULL COMMENT 'Для того, чтобы можно было отсчитать время до размещения следующего коммента',
+  `block_id` int(11) NOT NULL COMMENT 'Для откатов',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_funding`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_funding` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `project_id` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `currency_id` int(11) NOT NULL,
+  `time` int(11) NOT NULL COMMENT 'DC растут с юзерским %',
+  `block_id` int(11) NOT NULL COMMENT 'Для откатов',
+  `del_block_id` int(11) NOT NULL COMMENT 'Фундер передумал и до завершения проекта вернул деньги',
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
+
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_currency`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_currency` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT COMMENT 'ID идет от 1000, чтобы id CF-валют не пересекались с DC-валютами',
+  `name` char(7) NOT NULL,
+  `project_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1000;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_projects`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `currency_id` tinyint(4) NOT NULL,
+  `amount` int(11) NOT NULL,
+  `project_currency_name` char(7) NOT NULL,
+  `start_time` int(11) NOT NULL,
+  `end_time` int(11) NOT NULL,
+  `latitude` decimal(8,5) NOT NULL,
+  `longitude` decimal(8,5) NOT NULL,
+  `country` varchar(100) NOT NULL,
+  `city` varchar(100) NOT NULL,
+  `category_id` smallint(6) NOT NULL,
+  `close_block_id` int(11) NOT NULL COMMENT 'Чтобы знать, когда проект завершился и можно было бы удалить старые данные из cf_funding. Также используется для определения статус проекта - открыт/закрыт',
+  `del_block_id` int(11) NOT NULL COMMENT 'Проект был закрыт автором, а средства возвращены инвесторам',
+  `block_id` int(11) NOT NULL COMMENT 'Для откатов',
+  `log_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_projects_data`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects_data` (
+  `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `project_id` bigint(20) NOT NULL,
+  `lang_id` tinyint(4) NOT NULL,
+  `blurb_img` varchar(50) NOT NULL,
+  `head_img` varchar(50) NOT NULL,
+  `description_img` varchar(50) NOT NULL,
+  `picture` varchar(50) NOT NULL COMMENT 'Если нет видео, то выводится эта картинка',
+  `video_type` varchar(10) NOT NULL,
+  `video_url_id` varchar(50) NOT NULL,
+  `news_img` varchar(50) NOT NULL,
+  `links` varchar(512) NOT NULL,
+  `log_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`id`),
+  UNIQUE KEY `project_id` (`project_id`,`lang_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_cf_projects`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_cf_projects` (
+  `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `category_id` tinyint(4) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_cf_projects_data`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_cf_projects_data` (
+  `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `lang_id` tinyint(4) NOT NULL,
+  `blurb_img` varchar(50) NOT NULL,
+  `head_img` varchar(50) NOT NULL,
+  `description_img` varchar(50) NOT NULL,
+  `picture` varchar(50) NOT NULL,
+  `video_type` varchar(10) NOT NULL,
+  `video_url_id` varchar(50) NOT NULL,
+  `news_img` varchar(50) NOT NULL,
+  `links` varchar(512) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
+
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}abuses`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}abuses` (
   `user_id` bigint(20) unsigned NOT NULL,
@@ -613,6 +850,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_transactions` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_users`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_users` (
   `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `name` varchar(30) CHARACTER SET utf8 NOT NULL,
+  `avatar` varchar(50) NOT NULL,
   `public_key_0` varbinary(512) NOT NULL,
   `public_key_1` varbinary(512) NOT NULL,
   `public_key_2` varbinary(512) NOT NULL,
@@ -787,15 +1026,15 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions`
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `status` enum('pending','approved') NOT NULL DEFAULT 'approved' COMMENT 'pending - только при отправки DC с нашего кошелька, т.к. нужно показать юзеру, что запрос принят',
   `notification` tinyint(1) NOT NULL COMMENT 'Уведомления по sms и email',
-  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral') NOT NULL,
+  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral','cf_project','cf_project_refund') NOT NULL,
   `type_id` bigint(20) NOT NULL,
-  `to_user_id` bigint(20) NOT NULL,
+  `to_user_id` bigint(20) NOT NULL COMMENT 'Тут не всегда user_id, может быть ID проекта или cash_request',
   `amount` decimal(15,2) NOT NULL,
   `commission` decimal(15,2) NOT NULL,
   `del_block_id` int(11) unsigned NOT NULL COMMENT 'Блок, в котором данная транзакция была отменена',
   `time` int(10) unsigned NOT NULL COMMENT 'Время, когда транзакцию создал юзер',
   `block_id` int(10) unsigned NOT NULL COMMENT 'Блок, в котором данная транзакция была запечатана. При откате блока все транзакции с таким block_id будут удалены',
-  `currency_id` tinyint(3) unsigned NOT NULL,
+  `currency_id` bigint(20) unsigned NOT NULL,
   `comment` text CHARACTER SET utf8 NOT NULL COMMENT 'Если это перевод средств между юзерами или это комиссия, то тут будет расшифрованный комментарий',
   `comment_status` enum('encrypted','decrypted') NOT NULL DEFAULT 'decrypted',
   `merchant_checked` tinyint(1) unsigned NOT NULL,
@@ -1365,6 +1604,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_commission` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}users`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}users` (
   `user_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT COMMENT 'На него будут слаться деньги',
+  `name` varchar(30) CHARACTER SET utf8 NOT NULL,
+  `avatar` varchar(50) NOT NULL,
   `public_key_0` varbinary(512) NOT NULL COMMENT 'Открытый ключ которым проверяются все транзакции от юзера',
   `public_key_1` varbinary(512) NOT NULL COMMENT '2-й ключ, если есть',
   `public_key_2` varbinary(512) NOT NULL COMMENT '3-й ключ, если есть',
@@ -1459,7 +1700,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}install` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}wallets`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}wallets` (
   `user_id` bigint(20) NOT NULL AUTO_INCREMENT,
-  `currency_id` tinyint(3) unsigned NOT NULL,
+  `currency_id` bigint(20) unsigned NOT NULL,
   `amount` decimal(15,2) unsigned NOT NULL ,
   `amount_backup` decimal(15,2) unsigned NOT NULL COMMENT 'Может неравномерно обнуляться из-за обработки, а затем - отката new_reduction()',
   `last_update` int(11) NOT NULL COMMENT 'Время последнего пересчета суммы с учетом % из miner_pct',
@@ -1475,7 +1716,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}wallets_buffer` (
   `hash` binary(32) NOT NULL COMMENT 'Хэш транзакции. Нужно для удаления данных из буфера, после того, как транзакция была обработана в блоке, либо анулирована из-за ошибок при повторной проверке',
   `del_block_id` bigint(20) NOT NULL COMMENT 'Т.к. удалять нельзя из-за возможного отката блока, приходится делать delete=1, а через сутки - чистить',
   `user_id` bigint(20) NOT NULL,
-  `currency_id` tinyint(3) unsigned NOT NULL,
+  `currency_id` bigint(20) unsigned NOT NULL,
   `amount` decimal(15,2) unsigned NOT NULL ,
   `block_id` bigint(20) NOT NULL COMMENT 'Может быть = 0. Номер блока, в котором была занесена запись. Если блок в процессе фронт. проверки окажется невалдиным, то просто удалим все данные по block_id',
   PRIMARY KEY (`hash`)
