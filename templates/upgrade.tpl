@@ -1,8 +1,6 @@
 
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['upgrade_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -60,5 +58,3 @@
 
 	<!--<button class="btn btn-success" onclick="fc_navigate('upgrade_0')"><?php echo $lng['begin_upgrade']?></button>-->
 
-</div>
-<!-- /container -->
