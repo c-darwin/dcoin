@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -7,7 +5,7 @@ $('#save').bind('click', function () {
 
 	$("#change_host").css("display", "none");
 	$("#sign").css("display", "block");
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+$("#end_time").val()+','+$("#latitude").val()+','+$("#longitude").val()+','+$("#category").val());
+	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+$("#end_time").val()+','+$("#latitude").val()+','+$("#longitude").val()+','+$("#category_id").val());
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 });
@@ -23,7 +21,7 @@ $('#send_to_net').bind('click', function () {
 			'end_time' : $('#end_time').val(),
 			'latitude' : $('#latitude').val(),
 			'longitude' : $('#longitude').val(),
-			'category' : $('#category').val(),
+			'category_id' : $('#category_id').val(),
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
@@ -35,7 +33,7 @@ $('#send_to_net').bind('click', function () {
 
 </script>
 
-	<legend><h2><?php echo $lng['new_cf_project_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['new_cf_project_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
@@ -48,7 +46,7 @@ $('#send_to_net').bind('click', function () {
 				<input type="text" placeholder="end_time" id="end_time" value="<?php echo time()+3600*24*10?>"><br>
 				<input type="text" placeholder="latitude" id="latitude" value=""><br>
 				<input type="text" placeholder="longitude" id="longitude" value=""><br>
-				<input type="text" placeholder="category" id="category" value=""><br>
+				<input type="text" placeholder="category_id" id="category_id" value=""><br>
 				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
 			</fieldset>
 		</form>
@@ -59,6 +57,3 @@ $('#send_to_net').bind('click', function () {
 
 	<?php require_once( 'signatures.tpl' );?>
 
-
-</div>
-<!-- /container -->
