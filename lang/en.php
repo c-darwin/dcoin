@@ -472,4 +472,54 @@ $lng['statistic'] = 'Statistic';
 $lng['actualize_promised_amounts'] = 'Actualize promised amounts';
 $lng['actualization_promised_amounts'] = 'Actualization promised amounts';
 
+//new_cf_project
+$lng['new_cf_project_title'] = 'New project';
+$lng['currency_name_busy'] = 'Name busy';
+$lng['incorrect_currency_name'] = 'Incorrect name';
+$lng['name_is_not_occupied'] = 'Name is not occupied';
+$lng['sent_to_DC_CF'] = 'Request sent to the DC-network. After about 5 minutes, your project will appear on this page. If this is not prozoydet write on a forum or in a support';
+$lng['cf_category'][0] = 'Other';
+$lng['cf_category'][1] = 'Animals';
+$lng['cf_category'][2] = 'Art';
+$lng['cf_category'][3] = 'Dance';
+$lng['cf_category'][4] = 'Design';
+$lng['cf_category'][5] = 'Education';
+$lng['cf_category'][6] = 'Fashion';
+$lng['cf_category'][7] = 'Film';
+$lng['cf_category'][8] = 'Food';
+$lng['cf_category'][9] = 'Gaming';
+$lng['cf_category'][10] = 'Health';
+$lng['cf_category'][11] = 'Music';
+$lng['cf_category'][12] = 'Photography';
+$lng['cf_category'][13] = 'Politics';
+$lng['cf_category'][14] = 'Small Business ';
+$lng['cf_category'][15] = 'Sports';
+$lng['cf_category'][16] = 'Technology';
+$lng['cf_category'][17] = 'Theater';
+
+//my_cf_projects
+$lng['my_cf_projects_title'] = 'My projects';
+
+// new_cf_project_data
+$lng['new_cf_project_data_title'] = 'New description for project';
+$lng['edit_cf_project_data_title'] = 'Edit description for project';
+
+// cf_catalog
+$lng['cf_projects_title'] = 'Projects';
+
+// cf_page_preview
+$lng['cf_home'] = 'Home';
+$lng['cf_news'] = 'News';
+$lng['cf_funders'] = 'Funders';
+$lng['cf_comments'] = 'Comments';
+
+//del_cf_project
+$lng['del_cf_project_title'] = 'Deleting a Project';
+
+//edit_cf_project
+$lng['cf_project_change_category_title'] = 'Changing category';
+
+// change_avatar
+$lng['change_avatar_title'] = 'Changing the name and avatar';
+
 ?>
