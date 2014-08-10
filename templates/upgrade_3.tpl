@@ -1,8 +1,6 @@
-<!-- container -->
-<div class="container">
 
 
-	<legend><h2><?php echo $lng['upgrade_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
 	
     <ul class="nav nav-tabs">
 		<li><a href="#" onclick="fc_navigate('upgrade_0')">Step 0</a></li>
@@ -19,7 +17,7 @@
 <br>
 	<div class="alert alert-error" id="alert" style="display: none"><?php echo $lng['invalid_host']?></div>
 
-	<input type="text" id="host" value="<?php echo $tpl['data']['host']?>">
+	<input class="form-control" style="width:300px" type="text" id="host" value="<?php echo $tpl['data']['host']?>">
 	<br>
 	<?php echo $lng['host_example']?>
 	<script>
@@ -40,8 +38,3 @@
 	
 	
 	<br><br><br><br><br><br><br>
-		
-       
-
-</div>
-<!-- /container -->
