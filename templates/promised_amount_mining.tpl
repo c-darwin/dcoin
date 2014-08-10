@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -24,7 +22,7 @@ $('#send_to_net').bind('click', function () {
 } );
 
 </script>
-  <legend><h2><?php echo $lng['mining']?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['mining']?></h1>
 
     <div id="sign_banknote">
 	
@@ -47,5 +45,3 @@ $('#send_to_net').bind('click', function () {
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
 
-</div>
-<!-- /container -->
