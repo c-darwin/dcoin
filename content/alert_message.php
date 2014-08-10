@@ -37,19 +37,19 @@ if ($data['message']) {
 }
 
 if ($show) {
-	print "<div class=\"container\"><script>
+	print "
+			<script>
 			$('#close_alert').bind('click', function () {
 				$.post( 'ajax/close_alert.php', {
 					'id' : '{$data['id']}'
 				} );
 			});
 			</script>
-			<div class='alert alert-error' >
-			    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-			    <h4>Warning!</h4>
+			 <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
+			 <h4>Warning!</h4>
 			    {$data['message']}
-			    </div>
-			    </div>";
+			  </div>
+			  ";
 }
 
 // сообщение о новой версии движка
@@ -106,12 +106,12 @@ if ($new_max_ver && $my_ver) {
 					});
 				});
 			</script>
-			<div class=\"container\"><div class='alert alert-error' >
-			    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
+
+			<div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
 			    <h4>Warning!</h4>
 			   <div id='new_version_text'>{$lng['new_version']}</div>
-			    </div>
-			    </div>";
+			 </div>
+			 ";
 }
 
 if (empty($_SESSION['restricted']) && !defined('COMMUNITY')) {
@@ -122,12 +122,12 @@ if (empty($_SESSION['restricted']) && !defined('COMMUNITY')) {
 		$diff = intval(ntp_time());
 		if ($diff > $variables_['alert_error_time']) {
 			$lng['alert_time'] = str_ireplace('[sec]', $diff, $lng['alert_time']);
-			echo "<div class=\"container\"><div class='alert alert-error' >
-				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-				    <h4>Warning!</h4>
-				   <div>{$lng['alert_time']}</div>
-				    </div>
-				    </div>";
+			echo "
+					 <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
+				     <h4>Warning!</h4>
+				     <div>{$lng['alert_time']}</div>
+				     </div>
+				     ";
 		}
 	}
 }
@@ -153,12 +153,12 @@ if (empty($_SESSION['restricted'])) {
 				", 'fetch_one');
 		$my_miner_id = get_my_miner_id($db);
 		if (!$my_node_key && $my_miner_id>0) {
-			echo "<div class=\"container\"><div class='alert alert-error' >
-				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-				    <h4>Warning!</h4>
-				   <div>{$lng['alert_change_node_key']}</div>
-				    </div>
-				    </div>";
+			echo "
+					 <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
+				     <h4>Warning!</h4>
+				     <div>{$lng['alert_change_node_key']}</div>
+				     </div>
+				     ";
 		}
 	//}
 }
@@ -166,12 +166,12 @@ if (empty($_SESSION['restricted'])) {
 $skip_community = array('node_config', 'nulling', 'start_stop');
 $skip_restricted_users = array('node_config', 'change_node_key', 'nulling', 'start_stop', 'cash_requests_in', 'cash_requests_out', 'upgrade', 'notifications');
 if ( (!node_admin_access($db) && in_array($tpl_name, $skip_community)) ||  (!empty($_SESSION['restricted']) && in_array($tpl_name, $skip_restricted_users)) ) {
-	echo "<div class=\"container\"><div class='alert alert-error' >
-				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-				    <h4>Warning!</h4>
-				   <div>{$lng['permission_denied']}</div>
-				    </div>
-				    </div>";
+	echo "
+			  <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
+			  <h4>Warning!</h4>
+			  <div>{$lng['permission_denied']}</div>
+			  </div>
+			  ";
 
 }
 
@@ -187,12 +187,12 @@ if (in_array($tpl_name, $miners_only)) {
 			", 'fetch_one');
 	//print $db->printsql();
 	if (!$miner_id) {
-		echo "<div class=\"container\"><div class='alert alert-error' >
-				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-				    <h4>Warning!</h4>
-				   <div>{$lng['only_for_miners']}</div>
-				    </div>
-				    </div>";
+		echo "
+				 <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
+				 <h4>Warning!</h4>
+				 <div>{$lng['only_for_miners']}</div>
+				 </div>
+				 ";
 	}
 }
 
@@ -206,12 +206,12 @@ if (in_array($tpl_name, $primary_key_alert)) {
 			LIMIT 1
 			", 'fetch_one');
 	if (!$log_id) {
-		echo "<div class=\"container\"><div class='alert alert-error' >
-				    <button id='close_alert' type='button' class='close' data-dismiss='alert'>&times;</button>
-				    <h4>Warning!</h4>
-				   <div>{$lng['alert_change_primary_key']}</div>
-				    </div>
-				    </div>";
+		echo "
+				  <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
+				  <h4>Warning!</h4>
+				  <div>{$lng['alert_change_primary_key']}</div>
+				  </div>
+				  ";
 	}
 }
 
