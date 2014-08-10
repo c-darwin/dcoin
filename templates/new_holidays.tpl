@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 <script>
 		
 function add_holidays() {
@@ -77,7 +75,7 @@ endDateTextBox.datetimepicker({
 });
 
 	</script>
-  <legend><h2><?php echo $lng['new_holidays_title'] ?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['new_holidays_title'] ?></h1>
 
     <div id="add_holidays">
 
@@ -95,7 +93,3 @@ endDateTextBox.datetimepicker({
     </div>
 
 	<?php require_once( 'signatures.tpl' );?>
-
-
-</div>
-<!-- /container -->
