@@ -24,8 +24,6 @@
 <script type="text/javascript" src="js/uploader.js"></script>
 <script src="js/js.js"></script>
 
-<!-- container -->
-<div class="container">
 
 <script>
 	var max_promised_amounts = new Array();
@@ -129,7 +127,7 @@ $( "#currency_id" ).change(function () {
 
 
 </script>
-  <legend><h2><?php echo $lng['promised_amount_add_title']?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['promised_amount_add_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -217,6 +215,3 @@ $( "#currency_id" ).change(function () {
     
 	<?php require_once( 'signatures.tpl' );?>
 
-
-</div>
-<!-- /container -->
