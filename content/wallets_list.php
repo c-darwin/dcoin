@@ -8,9 +8,7 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 $tpl['alert'] = @$_REQUEST['parameters']['alert'];
 
 // валюты
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, 'SELECT `id`, `name` FROM `'.DB_PREFIX.'currency` ORDER BY `name`' );
-while ($row = $db->fetchArray($res)) 
-	$tpl['currency_list'][$row['id']] = $row['name'];
+$tpl['currency_list'] = get_currency_list($db, 'full');
 
 $tpl['user_id'] = $_SESSION['user_id'];
 
@@ -63,12 +61,15 @@ if ($tpl['user_id']!='wait') {
 
 //$tpl['variables'] = ParseData::get_variables ($db,  array('node_commission') );
 
-$tpl['data']['type'] = 'send_dc';
-$tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
+$tpl['data']['user_type'] = 'send_dc';
+$tpl['data']['project_type'] = 'cf_send_dc';
+$tpl['data']['user_type_id'] = ParseData::findType($tpl['data']['user_type']);
+$tpl['data']['project_type_id'] = ParseData::findType($tpl['data']['project_type']);
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
+$tpl['data']['current_block_id'] = get_block_id($db);
 
-$names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','from_repaid'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission', 'referral'=>'referral');
+$names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','from_repaid'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission', 'referral'=>'referral', 'cf_project'=>'Crowd funding', 'cf_project_refund'=>'Crowd funding refund');
 
 $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `miner_id`
@@ -76,6 +77,11 @@ $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __
 		WHERE `user_id` = {$user_id}
 		LIMIT 1
 		", 'fetch_one' );
+
+// если юзер кликнул по кнопку "профинансировать" со страницы проекта
+if ($_REQUEST['parameters']['project_id']){
+	$tpl['cf_project_id'] = intval($_REQUEST['parameters']['project_id']);
+}
 
 require_once( ABSPATH . 'templates/wallets_list.tpl' );
 
