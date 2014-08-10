@@ -190,6 +190,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		FROM `".DB_PREFIX."promised_amount`
 		WHERE `status` = 'mining' AND
 					 `del_block_id` = 0 AND
+					 `del_mining_block_id` = 0 AND
 					  (`cash_request_out_time` = 0 OR `cash_request_out_time` > ".($time - $variables['cash_request_time']).")
 		GROUP BY `currency_id`
 		");
