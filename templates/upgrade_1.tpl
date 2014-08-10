@@ -1,32 +1,14 @@
-
-<script src="js/jquery.min.js"></script>
+<!--
+<script src="js/jquery.min.js"></script>-->
 <script src="js/jquery.Jcrop.js"></script>
+
 <link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
 
-
-
+<!--
 	<script src="js/jquery.Jcrop.js"></script>
-
+-->
 	<script type="text/javascript">
-	jQuery(function($){
 
-		$('#target1').Jcrop({
-            onSelect: showCoords,
-            onChange: showCoords,
-            bgColor:     'black',
-            bgOpacity:   .4,
-            aspectRatio: 9/16
-		});
-		
-		$('#target2').Jcrop({
-            onSelect: showCoords,
-            onChange: showCoords,
-            bgColor:     'black',
-            bgOpacity:   .4,
-            aspectRatio: 9/16
-		});
-
-	});
 	
 	function showCoords_user_face_coords(c) {
 		$('#user_face_coords').text(c.x+';'+c.y+';'+c.x2+';'+c.y2+';'+c.w+';'+c.h);
@@ -38,8 +20,9 @@
 
 	</script>
 
+<!--
 	<link rel="stylesheet" href="js/jquery.Jcrop.css" type="text/css" />
-
+--->
 
 <style>
 		.progress {
@@ -64,9 +47,10 @@
 		}
 
 	</style>
-	
-	
+
+
 	<script type="text/javascript" src="js/uploader.js"></script>
+
 	<script type="text/javascript">
 		
 		function send_crop (type, coords, img_id) {
@@ -175,10 +159,8 @@
 <script src="js/js.js"></script>
 	
 
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['upgrade_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
 	
     <ul class="nav nav-tabs">
 		<li><a href="#" onclick="fc_navigate('upgrade_0')">Step 0</a></li>
@@ -269,7 +251,7 @@
 					</td></tr></table>
 						<br>
 
-						<div id="video" style="display: none"><video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="468" data-setup="{}"><source src="public/user_video.mp4" type='video/mp4' /><source src="public/user_video.webm" type='video/webm' /><source src="public/user_video.ogv" type='video/ogg' /></video></div>
+						<div id="video" style="display: none"><video id="example_video_1" class="video-js vjs-default-skin" controls preload="none" width="640" height="468" data-setup="{}"><source src="public/<?php echo $user_id ?>_user_video.mp4" type='video/mp4' /><source src="public/<?php echo $user_id ?>_user_video.webm" type='video/webm' /><source src="public/<?php echo $user_id ?>_user_video.ogv" type='video/ogg' /></video></div>
 
 					</td></tr>
 			<?php
@@ -309,6 +291,3 @@
 	
 	<div class="for-signature"></div>
        
-
-</div>
-<!-- /container -->
