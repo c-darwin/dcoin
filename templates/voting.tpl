@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -141,8 +139,12 @@ ArraySort = function(array, sortFunc){
 };
 
 
+$( "select" ).addClass( "form-control" );
+$( "select").width(100);
+
+
 </script>
-	<legend><h2><?php echo $lng['voting']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['voting']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -157,7 +159,7 @@ ArraySort = function(array, sortFunc){
 		<tr><th><?php echo $lng['currency']?></th><th><?php echo $lng['voting_miner_pct']?></th><th><?php echo $lng['voting_user_pct']?></th><th><?php echo $lng['voting_max_promised_amount']?></th><th><?php echo $lng['voting_max_other_currencies']?></th><th><?php echo $lng['voting_reduction']?></th></tr>
 		<?php
 		 foreach($tpl['promised_amount_currency_list'] as $currency_id=>$data) {
-			print "<tr><td>D{$data['name']}<input type='hidden' name='currency_id' value='{$currency_id}'></td><td><select style='width: 80px' name='miner_pct'>";
+			print "<tr><td>D{$data['name']}<input type='hidden' name='currency_id' value='{$currency_id}'></td><td><select  style='width: 150px' name='miner_pct'>";
 			foreach($tpl['AllPct'] as $pct_y=>$pct_sec) {
 				if ($data['votes_miner_pct'] == $pct_sec)
 					$sel = 'selected';
@@ -165,7 +167,7 @@ ArraySort = function(array, sortFunc){
 					$sel = '';
 				print "<option value='{$pct_sec}' {$sel}>{$pct_y}</option>";
 			}
-			print "</select></td><td><select style='width: 80px' name='user_pct'>";
+			print "</select></td><td><select style='width: 150px' name='user_pct'>";
 			foreach($tpl['AllPct'] as $pct_y=>$pct_sec) {
 				if ($data['votes_user_pct'] == $pct_sec)
 					$sel = 'selected';
@@ -173,7 +175,7 @@ ArraySort = function(array, sortFunc){
 					$sel = '';
 				print "<option value='{$pct_sec}' {$sel}>{$pct_y}</option>";
 			}
-			print "</select></td><td><select style='width: 80px' name='max_promised_amount'>";
+			print "</select></td><td><select style='width: 150px' name='max_promised_amount'>";
 			foreach($tpl['AllMaxPromisedAmount'] as $amount) {
 					if ($data['votes_max_promised_amount'] == $amount)
 					$sel = 'selected';
@@ -181,7 +183,7 @@ ArraySort = function(array, sortFunc){
 					$sel = '';
 				print "<option {$sel}>{$amount}</option>";
 			}
-			print "</select></td><td><select style='width: 80px' name='max_other_currencies'>";
+			print "</select></td><td><select style='width: 150px' name='max_other_currencies'>";
 			for ($i=0; $i<$tpl['max_currency_id']; $i++){
 					if ($data['votes_max_other_currencies'] == $i)
 					$sel = 'selected';
@@ -189,7 +191,7 @@ ArraySort = function(array, sortFunc){
 					$sel = '';
 				print "<option {$sel}>{$i}</option>";
 			}
-			print "</select></td><td><select style='width: 80px' name='reduction'><option>0</option><option>10</option><option>25</option><option>50</option><option>90</option></select></td></tr>";
+			print "</select></td><td><select style='width: 150px' name='reduction'><option>0</option><option>10</option><option>25</option><option>50</option><option>90</option></select></td></tr>";
 		}
 		?>
 	</table>
@@ -224,6 +226,3 @@ ArraySort = function(array, sortFunc){
 
 	<?php require_once( 'signatures.tpl' );?>
 
-    
-</div>
-<!-- /container -->
