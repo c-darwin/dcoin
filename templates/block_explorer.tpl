@@ -1,65 +1,37 @@
-<!-- container -->
+<script>
+$('#show_block').bind('click', function () {
+	fc_navigate('block_explorer', {'block_id':$('#block_id').val()});
+});
+</script>
 
 <link href="css2/cf.css?2" rel="stylesheet">
 
-<h1 class="page-header"><?php echo $lng['cf_projects_title']?></h1>
+<h1 class="page-header">Block explorer</h1>
 
-<!--	<div class="width_max" style="margin-bottom:70px">
-		<ul class="nav navbar-nav navbar-left" style="padding-top:10px">
-			<button type="button" class="btn btn-outline btn-default">Explore</button>
-			<button type="button" class="btn btn-outline btn-default">Start your campaign</button>
-		</ul>
-
-		<ul class="nav navbar-nav navbar-right">
-			<li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Language <span class="caret"></span></a>
-				<ul class="dropdown-menu" role="menu">
-					<li><a href="#">Русский</a></li>
-					<li><a href="#">English</a></li>
-				</ul>
-			</li>
-		</ul>
-
-	</div>
--->
-	<div style="float:left; width:900px; overflow:auto;">
-		<!--
-		   http://imgur.com/zma79Bx
-		   http://imgur.com/o8HV06A-->
-
-		<div style="float:left; width:720px; overflow:auto; min-height: 800px">
-		<?php
-			foreach ($tpl['projects'] as $project_id=>$data) {
-			?>
-			<div class="well project-card" style="float:left; margin-right:20px">
-				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?>, 'lang_id':<?php echo $data['lang_id']?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
-				<div>
-					<div class="card-location" style="margin-top:10px;font-size: 13px;"><a href="#"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></a></div>
-					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: 0%;"></div></div>
-					<div class="card-bottom">
-						<div style="float:left; overflow:auto; padding-right:10px"><h5>0%</h5>funded</div>
-						<div style="float:left; overflow:auto; padding-right:10px"><h5>0 DRUB </h5>pledged</div>
-						<div style="float:left; overflow:auto;"><h5>90</h5>days to go</div>
-					</div>
-				</div>
-			</div>
-			<?php
-			}
-		?>
+<?php
+if (!$tpl['start'] && !$tpl['block_id']) {
+?>
+	<div id="search_block">
+		<div class="form-group">
+			<label>Search block</label>
+			<input class="form-control" style="width: 300px" id="block_id" placeholder="block_id">
 		</div>
-
-		<div class="menu">
-
-			<h3><i class="fa  fa-folder-open-o  fa-fw"></i> Categories</h3>
-			<ul class="navigation">
-				<?php
-
-				foreach ($lng['cf_category'] as $id=>$name )
-					echo "<li><a href='#' onclick=\"fc_navigate('cf_catalog', {'category_id':{$id}})\">{$name}</a></li>";
-				?>
-			</ul>
+		<div class="form-group">
+			<button id="show_block" class="btn btn-primary" type="button">OK</button>
 		</div>
 	</div>
+<?php
+}
+?>
 
-
-
+<?php
+if ($tpl['block_id']) {
+?>
+	<ol class="breadcrumb">
+	<li><a href="#"onclick="fc_navigate('block_explorer')">Block exporer</a></li>
+	<li class="active"><?php echo $tpl['block_id']?></li>
+	</ol>
+<?php
+}
+?>
+<?php echo $tpl['data']?>
