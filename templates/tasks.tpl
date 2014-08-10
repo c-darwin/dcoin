@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script src="js/spots.js"></script>
 <script>
@@ -61,7 +59,7 @@ $('#send_to_net').bind('click', function () {
 } );
 	
 </script>
-	<legend id="title"><h2><?php echo $lng['tasks_title']?></h2></legend>
+	<legend id="title"><h2><?php echo $lng['tasks_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	<!-- S T E P   1 -->
 	
@@ -204,5 +202,3 @@ coords.getObject("profile").init({
     <input type="hidden" id="contender_id" value="<?php echo $tpl['user_info']['user_id']?>">
     <input type="hidden" id="result" value="">
     
-</div>
-<!-- /container -->
