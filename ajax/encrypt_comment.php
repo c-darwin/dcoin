@@ -21,12 +21,25 @@ require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$to_user_id = $_REQUEST['to_user_id'];
-if ( !check_input_data ($to_user_id , 'int') )
-	die('error to_user_id');
+$to_id = $_REQUEST['to_id'];
+if (!$to_id)
+	$to_id = $_REQUEST['to_user_id'];
+if ( !check_input_data ($to_id , 'int') )
+	die('error $to_id');
 
 if (strlen($_REQUEST['comment'])>1024)
 	die('error comment');
+
+if ($_REQUEST['type'] == 'project') {
+	$to_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `user_id`
+			FROM `".DB_PREFIX."cf_projects`
+			WHERE `id` = {$to_id}
+			LIMIT 1
+			", 'fetch_one' );
+}
+else
+	$to_user_id = $to_id;
 
 // если получатель майнер, тогда шифруем нодовским ключем
 $miners_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -36,7 +49,7 @@ $miners_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METH
 		WHERE `user_id` = {$to_user_id}
 		LIMIT 1
 		", 'fetch_array' );
-if ($miners_data['miner_id'] > 0 && $_POST['type']!='cash_request' && $_POST['type']!='bug_reporting')
+if ($miners_data['miner_id'] > 0 && $_POST['type']!='cash_request' && $_POST['type']!='bug_reporting' && $_POST['type']!='project')
 	$public_key = $miners_data['node_public_key'];
 else
 	$public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
