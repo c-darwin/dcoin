@@ -1,4 +1,4 @@
-<!-- container -->
+
 <script>
 	$('#currency_ok').bind('click', function () {
 		fc_navigate ('currency_exchange', {'buy_currency_id': $('#buy_currency_id').val(), 'sell_currency_id': $('#sell_currency_id').val()} );
@@ -97,15 +97,19 @@
 
 	} );
 </script>
-<div class="container">
 
-	<legend><h2><?php echo $lng['currency_exchange']?></h2></legend>
+<h1><?php echo $lng['currency_exchange']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#"onclick="fc_navigate('wallets_list')">Мои кошельки</a></li>
+	<li class="active"><?php echo $lng['currency_exchange']?></li>
+</ol>
+
 
 	<div style="width: 700px" id="main">
 	<p><?php echo $lng['forex_alert'] ?></p>
 	<div style="text-align: center; width: 100%;">
 	<div class="form-inline" style="padding-bottom: 10px">
-		<select id="buy_currency_id" style="width: 100px">
+		<select id="buy_currency_id" style="width: 100px" class="form-control" >
 		<?php
 		foreach ($tpl['currency_list_name'] as $id => $name) {
 			if ($id == @$tpl['buy_currency_id'])
@@ -116,7 +120,7 @@
 			}
 		?>
 		</select> /
-			<select id="sell_currency_id" style="width: 100px">
+			<select id="sell_currency_id" style="width: 100px" class="form-control" >
 				<?php
 		foreach ($tpl['currency_list_name'] as $id => $name) {
 				if ($id == @$tpl['sell_currency_id'])
@@ -139,10 +143,10 @@
 		<tr><td>
 			<table>
 				<caption><strong><?php echo "{$lng['buy']} {$tpl['buy_currency_name']}"?></strong></caption>
-				<tr><td><?php echo "{$lng['amount_currency']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="buy_amount" class="input-mini"></td></tr>
-				<tr><td><?php echo "{$lng['price_per']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="buy_price" class="input-mini"> <?php echo $tpl['sell_currency_name']?></td></tr>
+				<tr><td><?php echo "{$lng['amount_currency']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="buy_amount" class="input-mini form-control"></td></tr>
+				<tr><td><?php echo "{$lng['price_per']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="buy_price" class="input-mini form-control"> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr style="height: 40px"><td><?php echo $lng['total']?>: </td><td><span id="buy_total">0</span> <?php echo $tpl['sell_currency_name']?></td></tr>
-				<tr><td><?php echo $lng['commission']?>: </td><td><input type="text" id="buy_commission" class="input-mini"> <?php echo $tpl['sell_currency_name']?></td></tr>
+				<tr><td><?php echo $lng['commission']?>: </td><td><input type="text" id="buy_commission" class="input-mini form-control"> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr style="height: 40px"><td>Your balance: </td><td><?php echo @$tpl['wallets_amounts'][$tpl['sell_currency_id']].' '.$tpl['sell_currency_name']?></td></tr>
 			</table>
 			<button class="btn" id="buy_button"><?php echo "{$lng['buy']} {$tpl['buy_currency_name']}"?></button>
@@ -166,10 +170,10 @@
 		<td style="vertical-align: top">
 			<table>
 				<caption><strong><?php echo "{$lng['sell']} {$tpl['buy_currency_name']}"?></strong></caption>
-				<tr><td><?php echo "{$lng['amount_currency']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="sell_amount" class="input-mini"></td></tr>
-				<tr><td><?php echo "{$lng['price_per']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="sell_price" class="input-mini"> <?php echo $tpl['sell_currency_name']?></td></tr>
+				<tr><td><?php echo "{$lng['amount_currency']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="sell_amount" class="input-mini form-control"></td></tr>
+				<tr><td><?php echo "{$lng['price_per']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="sell_price" class="input-mini form-control"> <?php echo $tpl['sell_currency_name']?></td></tr>
 				<tr style="height: 40px"><td><?php echo $lng['total']?>: </td><td><span id="sell_total">0</span> <?php echo $tpl['sell_currency_name']?></td></tr>
-				<tr><td><?php echo $lng['commission']?>: </td><td><input type="text" id="sell_commission" class="input-mini"> <?php echo $tpl['buy_currency_name']?></td></tr>
+				<tr><td><?php echo $lng['commission']?>: </td><td><input type="text" id="sell_commission" class="input-mini form-control"> <?php echo $tpl['buy_currency_name']?></td></tr>
 				<tr style="height: 40px"><td>Your balance: </td><td><?php echo @$tpl['wallets_amounts'][$tpl['buy_currency_id']].' '.$tpl['buy_currency_name']?></td></tr>
 			</table>
 			<button class="btn" id="sell_button"><?php echo "{$lng['sell']} {$tpl['buy_currency_name']}"?></button>
@@ -211,7 +215,3 @@
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>
-
-</div>
-
-<!-- /container -->
