@@ -10,8 +10,6 @@
 </style>
 
 
-<!-- container -->
-<div class="container">
 
 <script type="text/javascript">
 	$('#comment').keyup(function () {
@@ -184,7 +182,7 @@ $('#send_amount').keyup(function(e) {
 
 </script>
 
-	<legend><h2><?php echo $lng['cash_request_out_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['cash_request_out_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -269,7 +267,5 @@ $('#send_amount').keyup(function(e) {
 <input type="hidden" id="hash_code" value="<?php echo $tpl['hash_code']?>">
 <input type="hidden" id="code" value="<?php echo $tpl['code']?>">
 
-	
-</div>
-<!-- /container -->
+
 
