@@ -23,6 +23,11 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_min'][$row['id']] = $min_commission_array[$row['name']];
 }
 
+// для CF-проектов
+$tpl['currency_list'][1000] = 'Crowdfunding';
+$tpl['currency_min'][1000] = '0.01';
+
+
 if (empty($_SESSION['restricted'])) {
 	$res= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 			SELECT *
