@@ -1,9 +1,8 @@
-<!-- container -->
-<div class="container">
+
 
 <script src="js/spots.js?r=<?php print rand(0, 99999)?>"></script>
 
-	<legend><h2><?php echo $lng['upgrade_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
 	
     <ul class="nav nav-tabs">
 		<li><a href="#" onclick="fc_navigate('upgrade_0')">Step 0</a></li>
@@ -96,6 +95,3 @@ coords.getObject("profile").init({
 	
 	<div class="for-signature"></div>
        
-
-</div>
-<!-- /container -->
