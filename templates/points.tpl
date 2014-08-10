@@ -1,7 +1,5 @@
-<!-- container -->
-<div class="container">
 
-	<legend><h2><?php echo $lng['points']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['points']?></h1>
 	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
 
 <?php echo $lng['points_min']?>:<br>
@@ -29,7 +27,3 @@ echo $lng['points_votes_period'];
 	}
 
 ?>
-
-
-</div>
-<!-- /container -->
