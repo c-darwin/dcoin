@@ -61,6 +61,16 @@ function check_input_data ($data, $type, $info='')
 {
 	switch ($type) {
 
+		case 'cf_currency_name':
+			if ( preg_match ("/^[A-Z0-9]{7}$/D", $data))
+				return true;
+			break;
+
+		case 'user_name' :
+			if ( preg_match ("/^[\w\s]{1,30}$/Di", $data))
+				return true;
+			break;
+
 		case 'reduction_type' :
 			if ( preg_match ("/^(manual|promised_amount)$/D", $data))
 				return true;
@@ -336,6 +346,24 @@ function check_input_data ($data, $type, $info='')
 				return true;
 			break;
 
+		case 'img_url':
+
+			$regex = "https?\:\/\/"; // SCHEME
+			$regex .= "[a-z0-9-.]*\.[a-z]{2,4}"; // Host or IP
+			$regex .= "(\:[0-9]{2,5})?"; // Port
+			$regex .= "(\/[a-z0-9_-]+)*\/?"; // Path
+			$regex .= "\.(png|jpg)"; // Img
+			if (preg_match('/^'.$regex.'$/iD', $data) && strlen($data) < 50)
+				return true;
+			break;
+
+		case 'cf_links':
+
+			$regex = '\["https?\:\/\/(goo\.gl|bit\.ly|t\.co)\/[0-9a-z_-]+",[0-9]+,[0-9]+,[0-9]+,[0-9]+\]';
+			if (preg_match('/^\['.$regex.'(\,'.$regex.')?\]$/iD', $data) && strlen($data) < 512)
+				return true;
+			break;
+
 		case 'video_url_id':
 
 			if (preg_match('/^([0-9a-z_-]{5,32}|null)$/iD', $data))
@@ -393,10 +421,16 @@ function check_input_data ($data, $type, $info='')
 				return true;
 			break;
 
+		case 'cf_comment':
+
+			if (preg_match('/^[\pL0-9\,\s\.\-\:\=\;\?\!\%\)\(\@\/]{1,140}$/iD', $data))
+				return true;
+			break;
+
 		case 'vote_comment':
 		case 'abuse_comment': // комментарий к абузе на майнера
 
-			if (preg_match('/^[0-9a-z\,\s\.\-]{1,255}$/D', $data))
+			if (preg_match('/^[0-9a-z\,\s\.\-]{1,255}$/iD', $data))
 				return true;
 			break;
 
@@ -437,12 +471,23 @@ function check_input_data ($data, $type, $info='')
 
 			break;
 
+		case 'tinyint':
+
+			if (!preg_match('/^[0-9]{1,3}$/D', $data))
+				return false;
+			if ($data > 127)
+				return false;
+			return true;
+
+			break;
+
 		case 'smallint':
 
 			if (!preg_match('/^[0-9]{1,5}$/D', $data))
 				return false;
 			if ($data > 65535)
 				return false;
+			return true;
 
 			break;
 			
@@ -732,17 +777,142 @@ function send_sms($sms_http_get_request, $text) {
 
 }
 
-function get_currency_list($db)
+function get_lang()
+{
+	global $default_lang;
+	if (!isset($lang)) {
+		if (@$_SESSION['lang'])
+			$lang = $_SESSION['lang'];
+		else if (@$_COOKIE['lang'])
+			$lang = $_COOKIE['lang'];
+	}
+	if (!@$lang)
+		$lang = $default_lang;
+	if (!preg_match('/^[a-z]{2}$/iD', $lang))
+		$lang = 'en';
+	return $lang;
+}
+
+function get_currency_list($db, $cf=false)
 {
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `id`,
-					  `name`
-		FROM `'.DB_PREFIX.'currency`
-		 ORDER BY `name`
-		 ');
+			SELECT `id`,
+						  `name`
+			FROM `'.DB_PREFIX.'currency`
+			 ORDER BY `name`
+			 ');
 	while ($row = $db->fetchArray($res))
 		$currency_list[$row['id']] = $row['name'];
+	if ($cf) {
+		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT `id`,
+						  `name`
+			FROM `'.DB_PREFIX.'cf_currency`
+			ORDER BY `name`
+			');
+		while ($row = $db->fetchArray($res))
+			$currency_list[$row['id']] = $row['name'];
+	}
 	return $currency_list;
+}
+
+function make_currency_name($id)
+{
+	if ($id>=1000)
+		return '';
+	else
+		return 'D';
+}
+
+
+function project_data($project_data)
+{
+	global $db;
+	// наличие описаний
+	$row['lang'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `id`,
+						  `lang_id`
+			FROM `".DB_PREFIX."cf_projects_data`
+			WHERE `project_id` = {$project_data['id']}
+			", 'list', array('id', 'lang_id'));
+
+	// и картинка для обложки
+	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `blurb_img`,
+						 `lang_id`
+			FROM `".DB_PREFIX."cf_projects_data`
+			WHERE `project_id` = {$project_data['id']}
+			ORDER BY `id` ASC
+			LIMIT 1
+			", 'fetch_array');
+	$row['blurb_img'] = $data['blurb_img'];
+	$row['lang_id'] = $data['lang_id'];
+	if (!$row['blurb_img'])
+		$row['blurb_img'] = 'img/cf_blurb_img.png';
+
+	// сколько собрано
+	$row['funding_amount'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT sum(`amount`)
+			FROM `".DB_PREFIX."cf_funding`
+			WHERE `project_id` = {$project_data['id']} AND
+			             `del_block_id` = 0
+			LIMIT 1
+			", 'fetch_one');
+
+	// % собрано
+	$row['pct'] = round($row['funding_amount'] / $project_data['amount']* 100);
+
+	$row['funding_amount'] = round($row['funding_amount']);
+
+	// дней до окончания
+	$row['days'] = round(($project_data['end_time'] - time()) / 3600*24);
+	$row['days'] = $row['days']<0?0:$row['days'];
+
+	return $row;
+}
+
+function get_cf_author_name($db, $user_id)
+{
+	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `name`,
+						 `avatar`
+			FROM `".DB_PREFIX."users`
+			WHERE `user_id` = {$user_id}
+			", 'fetch_array');
+	if (!$data['avatar'])
+		$data['avatar'] = 'img/noavatar.png';
+	if (!$data['name'])
+		$data['name'] = 'Noname';
+
+	// сколько проектов создал
+	$data['created'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT count(`id`)
+			FROM `".DB_PREFIX."cf_projects`
+			WHERE `user_id` = {$user_id}
+			", 'fetch_one');
+
+	// сколько проектов профинсировал
+	$data['backed'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `project_id`
+			FROM `".DB_PREFIX."cf_funding`
+			WHERE `user_id` = {$user_id}
+			GROUP BY `project_id`
+			", 'num_rows');
+
+	return $data;
+}
+
+function get_all_cf_lng($db)
+{
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT `id`,
+						  `name`
+			FROM `'.DB_PREFIX.'cf_lang`
+			ORDER BY `name`
+			');
+	while ($row = $db->fetchArray($res))
+		$lang[$row['id']] = $row['name'];
+	return $lang;
 }
 
 function get_block_id($db)
