@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 $('#generate_change_node_key').bind('click', function () {
@@ -38,7 +36,7 @@ $('#send_to_net').bind('click', function () {
 
 </script>
 
-	<legend><h2><?php echo $lng['change_node_key_title']?></h2></legend>
+	<h1 class="page-header"><?php echo $lng['change_node_key_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
 	<div id="generate">
@@ -49,6 +47,3 @@ $('#send_to_net').bind('click', function () {
 
 	<input type="hidden" id="public_key">
 	<input type="hidden" id="private_key">
-
-</div>
-<!-- /container -->
