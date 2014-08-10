@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 <script>
 
@@ -20,7 +18,7 @@ $('#send_to_net').bind('click', function () {
 } );
 
 </script>
-  <legend><h2><?php echo $lng['del_order']?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['del_order']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -41,5 +39,3 @@ $('#send_to_net').bind('click', function () {
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
-</div>
-<!-- /container -->
