@@ -1,13 +1,10 @@
-<!-- container -->
-<div class="container">
-
 <script>
 
 $('#save').bind('click', function () {
 
 	$("#change_host").css("display", "none");
 	$("#sign").css("display", "block");
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+$("#end_time").val()+','+$("#latitude").val()+','+$("#longitude").val()+','+$("#category").val());
+	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+$("#end_time").val()+','+$("#latitude").val()+','+$("#longitude").val()+','+$("#category_id").val());
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 });
@@ -23,7 +20,7 @@ $('#send_to_net').bind('click', function () {
 			'end_time' : $('#end_time').val(),
 			'latitude' : $('#latitude').val(),
 			'longitude' : $('#longitude').val(),
-			'category' : $('#category').val(),
+			'category_id' : $('#category_id').val(),
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
@@ -33,32 +30,64 @@ $('#send_to_net').bind('click', function () {
 	);
 } );
 
-</script>
+$('#new_cf_project').bind('click', function () {
 
-	<legend><h2><?php echo $lng['new_cf_project_title']?></h2></legend>
+	$('#page-wrapper').spin();
+	$( "#dc_content" ).load( "content.php", { tpl_name: "new_cf_project" }, function() {
+		$.getScript("https://maps.googleapis.com/maps/api/js?sensor=false&callback=initialize", function(){
+			$('#page-wrapper').spin(false);
+		});
+	});
+
+});
+
+
+</script>
+<style>
+.mlng li{padding-right:5px; padding-left: 0px}
+</style>
+<link href="css2/cf.css" rel="stylesheet">
+
+	<h1 class="page-header"><?php echo $lng['my_cf_projects_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
-	
-	<div id="change_host">
 
-		<form>
-			<fieldset>
-				<input type="text" placeholder="currency_id" id="currency_id" value=""><br>
-				<input type="text" placeholder="amount" id="amount" value=""><br>
-				<input type="text" placeholder="end_time" id="end_time" value="<?php echo time()+3600*24*10?>"><br>
-				<input type="text" placeholder="latitude" id="latitude" value=""><br>
-				<input type="text" placeholder="longitude" id="longitude" value=""><br>
-				<input type="text" placeholder="category" id="category" value=""><br>
-				<button type="submit" class="btn" id="save"><?php echo $lng['next']?></button>
-			</fieldset>
-		</form>
+	<button type="button" class="btn btn-primary" data-toggle="button"  id="new_cf_project">Добавить новый проект</button><br><br>
 
-		<p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?></p>
+	<div>
+
+		<?php
+		foreach ($tpl['projects'] as $project_id=>$data) {
+			?>
+			<div class="well project-card" style="float:left; margin-right:20px">
+				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $data['id']?>, 'lang_id':<?php echo $data['lang_id']?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+			<ul class="list-inline mlng" style="margin-left:0px; margin-top:5px; padding-left: 0px">
+			<?php
+			foreach ($data['lang'] as $data_id=>$lang_id)
+				echo "<li><a href=\"#\" onclick=\"fc_navigate('add_cf_project_data', {'id':'{$data_id}'})\">{$tpl['cf_lng'][$lang_id]}</a></li> ";
+			?>
+			</ul>
+			<p><a href="#" onclick="fc_navigate('add_cf_project_data', {'project_id':'<?php echo $project_id?>'})">Добавить описание</a></p>
+			<p>Валюта: <?php echo $data['project_currency_name']?></p>
+			<p>Project ID: <?php echo $data['id']?></p>
+			<p>Категория: <?php echo $lng['cf_category'][$data['category_id']]?> <a href="#" onclick="fc_navigate('cf_project_change_category', {'project_id':'<?php echo $project_id?>'})"<i class="fa  fa-pencil fa-fw"></i></a></p>
+			<div>
+				<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
+				<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
+				<div class="card-bottom">
+					<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['pct']?>%</h5>funded</div>
+					<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> DRUB </h5>pledged</div>
+					<div style="float:left; overflow:auto;"><h5><?php echo $data['days']?></h5>days to go</div>
+				</div>
+			</div>
+			<div class="clearfix"></div>
+			<p style="margin-top:5px; margin-bottom: 0px"><a href="#" onclick="fc_navigate('del_cf_project', {'del_id':<?php echo $project_id?>})">Удалить проект</a></p>
+			</div>
+			<?php
+			}
+			?>
+
 
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>
-
-
-</div>
-<!-- /container -->
