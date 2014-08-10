@@ -1,5 +1,3 @@
-<!-- container -->
-<div class="container">
 
 	<script>
 		$('#save').bind('click', function () {
@@ -72,7 +70,7 @@
 		});
 	</script>
 
-  <legend><h2><?php echo $lng['node_config_title']?></h2></legend>
+  <h1 class="page-header"><?php echo $lng['node_config_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
     <div>
@@ -121,5 +119,3 @@
 		<button class="btn" onclick="fc_navigate('rewrite_primary_key')">rewrite primary key</button>
 	</div>
 
-</div>
-<!-- /container -->
