@@ -33,6 +33,17 @@ if ( isset($db) && get_community_users($db) ) {
 	}
 }
 
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT *
+		FROM `".DB_PREFIX."cf_projects`
+		WHERE `del_block_id`=0
+		LIMIT 3
+		");
+while ( $row =  $db->fetchArray( $res ) ) {
+	$row = array_merge (project_data($row), $row);
+	$tpl['projects'][$row['id']] = $row;
+}
+
 require_once( ABSPATH . 'templates/home.tpl' );
 
 ?>
