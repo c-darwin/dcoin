@@ -125,9 +125,20 @@ $( "#currency_id" ).change(function () {
 		//$("#source_ogg").attr('src', 'public/promised_amount_'+currency_id+'.ogg');
 	})
 
+	$("select").addClass( "form-control" );
+	$("input").addClass( "form-control" );
+	$("button").addClass( "btn-outline btn-primary" );
+	$("input[type=text]").width( 500 );
+	$("select").width( 500 );
+	$("textarea").width( 500 );
 
 </script>
-  <h1 class="page-header"><?php echo $lng['promised_amount_add_title']?></h1>
+<h1 class="page-header"><?php echo $lng['promised_amount_add_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#" onclick="fc_navigate('promised_amount_list')"><?php echo $lng['promised_amount_title'] ?></a></li>
+	<li class="active"><?php echo $lng['promised_amount_add_title'] ?></li>
+</ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
