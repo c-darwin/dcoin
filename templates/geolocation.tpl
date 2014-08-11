@@ -25,16 +25,26 @@ $('#send_to_net').bind('click', function () {
 			} );
 } );
 
-
 $('#show_map').bind('click', function () {
 
 	map_init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
 	google.maps.event.trigger(map, 'resize');
 });
 
+$("select").addClass( "form-control" );
+$("input").addClass( "form-control" );
+$("button").addClass( "btn-outline btn-primary" );
+
+$("input[type=text]").width( 200 );
+
 </script>
 
-  <h1 class="page-header"><?php echo $lng['geolocation_title']?></h1>
+<h1 class="page-header"><?php echo $lng['geolocation_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['geolocation_title'] ?></li>
+</ol>
+
   <?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	<div id="geo">
 		<p><?php  echo $lng['location_alert']?></p>
