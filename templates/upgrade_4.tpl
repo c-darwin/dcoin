@@ -23,9 +23,16 @@
 		google.maps.event.trigger(map, 'resize');
 	});
 
+	$("input").addClass( "form-control" );
+	$("input").width( 150 );
+
 </script>
 
-	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
+<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['upgrade_title'] ?></li>
+</ol>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
     <ul class="nav nav-tabs">
 		<li><a href="#" onclick="fc_navigate('upgrade_0')">Step 0</a></li>
@@ -36,7 +43,7 @@
 	    <li><a href="#" onclick="fc_navigate('upgrade_5')">Step 5</a></li>
     </ul>
     
-	<legend><?php echo $lng['your_location']?></legend>
+	<h3><?php echo $lng['your_location']?></h3>
 <button type="button" class="btn btn-primary" id="show_map">Show map</button><br><br>
 	<div id="map_canvas" style="width: 640px; height: 480px; margin-bottom:20px; display:none"></div>
 	<input id="latitude" class="input" type="text" placeholder="latitude" value="<?php echo $tpl['geolocation_lat']?>"><input id="longitude" class="input" type="text" placeholder="longitude" value="<?php echo $tpl['geolocation_lon']?>">
