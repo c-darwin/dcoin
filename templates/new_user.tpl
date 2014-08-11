@@ -35,9 +35,13 @@
 	} );
 </script>
 
+<h1 class="page-header"><?php echo $lng['reg_users']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['reg_users'] ?></li>
+</ol>
 
-	<h1 class="page-header"><?php echo $lng['reg_users']?></h1>
-	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
+<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
 	<div id="div_new_user_0">
 		<button id="new_user" class="btn">new user</button><br><br>
