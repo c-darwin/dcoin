@@ -13,11 +13,9 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				 	  {$add_sql}
 		");
 while ( $row =  $db->fetchArray( $res ) ) {
-
 	$row = array_merge (project_data($row), $row);
 	$tpl['projects'][$row['id']] = $row;
 }
-
 
 asort($lng['cf_category']);
 
