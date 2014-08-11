@@ -1,6 +1,8 @@
-
-
-	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
+<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['upgrade_title'] ?></li>
+</ol>
 	
     <ul class="nav nav-tabs">
 		<li><a href="#" onclick="fc_navigate('upgrade_0')">Step 0</a></li>
@@ -11,7 +13,7 @@
 	    <li><a href="#" onclick="fc_navigate('upgrade_5')">Step 5</a></li>
     </ul>
     
-	<legend>Host</legend>
+	<h3>Host</h3>
 
 	<?php echo $lng['your_host']?>
 <br>
