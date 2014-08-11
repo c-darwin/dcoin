@@ -89,8 +89,14 @@ $('#send_to_net').bind('click', function () {
 
 } );
 
+$("#main_div textarea").addClass( "form-control" );
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
+$("#main_div input[type=checkbox]").width( 15 );
 </script>
 
+<div id="main_div">
 	<h1 class="page-header"><?php echo $lng['change_primary_key_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
@@ -157,3 +163,4 @@ $('#send_to_net').bind('click', function () {
 
 	<input type="hidden" id="password_hash">
 
+</div>
