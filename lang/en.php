@@ -29,6 +29,8 @@ $lng['exchange'] = 'Exchange';
 $lng['logout'] = 'Logout';
 $lng['interface'] = 'Interface';
 $lng['lang'] = 'Language';
+$lng['catalog'] = 'Catalog';
+$lng['my_projects'] = 'My projects';
 
 // periods
 $lng['day'] = 'day';
@@ -103,6 +105,7 @@ $lng['permission_denied'] = 'Permission denied';
 $lng['attention_title'] = 'Attention!';
 $lng['alert_time'] = 'Time on your server differs from the exact time of [sec] seconds. Necessary to establish the exact time';
 $lng['reg_time'] = 'Date of registration';
+$lng['warning'] = 'Warning!';
 
 // promised_amount
 $lng['promised_amount_title'] = 'My promised amounts';
@@ -110,7 +113,7 @@ $lng['add_note'] = 'Add promised amount';
 $lng['for_repaid_only'] = 'For Repaid Only';
 $lng['limits_text'] = 'Add/remove promised amounts: [limit] per [period]';
 $lng['in_wallet'] = 'In wallet';
-$lng['put_in_a_wallet'] = 'Put in a wallet';
+$lng['put_in_the_wallet'] = 'Put in the wallet';
 $lng['found_in_blocks'] = 'Found in blocks';
 $lng['max_other_currencies'] = 'Max other currencies';
 
@@ -357,6 +360,9 @@ $lng['wallets'] = 'Wallets';
 $lng['transactions'] = 'Transactions';
 $lng['type'] = 'Type';
 $lng['error_in_tx'] = 'The information in the table "transactions" may be wrong. Wallets balances are displayed without errors.';
+$lng['balances'] = 'Balances';
+$lng['where_get_dc'] = 'Where can I get coins?';
+$lng['where_get_dc_text'] = 'Coins can be purchased an <a href="http://dcoinsimple.com/" target="_blank">exchange</a> or create your own.';
 
 // banknote_delete
 $lng['banknote_delete_title'] = 'Deleting promised amount';
@@ -521,5 +527,14 @@ $lng['cf_project_change_category_title'] = 'Changing category';
 
 // change_avatar
 $lng['change_avatar_title'] = 'Changing the name and avatar';
+
+$lng['login_help_text'] = 'If you do not have a key, you can ask it on the  <a href="http://dcoinforum.org/" style="text-decoration: underline">forum</a> at the miners.';
+$lng['login'] = 'Login';
+$lng['login_title'] = 'Login';
+$lng['key'] = 'Key';
+$lng['key_password'] = 'Password (if exists)';
+$lng['incorrect_key_or_password'] = 'Incorrect key or password';
+$lng['pool_is_full'] = 'Sorry, the pool is full';
+
 
 ?>
