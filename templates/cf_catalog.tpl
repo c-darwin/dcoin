@@ -1,6 +1,4 @@
-<!-- container -->
-
-<link href="css2/cf.css?2" rel="stylesheet">
+<link href="css2/cf.css" rel="stylesheet">
 
 <h1 class="page-header"><?php echo $lng['cf_projects_title']?></h1>
 
