@@ -216,7 +216,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 		<div class="panel-body">
 			<!-- Nav tabs -->
 			<ul class="nav nav-tabs" id="myTab">
-				<li class="active"><a href="#send_to_wallet" data-toggle="tab">Перевод на кошелек</a>
+				<li class="active"><a href="#send_to_wallet" data-toggle="tab">Перевод на Dcoin-счет</a>
 				</li>
 				<li class=""><a href="#send_to_cf" data-toggle="tab">Перевод в crowdfunding проект</a>
 				</li>
@@ -230,29 +230,28 @@ $('#amount, #cf_amount').keyup(function(e) {
 					<br>
 					<div style="float: left">
 					<table class="table" style="width: 400px">
-						<tr><td><?php echo $lng['currency']?></td><td><select id="currency_id" class="form-control">
+						<tr><td><?php echo $lng['currency']?></td><td>
+						<select id="currency_id" class="form-control">
 						<?php
-							if (isset($tpl['wallets']))
+							if (isset($tpl['wallets'])) {
 								foreach ($tpl['wallets'] as $id => $data)
-									print "<option value='{$data['currency_id']}'>".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
-									?>
-								</select></td></tr>
+							echo "<option value='{$data['currency_id']}'>".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
+							}
+							else
+								echo "<option>У Вас нет средств для перевода</option>";
+						?>
+						</select></td></tr>
 						<tr><td><?php echo $lng['to_account']?></td><td><input class="form-control" type="text" id="to_user_id"></td></tr>
 						<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="amount"></td></tr>
 						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission"></td></tr>
 						<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="comment"></td></tr>
 					</table>
-					<button id="next" class="btn btn-primary" type="button"><?php echo $lng['send']?></button>
-
-
-
-					<h1 class="page-header"><?php echo $lng['your_account_number']?>: <strong><?php echo $tpl['user_id']?></strong></h1>
+					<button id="next" class="btn btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send']?></button>
 
 					<br><br>
 					<?php
-					if (isset($tpl['wallets']))
-					if ($tpl['wallets']) {
-						echo '<h3>'.$lng['wallets'].'</h3><table class="table" style="width:400px">';
+					if (isset($tpl['wallets'])) {
+						echo '<h3>'.$lng['balances'].'</h3><table class="table" style="width:400px">';
 						echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
 						foreach ($tpl['wallets'] as $id => $data) {
 							echo "<tr>";
@@ -272,12 +271,20 @@ $('#amount, #cf_amount').keyup(function(e) {
 					<br><br>
 					</div>
 					<div style="overflow: auto;">
-						<div class="panel panel-success" style="margin-left: 50px; max-width: 400px">
+						<div class="panel panel-primary" style="margin-left: 40px; max-width: 400px">
 							<div class="panel-heading">
-								Где взять монеты?
+								<?php echo $lng['your_account_number']?>
 							</div>
 							<div class="panel-body">
-								<p>Монеты можно купить, например, на <a href="http://dcoinwiki.com/биржи" target="_blank">бирже</a> или самостоятельно намайнить.</p>
+								<p style="font-size: 35px; font-weight: bold; margin-bottom: 0px; margin-top: 0px;line-height: 1.1;"><?php echo $tpl['user_id']?></p>
+							</div>
+						</div>
+						<div class="panel panel-success" style="margin-left: 40px; max-width: 400px">
+							<div class="panel-heading">
+								<?php echo $lng['where_get_dc']?>
+							</div>
+							<div class="panel-body">
+								<p><?php echo $lng['where_get_dc_text']?></p>
 							</div>
 						</div>
 					</div>
@@ -358,10 +365,10 @@ if (isset($tpl['my_dc_transactions']))
 								<button id="cf_next" class="btn btn-primary" type="button"><?php echo $lng['send']?></button>
 								<div class="panel panel-success" style="margin-top: 20px; max-width: 400px">
 									<div class="panel-heading">
-										Где взять монеты?
+										<?php echo $lng['where_get_dc']?>
 									</div>
 									<div class="panel-body">
-										<p>Монеты можно купить, например, на <a href="http://dcoinwiki.com/биржи" target="_blank">бирже</a> или самостоятельно намайнить.</p>
+										<p><?php echo $lng['where_get_dc_text']?></p>
 									</div>
 								</div>
 							</div>
