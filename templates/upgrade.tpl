@@ -1,11 +1,13 @@
+<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['upgrade_title'] ?></li>
+</ol>
 
+<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
-	<h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
-
-	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
-
-	<p><?php echo $lng['status']?>:
-	<?php
+<p><?php echo $lng['status']?>:
+<?php
 	//print $tpl['result'];
 	switch ($tpl['result']) {
 	case 'ok':
