@@ -100,8 +100,11 @@ function init (lat, lng, map_canvas, drag) {
 
 </script>
 
-
-	<h1 class="page-header"><?php echo $lng['tasks_title_promised_amount']?></h1>
+<h1 class="page-header"><?php echo $lng['tasks_title_promised_amount']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['tasks_title'] ?></li>
+</ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
