@@ -86,6 +86,11 @@ $('#profileclose').bind('click', function () {
 		<?php echo $lng['reg_time']?>: <span id="profile_reg_time"></span>
 	</div>
 	<h1 class="page-header"><?php echo $lng['cash_request_in_title']?></h1>
+	<ol class="breadcrumb">
+		<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+		<li class="active"><?php echo $lng['cash_request_in_title'] ?></li>
+	</ol>
+
 	<div id="message"></div>
 
 	<?php
