@@ -85,6 +85,9 @@ $races = array(1=>$lng['race_1'], 2=>$lng['race_2'], 3=>$lng['race_3']);
 
 if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') {
 
+	if ($tpl_name=='login')
+		$tpl_name = 'home';
+
 	if ( isset($db) && get_community_users($db) ){
 		define('COMMUNITY', true);
 	}
