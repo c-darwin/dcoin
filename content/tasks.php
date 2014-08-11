@@ -280,7 +280,7 @@ switch ($task_type) {
 		break;
 
 	default:
-		print '<div class="container">'.$lng['no_tasks'].'</div>';
+		require_once( ABSPATH . 'templates/tasks.tpl');
 	
 	
 	
