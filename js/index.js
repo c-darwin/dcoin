@@ -34,11 +34,16 @@ function login_ok (result) {
 
     if (result=='1') {
 
+        $('#myModal').modal('hide');
+        $('#myModalLogin').modal('hide');
+        $('.modal-backdrop').remove();
+        $('.modal-backdrop').css('display', 'none');
+
         $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
            $( "#dc_content" ).load( "content.php", { tpl_name: "home" }, function() {
                 $.getScript("js2/plugins/metisMenu/metisMenu.min.js", function() {
                     $.getScript("js2/sb-admin.js");
-                    $("#main-login").html('<a href="#myModal"  data-toggle="modal" role="button" class="btn btn-default  btn-block " style="border: 0"><i class="fa fa-sign-in fa-lg"></i> Change key</a>');
+                    $("#main-login").html('');
                     $("#page-wrapper").spin(false);
                 });
             });
@@ -46,11 +51,11 @@ function login_ok (result) {
 
     }
     else if (result=='not_available') {
-        alert('Sorry, registration is not available');
+        $("#modal_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#pool_is_full').val()+'</p></div>');
         $("#page-wrapper").spin(false);
     }
     else {
-        alert('Sorry,  incorrect key');
+        $("#modal_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#incorrect_key_or_password').val()+'</p></div>');
         $("#page-wrapper").spin(false);
     }
 }
