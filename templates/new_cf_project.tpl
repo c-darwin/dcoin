@@ -164,7 +164,7 @@ $('#cf_currency').keyup(function(e) {
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="days">geolocation</label>
+					<label class="col-md-4 control-label" for="days">Кол-во дней</label>
 					<div class="col-md-4">
 						<select id="days" name="days" class="form-control">
 							<?php
