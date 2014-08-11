@@ -74,8 +74,18 @@ endDateTextBox.datetimepicker({
 	}
 });
 
-	</script>
-  <h1 class="page-header"><?php echo $lng['new_holidays_title'] ?></h1>
+$("select").addClass( "form-control" );
+$("input").addClass( "form-control" );
+$("button").addClass( "btn-outline btn-primary" );
+</script>
+
+
+<h1 class="page-header"><?php echo $lng['new_holidays_title'] ?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#" onclick="fc_navigate('holidays_list')"><?php echo $lng['holidays_title'] ?></a></li>
+	<li class="active"><?php echo $lng['new_holidays_title'] ?></li>
+</ol>
 
     <div id="add_holidays">
 
