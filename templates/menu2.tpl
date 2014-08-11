@@ -7,7 +7,7 @@
 			<span class="icon-bar"></span>
 		</button>
 		<a class="navbar-brand" href="#" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
-	                   background: url(http://dcoinsimple.com/logo.png) center left no-repeat;
+	                   background: url(img/logo.png) center left no-repeat;
 	                   text-align: center;
 	                   background-size: 30px 30px;
 	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
@@ -28,7 +28,9 @@
 				</li>
 				<?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'node_config\')">'.$lng['config_node'].'</a></li>':''?>
 				<li class="divider"></li>
-				<li><a href="#" onclick="logout()"><?php echo $lng['logout']?> (user_id: <?php echo $_SESSION['user_id']?>)</a>
+				<li><a href="#" onclick="logout()"><i class="fa fa-sign-out fa-lg"></i> <?php echo $lng['logout']?> (user_id: <?php echo $_SESSION['user_id']?>)</a>
+				</li>
+				<li><a href="#myModal"  data-toggle="modal"><i class="fa fa-sign-in fa-lg"></i> Change key</a>
 				</li>
 			</ul>
 			<!-- /.dropdown-messages -->
@@ -62,22 +64,11 @@
 					<a href="#" onclick="fc_navigate('home')"><i class="fa  fa-home  fa-fw"></i> Home</a>
 				</li>
 				<li>
-					<a href="#" onclick="fc_navigate('wallets_list')"><i class="fa  fa-money  fa-fw"></i> <?php echo $lng['wallets']?></a>
+					<a href="#" onclick="fc_navigate('wallets_list')"><i class="fa   fa-credit-card   fa-fw"></i> <?php echo $lng['wallets']?></a>
 				</li>
 				<li>
-					<a href="#"><i class="fa  fa-university  fa-fw"></i> <?php echo $lng['mining']?><span class="fa arrow"></span></a>
-					<ul class="nav nav-second-level">
+					<a href="#" onclick="fc_navigate('mining_menu')"><i class="fa  fa-money  fa-fw"></i> <?php echo $lng['mining']?></a>
 
-						<li><a href="#" onclick="fc_navigate('upgrade')"><?php echo $lng['upgrade_to_miner']?></a></li>
-						<li><a href="#" onclick="fc_navigate('voting')"><?php echo $lng['voting']?></a></li>
-						<li><a href="#" onclick="map_navigate ('geolocation')"><?php echo $lng['geolocation'] ?></a></li>
-						<li><a href="#" onclick="fc_navigate('promised_amount_list')"><?php echo $lng['promised_amounts'] ?></a></li>
-						<li><a href="#" onclick="fc_navigate('cash_requests_in')"><?php echo $lng['inbox']?></a></li>
-						<li><a href="#" onclick="fc_navigate('cash_requests_out')"><?php echo $lng['outgoing']?></a></li>
-						<li><a href="#" onclick="fc_navigate('holidays_list')"><?php echo $lng['holidays']?></a></li>
-						<li><a href="#" onclick="fc_navigate('points')"><?php echo $lng['points']?></a></li>
-
-					</ul>
 				</li>
 
 
@@ -85,10 +76,10 @@
 					<a href="#"><i class="fa  fa-users  fa-fw"></i> CrowdFunding<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level">
 						<li>
-							<a href="#" onclick="fc_navigate('cf_catalog')">Catalog</a>
+							<a href="#" onclick="fc_navigate('cf_catalog')"><?php echo $lng['catalog']?></a>
 						</li>
 						<li>
-							<a href="#" onclick="fc_navigate('my_cf_projects')">My projects</a>
+							<a href="#" onclick="fc_navigate('my_cf_projects')"><?php echo $lng['my_projects']?></a>
 						</li>
 					</ul>
 				</li>
@@ -149,3 +140,7 @@
 	</div>
 	<!-- /.navbar-static-side -->
 </nav>
+<?php
+require_once( ABSPATH . 'templates/modal.tpl' );
+echo $modal;
+?>
