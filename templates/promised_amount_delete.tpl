@@ -18,7 +18,12 @@ $('#send_to_net').bind('click', function () {
 } );
 
 </script>
-  <h1 class="page-header"><?php echo $lng['banknote_delete_title']?></h1>
+<h1 class="page-header"><?php echo $lng['banknote_delete_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#" onclick="fc_navigate('promised_amount_list')"><?php echo $lng['promised_amount_title'] ?></a></li>
+	<li class="active"><?php echo $lng['banknote_delete_title'] ?></li>
+</ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
