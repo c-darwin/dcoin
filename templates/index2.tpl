@@ -54,7 +54,11 @@
 
 	var poll_time=0;
 
-	function doSign(type='sign') {
+	function doSign(type) {
+
+		if(typeof(type)==='undefined') type='sign';
+
+		console.log('type='+type);
 
 		var SIGN_LOGIN = false;
 		var PASS_LOGIN = false;
@@ -77,9 +81,12 @@
 
 		var key = $("#key").text();
 		var pass = $("#password").text();
+
+		if (key.indexOf('RSA PRIVATE KEY')!=-1)
+			pass = '';
+
 		if (pass)
 			text = atob(key.replace(/\n|\r/g,""));
-
 
 		if (type=='sign') {
 			var forsignature = $("#for-signature").val();
@@ -107,7 +114,8 @@
 				var decrypt_PEM = key;
 			console.log('decrypt_PEM='+decrypt_PEM);
 			if (decrypt_PEM.indexOf('RSA PRIVATE KEY')==-1) {
-				alert('Incorrect key or password');
+				$("#page-wrapper").spin(false);
+				$("#modal_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#incorrect_key_or_password').val()+'</p></div>');
 			}
 			else {
 				var rsa = new RSAKey();
@@ -132,6 +140,8 @@
 		}
 		if (SIGN_LOGIN || PASS_LOGIN) {
 
+			console.log('SIGN_LOGIN || PASS_LOGIN');
+
 			$("#page-wrapper").spin();
 			if (key) {
 				// шлем подпись на сервер на проверку
@@ -141,7 +151,7 @@
 							'e': exp
 						}, function (data) {
 							// залогинились
-							//alert(data.result);
+							console.log(data.result);
 							login_ok( data.result );
 
 						}, 'JSON'
@@ -165,6 +175,8 @@
 				);
 
 			}
+
+			$("#page-wrapper").spin(false);
 
 		}
 		else {
@@ -227,33 +239,6 @@
 		<div id="key">key</div>
 		<div id="password">password</div>
 	</div>
-
-<div class="modal fade" id="myModal">
-	<div class="modal-dialog">
-		<div class="modal-content">
-			<div class="modal-header">
-				<button type="button" class="close" data-dismiss="modal"><span aria-hidden="true">&times;</span><span class="sr-only">Close</span></button>
-				<h4 class="modal-title">Login</h4>
-			</div>
-			<div class="modal-body">
-				<form>
-					<fieldset>
-						<label>Key</label>
-						<textarea rows="3" id="modal_key" class="form-control"></textarea>
-						<label>Password (if exists)</label>
-						<input type="password"   id="modal_password" class="form-control">
-					</fieldset>
-				</form>
-			</div>
-			<div class="modal-footer">
-				<button type="button" class="btn" data-dismiss="modal" aria-hidden="true">Close</button>
-				<button type="button" class="btn btn-primary" data-toggle="button"  data-dismiss="modal"  onclick="save_key();doSign('login')">Log in</button>
-			</div>
-		</div><!-- /.modal-content -->
-	</div><!-- /.modal-dialog -->
-</div><!-- /.modal -->
-    <!-- / Modal -->
-
 
 
 
