@@ -1,6 +1,10 @@
+<h1 class="page-header"><?php echo $lng['points']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['points'] ?></li>
+</ol>
 
-	<h1 class="page-header"><?php echo $lng['points']?></h1>
-	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
+<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
 
 <?php echo $lng['points_min']?>:<br>
 <strong><?php echo $tpl['mean']?></strong><br>
