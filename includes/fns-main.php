@@ -3752,11 +3752,14 @@ function get_my_notice_data()
 			FROM `".DB_PREFIX."nodes_connection`
 			", 'fetch_one');
 
-	if (time() - $block_time > 600)
-		$tpl['main_status'] = "<p style='color:#ff0000'>{$lng['downloading_blocks']}</p>";
-	else
-		$tpl['main_status'] = "<p style='color:#008800'>{$lng['downloading_complete']}</p>";
-
+	if (time() - $block_time > 600) {
+		$tpl['main_status'] = $lng['downloading_blocks'];
+		$tpl['main_status_complete'] = 0;
+	}
+	else {
+		$tpl['main_status'] = $lng['downloading_complete'];
+		$tpl['main_status_complete'] = 1;
+	}
 	return $tpl;
 }
 
