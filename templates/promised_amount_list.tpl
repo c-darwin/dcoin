@@ -26,10 +26,21 @@ function calc_commission (id) {
 	//$("#commission-"+id).text('- commission 5% = '+new_amount.toFixed(2));
 }
 
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
+$("#main_div .put_in_the_wallet").width( 130 );
+$("#main_div .amount").width( 70 );
+
 </script>
-  
-	<h1 class="page-header"><?php echo $lng['promised_amount_title']?></h1>
-	<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
+<div id="main_div">
+<h1 class="page-header"><?php echo $lng['promised_amount_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['promised_amount_title'] ?></li>
+</ol>
+
+<?php echo ($tpl['alert'])?'<div class="alert alert-success"><button type="button" class="close" data-dismiss="alert">&times;</button>'.$tpl['alert'].'</div>':''?>
 
 
 	<?php
@@ -61,13 +72,13 @@ function calc_commission (id) {
 					if ($data['currency_id'] ==1 || $data['status']=='repaid')
 						echo "<td style='text-align: center'>{$data['amount']}</td>";
 					else
-						echo "<td style='text-align: center'><input type='text' class='input-mini' id='amount-input-{$data['id']}' onkeyup=\"clear_amount('amount-input-{$data['id']}')\" value='{$data['amount']}'><br><button onclick=\"change_amount_click({$data['id']})\" class='btn' style='width:74px'>{$lng['change']}</button>(max: {$data['max_amount']})</td>";
+						echo "<td style='text-align: center'><input type='text' class='amount' id='amount-input-{$data['id']}' onkeyup=\"clear_amount('amount-input-{$data['id']}')\" value='{$data['amount']}'><br><button onclick=\"change_amount_click({$data['id']})\" class='btn' style='width:74px'>{$lng['change']}</button>(max: {$data['max_amount']})</td>";
 					echo "<td style='text-align: center'>{$data['pct']}</td>";
 					echo "<td>{$data['tdc']}</td>";
-					echo "<td style='text-align: center'><input type='text' class='input-mini' id='repaid-input-{$data['id']}' onkeyup=\"calc_commission('{$data['id']}')\" value='{$to_wallet}'><br><span id='commission-{$data['id']}'></span><button onclick=\"mining_click({$data['id']})\" class='btn' style='width:130px'>{$lng['put_in_a_wallet']}</button></td>";
+					echo "<td style='text-align: center'><input type='text' class='input-mini' id='repaid-input-{$data['id']}' onkeyup=\"calc_commission('{$data['id']}')\" value='{$to_wallet}'><br><span id='commission-{$data['id']}'></span><button  onclick=\"mining_click({$data['id']})\" class='btn put_in_the_wallet' style='width:130px'>{$lng['put_in_the_wallet']}</button></td>";
 					//echo "<td>{$data['max_other_currencies']}</td>";
 					if ($data['currency_id'] > 1)
-						echo "<td><a href='#' onclick=\"fc_navigate('promised_amount_delete', {'del_id':'".$data['id']."'})\">{$lng['delete']}</a></td>";
+						echo "<td><a class=\"btn btn-outline btn-danger\" href=\"#\" onclick=\"fc_navigate('promised_amount_delete', {'del_id':'".$data['id']."'})\"><i class=\"fa fa-trash-o fa-lg\"></i> {$lng['delete']}</a></td>";
 					else
 						echo "<td></td>";
 					echo "</tr>";
@@ -84,3 +95,4 @@ if (isset($tpl['actualization_promised_amounts']))
 <br><br><p><span class="label label-important"><?php echo $lng['limits'] ?></span>  <?php echo $tpl['limits_text'] ?></p>
 <br>
 <a href="#" onclick="fc_navigate('for_repaid_fix')">for_repaid_fix</a>
+</div>
