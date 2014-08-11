@@ -125,7 +125,14 @@
 				});
 	});
 
-
+	$("select").addClass( "form-control" );
+	$("input").addClass( "form-control" );
+	$("textarea").addClass( "form-control" );
+	$("input[type=text]").width( 500 );
+	$("input[type=checkbox]").width( 30 );
+	$("textarea").width( 500 );
+	$("select").width( 500 );
+	$("button").addClass( "btn-outline btn-primary" );
 </script>
 	<h1 class="page-header"><?php echo $lng['notifications_title']?></h1>
 
@@ -133,7 +140,7 @@
 
 <div id="html_errors" class="alert alert-error" style="display: none"></div>
 
-<a href="http://sms.democratic-coin.com/?lang=<?php echo $lang?>" target="_blank" class="btn"><?php echo $lng['notifications_simple_sms']?></a>
+<a href="http://sms.democratic-coin.com/?lang=<?php echo $lang?>" target="_blank" class="btn btn-outline btn-primary"><?php echo $lng['notifications_simple_sms']?></a>
 <br><br>
 <h3><?php echo $lng['notifications_advanced']?></h3>
 
