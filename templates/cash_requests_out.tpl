@@ -182,9 +182,13 @@ $('#send_amount').keyup(function(e) {
 
 </script>
 
-	<h1 class="page-header"><?php echo $lng['cash_request_out_title']?></h1>
+<h1 class="page-header"><?php echo $lng['cash_request_out_title']?></h1>
+<ol class="breadcrumb">
+	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li class="active"><?php echo $lng['cash_request_out_title'] ?></li>
+</ol>
 
-	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
+<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
 	<?php
 	if (isset($tpl['available_currency'])) {
