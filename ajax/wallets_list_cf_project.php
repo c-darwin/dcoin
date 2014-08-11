@@ -42,17 +42,21 @@ $wallet = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,
 			WHERE `user_id` = {$user_id} AND
 						 `currency_id` = {$cf_project['currency_id']}
 			", 'fetch_array');
-
-$wallet['amount']+=calc_profit_($wallet['currency_id'], $wallet['amount'], $user_id, $db, $wallet['last_update'], time(), 'wallet');
-$wallet['amount'] = floor( round( $wallet['amount'], 3)*100 ) / 100;
-$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(`amount`)
-				FROM `".DB_PREFIX."forex_orders`
-				WHERE `user_id` = {$user_id} AND
-							 `sell_currency_id` = {$wallet['currency_id']} AND
-							 `del_block_id` = 0
-				", 'fetch_one' );
-$wallet['amount'] -= $forex_orders_amount;
+if ($wallet) {
+	$wallet['amount']+=calc_profit_($wallet['currency_id'], $wallet['amount'], $user_id, $db, $wallet['last_update'], time(), 'wallet');
+	$wallet['amount'] = floor( round( $wallet['amount'], 3)*100 ) / 100;
+	$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT sum(`amount`)
+					FROM `".DB_PREFIX."forex_orders`
+					WHERE `user_id` = {$user_id} AND
+								 `sell_currency_id` = {$wallet['currency_id']} AND
+								 `del_block_id` = 0
+					", 'fetch_one' );
+	$wallet['amount'] -= $forex_orders_amount;
+}
+else {
+	$wallet['amount'] = 0;
+}
 $cf_project['wallet_amount'] = $wallet['amount'];
 
 $currency_list = get_currency_list($db);
