@@ -50,6 +50,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	print json_encode(
 			array(
 				'main_status'=>$my_notice['main_status'],
+				'main_status_complete'=>$my_notice['main_status_complete'],
 				'account_status'=>$my_notice['account_status'],
 				'cur_block_id'=>$my_notice['cur_block_id'],
 				'connections'=>$my_notice['connections'],
