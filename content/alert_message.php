@@ -197,8 +197,8 @@ if (in_array($tpl_name, $miners_only)) {
 }
 
 // информируем, что необходимо вначале сменить праймари-ключ
-$primary_key_alert = array('wallets_list', 'upgrade', 'upgrade_0', 'upgrade_1', 'upgrade_2', 'upgrade_3', 'upgrade_4', 'upgrade_5', 'notifications');
-if (in_array($tpl_name, $primary_key_alert)) {
+//$primary_key_alert = array('wallets_list', 'upgrade', 'upgrade_0', 'upgrade_1', 'upgrade_2', 'upgrade_3', 'upgrade_4', 'upgrade_5', 'notifications');
+//if (in_array($tpl_name, $primary_key_alert)) {
 	$log_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `log_id`
 			FROM `".DB_PREFIX."users`
@@ -208,11 +208,11 @@ if (in_array($tpl_name, $primary_key_alert)) {
 	if (!$log_id) {
 		echo "
 				  <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
-				  <h4>Warning!</h4>
+				  <h4>{$lng['warning']}</h4>
 				  <div>{$lng['alert_change_primary_key']}</div>
 				  </div>
 				  ";
 	}
-}
+//}
 
 ?>
