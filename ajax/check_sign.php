@@ -17,11 +17,11 @@ require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 if (!check_input_data($_POST['sign'], 'hex_sign'))
-	die('bad hex_sign');
+	json_encode(array('result'=>'bad hex_sign'));
 if ( !preg_match ("/^[0-9a-z]{1,2048}$/D", $_POST['e']) )
-	die('bad e');
+	json_encode(array('result'=>'bad e'));
 if ( !preg_match ("/^[0-9a-z]{1,2048}$/D", $_POST['n']) )
-	die('bad n');
+	json_encode(array('result'=>'bad n'));
 
 $sign = hextobin($_POST['sign']);
 
