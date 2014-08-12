@@ -9,8 +9,9 @@ if ($tpl['category_id'])
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *
 		FROM `".DB_PREFIX."cf_projects`
-		WHERE `del_block_id`=0
+		WHERE `del_block_id` = 0
 				 	  {$add_sql}
+		ORDER BY `funders` DESC
 		");
 while ( $row =  $db->fetchArray( $res ) ) {
 	$row = array_merge (project_data($row), $row);
@@ -18,6 +19,8 @@ while ( $row =  $db->fetchArray( $res ) ) {
 }
 
 asort($lng['cf_category']);
+
+$tpl['currency_list'] = get_currency_list($db);
 
 require_once( ABSPATH . 'templates/cf_catalog.tpl' );
 
