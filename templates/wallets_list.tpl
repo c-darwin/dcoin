@@ -11,8 +11,29 @@
 <link href="css2/cf.css?2" rel="stylesheet">
 <script>
 
-	var type = '';
-	var to_id = '';
+var type = '';
+var to_id = '';
+
+var currency_list = new Array()
+<?php
+foreach ($tpl['wallets'] as $id => $data)
+	echo "currency_list[{$data['currency_id']}] = '{$tpl['currency_list'][$data['currency_id']]}';\n";
+
+?>
+
+$('#goto_confirm').bind('click', function () {
+
+	check_key_and_show_modal();
+
+	$("#confirm_currency").text(currency_list[$("#currency_id").val()]);
+	$("#confirm_to_user_id").text($("#to_user_id").val());
+	$("#confirm_amount").text($("#amount").val());
+	$("#confirm_commission").text($("#commission").val());
+	$("#confirm_comment").text($("#comment").val());
+	$("#wallets_confirm").css("display", "block");
+	$("#wallets").css("display", "none");
+
+});
 
 $('#next, #cf_next').bind('click', function () {
 
@@ -216,11 +237,11 @@ $('#amount, #cf_amount').keyup(function(e) {
 		<div class="panel-body">
 			<!-- Nav tabs -->
 			<ul class="nav nav-tabs" id="myTab">
-				<li class="active"><a href="#send_to_wallet" data-toggle="tab">Перевод на Dcoin-счет</a>
+				<li class="active"><a href="#send_to_wallet" data-toggle="tab"><?php echo $lng['send_to_wallet']?></a>
 				</li>
-				<li class=""><a href="#send_to_cf" data-toggle="tab">Перевод в crowdfunding проект</a>
+				<li class=""><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
 				</li>
-				<li class=""><a href="#" onclick="fc_navigate('currency_exchange')">Обмен валют</a>
+				<li class=""><a href="#" onclick="fc_navigate('currency_exchange')"><?php echo $lng['currency_exchange1']?></a>
 				</li>
 			</ul>
 
@@ -238,7 +259,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 							echo "<option value='{$data['currency_id']}'>".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}({$data['amount']})</option>";
 							}
 							else
-								echo "<option>У Вас нет средств для перевода</option>";
+								echo "<option>{$lng['you_do_not_have_the_coins']}</option>";
 						?>
 						</select></td></tr>
 						<tr><td><?php echo $lng['to_account']?></td><td><input class="form-control" type="text" id="to_user_id"></td></tr>
@@ -246,7 +267,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission"></td></tr>
 						<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="comment"></td></tr>
 					</table>
-					<button id="next" class="btn btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send']?></button>
+					<button id="goto_confirm" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send']?></button>
 
 					<br><br>
 					<?php
@@ -292,9 +313,9 @@ $('#amount, #cf_amount').keyup(function(e) {
 
 					<?php
 
-if (isset($tpl['my_dc_transactions']))
-	if ($tpl['my_dc_transactions']) {
-		echo '<h3>'.$lng['transactions'].'</h3><table class="table" style="width:500px;">';
+					if (isset($tpl['my_dc_transactions']))
+					if ($tpl['my_dc_transactions']) {
+						echo '<h3>'.$lng['transactions'].'</h3><table class="table" style="width:500px;">';
 						echo '<tr><th></th><th>'.$lng['time'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['type'].'</th><th>'.$lng['recipient'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['commission'].'</th><th>'.$lng['note'].'</th><th>'.$lng['status'].'</th><th>Block_id</th><th>Confirmations</th></tr>';
 						foreach ($tpl['my_dc_transactions'] as $key => $data) {
 						print "<tr>";
@@ -332,11 +353,11 @@ if (isset($tpl['my_dc_transactions']))
 						<br>
 						<div id="cf_prject_id">
 							<div class="form-group">
-								<label>ID проекта</label>
+								<label><?php echo $lng['project_id']?></label>
 								<input class="form-control" style="width: 300px" id="project_id">
 							</div>
 							<div class="form-group">
-								<button id="cf_next_0" class="btn btn-primary" type="button"><?php echo $lng['next']?></button>
+								<button id="cf_next_0" class="btn btn-outline btn-primary" type="button"><?php echo $lng['next']?></button>
 							</div>
 						</div>
 
@@ -356,13 +377,13 @@ if (isset($tpl['my_dc_transactions']))
 							</div>
 							<div style="overflow: auto">
 								<table class="table" style="width: 400px">
-									<tr><td>ID проекта</td><td><span id="project_id_info"></span></td></tr>
-									<tr><td>Доступно</td><td><span id="available_dc"></span></td></tr>
+									<tr><td><?php echo $lng['project_id']?></td><td><span id="project_id_info"></span></td></tr>
+									<tr><td><?php echo $lng['available']?></td><td><span id="available_dc"></span></td></tr>
 									<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="cf_amount"></td></tr>
 									<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="cf_commission"></td></tr>
 									<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="cf_comment"></td></tr>
 								</table>
-								<button id="cf_next" class="btn btn-primary" type="button"><?php echo $lng['send']?></button>
+								<button id="cf_next" class="btn btn-outline btn-primary" type="button"><?php echo $lng['send']?></button>
 								<div class="panel panel-success" style="margin-top: 20px; max-width: 400px">
 									<div class="panel-heading">
 										<?php echo $lng['where_get_dc']?>
@@ -384,8 +405,21 @@ if (isset($tpl['my_dc_transactions']))
 			</div>
 		</div>
 
+	</div>
 
-	
+	<div id="wallets_confirm" style="margin: auto; width: 400px; display: none">
+		<h3><?php echo $lng['check_data']?></h3>
+		<table class="table" style="width: 300px; margin-top: 20px">
+			<tbody>
+			<tr><td><?php echo $lng['currency']?></td><td id="confirm_currency"></td></tr>
+			<tr><td><?php echo $lng['to_account']?></td><td id="confirm_to_user_id"></td></tr>
+			<tr><td><?php echo $lng['amount']?></td><td id="confirm_amount"></td></tr>
+			<tr><td><?php echo $lng['commission']?></td><td id="confirm_commission"></td></tr>
+			<tr><td><?php echo $lng['note']?></td><td id="confirm_comment"></td></tr>
+			</tbody>
+		</table>
+		<button type="button" class="btn btn-link" onclick="fc_navigate('wallets_list')"><?php echo $lng['back']?></button> <button id="next" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send_to_net']?></button>
+
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>
