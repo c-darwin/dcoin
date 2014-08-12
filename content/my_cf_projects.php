@@ -17,5 +17,7 @@ while ( $row =  $db->fetchArray( $res ) ) {
 
 $tpl['cf_lng'] = get_all_cf_lng($db);
 
+$tpl['currency_list'] = get_currency_list($db);
+
 require_once( ABSPATH . 'templates/my_cf_projects.tpl' );
 ?>
