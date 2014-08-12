@@ -13,6 +13,6 @@
 
 	<?php echo $lng['install_compete']?> <br><br>
 
-	<a href="#myModal" role="button"  data-toggle="modal"><?php echo $lng['login_to_your_account']?></a>
+	<a href="#myModal" role="button"  data-toggle="modal" data-backdrop="static"><?php echo $lng['login_to_your_account']?></a>
 
 </div>
