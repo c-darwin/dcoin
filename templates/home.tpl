@@ -48,13 +48,13 @@
 <div id="generate">
 	<div class="row" style="padding:0 15px">
 		<div class="alert alert-danger">
-			При помощи Dcoin можно как заработать деньги, так и потерять их. Подробно про риски можно почитать <a href="http://habrahabr.ru/company/dcoin/blog/229673/">тут</a>.
+			<?php echo $lng['dcoin_risks_alert']?>
 		</div>
 	</div>
 
 	<div class="row">
 		<div class="col-lg-4">
-			<h3>Панель</h3>
+			<h3><?php echo $lng['panel']?></h3>
 			<ul class="list-group">
 				<li class="list-group-item" id="main_status"><?php echo $tpl['my_notice']['main_status']?></li>
 				<li class="list-group-item"><?php echo $lng['account_status']?>: <span id="account_status"><?php echo $tpl['my_notice']['account_status'];?></span> <?php echo !empty($_SESSION['restricted'])?'restricted':'' ?> <?php echo defined('POOL_ADMIN')?'(Pool admin)':'' ?></li>
@@ -67,52 +67,69 @@
 		</div>
 		<!-- /.col-lg-4 -->
 		<div class="col-lg-4">
-			<h3>Последние операции</h3>
+			<h3><?php echo $lng['last_operation']?></h3>
+			<div style="height: 290px; overflow: auto">
 			<div class="table-responsive table-bordered">
-			<table class="table">
+			<table class="table" style="margin-bottom: 0px">
 				<thead>
 				<tr>
 					<th></th>
-					<th>Сумма</th>
-					<th>Примечание</th>
-					<th>Подтв.</th>
+					<th><?php echo $lng['amount']?></th>
+					<th><?php echo $lng['note']?></th>
+					<th><?php echo $lng['confirms']?></th>
 				</tr>
 				</thead>
 				<tbody>
-				<tr>
-					<td><i class="fa fa-minus"></i></td>
-					<td>1000 DUSD</td>
-					<td>Айфон 10G заказ #366125 Доставка домой</td>
-					<td>0</td>
-				</tr>
-				<tr>
-					<td><i class="fa fa-plus"></i></td>
-					<td>50000 DRUB</td>
-					<td></td>
-					<td>11446</td>
-				</tr>
-				<tr>
-					<td><i class="fa fa-plus"></i></td>
-					<td>69333.12 DRUB</td>
-					<td>Айфон 10G заказ #366125 Доставка домой</td>
-					<td>66699</td>
-				</tr>
-				<tr>
-					<td><i class="fa fa-plus"></i></td>
-					<td>69333.12 DRUB</td>
-					<td>Айфон 10G заказ #366125 Доставка домой</td>
-					<td>66699</td>
-				</tr>
+				<?php
+				foreach ($tpl['my_dc_transactions'] as $data) {
+					echo "<tr>";
+					if ($data['to_user_id']==$user_id)
+						echo '<td><i class="fa fa-plus"></i></td>';
+					else
+						echo '<td><i class="fa fa-minus"></i></td>';
+					echo "<td>{$data['amount']} ".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}</td>";
+					if ($data['comment_status']=='decrypted' && strlen($data['comment'])>150)
+						echo "<td><div style=\"width: 200px; overflow: auto\">{$data['comment']}</div></td>";
+					else if ($data['comment_status']=='decrypted')
+						echo "<td>{$data['comment']}</td>";
+					else
+						echo "<td>Encrypted</td>";
+					echo "<td>".($tpl['block_id'] - $data['block_id'])."</td>";
+				}
+				?>
 				</tbody>
 			</table>
+			</div>
 			</div>
 		</div>
 		<!-- /.col-lg-4 -->
 		<div class="col-lg-4">
 
-			<h3>Балансы</h3>
-			<div class="table-responsive table-bordered">
-				<table class="table"><thead><tr><th>Валюта</th><th>Сумма</th><th>%/год</th></tr></thead><tbody><tr><td>DUSD</td><td>17.8</td><td>0</td></tr></tbody></table>
+			<h3><?php echo $lng['balances']?></h3>
+			<div style="height: 290px; overflow: auto">
+				<div class="table-responsive table-bordered">
+					<?php
+						echo '<table class="table" style="margin-bottom: 0px">';
+						echo '<thead><tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr></thead>';
+						if ($tpl['wallets']) {
+							foreach ($tpl['wallets'] as $id => $data) {
+								echo "<tr>";
+								if ($data['currency_id']>=1000)
+									echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
+								else
+									echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+
+								echo "<td>{$data['amount']}</td>";
+								echo "<td>{$data['pct']}</td></tr>";
+							}
+						}
+						else {
+							echo "<tr><td colspan='3'>{$lng['no_coins']} {$lng['where_get_dc_text']}</td></tr>";
+						}
+
+						echo '</table>';
+					?>
+				</div>
 			</div>
 
 
@@ -141,7 +158,7 @@
 			<?php
 			}
 		?>
-			<button type="button" class="btn btn-primary" data-toggle="button"  id="new_cf_project">Запустите свой CrowdFunding проект!</button>
+			<button type="button" class="btn btn-primary" data-toggle="button"  id="new_cf_project"><?php echo $lng['start_your_cf_project']?></button>
 		</div>
 	</div>
 
