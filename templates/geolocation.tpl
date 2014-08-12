@@ -31,14 +31,14 @@ $('#show_map').bind('click', function () {
 	google.maps.event.trigger(map, 'resize');
 });
 
-$("select").addClass( "form-control" );
-$("input").addClass( "form-control" );
-$("button").addClass( "btn-outline btn-primary" );
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
 
-$("input[type=text]").width( 200 );
+$("#main_div input[type=text]").width( 200 );
 
 </script>
-
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['geolocation_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -78,3 +78,4 @@ $("input[type=text]").width( 200 );
 <?php require_once( 'signatures.tpl' );?>
     
     <br><br><div class="alert alert-info"><?php echo $lng['limits']?> <?php echo $tpl['limits_text'] ?></div>
+</div>
