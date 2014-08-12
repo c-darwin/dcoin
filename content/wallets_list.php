@@ -14,38 +14,10 @@ $tpl['user_id'] = $_SESSION['user_id'];
 
 if ($tpl['user_id']!='wait') {
 
-	// получаем список кошельков, на которых есть FC
-	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT *
-			FROM `".DB_PREFIX."wallets`
-			WHERE `user_id` = {$tpl['user_id']}
-			");
-	while ( $row = $db->fetchArray($res) ) {
-
-		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $tpl['user_id'], $db, $row['last_update'], time(), 'wallet');
-		$row['amount'] = floor( round( $row['amount'], 3)*100 ) / 100;
-		$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(`amount`)
-				FROM `".DB_PREFIX."forex_orders`
-				WHERE `user_id` = {$tpl['user_id']} AND
-							 `sell_currency_id` = {$row['currency_id']} AND
-							 `del_block_id` = 0
-				", 'fetch_one' );
-		$row['amount'] -= $forex_orders_amount;
-		$pct = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `user`
-				FROM `".DB_PREFIX."pct`
-				WHERE `currency_id` = {$row['currency_id']}
-				ORDER BY `block_id` DESC
-				LIMIT 1
-				", 'fetch_one');
-		$pct = round((pow(1+$pct, 3600*24*365)-1)*100, 2);
-		$tpl['wallets'][] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount'], 'pct' => $pct);
-
-	}
+	$tpl['wallets'] = get_balances($user_id);
 
 	if (empty($_SESSION['restricted'])) {
-		// получаем последние 20 транзакций по кошелькам
+		// получаем последние транзакции по кошелькам
 		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
 				FROM `".DB_PREFIX.MY_PREFIX."my_dc_transactions`
