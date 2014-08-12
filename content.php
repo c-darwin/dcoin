@@ -117,4 +117,6 @@ else if ($tpl_name) {
 else {
 	require_once( ABSPATH . 'content/login.php' );
 }
+echo '<input type="hidden" id="tpl_name" value="'.$tpl_name.'">';
+
 ?>
