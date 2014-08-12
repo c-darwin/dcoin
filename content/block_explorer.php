@@ -64,9 +64,11 @@ else if ($tpl['block_id']) {
 	$block_data = $parsedata->block_data;
 	$tx_array = $parsedata->tx_array;
 	$block_data['sign'] = bin2hex($block_data['sign']);
+	$previous = $block_data['block_id'] - 1;
+	$next = $block_data['block_id'] + 1;
 
-	$tpl['data'].= "<tr><td><strong>Raw&nbsp;data</strong></strong></td><td><a href='get_block.php?id={$block_data['block_id']}' target='_blank'>Download</a></td></tr>";
-	$tpl['data'].= "<tr><td><strong>Block_id</strong></strong></td><td>{$block_data['block_id']}</td></tr>";
+	$tpl['data'].= "<tr><td><strong>Raw&nbsp;data</strong></td><td><a href='get_block.php?id={$block_data['block_id']}&download=1' target='_blank'>Download</a></td></tr>";
+	$tpl['data'].= "<tr><td><strong>Block_id</strong></td><td>{$block_data['block_id']} (<a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$previous}})\">Previous</a> / <a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$next}})\">Next</a> )</td></tr>";
 	$tpl['data'].= "<tr><td><strong>Hash</strong></td><td>{$hash}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>Time</strong></td><td>".date('d-m-Y H:i:s', $block_data['time'])." / {$block_data['time']}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>User_id</strong></td><td>{$block_data['user_id']}</td></tr>";
