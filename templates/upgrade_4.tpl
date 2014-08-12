@@ -23,11 +23,11 @@
 		google.maps.event.trigger(map, 'resize');
 	});
 
-	$("input").addClass( "form-control" );
-	$("input").width( 150 );
+	$("#main_div input").addClass( "form-control" );
+	$("#main_div input").width( 150 );
 
 </script>
-
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -51,3 +51,4 @@
 	<button class="btn btn-success" id="save"><?php echo $lng['save_and_goto_step_5']?></button>
 
 	<br><br><br><br><br><br><br>
+	</div>
