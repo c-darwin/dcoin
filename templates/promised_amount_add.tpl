@@ -125,14 +125,15 @@ $( "#currency_id" ).change(function () {
 		//$("#source_ogg").attr('src', 'public/promised_amount_'+currency_id+'.ogg');
 	})
 
-	$("select").addClass( "form-control" );
-	$("input").addClass( "form-control" );
-	$("button").addClass( "btn-outline btn-primary" );
-	$("input[type=text]").width( 500 );
-	$("select").width( 500 );
-	$("textarea").width( 500 );
+	$("#main_div select").addClass( "form-control" );
+	$("#main_div input").addClass( "form-control" );
+	$("#main_div button").addClass( "btn-outline btn-primary" );
+	$("#main_div input[type=text]").width( 500 );
+	$("#main_div select").width( 500 );
+	$("#main_div textarea").width( 500 );
 
 </script>
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['promised_amount_add_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -217,7 +218,7 @@ $( "#currency_id" ).change(function () {
 	    </div>
 
 
-	<p><span class="label label-important"><?php echo $lng['limits'] ?></span>  <?php echo $tpl['limits_text'] ?></p>
+	    <div class="alert alert-info"><strong><?php echo $lng['limits'] ?></strong>  <?php echo $tpl['limits_text'] ?></div>
 
 
 		<button class="btn" id="add_promised_amount"><?php echo $lng['next']?></button><br>
@@ -226,3 +227,4 @@ $( "#currency_id" ).change(function () {
     
 	<?php require_once( 'signatures.tpl' );?>
 
+</div>
