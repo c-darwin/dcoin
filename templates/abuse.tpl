@@ -40,7 +40,13 @@ $('#send_to_net').bind('click', function () {
 
 	} );
 
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
+
 </script>
+
+<div id="main_div">
 	<h1 class="page-header"><?php echo $lng['abuses_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
@@ -78,3 +84,4 @@ $('#send_to_net').bind('click', function () {
 	<?php require_once( 'signatures.tpl' );?>
 
 	<input type="hidden" id="abuses">
+</div>
