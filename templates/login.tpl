@@ -60,7 +60,7 @@ echo str_ireplace('myModal', 'myModalLogin', $modal);
 <script>
 	$('#myModal').remove();
 	$('#show_login').bind('click', function () {
-		$('#myModalLogin').modal('show');
+		$('#myModalLogin').modal({ backdrop: 'static' });
 	});
 </script>
 <div class="for-signature"></div>
