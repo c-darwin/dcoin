@@ -125,15 +125,16 @@
 				});
 	});
 
-	$("select").addClass( "form-control" );
-	$("input").addClass( "form-control" );
-	$("textarea").addClass( "form-control" );
-	$("input[type=text]").width( 500 );
-	$("input[type=checkbox]").width( 30 );
-	$("textarea").width( 500 );
-	$("select").width( 500 );
-	$("button").addClass( "btn-outline btn-primary" );
+	$("#main_div select").addClass( "form-control" );
+	$("#main_div input").addClass( "form-control" );
+	$("#main_div textarea").addClass( "form-control" );
+	$("#main_div input[type=text]").width( 500 );
+	$("#main_div input[type=checkbox]").width( 30 );
+	$("#main_div textarea").width( 500 );
+	$("#main_div select").width( 500 );
+	$("#main_div button").addClass( "btn-outline btn-primary" );
 </script>
+<div id="main_div">
 	<h1 class="page-header"><?php echo $lng['notifications_title']?></h1>
 
 <?php require_once( ABSPATH . 'templates/alert_success.php' );?>
@@ -276,3 +277,4 @@ if (node_admin_access($db)) {
 if	($("#use_smtp").is(':checked'))
 	show_smtp ();
 </script>
+</div>
