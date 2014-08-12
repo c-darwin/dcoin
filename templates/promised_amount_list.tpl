@@ -92,7 +92,7 @@ $("#main_div .amount").width( 70 );
 if (isset($tpl['actualization_promised_amounts']))
 	print '<button  onclick="fc_navigate(\'promised_amount_actualization\')" class="btn">'.$lng['actualize_promised_amounts'].'</button>';
 ?>
-<br><br><p><span class="label label-important"><?php echo $lng['limits'] ?></span>  <?php echo $tpl['limits_text'] ?></p>
+<br><br><div class="alert alert-info"><strong><?php echo $lng['limits'] ?></strong>  <?php echo $tpl['limits_text'] ?></div>
 <br>
 <a href="#" onclick="fc_navigate('for_repaid_fix')">for_repaid_fix</a>
 </div>
