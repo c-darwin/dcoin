@@ -1,9 +1,9 @@
 <script>
-$("select").addClass( "form-control" );
-$("input").addClass( "form-control" );
-$("button").addClass( "btn-outline btn-primary" );
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
 </script>
-
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['holidays_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -65,3 +65,4 @@ echo '<table class="table table-bordered" style="width:500px"><caption><h3>'.$ln
 <br>
 <p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text'] ?></p>
 
+</div>
