@@ -48,7 +48,7 @@ $('#send_to_net').bind('click', function () {
 <h1 class="page-header"><?php echo $tpl['id']?$lng['edit_cf_project_data_title']:$lng['new_cf_project_data_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#">CrowdFunding</a></li>
-	<li><a href="#"onclick="fc_navigate('my_cf_projects')">Мои проекты</a></li>
+	<li><a href="#"onclick="fc_navigate('my_cf_projects')"><?php echo $lng['my_cf_projects_title']?></a></li>
 	<li class="active"><?php echo $tpl['id']?$lng['edit_cf_project_data_title']:$lng['new_cf_project_data_title']?> <?php echo $tpl['cf_currency_name']?></li>
 </ol>
 
@@ -63,7 +63,7 @@ $('#send_to_net').bind('click', function () {
 				<input type="hidden" name="tpl_name" value="cf_page_preview"><br>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="lang_id">Язык</label>
+					<label class="col-md-4 control-label" for="lang_id"><?php echo $lng['language']?></label>
 					<div class="col-md-4">
 						<?php
 						if (isset($tpl['cf_data']['lang_id']))
@@ -76,7 +76,7 @@ $('#send_to_net').bind('click', function () {
 								echo "<option value='{$id}'>{$name}</option>";
 								?>
 							</select>
-							<span class="help-block">Язык, на котором Вы добавляете описание проекта.</span>
+							<span class="help-block"><?php echo $lng['language_description']?></span>
 							<?php
 						}
 						?>
@@ -84,23 +84,23 @@ $('#send_to_net').bind('click', function () {
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="blurb_img">Изображение для каталога</label>
+					<label class="col-md-4 control-label" for="blurb_img"><?php echo $lng['image_directory']?></label>
 					<div class="col-md-4">
 						<input id="blurb_img" name="blurb_img" class="form-control" type="text" maxlength="50" value="<?php echo @$tpl['cf_data']['blurb_img']?>">
-						<span class="help-block">Разрешение должно быть 200x310px. Размер url до 50 знаков.</span>
+						<span class="help-block"><?php echo $lng['cf_resolution1'].$lng['cf_url_size']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="blurb_img">Шапка страницы</label>
+					<label class="col-md-4 control-label" for="blurb_img"><?php echo $lng['page_header']?></label>
 					<div class="col-md-4">
 						<input id="head_img" name="head_img" class="form-control" type="text" maxlength="50" value="<?php echo @$tpl['cf_data']['head_img']?>">
-						<span class="help-block">Разрешение должно быть 1000x150px. Размер url до 50 знаков.</span>
+						<span class="help-block"><?php echo $lng['cf_resolution2'].$lng['cf_url_size']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="picture">Видео или картинка</label>
+					<label class="col-md-4 control-label" for="picture"><?php echo $lng['video_or_picture']?></label>
 					<div class="col-md-4">
 
 							<div class="input-group">
@@ -109,33 +109,33 @@ $('#send_to_net').bind('click', function () {
 								<input style="min-width: 110px" class="form-control" type="text" id="video_url_id" name="video_url_id" placeholder="" maxlength="20" value="<?php echo @$tpl['cf_data']['video_url_id']?>">
 							</div>
 
-						или картинка:
+						<?php echo $lng['or_picture']?>
 						<input id="picture" name="picture" class="form-control" type="text" maxlength="50" value="<?php echo @$tpl['cf_data']['picture']?>">
-						<span class="help-block">Если у Вас есть видео, то лучше разместить его, если видео нет, то укажите картинку. Разрешение 620x413px. Размер url до 50 знаков.</span>
+						<span class="help-block"><?php echo $lng['if_you_have_a_video'].$lng['cf_url_size']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="description_img">Картинка-описание</label>
+					<label class="col-md-4 control-label" for="description_img"><?php echo $lng['picture_description']?></label>
 					<div class="col-md-4">
 						<input id="description_img" name="description_img" class="form-control" type="text" maxlength="50" value="<?php echo @$tpl['cf_data']['description_img']?>">
-						<span class="help-block">Ширина - 990px, высота - любая. Размер url до 50 знаков.</span>
+						<span class="help-block"><?php echo $lng['cf_width_height1'].$lng['cf_url_size']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="news_img">Картинка-новости</label>
+					<label class="col-md-4 control-label" for="news_img"><?php echo $lng['image_news']?></label>
 					<div class="col-md-4">
 						<input id="news_img" name="news_img" class="form-control" type="text" maxlength="50" value="<?php echo @$tpl['cf_data']['news_img']?>">
-						<span class="help-block">Ширина - 990px, высота - любая. Размер url до 50 знаков.</span>
+						<span class="help-block"><?php echo $lng['cf_width_height1'].$lng['cf_url_size']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="links">Ссылки для картинки-описания</label>
+					<label class="col-md-4 control-label" for="links"><?php echo $lng['links_to_pictures']?></label>
 					<div class="col-md-4">
 						<textarea id="links" name="links" class="form-control" maxlength="512"><?php echo @$tpl['cf_data']['links']?></textarea>
-						<span class="help-block">В формате [["url1",x1,y1,x2,y2],["url2",x1,y1,x2,y2],...]. до 512 знаков. Разрешены ссылки только на goo.gl,bit.ly,t.co</span>
+						<span class="help-block"><?php echo $lng['links_format']?></span>
 					</div>
 				</div>
 
@@ -143,7 +143,7 @@ $('#send_to_net').bind('click', function () {
 				<div class="form-group">
 					<label class="col-md-4 control-label" for="singlebutton"></label>
 					<div class="col-md-4">
-						<button type="submit" class="btn btn-outline btn-primary" id="next">Предосмотр</button>
+						<button type="submit" class="btn btn-outline btn-primary" id="next"><?php echo $lng['preview']?></button>
 						<button type="button" class="btn btn-outline btn-primary" id="save"><?php echo $lng['send_to_net']?></button>
 					</div>
 				</div>
@@ -153,7 +153,7 @@ $('#send_to_net').bind('click', function () {
 		</form>
 
 		<div class="alert alert-info">
-			<strong><?php echo $lng['limits']?>:</strong> Можно добавить новое описание от отредактировать старое не более 10-и раз за сутки. Этот общий лимит для всех Ваших проектов.
+			<strong><?php echo $lng['limits']?>:</strong> <?php echo $lng['cf_data_limits']?>
 		</div>
 
 		<input type="hidden" placeholder="video_type" id="video_type" value="">
