@@ -196,7 +196,7 @@
 		$('#key').text( key );
 		$('#password').text( password );
 		
-		$("#key-password").html('<a href="#myModal" role="button"  data-toggle="modal"><?php echo $lng['change_key_pass']?></a>');
+		$("#key-password").html('<a href="#myModal" role="button"  data-toggle="modal" data-backdrop="static"><?php echo $lng['change_key_pass']?></a>');
 
      }
 
