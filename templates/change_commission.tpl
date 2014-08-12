@@ -42,12 +42,16 @@ $('#send_to_net').bind('click', function () {
 
 } );
 
-$("select").addClass( "form-control" );
-$("input").addClass( "form-control" );
-$("button").addClass( "btn-outline btn-primary" );
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
+
+if ( $('#key').text().length < 256 ) {
+	$('#myModal').modal({ backdrop: 'static' });
+}
 
 </script>
-
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['change_commission_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -77,3 +81,4 @@ $("button").addClass( "btn-outline btn-primary" );
 
 	<?php require_once( 'signatures.tpl' );?>
 
+</div>
