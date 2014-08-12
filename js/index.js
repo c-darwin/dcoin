@@ -39,8 +39,12 @@ function login_ok (result) {
         $('.modal-backdrop').remove();
         $('.modal-backdrop').css('display', 'none');
 
+        var tpl_name = $('#tpl_name').val();
+        if (!tpl_name)
+            tpl_name = 'home';
+
         $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
-           $( "#dc_content" ).load( "content.php", { tpl_name: "home" }, function() {
+           $( "#dc_content" ).load( "content.php", { tpl_name: tpl_name}, function() {
                 $.getScript("js2/plugins/metisMenu/metisMenu.min.js", function() {
                     $.getScript("js2/sb-admin.js");
                     $("#main-login").html('');
@@ -161,4 +165,10 @@ function map_init (lat, lng, map_canvas, drag) {
 
     });
     marker.setMap(map);
+}
+
+function check_key_and_show_modal() {
+    if ( $('#key').text().length < 256 ) {
+        $('#myModal').modal({ backdrop: 'static' });
+    }
 }
