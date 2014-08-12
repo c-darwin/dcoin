@@ -68,8 +68,13 @@
 						fc_navigate ('db_info', {'alert': 'Complete!'} );
 					});
 		});
+
+		$("#main_div select").addClass( "form-control" );
+		$("#main_div input").addClass( "form-control" );
+		$("#main_div button").addClass( "btn-outline btn-primary" );
 	</script>
 
+	<div id="main_div">
   <h1 class="page-header"><?php echo $lng['node_config_title']?></h1>
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -118,4 +123,4 @@
 	<div>
 		<button class="btn" onclick="fc_navigate('rewrite_primary_key')">rewrite primary key</button>
 	</div>
-
+</div>
