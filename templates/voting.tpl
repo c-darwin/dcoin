@@ -139,11 +139,12 @@ ArraySort = function(array, sortFunc){
 };
 
 
-$( "select" ).addClass( "form-control" );
-$( "select").width(100);
+$( "#main_div select" ).addClass( "form-control" );
+$( "#main_div select").width(100);
 
 
 </script>
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['voting']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -230,3 +231,4 @@ $( "select").width(100);
 
 	<?php require_once( 'signatures.tpl' );?>
 
+</div>
