@@ -793,6 +793,41 @@ function get_lang()
 	return $lang;
 }
 
+function get_balances($user_id)
+{
+	global $db;
+	// получаем список кошельков, на которых есть FC
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT *
+			FROM `".DB_PREFIX."wallets`
+			WHERE `user_id` = {$user_id}
+			");
+	while ( $row = $db->fetchArray($res) ) {
+
+		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $user_id, $db, $row['last_update'], time(), 'wallet');
+		$row['amount'] = floor( round( $row['amount'], 3)*100 ) / 100;
+		$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT sum(`amount`)
+				FROM `".DB_PREFIX."forex_orders`
+				WHERE `user_id` = {$user_id} AND
+							 `sell_currency_id` = {$row['currency_id']} AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+		$row['amount'] -= $forex_orders_amount;
+		$pct = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user`
+				FROM `".DB_PREFIX."pct`
+				WHERE `currency_id` = {$row['currency_id']}
+				ORDER BY `block_id` DESC
+				LIMIT 1
+				", 'fetch_one');
+		$pct = round((pow(1+$pct, 3600*24*365)-1)*100, 2);
+		$balances[] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount'], 'pct' => $pct);
+
+	}
+	return $balances;
+}
+
 function get_currency_list($db, $cf=false)
 {
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
