@@ -39,17 +39,17 @@ $('#send_to_net').bind('click', function () {
 		<form class="form-horizontal">
 			<fieldset>
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="category_id">Имя</label>
+					<label class="col-md-4 control-label" for="category_id"><?php echo $lng['name']?></label>
 					<div class="col-md-4">
 						<input class="form-control" type="text" id="name" value="<?php echo @$tpl['name']?>"
-						<span class="help-block">Разрешены английские буквы и пробелы</span>
+						<span class="help-block"><?php echo $lng['only_english_letters']?></span>
 					</div>
 				</div>
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="category_id">Аватар</label>
+					<label class="col-md-4 control-label" for="avatar"><?php echo $lng['avatar']?></label>
 					<div class="col-md-4">
 						<input class="form-control" type="text" id="avatar" value="<?php echo @$tpl['avatar']?>"
-						<span class="help-block">Url. До 30 знаков</span>
+						<span class="help-block"><?php echo $lng['avatar_url_30']?></span>
 					</div>
 				</div>
 
