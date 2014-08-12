@@ -154,6 +154,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_funding` (
   `time` int(11) NOT NULL COMMENT 'DC растут с юзерским %',
   `block_id` int(11) NOT NULL COMMENT 'Для откатов',
   `del_block_id` int(11) NOT NULL COMMENT 'Фундер передумал и до завершения проекта вернул деньги',
+  `checked` tinyint(1) NOT NULL COMMENT 'Для определения по крону cf_project.funding и cf_project.funding',
+  `del_checked` tinyint(1) NOT NULL COMMENT 'Для определения по крону cf_project.funding и cf_project.funding',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 ";
@@ -175,6 +177,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects` (
   `user_id` int(11) NOT NULL,
   `currency_id` tinyint(4) NOT NULL,
   `amount` int(11) NOT NULL,
+  `funding` decimal(15,2) NOT NULL COMMENT 'Получаем в кроне. Сколько собрано средств. Нужно для вывода проектов в каталоге, чтобы не дергать cf_funding',
+  `funders` int(11) NOT NULL COMMENT 'Получаем в кроне. Кол-во инвесторов. Нужно для вывода проектов в каталоге, чтобы не дергать cf_funding',
   `project_currency_name` char(7) NOT NULL,
   `start_time` int(11) NOT NULL,
   `end_time` int(11) NOT NULL,
@@ -187,6 +191,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects` (
   `del_block_id` int(11) NOT NULL COMMENT 'Проект был закрыт автором, а средства возвращены инвесторам',
   `block_id` int(11) NOT NULL COMMENT 'Для откатов',
   `log_id` bigint(20) NOT NULL,
+  `geo_checked` tinyint(1) NOT NULL COMMENT 'По крону превращаем координаты в названия страны и города и отмечаем тут',
   PRIMARY KEY (`id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 ";
