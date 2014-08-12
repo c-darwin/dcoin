@@ -736,7 +736,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			if ( !check_input_data ($public_key_1, 'public_key' ) )
 				die('error public_key');
-			if ( !check_input_data ($private_key, 'private_key' ) )
+			if ( $private_key && !check_input_data ($private_key, 'private_key' ) )
 				die('error private_key');
 			if ( !check_input_data ($password_hash, 'sha256' ) )
 				die('error password_hash');
