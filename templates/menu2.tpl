@@ -30,7 +30,7 @@
 				<li class="divider"></li>
 				<li><a href="#" onclick="logout()"><i class="fa fa-sign-out fa-lg"></i> <?php echo $lng['logout']?> (user_id: <?php echo $_SESSION['user_id']?>)</a>
 				</li>
-				<li><a href="#myModal"  data-toggle="modal"><i class="fa fa-sign-in fa-lg"></i> Change key</a>
+				<li><a href="#myModal"  data-toggle="modal" data-backdrop="static"><i class="fa fa-sign-in fa-lg"></i> Change key</a>
 				</li>
 			</ul>
 			<!-- /.dropdown-messages -->
@@ -130,8 +130,8 @@
 				</li>
 
 				<div id="main-login">
-					<a href="#myModal"  data-toggle="modal" role="button" class="btn btn-danger  btn-block "><i class="fa fa-sign-in fa-lg"></i> Login</a>
-					<div style="margin: 2px 10px; font-size: 11px">Чтобы Вы могли отправлять данные в DC-сеть, Вам нужно нажать "Login" и указать ключ.</div>
+					<a href="#myModal" data-backdrop="static" data-toggle="modal" role="button" class="btn btn-danger  btn-block "><i class="fa fa-sign-in fa-lg"></i> Login</a>
+					<div style="margin: 2px 10px; font-size: 11px"><?php echo $lng['login_alert']?></div>
 				</div>
 			</ul>
 			<!-- /#side-menu -->
