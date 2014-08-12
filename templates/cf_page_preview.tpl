@@ -220,10 +220,10 @@ if (1<0) {
 			<div id="project-info" style="overflow:auto;">
 				<div style="margin-left:18px">
 					<h1><?php echo $tpl['project']['funding']?></h1>
-					<p>pledged of <?php echo $tpl['project']['amount']?> <?php echo $tpl['project']['currency']?> goal </p>
+					<p>pledged of <?php echo $tpl['project']['amount']?> D<?php echo $tpl['project']['currency']?> goal </p>
 					<h1><?php echo $tpl['project']['days']?></h1>
 					<p>days to go </p>
-					<p style="font-weight: normal">Дата запуска: <?php echo $tpl['project']['start_date']?></p>
+					<p style="font-weight: normal"><?php echo $lng['start_date']?> <?php echo $tpl['project']['start_date']?></p>
 
 					<?php
 					if ($tpl['project']['ended']!=1)
