@@ -74,12 +74,12 @@ endDateTextBox.datetimepicker({
 	}
 });
 
-$("select").addClass( "form-control" );
-$("input").addClass( "form-control" );
-$("button").addClass( "btn-outline btn-primary" );
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
 </script>
 
-
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['new_holidays_title'] ?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -103,3 +103,4 @@ $("button").addClass( "btn-outline btn-primary" );
     </div>
 
 	<?php require_once( 'signatures.tpl' );?>
+</div>
