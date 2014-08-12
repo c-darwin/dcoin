@@ -96,11 +96,16 @@
 		});
 
 	} );
+
+	$("#main_div select").addClass( "form-control" );
+	$("#main_div input").addClass( "form-control" );
+	$("#main_div button").addClass( "btn-outline btn-primary" );
 </script>
 
+<div id="main_div">
 <h1><?php echo $lng['currency_exchange']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#"onclick="fc_navigate('wallets_list')">Мои кошельки</a></li>
+	<li><a href="#"onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
 	<li class="active"><?php echo $lng['currency_exchange']?></li>
 </ol>
 
@@ -215,3 +220,4 @@
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>
+</div>
