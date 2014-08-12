@@ -33,16 +33,39 @@ if ( isset($db) && get_community_users($db) ) {
 	}
 }
 
+// несколько краудфандинговых проектов
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *
 		FROM `".DB_PREFIX."cf_projects`
 		WHERE `del_block_id`=0
+		ORDER BY `funders` DESC
 		LIMIT 3
 		");
 while ( $row =  $db->fetchArray( $res ) ) {
 	$row = array_merge (project_data($row), $row);
 	$tpl['projects'][$row['id']] = $row;
 }
+
+// история операций по кошелькам
+if (empty($_SESSION['restricted'])) {
+	// получаем последние транзакции по кошелькам
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX.MY_PREFIX."my_dc_transactions`
+				WHERE `status` = 'approved'
+				ORDER BY `id` DESC
+				LIMIT 0, 10
+				");
+	while ( $row = $db->fetchArray($res) ) {
+		$tpl['my_dc_transactions'][] = $row;
+	}
+}
+
+// балансы
+$tpl['wallets'] = get_balances($user_id);
+
+$tpl['block_id'] = get_block_id($db);
+$tpl['currency_list'] = get_currency_list($db);
 
 require_once( ABSPATH . 'templates/home.tpl' );
 
