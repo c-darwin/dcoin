@@ -52,7 +52,7 @@ $('#new_cf_project').bind('click', function () {
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
-	<button type="button" class="btn btn-primary" data-toggle="button"  id="new_cf_project">Добавить новый проект</button><br><br>
+	<button type="button" class="btn btn-primary" data-toggle="button"  id="new_cf_project"><?php echo $lng['add_new_project']?></button><br><br>
 
 	<div>
 
@@ -67,21 +67,21 @@ $('#new_cf_project').bind('click', function () {
 				echo "<li><a href=\"#\" onclick=\"fc_navigate('add_cf_project_data', {'id':'{$data_id}'})\">{$tpl['cf_lng'][$lang_id]}</a></li> ";
 			?>
 			</ul>
-			<p><a href="#" onclick="fc_navigate('add_cf_project_data', {'project_id':'<?php echo $project_id?>'})">Добавить описание</a></p>
-			<p>Валюта: <?php echo $data['project_currency_name']?></p>
-			<p>Project ID: <?php echo $data['id']?></p>
-			<p>Категория: <?php echo $lng['cf_category'][$data['category_id']]?> <a href="#" onclick="fc_navigate('cf_project_change_category', {'project_id':'<?php echo $project_id?>'})"<i class="fa  fa-pencil fa-fw"></i></a></p>
+			<p><a href="#" onclick="fc_navigate('add_cf_project_data', {'project_id':'<?php echo $project_id?>'})"><?php echo $lng['add_description']?></a></p>
+			<p><?php echo $lng['currency']?>: <?php echo $data['project_currency_name']?></p>
+			<p><?php echo $lng['project_id']?>: <?php echo $data['id']?></p>
+			<p><?php echo $lng['category']?>: <?php echo $lng['cf_category'][$data['category_id']]?> <a href="#" onclick="fc_navigate('cf_project_change_category', {'project_id':'<?php echo $project_id?>'})"<i class="fa  fa-pencil fa-fw"></i></a></p>
 			<div>
 				<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
 				<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
 				<div class="card-bottom">
 					<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['pct']?>%</h5>funded</div>
-					<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> DRUB </h5>pledged</div>
+					<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> D<?php echo $tpl['currency_list'][$data['currency_id']]?> </h5>pledged</div>
 					<div style="float:left; overflow:auto;"><h5><?php echo $data['days']?></h5>days to go</div>
 				</div>
 			</div>
 			<div class="clearfix"></div>
-			<p style="margin-top:5px; margin-bottom: 0px"><a href="#" onclick="fc_navigate('del_cf_project', {'del_id':<?php echo $project_id?>})">Удалить проект</a></p>
+			<p style="margin-top:5px; margin-bottom: 0px"><a href="#" onclick="fc_navigate('del_cf_project', {'del_id':<?php echo $project_id?>})"><?php echo $lng['delete_project']?></a></p>
 			</div>
 			<?php
 			}
