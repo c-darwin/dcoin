@@ -131,8 +131,8 @@ $('#cf_currency').keyup(function(e) {
 	<h1 class="page-header"><?php echo $lng['new_cf_project_title']?></h1>
 	<ol class="breadcrumb">
 		<li><a href="#">CrowdFunding</a></li>
-		<li><a href="#"onclick="fc_navigate('my_cf_projects')">Мои проекты</a></li>
-		<li class="active">Новый проект</li>
+		<li><a href="#"onclick="fc_navigate('my_cf_projects')"><?php echo $lng['my_cf_projects_title']?></a></li>
+		<li class="active"><?php echo $lng['new_project']?></li>
 	</ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
@@ -142,7 +142,7 @@ $('#cf_currency').keyup(function(e) {
 			<fieldset>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="amount">Сумма</label>
+					<label class="col-md-4 control-label" for="amount"><?php echo $lng['amount']?></label>
 					<div class="col-md-4">
 						<div class="input-group">
 							<input style="min-width: 100px" id="amount" name="amount" class="form-control" type="text">
@@ -159,12 +159,12 @@ $('#cf_currency').keyup(function(e) {
 								</select>
 							</div>
 						</div>
-						<span class="help-block">Нужная Вам сумма</span>
+						<span class="help-block"><?php echo $lng['cf_target']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="days">Кол-во дней</label>
+					<label class="col-md-4 control-label" for="days"><?php echo $lng['number_of_days']?></label>
 					<div class="col-md-4">
 						<select id="days" name="days" class="form-control">
 							<?php
@@ -172,19 +172,19 @@ $('#cf_currency').keyup(function(e) {
 									echo "<option value='{$i}'>{$i}</option>";
 							?>
 						</select>
-						<span class="help-block">Сколько дней будет длиться сбор средств</span>
+						<span class="help-block"><?php echo $lng['how_many_days']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="days">Дата окончения</label>
+					<label class="col-md-4 control-label" for="days"><?php echo $lng['end_date']?></label>
 					<div class="col-md-4">
 						<p class="form-control-static" id="end_date"></p>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="category_id">Категория</label>
+					<label class="col-md-4 control-label" for="category_id"><?php echo $lng['category']?></label>
 					<div class="col-md-4">
 						<select id="category_id" name="category_id" class="form-control">
 							<?php
@@ -192,34 +192,34 @@ $('#cf_currency').keyup(function(e) {
 								echo "<option value='{$id}'>{$name}</option>";
 							?>
 						</select>
-						<span class="help-block">Категория для Вашего проекта</span>
+						<span class="help-block"><?php echo $lng['category_for_your_project']?></span>
 					</div>
 				</div>
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="cf_currency">Название валюты</label>
+					<label class="col-md-4 control-label" for="cf_currency"><?php echo $lng['name_of_the_currency']?></label>
 					<div class="col-md-4">
 						<div id="check_result">
 							<div id="check_result_text"></div>
 							<div class="input-group">
 								<input style="min-width: 100px" id="cf_currency" name="cf_currency" class="form-control" type="text">
 								<div class="input-group-btn">
-									<button type="button" class="btn btn-primary" id="check_cf_currency">Проверить занятость</button>
+									<button type="button" class="btn btn-primary" id="check_cf_currency"><?php echo $lng['check_currency_name']?></button>
 								</div>
 							</div>
 						</div>
-						<span class="help-block">Придумайте название для своей валюты. Допустимы буквы A-Z и цифры 0-9. Размер - ровно 7 символов.</span>
+						<span class="help-block"><?php echo $lng['name_for_currency']?></span>
 					</div>
 				</div>
 
 
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="city">Ваш город</label>
+					<label class="col-md-4 control-label" for="city"><?php echo $lng['your_city']?></label>
 					<div class="col-md-4">
 						<div id="my_location" style="font-weight: bold"><?php echo $tpl['city']?></div>
-						<a id="show_map" href="#">Показать карту</a>
+						<a id="show_map" href="#"><?php echo $lng['show_map']?></a>
 						<div id="map_canvas" style="width: 400px; height: 300px; display:none"></div>
-						<span class="help-block">Отметьте на карте Ваш город</span>
+						<span class="help-block"><?php echo $lng['your_city_on_map']?></span>
 					</div>
 				</div>
 
@@ -239,7 +239,7 @@ $('#cf_currency').keyup(function(e) {
 
 
 		<div class="alert alert-info">
-			<strong><?php echo $lng['limits']?>:</strong> Можно отправить в DC-сеть не более 1 проекта в неделю
+			<strong><?php echo $lng['limits']?>:</strong> <?php echo $lng['cf_new_projects_limit']?>
 		</div>
 
 	</div>
