@@ -40,7 +40,7 @@
 		<li><a href="#" onclick="fc_navigate('upgrade_1')">Step 1</a></li>
 		<li><a href="#" onclick="fc_navigate('upgrade_2')">Step 2</a></li>
 		<li><a href="#" onclick="fc_navigate('upgrade_3')">Step 3</a></li>
-	    <li><a href="#" onclick="fc_navigate('upgrade_4')">Step 4</a></li>
+	    <li><a href="#" onclick="map_navigate('upgrade_4')">Step 4</a></li>
 	    <li class="active"><a href="#" onclick="fc_navigate('upgrade_5')">Step 5</a></li>
     </ul>
     
