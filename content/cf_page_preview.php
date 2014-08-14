@@ -75,7 +75,7 @@ $tpl['project'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __M
 		WHERE `id` = {$tpl['project_id']}
 		", 'fetch_array');
 // сколько дней осталось
-$tpl['project']['days'] = round( ($tpl['project']['end_time'] - time() ) / 3600*24);
+$tpl['project']['days'] = round( ($tpl['project']['end_time'] - time() ) / (3600*24));
 if ($tpl['project']['days']<=0) {
 	$tpl['project']['ended'] = 1;
 	$tpl['project']['days'] = 0;
@@ -131,22 +131,24 @@ while ( $row =  $db->fetchArray( $res ) ) {
 }
 
 // список комментов
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `".DB_PREFIX."users`.`user_id`, `comment`, `time`, `name`, `avatar`
-		FROM `".DB_PREFIX."cf_comments`
-		LEFT JOIN `".DB_PREFIX."users` ON `".DB_PREFIX."users`.`user_id` = `".DB_PREFIX."cf_comments`.`user_id`
-		WHERE `project_id` = {$tpl['project_id']} AND
-					`lang_id` = {$tpl['lang_id']}
-		ORDER BY `time` DESC
-		LIMIT 100
-		");
-while ( $row =  $db->fetchArray( $res ) ) {
-	$row['time'] = date('d.m.Y H:i', $row['time']);
-	if (!$row['avatar'])
-		$row['avatar'] = 'img/noavatar.png';
-	if (!$row['name'])
-		$row['name'] = 'Noname';
-	$tpl['comments'][] = $row;
+if ($tpl['lang_id']) {
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `".DB_PREFIX."users`.`user_id`, `comment`, `time`, `name`, `avatar`
+			FROM `".DB_PREFIX."cf_comments`
+			LEFT JOIN `".DB_PREFIX."users` ON `".DB_PREFIX."users`.`user_id` = `".DB_PREFIX."cf_comments`.`user_id`
+			WHERE `project_id` = {$tpl['project_id']} AND
+						 `lang_id` = {$tpl['lang_id']}
+			ORDER BY `time` DESC
+			LIMIT 100
+			");
+	while ( $row =  $db->fetchArray( $res ) ) {
+		$row['time'] = date('d.m.Y H:i', $row['time']);
+		if (!$row['avatar'])
+			$row['avatar'] = 'img/noavatar.png';
+		if (!$row['name'])
+			$row['name'] = 'Noname';
+		$tpl['comments'][] = $row;
+	}
 }
 
 // сколько всего комментов на каждом языке
