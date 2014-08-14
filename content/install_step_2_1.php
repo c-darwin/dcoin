@@ -157,6 +157,12 @@ if (!isset($tpl['error'])) {
 		$tpl['php_path'] = $defined_constants['PHP_BINDIR'].'/php';
 	}
 
+
+
+	if ($_SESSION['install_progress'] < 2)
+		die('access denied');
+	$_SESSION['install_progress'] = 2.1;
+
 	require_once( ABSPATH . 'templates/install_step_2_1.tpl' );
 
 }
