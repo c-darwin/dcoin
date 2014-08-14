@@ -5,7 +5,7 @@
 		$.post( 'content.php', {
 			'tpl_name' : 'install_step_3',
 			'php_path' : $('#php_path').val()
-		}, function (data) { $('.fc_content').html( data ); }, 'html' );
+		}, function (data) { $('#dc_content').html( data ); }, 'html' );
 	} );
 </script>
 
