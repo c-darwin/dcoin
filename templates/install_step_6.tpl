@@ -13,6 +13,16 @@
 
 	<?php echo $lng['install_compete']?> <br><br>
 
-	<a href="#myModal" role="button"  data-toggle="modal" data-backdrop="static"><?php echo $lng['login_to_your_account']?></a>
+	<a href="#" id="show_login" role="button"><?php echo $lng['login_to_your_account']?></a>
+	<?php
+	require_once( ABSPATH . 'templates/modal.tpl' );
+	echo str_ireplace('myModal', 'myModalLogin', $modal);
+	?>
 
+	<script>
+		$('#myModal').remove();
+		$('#show_login').bind('click', function () {
+			$('#myModalLogin').modal({ backdrop: 'static' });
+		});
+	</script>
 </div>
