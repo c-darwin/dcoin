@@ -203,6 +203,7 @@ $lng['location_on_map'] = 'Location new miner noted them on the map';
 $lng['main_question'] = 'Does the right, in your opinion, this person mining D[currency]?';
 $lng['yes'] = 'Yes';
 $lng['no'] = 'No';
+$lng['show_miner_on_map'] = 'Show location miner';
 
 // upgrade
 $lng['upgrade_title'] = 'Upgrade to miner';
@@ -570,6 +571,9 @@ $lng['cf_comments'] = 'Comments';
 //del_cf_project
 $lng['del_cf_project_title'] = 'Deleting a Project';
 
+//del_cf_funding
+$lng['del_cf_funding_title'] = 'Cancel the project financing';
+
 //edit_cf_project
 $lng['cf_project_change_category_title'] = 'Changing category';
 
@@ -611,5 +615,9 @@ $lng['mining_menu']['start'][6] = 'Do not miss the [0]cash_requests_in[1]incomin
 $lng['mining_menu']['start'][7] = 'Translate coins with the promised amount to the [0]wallets_list[1]own account[2]';
 
 $lng['how_to_mining_coins'] = 'How to mining coins?';
+
+// pool_tech_works
+$lng['pool_tech_works'] = 'On the pool are technical works. Please check back later.';
+
 
 ?>
