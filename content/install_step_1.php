@@ -36,6 +36,7 @@ if ( !in_array("mcrypt", $extensions) )
 if ( PHP_INT_MAX!=2147483647 )
 	$tpl['php_32'] = 'no';
 
+$_SESSION['install_progress'] = 1;
 
 require_once( ABSPATH . 'templates/install_step_1.tpl' );
 
