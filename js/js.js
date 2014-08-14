@@ -1,4 +1,30 @@
 
+function file_upload (file_id, progress, type, script) {
+    var
+        $f = $('#'+file_id),
+        $p = $('#'+progress),
+        up = new uploader($f.get(0), {
+            url:'ajax/'+script,
+            prefix:'file',
+            type:type,
+            progress:function(ev){ $p.html(((ev.loaded/ev.total)*100)+'%'); $p.css('width',$p.html()); },
+            error:function(ev){
+                alert('error ' + ev.target.status+' - '+ev.target.statusText);
+            },
+            success:function(data){
+                if (data.error) {
+                    alert(data.error)
+                }
+                else {
+                    $('#'+progress).css("display", "none");
+                    $('#'+file_id+'_ok').css("display", "block");
+                    $('#'+file_id+'_ok').html('File successfully downloaded');
+                }
+            }
+        });
+    up.send();
+}
+
 function send_video (file_id, progress, type) {
     var
         $f = $('#'+file_id),
@@ -18,7 +44,7 @@ function send_video (file_id, progress, type) {
                 else {
                     $('#'+progress).css("display", "none");
                     $('#'+file_id+'_ok').css("display", "block");
-                    $('#'+file_id+'_ok').html('Файл успешно загружен');
+                    $('#'+file_id+'_ok').html('File successfully downloaded');
                     $('#video').css("display", "block");
                 }
             }
