@@ -26,7 +26,6 @@ $('#send_to_net').bind('click', function () {
 } );
 
 $('#show_map').bind('click', function () {
-
 	map_init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
 	google.maps.event.trigger(map, 'resize');
 });
