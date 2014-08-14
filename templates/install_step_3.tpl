@@ -15,7 +15,6 @@
 <br>
 	<?php echo $lng['status']?>:<br>
 
-<script src="js/jquery-1.9.1.min.js"></script>
 <script>
 	daemons_ok = false;
 
