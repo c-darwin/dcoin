@@ -69,7 +69,7 @@ $('#send_to_net').bind('click', function () {
 
 });
 
-function init (lat, lng, map_canvas, drag) {
+function map_init (lat, lng, map_canvas, drag) {
 	$("#"+map_canvas).css("display", "block");
 
 	var point = new google.maps.LatLng(lat, lng);
@@ -98,12 +98,18 @@ function init (lat, lng, map_canvas, drag) {
 	marker.setMap(map);
 }
 
+
+$('#show_map').bind('click', function () {
+	map_init (<?php echo $tpl['data']['user_info']['latitude']?>, <?php echo $tpl['data']['user_info']['longitude']?>, 'map_canvas', true);
+	google.maps.event.trigger(map, 'resize');
+});
+
 </script>
 
 <h1 class="page-header"><?php echo $lng['tasks_title_promised_amount']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
-	<li class="active"><?php echo $lng['tasks_title'] ?></li>
+	<li><a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['tasks_title'] ?></a></li>
 </ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
@@ -133,9 +139,11 @@ function init (lat, lng, map_canvas, drag) {
 		<input type="hidden" id="candidate-id" value="<?php echo $tpl['data']['user_info']['user_id']?>">
 		<!-- снизу - юзер на  карте -->
 		<?php echo $lng['location_on_map']?>
-		<div id="map_canvas" style="width: 640px; height: 480px;"></div>
+		<br>
+		<button type="button" class="btn btn-primary" id="show_map"><?php echo $lng['show_miner_on_map']?></button><br><br>
+		<div id="map_canvas" style="width: 640px; height: 480px; display: none"></div>
 		<script>
-			init (<?php echo $tpl['data']['user_info']['latitude']?>, <?php echo $tpl['data']['user_info']['longitude']?>, 'map_canvas');
+			//init (<?php echo $tpl['data']['user_info']['latitude']?>, <?php echo $tpl['data']['user_info']['longitude']?>, 'map_canvas');
 		</script>
 
 		<?php echo $lng['main_question']?><br>
