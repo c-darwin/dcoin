@@ -47,7 +47,7 @@
 					'hash_pass' : md5_pass,
 					'save_private_key' : save_private_key
 			}, function (data) {
-				$('.fc_content').html( data );
+				$('#dc_content').html( data );
 			}, 'html' );
 
 	});
