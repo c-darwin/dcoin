@@ -6440,19 +6440,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 		$this->rollbackAI('log_promised_amount');
 
-		$this->get_my_user_id($this->tx_data['user_id']);
-		if ($this->tx_data['user_id'] == $this->my_user_id || in_array($this->my_user_id, $users_wallets_rollback)) {
-
-			// откатим транзакцию в локальных отчетах, по которой нам начисляются DC
-			// могут захватится другие тр-ии, но это не страшно: всё равно их откатывать надо
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_dc_transactions`
-					WHERE `block_id` = {$this->block_data['block_id']}
-					");
-			$AffectedRows = $this->db->getAffectedRows();
-			$this->rollbackAI("{$this->my_prefix}my_dc_transactions", $AffectedRows);
-
-		}
+	    $this->mydctx_rollback();
 	}
 
 	public function check_for_repaid($user_id)
@@ -8614,7 +8602,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$LOG_MARKER = 'send_dc_rollback - from_user_id';
 		$this->general_rollback('wallets', $this->tx_data['from_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
 
-		$this->get_my_user_id(0); // тут просто получаем my_block_id и my_user_ids
+		/*$this->get_my_user_id(0); // тут просто получаем my_block_id и my_user_ids
 		if ( ( in_array($this->tx_data['from_user_id'], $this->my_user_ids) || in_array($this->tx_data['to_user_id'], $this->my_user_ids) || in_array($this->block_data['user_id'], $this->my_user_ids) ) && $this->my_block_id <= $this->block_data['block_id'] ) {
 
 			$collective = get_community_users($this->db);
@@ -8635,6 +8623,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$AffectedRows = $this->db->getAffectedRows();
 			$this->rollbackAI("{$my_prefix}my_dc_transactions", $AffectedRows);
 		}
+		упростил до $this->mydctx_rollback();
+		*/
+		$this->mydctx_rollback();
 	}
 
 	// 13
@@ -9920,6 +9911,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						");
 			}
 		}
+
+		$this->mydctx_rollback();
+
 	}
 
 	// 15
@@ -10932,6 +10926,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$error = $this->get_tx_data(array('funding_id', 'sign'));
 		if ($error) return $error;
 		$this->variables = self::get_all_variables($this->db);
+		$this->getPct();
 	}
 
 	function del_cf_funding_front()
@@ -10974,6 +10969,34 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	}
 
+	function mydctx_rollback()
+	{
+		// если работаем в режиме пула
+		$community = get_community_users($this->db);
+		if ($community) {
+			for ($i=0; $i<sizeof($community); $i++) {
+
+				$my_prefix = $community[$i].'_';
+				// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						DELETE FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
+						WHERE `block_id` = {$this->block_data['block_id']}
+						");
+				$AffectedRows = $this->db->getAffectedRows();
+				$this->rollbackAI("{$my_prefix}my_dc_transactions", $AffectedRows);
+			}
+		}
+		else {
+			// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."my_dc_transactions`
+					WHERE `block_id` = {$this->block_data['block_id']}
+					");
+			$AffectedRows = $this->db->getAffectedRows();
+			$this->rollbackAI("my_dc_transactions", $AffectedRows);
+		}
+	}
+
 	function del_cf_funding()
 	{
 		// нужно учесть набежавшие %
@@ -10998,6 +11021,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `del_block_id` = {$this->block_data['block_id']}
 				WHERE `id` = {$this->tx_data['funding_id']}
 				");
+
+
 	}
 
 	function del_cf_funding_rollback()
@@ -11015,6 +11040,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `id` = {$this->tx_data['funding_id']}
 				", 'fetch_array');
 		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$funding_data['currency_id']}");
+
+		$this->mydctx_rollback();
 	}
 
 	function del_cf_funding_rollback_front()
@@ -11243,8 +11270,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					// бэкерам - валюта проекта
 					$this -> update_recipient_wallet( $row['user_id'], $project_currency_id, $amount_and_pct, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
 				}
-
-				$this -> update_recipient_wallet( $project['user_id'], $project['currency_id'], $sum_and_pct, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
+				// автору - DC
+				$this -> update_recipient_wallet( $project['user_id'], $project['currency_id'], $sum_and_pct_author, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
 			}
 			else { // нужная сумма не набрана
 
@@ -11305,12 +11332,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						SELECT `user_id`
 						FROM `".DB_PREFIX."cf_funding`
 						WHERE `project_id` = {$this->tx_data['project_id']}
-						ORDER BY `DESC`
+						ORDER BY `id` DESC
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
 					// откат возврата
 					$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project_currency_id}");
 				}
+
+				// Удаляем созданную валюту
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						DELETE FROM `".DB_PREFIX."cf_currency`
+						WHERE `name` = '{$project['project_currency_name']}'
+						");
 
 			}
 			else { // нужная сумма не набрана
@@ -11320,7 +11353,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						SELECT `user_id`
 						FROM `".DB_PREFIX."cf_funding`
 						WHERE `project_id` = {$this->tx_data['project_id']}
-						ORDER BY `DESC`
+						ORDER BY `id` DESC
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
 					// откат возврата
@@ -11357,6 +11390,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// возможно нужно откатить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['user_id']);
 		$this->points_update_rollback_main($this->block_data['user_id']);
+
+		$this->mydctx_rollback();
 	}
 
 	function cf_send_dc_rollback_front()
@@ -11576,7 +11611,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if ( !check_input_data ($this->tx_data['project_id'], 'int') )
 			return 'project_id';
-		if ( !check_input_data ($this->tx_data['lang_id'], 'tinyint') )
+		if ( !check_input_data ($this->tx_data['lang_id'], 'tinyint') || $this->tx_data['lang_id']<=0 )
 			return 'lang_id';
 		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
 		if ( !check_input_data ($this->tx_data['comment'], 'cf_comment') )
@@ -11728,8 +11763,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$time1 = time()-30;
 			$time2 = time()+30;
 		}
-		// дата завершения проекта не может быть более чем на 90 дней и менее чем на 7 дней вперед от текущего времени
-		if ($this->tx_data['end_time'] - $time1 > 3600*24*90 || $this->tx_data['end_time'] - $time2 < 3600*24*7)
+		// дата завершения проекта не может быть более чем на 91 дней и менее чем на 6 дней вперед от текущего времени
+		if ($this->tx_data['end_time'] - $time1 > 3600*24*91 || $this->tx_data['end_time'] - $time2 < 3600*24*6)
 			return 'bad end_time';
 
 		if (!$this->checkCurrency($this->tx_data['currency_id']))
@@ -12258,30 +12293,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 		$this->rollbackAI('log_forex_orders_main');
 
-		// если работаем в режиме пула
-		$community = get_community_users($this->db);
-		if ($community) {
-			for ($i=0; $i<sizeof($community); $i++) {
-
-				$my_prefix = $community[$i].'_';
-				// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
-				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						DELETE FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
-						WHERE `block_id` = {$this->block_data['block_id']}
-						");
-				$AffectedRows = $this->db->getAffectedRows();
-				$this->rollbackAI("{$my_prefix}my_dc_transactions", $AffectedRows);
-			}
-		}
-		else {
-			// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."my_dc_transactions`
-					WHERE `block_id` = {$this->block_data['block_id']}
-					");
-			$AffectedRows = $this->db->getAffectedRows();
-			$this->rollbackAI("my_dc_transactions", $AffectedRows);
-		}
+		$this->mydctx_rollback();
 	}
 
 	function new_forex_order_rollback_front()
