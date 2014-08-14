@@ -92,7 +92,19 @@ if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') 
 		define('COMMUNITY', true);
 	}
 
+
 	if (isset($db)) {
+
+		// проверим, не идут ли тех. работы на пуле
+		$config = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+				SELECT `pool_admin_user_id`,
+							  `pool_tech_works`
+				FROM `'.DB_PREFIX.'config`
+				', 'fetch_array');
+		if ($config['pool_admin_user_id'] && $config['pool_admin_user_id']!=$_SESSION['user_id'] && $config['pool_tech_works']==1)
+			$tpl_name = 'pool_tech_works';
+
+		// форма для ввода подписи
 		define('MY_PREFIX', get_my_prefix($db));
 		// если у юзера только 1 праймари ключ, то выдавать форму, где показываются данные для подписи и форма ввода подписи не нужно. Только если он сам не захочет.
 		$show_sign_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
