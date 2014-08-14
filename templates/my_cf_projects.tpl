@@ -60,7 +60,7 @@ $('#new_cf_project').bind('click', function () {
 		foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px">
-				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $data['id']?>, 'lang_id':<?php echo $data['lang_id']?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $data['id']?><?php echo $data['lang_id']?", 'lang_id':{$data['lang_id']}":""?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
 			<ul class="list-inline mlng" style="margin-left:0px; margin-top:5px; padding-left: 0px">
 			<?php
 			foreach ($data['lang'] as $data_id=>$lang_id)
