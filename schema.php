@@ -9,6 +9,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_lang` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
   `name` varchar(200) CHARACTER SET utf8 NOT NULL,
   PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ";
 
 $queries[] = "INSERT INTO `{$db_name}`.`{$prefix}cf_lang` (`id`, `name`) VALUES
@@ -450,12 +451,19 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}info_block` (
 
 ";
 
+$my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_tasks`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_tasks` (
+  `type` enum('promised_amount','miner') NOT NULL,
+  `id` int(11) NOT NULL,
+  `time` int(11) NOT NULL
+) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+";
 
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_new_users`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_new_users` (
   `user_id` int(10) NOT NULL,
   `add_time` int(11) NOT NULL COMMENT 'для удаления старых my_pending',
-  `public_key` varchar(3096) NOT NULL COMMENT 'Нужен просто чтобы опознать в блоке зареганного юзера и отметить approved',
+  `public_key`varbinary(512) NOT NULL COMMENT 'Нужен просто чтобы опознать в блоке зареганного юзера и отметить approved',
   `private_key` varchar(3096) NOT NULL,
   `status` enum('my_pending','approved') NOT NULL DEFAULT 'my_pending'
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Чтобы после генерации нового юзера не потерять его приватный ключ можно сохранить его тут';
@@ -1017,14 +1025,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_cash_requests` (
 ";
 
 
-$my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_ddos_protection`;
-CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_ddos_protection` (
-  `ip` int(11) NOT NULL COMMENT 'Раз в минуту удаляется',
-  `req` int(11) NOT NULL COMMENT 'Кол-во запросов от ip. ',
-  PRIMARY KEY (`ip`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Защита от случайного ддоса';
-
-";
 
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions` (
@@ -1093,18 +1093,6 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_keys` (
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Ключи для авторизации юзера. Используем крайний';
 
 ";
-
-
-$my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_log`;
-CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_log` (
-  `id` int(11) NOT NULL,
-  `time` int(11) NOT NULL,
-  `data` varchar(1024) NOT NULL,
-  PRIMARY KEY (`id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Всё, что шлется на мыло - логируется тут';
-
-";
-
 
 
 
@@ -1851,6 +1839,15 @@ $queries[] = "INSERT INTO `{$db_name}`.`{$prefix}payment_systems` (`name`)
 					VALUES ('Adyen'),('Alipay'),('Amazon Payments'),('AsiaPay'),('Atos'),('Authorize.Net'),('BIPS'),('BPAY'),('Braintree'),('CentUp'),('Chargify'),('Citibank'),('ClickandBuy'),('Creditcall'),('CyberSource'),('DataCash'),('DigiCash'),('Digital River'),('Dwolla'),('ecoPayz'),('Edy'),('Elavon'),('Euronet Worldwide'),('eWAY'),('Flooz'),('Fortumo'),('Google'),('GoCardless'),('Heartland Payment Systems'),('HSBC'),('iKobo'),('iZettle'),('IP Payments'),('Klarna'),('Live Gamer'),('Mobilpenge'),('ModusLink'),('MPP Global Solutions'),('Neteller'),('Nochex'),('Ogone'),('Paymate'),('PayPal'),('Payoneer'),('PayPoint'),('Paysafecard'),('PayXpert'),('Payza'),('Peppercoin'),('Playspan'),('Popmoney'),('Realex Payments'),('Recurly'),('RBK Money'),('Sage Group'),('Serve'),('Skrill (Moneybookers)'),('Stripe'),('Square, Inc.'),('TFI Markets'),('TIMWE'),('Use My Services (UMS)'),('Ukash'),('V.me by Visa'),('VeriFone'),('Vindicia'),('WebMoney'),('WePay'),('Wirecard'),('Western Union'),('WorldPay'),('Yandex money'),('Qiwi'),('OK Pay'),('Bitcoin'),('Perfect Money')";
 
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}ddos_protection`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}ddos_protection` (
+  `ip` int(11) NOT NULL COMMENT 'Раз в минуту удаляется',
+  `req` int(11) NOT NULL COMMENT 'Кол-во запросов от ip. ',
+  PRIMARY KEY (`ip`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Защита от случайного ддоса';
+
+";
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}config`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `php_path` varchar(255) NOT NULL COMMENT 'Нужно для запуска демонов',
@@ -1862,7 +1859,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `out_connections` int(11) NOT NULL COMMENT 'Кол-во нодов, кому шлем данные',
   `bad_blocks` text NOT NULL COMMENT 'Номера и sign плохих блоков. Нужно, чтобы не подцепить более длинную, но глючную цепочку блоков',
   `pool_max_users` int(11) NOT NULL DEFAULT '100',
-  `pool_admin_user_id`  int(11) NOT NULL
+  `pool_admin_user_id`  int(11) NOT NULL,
+  `pool_tech_works`  tinyint(1) NOT NULL
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";
