@@ -9,7 +9,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 
-<title>Democratic Coin</title></title>
+<title>Democratic Coin</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="css2/bootstrap.min.css" rel="stylesheet">
