@@ -466,7 +466,7 @@ function check_input_data ($data, $type, $info='')
 
 		case 'int':
 
-			if (preg_match('/^[0-9]{1,10}$/D', $data) && $data < 4294967295)
+			if (preg_match('/^[0-9]{1,10}$/D', $data) && $data < 2147483647)
 				return true;
 
 			break;
@@ -900,7 +900,7 @@ function project_data($project_data)
 	$row['funding_amount'] = round($row['funding_amount']);
 
 	// дней до окончания
-	$row['days'] = round(($project_data['end_time'] - time()) / 3600*24);
+	$row['days'] = round(($project_data['end_time'] - time()) / (3600*24));
 	$row['days'] = $row['days']<0?0:$row['days'];
 
 	return $row;
@@ -2443,13 +2443,13 @@ function ddos_protection ($ip)
 	  * Защита от случайного ддоса
 	 * */
 	$my_table = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-		SELECT `in_connections_ip_limit`,
-					 `in_connections`
-		FROM `".DB_PREFIX.MY_PREFIX."my_table`
-		", 'fetch_array' );
+			SELECT `in_connections_ip_limit`,
+						 `in_connections`
+			FROM `".DB_PREFIX."config`
+			", 'fetch_array' );
 
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-		INSERT IGNORE INTO `".DB_PREFIX.MY_PREFIX."my_ddos_protection` (
+		INSERT IGNORE INTO `".DB_PREFIX."ddos_protection` (
 			`ip`,
 			`req`
 		) VALUES (
@@ -2461,13 +2461,13 @@ function ddos_protection ($ip)
 
 	$ip_count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		SELECT sum(`req`)
-		FROM `".DB_PREFIX.MY_PREFIX."my_ddos_protection`
+		FROM `".DB_PREFIX."ddos_protection`
 		WHERE  `ip` = INET_ATON('{$ip}')
 		", 'fetch_one' );
 
 	$total_count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		SELECT count(`ip`)
-		FROM `".DB_PREFIX.MY_PREFIX."my_ddos_protection`
+		FROM `".DB_PREFIX."ddos_protection`
 		", 'fetch_one' );
 
 	if ($ip_count > $my_table['in_connections_ip_limit'])
@@ -3800,6 +3800,10 @@ function get_my_notice_data()
 
 function hash_table_data($db, $table, $where='', $order_by='')
 {
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SET GLOBAL group_concat_max_len=102400;
+			");
+
 	$columns = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT GROUP_CONCAT( column_name SEPARATOR ',' )
 			FROM information_schema.columns
@@ -3856,5 +3860,16 @@ function del_user_pct($pct_arr, $user_max_key)
 	return $new;
 }
 
+function get_install_progress()
+{
+	global $db;
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `progress`
+			FROM `".DB_PREFIX."install`
+			", 'fetch_one');
+}
+
+
+$my_tables = array('my_admin_messages','my_cash_requests','my_comments','my_commission','my_complex_votes','my_dc_transactions','my_holidays','my_keys','my_new_users','my_node_keys','my_notifications','my_promised_amount','my_table');
 
 ?>
