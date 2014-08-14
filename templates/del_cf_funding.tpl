@@ -17,8 +17,15 @@ $('#send_to_net').bind('click', function () {
 			} );
 } );
 
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div textarea").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
+
 </script>
-  <h1 class="page-header"><?php echo $lng['del_cf_project_title']?></h1>
+
+<div id="main_div">
+  <h1 class="page-header"><?php echo $lng['del_cf_funding_title']?></h1>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
@@ -27,8 +34,8 @@ $('#send_to_net').bind('click', function () {
 		<label><?php echo $lng['data']?></label>
 		<textarea id="for-signature" style="width:500px;" rows="4"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['del_id']}"; ?></textarea>
 	    <?php
-	for ($i=1; $i<=$count_sign; $i++) {
-		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
+		for ($i=1; $i<=$count_sign; $i++) {
+			echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
 	    }
 	    ?>
 	    <br>
@@ -42,3 +49,4 @@ $('#send_to_net').bind('click', function () {
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
+</div>
