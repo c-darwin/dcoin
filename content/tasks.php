@@ -1,20 +1,12 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+//Нельзя завершить голосование юзеров раньше чем через сутки, даже если набрано нужное кол-во голосов.
+//В голосовании нодов ждать сутки не требуется, т.к. там нельзя поставить поддельных нодов
 
-	
-	/*
-	
-		votes_start_time > ".(time()-86400*10)." - временно. Нормальное состояние - 1 сутки.
-	    >>>>>> но если делать решеающий голос вместо крона, то временные лимиты тут надо убрать <<<<<
-
-		Нельзя завершить голосование юзеров раньше чем через сутки, даже если набрано нужное кол-во голосов.
-		В голосовании нодов ждать сутки не требуется, т.к. там нельзя поставить поддельных нодов
-
-	*/
+define('TASK_TIME', 3600*24); // чтобы не выдавать одно и тоже голосование
 	
 $rand_array = array();
-
 
 // Модерация новых майнеров
 // берем тех, кто прошел проверку нодов (type='node_voting')
@@ -100,7 +92,19 @@ switch ($task_type) {
 				ORDER BY rand()
 				LIMIT 1
 				" , 'fetch_array' );
-		//print $db->printsql();
+
+		// проверим, не голосовали ли мы за это в последние 30 минут
+		$repeated = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX.MY_PREFIX."my_tasks`
+				WHERE `type` = 'miner' AND
+							 `id` = {$tpl['user_info']['vote_id']} AND
+							 `time` > ".(time()-TASK_TIME)."
+				", 'fetch_one' );
+		if ($repeated) {
+			require_once( ABSPATH . 'templates/tasks.tpl');
+			break;
+		}
 
 		$tpl['user_info']['example_points'] = get_points($db);
 		//print_R($tpl['user_info']['example_points']);
@@ -229,6 +233,19 @@ switch ($task_type) {
 				", 'fetch_array' );
 		debug_print($tpl['data'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$tpl['data']['currency_name'] = $tpl['currency_list'][$tpl['data']['currency_id']];
+
+		// проверим, не голосовали ли мы за это в последние 30 минут
+		$repeated = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX.MY_PREFIX."my_tasks`
+				WHERE `type` = 'promised_amount' AND
+							 `id` = {$tpl['data']['id']} AND
+							 `time` > ".(time()-TASK_TIME)."
+				", 'fetch_one' );
+		if ($repeated) {
+			require_once( ABSPATH . 'templates/tasks.tpl');
+			break;
+		}
 
 		// если нету видео на ютубе, то получаем host юзера, где брать видео
 		if ( $tpl['data']['video_url_id']=='null' ) {
