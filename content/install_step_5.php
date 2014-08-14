@@ -8,7 +8,10 @@ require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
 require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
 require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 
-//if ($_POST['type']=='exists') {
+
+if ($_SESSION['install_progress'] < 4)
+	die('access denied');
+
 
 $tpl['error'] = array();
 // получаем паблик-кей на основе e и n
@@ -67,10 +70,13 @@ if (!$tpl['error']) {
 			SET`progress` = 'complete'
 			");
 
+	$_SESSION['install_progress'] = 6;
 	// пропускаем 5-й шаг, т.к. на 5-м шаге выводится праймари ключ, который генерится на сервере, а оно уже не актуально, т.к. ключ выдает майнер
 	require_once( ABSPATH . 'templates/install_step_6.tpl' );
 }
 else {
+
+	$_SESSION['install_progress'] = 4;
 	require_once( ABSPATH . 'templates/install_step_4.tpl' );
 }
 
