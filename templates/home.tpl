@@ -81,6 +81,7 @@
 				</thead>
 				<tbody>
 				<?php
+				if ($tpl['my_dc_transactions'])
 				foreach ($tpl['my_dc_transactions'] as $data) {
 					echo "<tr>";
 					if ($data['to_user_id']==$user_id)
@@ -141,10 +142,11 @@
 		<div style="width:800px; overflow:auto; margin-left: 15px">
 			<h3>CrowdFunding</h3>
 			<?php
+			if ($tpl['projects'])
 			foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px; background-color: #fff">
-				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?>, 'lang_id':<?php echo $data['lang_id']?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?><?php echo $data['lang_id']?", 'lang_id':{$data['lang_id']}":""?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
 				<div>
 					<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
 					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
@@ -167,7 +169,7 @@
 		<?php if (@$_SESSION['ADMIN']==1) {?>
 			<br><br><br><br><button type="button" class="btn" data-toggle="button"  onclick="$.post('admin/content.php', { tpl_name: 'index', parameters: '' },
 	              function(data) {
-	              $('.fc_content').html( data );
+	              $('#dc_content').html( data );
 	              }, 'html');" style="margin-left:30px">admin</button>
 		<?php } ?>
 	</div>
