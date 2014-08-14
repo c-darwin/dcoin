@@ -47,7 +47,13 @@ if (!$user_id) {
 }
 ?>
 <div style="margin-left: -42px; width:84px;position: absolute;top: 50%;left: 50%;  ">
-	<button type="button" class="btn btn-primary btn-lg" id="show_login"><?php echo $lng['login']?></button>
+	<?php
+	if ($tpl['pool_tech_works'])
+		echo '<div class="alert alert-info" style="width: 540px;position:absolute; top: 50%; left: 50%; margin-left: -270px; text-align:center">'.$lng['pool_tech_works'].'</div>';
+	else
+		echo '<button type="button" class="btn btn-primary btn-lg" id="show_login">'.$lng['login'].'</button>';
+	?>
+
 </div>
 
 <?php if (!$user_id) echo '<div class="alert alert-info" style="width: 540px;position:absolute; bottom:0; left: 50%; margin-left: -270px; text-align:center">'.$lng['login_help_text'].'</div>' ?>
