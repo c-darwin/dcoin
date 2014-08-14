@@ -46,11 +46,11 @@ if (!$user_id) {
 <?php
 }
 ?>
+<!--
 <div style="margin-left: -42px; width:84px;position: absolute;top: 50%;left: 50%;  ">
 	<button type="button" class="btn btn-primary btn-lg" id="show_login"><?php echo $lng['login']?></button>
-</div>
-
-<?php if (!$user_id) echo '<div class="alert alert-info" style="width: 540px;position:absolute; bottom:0; left: 50%; margin-left: -270px; text-align:center">'.$lng['login_help_text'].'</div>' ?>
+</div>-->
+<div class="alert alert-info" style="width: 540px;position:absolute; top: 50%; left: 50%; margin-left: -270px; text-align:center"><?php echo $lng['pool_tech_works']?></div>
 
 <?php
 require_once( ABSPATH . 'templates/modal.tpl' );
