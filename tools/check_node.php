@@ -113,6 +113,9 @@ else {
 			$sql_where = " WHERE `block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2'])."";
 			$order_by = "`log_id`";
 		}
+		else if (preg_match('/^(cf_comments|cf_currency|cf_funding|cf_lang|cf_projects|cf_projects_data)$/i', $table) ) {
+			$order_by = "`id`";
+		}
 
 		$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(*)
