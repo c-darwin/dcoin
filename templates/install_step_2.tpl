@@ -12,7 +12,7 @@
 			'mysql_password' : $('#mysql_password').val(),
 			'pool_data' : $('#pool_data').val(),
 			'pool_admin_user_id' : $('#pool_admin_user_id').val()
-		}, function (data) { $('.fc_content').html( data ); }, 'html' );
+		}, function (data) { $('#dc_content').html( data ); }, 'html' );
 	} );
 </script>
 
