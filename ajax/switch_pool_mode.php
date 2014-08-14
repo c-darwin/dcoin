@@ -20,8 +20,6 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 if (!node_admin_access($db))
 	die ('Permission denied');
 
-$my_tables = array('my_admin_messages','my_cash_requests','my_comments','my_commission','my_complex_votes','my_dc_transactions','my_ddos_protection','my_holidays','my_keys','my_log','my_new_users','my_node_keys','my_notifications','my_promised_amount','my_table');
-
 if (!get_community_users($db)) { // сингл-мод
 
 	define('MY_PREFIX', '');
