@@ -2,7 +2,7 @@
 
 $('#next').bind('click', function () {
 
-	$('#page-wrapper').spin();
+	<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main").css("display", "none");	$("#sign").css("display", "block");' ?>
 
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+$('#end_time').val()+','+$("#latitude").val()+','+$("#longitude").val()+','+$("#category_id").val()+','+$("#cf_currency").val());
 	doSign();
@@ -12,7 +12,7 @@ $('#next').bind('click', function () {
 function make_my_time(days)
 {
 	var unixtime = Number((new Date().getTime() / 1000).toFixed(0));
-	var end_time = Number(days) * 3600*24 +3600*8 + unixtime;
+	var end_time = Number(days) * 3600*24 + unixtime;
 	$('#end_time').val(end_time);
 	var end_date = new Date(end_time*1000);
 	var curr_date = end_date.getDate();
@@ -137,7 +137,7 @@ $('#cf_currency').keyup(function(e) {
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 	
-	<div id="change_host">
+	<div id="main">
 		<form class="form-horizontal">
 			<fieldset>
 
