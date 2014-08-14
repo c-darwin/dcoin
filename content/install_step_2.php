@@ -19,6 +19,10 @@ else {
 	$tpl['mysql_prefix'] = '';
 }
 
+if ($_SESSION['install_progress'] < 1)
+	die('access denied');
+$_SESSION['install_progress'] = 2;
+
 require_once( ABSPATH . 'templates/install_step_2.tpl' );
 
 ?>
