@@ -1,6 +1,10 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+
+if ($_SESSION['install_progress'] < 2.1)
+	die('access denied');
+
 if ($_POST['php_path']) {
 
 	$php_path = clear_comment($_POST['php_path'], $db);
@@ -42,6 +46,8 @@ else {
 	$lng['install_create_cron'] = $lng['install_create_cron_nix'];
 }
 
+
+$_SESSION['install_progress'] = 3;
 require_once( ABSPATH . 'templates/install_step_3.tpl' );
 
 ?>
