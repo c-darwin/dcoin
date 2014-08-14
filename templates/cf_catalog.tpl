@@ -1,6 +1,17 @@
 <link href="css2/cf.css" rel="stylesheet">
 
 <h1 class="page-header"><?php echo $lng['cf_projects_title']?></h1>
+<?php
+if ($tpl['cur_category']) {
+	?>
+	<ol class="breadcrumb">
+		<li><a href="#">CrowdFunding</a></li>
+		<li><a href="#"onclick="fc_navigate('cf_catalog')"><?php echo $lng['catalog']?></a></li>
+		<li class="active"><?php echo $lng['cf_category'][$tpl['category_id']]?></li>
+	</ol>
+	<?php
+}
+?>
 
 <!--	<div class="width_max" style="margin-bottom:70px">
 		<ul class="nav navbar-nav navbar-left" style="padding-top:10px">
@@ -23,10 +34,11 @@
 	<div style="float:left; width:900px; overflow:auto;">
 		<div style="float:left; width:720px; overflow:auto; min-height: 800px">
 		<?php
+			if ($tpl['projects'] )
 			foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px">
-				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?>, 'lang_id':<?php echo $data['lang_id']?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?><?php echo $data['lang_id']?", 'lang_id':{$data['lang_id']}":""?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
 				<div>
 					<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
 					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
