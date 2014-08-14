@@ -132,12 +132,12 @@ $('#send_to_net').bind('click', function () {
 	fc_navigate ('tasks', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
 	
 } );
-	
+
 </script>
 <h1 class="page-header"><?php echo $lng['tasks_title_new_miner']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
-	<li class="active"><?php echo $lng['tasks_title'] ?></li>
+	<li><a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['tasks_title'] ?></a></li>
 </ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
