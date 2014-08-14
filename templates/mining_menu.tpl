@@ -63,7 +63,7 @@
 				<p><?php echo $lng['mining_menu']['tasks_text']?></p>
 			</div>
 			<div class="panel-footer">
-				<a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['goto']?></a>
+				<a href="#" onclick="map_navigate('tasks')"><?php echo $lng['goto']?></a>
 			</div>
 		</div>
 	</div>
