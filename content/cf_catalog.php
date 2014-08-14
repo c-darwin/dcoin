@@ -22,6 +22,11 @@ asort($lng['cf_category']);
 
 $tpl['currency_list'] = get_currency_list($db);
 
+if (isset($_REQUEST['parameters']['category_id']))
+	$tpl['cur_category'] = $lng['cf_category'][$tpl['category_id']];
+else
+	$tpl['cur_category'] = false;
+
 require_once( ABSPATH . 'templates/cf_catalog.tpl' );
 
 ?>
