@@ -20,6 +20,8 @@
 				<i class="fa fa-cog fa-fw"></i>  <i class="fa fa-caret-down"></i>
 			</a>
 			<ul class="dropdown-menu">
+				<?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'change_node_key\')">'.$lng['change_node_key'].'</a></li>':''?>
+				<?php echo defined('POOL_ADMIN')?'<li><a href="#" onclick="fc_navigate(\'pool_admin\')">Pool admin</a></li>':'' ?>
 				<li><a href="#" onclick="fc_navigate('notifications')"><?php echo $lng['sms_and_email_notifications']?></a>
 				</li>
 				<li><a href="#" onclick="fc_navigate('change_primary_key')"><?php echo $lng['change_master_key']?></a>
