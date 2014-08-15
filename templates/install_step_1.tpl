@@ -17,7 +17,7 @@
 	PHP-mysqli - <?php echo $tpl['php_mysqli'] ?><br>
 	32-bit PHP - <?php echo $tpl['php_32'] ?><br>
 
-		<button class="btn btn-success" onclick="fc_navigate('install_step_2')" <?php echo ($tpl['php_version']=='ok' && $tpl['php_curl']=='ok' && $tpl['php_gd']=='ok'  && $tpl['php_zip']=='ok'  && $tpl['php_json']=='ok' && $tpl['php_mcrypt']=='ok' && $tpl['php_mysqli']=='ok' && $tpl['php_32']=='ok')?'':'disabled="disabled"'; ?>><?php echo $lng['next']?></button>
+		<button class="btn btn-outline btn-primary" onclick="fc_navigate('install_step_2')" <?php echo ($tpl['php_version']=='ok' && $tpl['php_curl']=='ok' && $tpl['php_gd']=='ok'  && $tpl['php_zip']=='ok'  && $tpl['php_json']=='ok' && $tpl['php_mcrypt']=='ok' && $tpl['php_mysqli']=='ok' && $tpl['php_32']=='ok')?'':'disabled="disabled"'; ?>><?php echo $lng['next']?></button>
 
 
 </div>
