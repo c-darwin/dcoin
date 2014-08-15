@@ -34,10 +34,10 @@
 		var exp = a[2];
 		var save_private_key = 1;
 
-		if (!$("#save_exists_private_key").prop("checked")) {
+		//if (!$("#save_exists_private_key").prop("checked")) {
 			key = '';
 			save_private_key = 0;
-		}
+		//}
 
 		$.post( 'content.php', {
 					'tpl_name' : 'install_step_5',
@@ -69,15 +69,15 @@
 		?>
 
 		<label><?php echo $lng['primary_key']?></label>
-		<textarea id="install_private_key" style="width: 600px; height: 300px"></textarea><br>
-		<label><?php echo $lng['password']?></label>
-		<input type="password" id="install_password"><br>
+		<textarea class="form-control" id="install_private_key" style="width: 600px; height: 300px"></textarea><br>
+		<label><?php echo $lng['key_password']?></label><br>
+		<input type="password" id="install_password" class="form-control" style="width: 600px"><br>
 
-		<label class="checkbox">
+		<!--<label class="checkbox">
 			<input id="save_exists_private_key" type="checkbox"> <?php echo $lng['save_key']?>
-		</label>
+		</label>-->
 
-		<button id="save_exists_key" class="btn btn-success"><?php echo $lng['next']?></button>
+		<button id="save_exists_key" class="btn btn-outline btn-primary"><?php echo $lng['next']?></button>
 	</div>
 
 <br>
