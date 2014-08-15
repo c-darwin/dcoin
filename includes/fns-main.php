@@ -423,7 +423,7 @@ function check_input_data ($data, $type, $info='')
 
 		case 'cf_comment':
 
-			if (preg_match('/^[\pL0-9\,\s\.\-\:\=\;\?\!\%\)\(\@\/]{1,140}$/iD', $data))
+			if (preg_match('/^[\pL0-9\,\s\.\-\:\=\;\?\!\%\)\(\@\/]{1,140}$/iDu', $data))
 				return true;
 			break;
 
