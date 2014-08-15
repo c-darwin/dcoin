@@ -22,6 +22,7 @@
 	<script>
 		$('#myModal').remove();
 		$('#show_login').bind('click', function () {
+			$('#tpl_name').val('home');
 			$('#myModalLogin').modal({ backdrop: 'static' });
 		});
 	</script>
