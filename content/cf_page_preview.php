@@ -94,7 +94,7 @@ $tpl['project']['lang'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLAS
 			", 'list', array('id', 'lang_id'));
 
 // сколько собрано средств
-$tpl['project']['funding'] = (int) $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+$tpl['project']['funding'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT sum(`amount`)
 		FROM `".DB_PREFIX."cf_funding`
 		WHERE `project_id` = {$tpl['project_id']} AND
