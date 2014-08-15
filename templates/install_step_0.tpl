@@ -12,12 +12,12 @@
 </script>
 
 	Select a language<br>
-		<select id="lang-select">
+		<select id="lang-select" class="form-control" style="width: 150px " >
 			<option value="en">English</option>
 			<option value="ru">Russian</option>
 		</select><br>
 		<input id="lang" type="hidden" value="lang=en">
-		<button class="btn btn-success" id="next"><?php echo $lng['next']?></button>
+		<button class="btn btn-outline btn-primary" id="next"><?php echo $lng['next']?></button>
 	</form>
 
 </div>
