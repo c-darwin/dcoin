@@ -23,8 +23,8 @@
 			echo "<p style=\"color:#ff0000\">{$tpl['error'][$i]}</p>";
 	?>
 <table>
-<tr><td>php_path</td><td><input type="text" id="php_path" value="<?php echo $tpl['php_path']?>"></td></tr>
-<tr><td colspan="2"><button id="next" class="btn btn-success"><?php echo $lng['next']?></button></td></tr>
+<tr><td>php_path</td><td><input class="form-control" type="text" id="php_path" value="<?php echo $tpl['php_path']?>"></td></tr>
+<tr><td colspan="2"><button id="next" class="btn btn-outline btn-primary"><?php echo $lng['next']?></button></td></tr>
 </table>
 
 </div>
