@@ -49,7 +49,7 @@ if (!$user_id) {
 <div style="margin-left: -42px; width:84px;position: absolute;top: 50%;left: 50%;  ">
 	<?php
 	if ($tpl['pool_tech_works'])
-		echo '<div class="alert alert-info" style="width: 540px;position:absolute; top: 50%; left: 50%; margin-left: -270px; text-align:center">'.$lng['pool_tech_works'].'</div>';
+		echo '<div class="alert alert-info" style="width: 540px;position:absolute; top: 50%; left: 50%; margin-left: -270px; text-align:center">'.$lng['pool_tech_works'].'</div><div id="show_login" style="width: 40px; height:40px"></div>';
 	else
 		echo '<button type="button" class="btn btn-primary btn-lg" id="show_login">'.$lng['login'].'</button>';
 	?>
