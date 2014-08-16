@@ -9,19 +9,19 @@
 <meta name="description" content="">
 <meta name="author" content="">
 
-<title>Democratic Coin</title>
+<title>CrowdFunding for all</title>
 
 <!-- Bootstrap Core CSS -->
-<link href="css2/bootstrap.min.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css2/bootstrap.min.css" rel="stylesheet">
 
 <!-- MetisMenu CSS -->
-<link href="css2/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css2/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
 
 <!-- Custom CSS -->
-<link href="css2/sb-admin.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css2/sb-admin.css" rel="stylesheet">
 
 <!-- Custom Fonts -->
-<link href="css2/font-awesome.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css2/font-awesome.css" rel="stylesheet">
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -29,187 +29,21 @@
 <script src="https://oss.maxcdn.com/libs/html5shiv/3.7.0/html5shiv.js"></script>
 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
-
-	<script language="JavaScript" type="text/javascript" src="js/md5.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/jsbn.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/jsbn2.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/rsa.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/rsa2.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/sha1.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/sha256.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/base64.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/rsapem-1.1.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/rsasign-1.2.min.js"></script>
-	<script language="JavaScript" type="text/javascript" src="js/asn1hex-1.1.min.js"></script>
-
-	<script src="js/sha256.js"></script>
-
-	<script type="text/javascript" src="js/rijndael.js"></script>
-	<script type="text/javascript" src="js/mcrypt.js"></script>
-
-
-<script src="js/index.js"></script>
-
-<script language="JavaScript" type="text/javascript">
-
-	var poll_time=0;
-
-	function doSign(type) {
-
-		if(typeof(type)==='undefined') type='sign';
-
-		console.log('type='+type);
-
-		var SIGN_LOGIN = false;
-		var PASS_LOGIN = false;
-
-		jQuery.extend({
-			getValues: function(url) {
-				var result = null;
-				$.ajax({
-					url: url,
-					type: 'get',
-					dataType: 'json',
-					async: false,
-					success: function(data) {
-						result = data;
-					}
-				});
-			return result;
-			}
-			});
-
-		var key = $("#key").text();
-		var pass = $("#password").text();
-
-		if (key.indexOf('RSA PRIVATE KEY')!=-1)
-			pass = '';
-
-		if (pass)
-			text = atob(key.replace(/\n|\r/g,""));
-
-		if (type=='sign') {
-			var forsignature = $("#for-signature").val();
+<script src="<?php echo $tpl['cf_url']?>js/index.js"></script>
+<script src="<?php echo $tpl['cf_url']?>js2/jquery-1.11.0.js"></script>
+<link rel="stylesheet" media="all" type="text/css" href="<?php echo $tpl['cf_url']?>css/jquery-ui.css" />
+	<style>
+		#page-wrapper{
+			margin: 0px 10% 0px 10%;
+			border: 0;
+			min-height: 550px;
 		}
-		else {
-			if (key) {
-				// авторизация с ключем и паролем
-				var forsignature = $.getValues("ajax/sign_login.php");
-				SIGN_LOGIN = true;
-			}
-			else {
-				PASS_LOGIN = true;
-			}
-		}
+		#wrapper{height: 100%;}
+		#dc_content{
+			height: 550px;
+			vertical-align: middle;
 
-		console.log('forsignature='+forsignature);
-
-		if (forsignature) {
-
-			console.log('pass='+pass);
-
-			if (pass)
-				var decrypt_PEM = mcrypt.Decrypt(text, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, hex_md5(pass), 'rijndael-128', 'ecb');
-			else
-				var decrypt_PEM = key;
-			console.log('decrypt_PEM='+decrypt_PEM);
-			if (decrypt_PEM.indexOf('RSA PRIVATE KEY')==-1) {
-				$("#page-wrapper").spin(false);
-				$("#modal_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#incorrect_key_or_password').val()+'</p></div>');
-			}
-			else {
-				var rsa = new RSAKey();
-				rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-				var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-				var modulus = a[1];
-				var exp = a[2];
-
-				//var hash = CryptoJS.SHA256(forsignature);
-				//var hSig = rsa.signString(forsignature, 'sha256');
-
-				console.log('forsignature='+forsignature);
-				console.log('hex_md5(pass)='+hex_md5(pass));
-
-				var hSig = rsa.signString(forsignature, 'sha1');
-
-				console.log('hSig='+hSig);
-
-				delete rsa;
-			}
-
-		}
-		if (SIGN_LOGIN || PASS_LOGIN) {
-
-			console.log('SIGN_LOGIN || PASS_LOGIN');
-
-			$("#page-wrapper").spin();
-			if (key) {
-				// шлем подпись на сервер на проверку
-				$.post( 'ajax/check_sign.php', {
-							'sign': hSig,
-							'n' : modulus,
-							'e': exp
-						}, function (data) {
-							// залогинились
-							console.log(data.result);
-							login_ok( data.result );
-
-						}, 'JSON'
-				);
-			}
-			else {
-
-				hash_pass = hex_sha256(hex_sha256(pass));
-				// шлем хэш пароля на проверку и получаем приватный ключ
-				$.post( 'ajax/check_pass.php', {
-							'hash_pass': hash_pass
-						}, function (data) {
-							// залогинились
-							login_ok( data.result );
-
-							$("#modal_key").val(data.key);
-							$("#key").text(data.key);
-							//alert(data.key);
-
-						}, 'JSON'
-				);
-
-			}
-
-			$("#page-wrapper").spin(false);
-
-		}
-		else {
-
-			$("#signature1").val(hSig);
-
-		}
-	}
-
-
-	</script>
-
-<!-- jQuery Version 1.11.0 -->
-<script src="js2/jquery-1.11.0.js"></script>
-
-<script src="js/jquery.Jcrop.js"></script>
-<script type="text/javascript">
-  jQuery(function($){
-
-    // How easy is this??
-    $('#target').Jcrop();
-
-  });
-
-</script>
-
-	<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
-
-	<!--<link rel="stylesheet" href="bootstrap-datetimepicker-0.0.11/css/bootstrap-datetimepicker.min.css"/>-->
-
-	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui.css" />
-	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
-
+	</style>
 
 </head>
 
@@ -217,13 +51,50 @@
 
 <div id="wrapper">
 
-<div id="dc_menu"></div>
+	<nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
+		<div class="navbar-header">
+			<button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
+				<span class="sr-only">Toggle navigation</span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+				<span class="icon-bar"></span>
+			</button>
+			<a class="navbar-brand" href="#" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
+	                   background: url(<?php echo $tpl['cf_url']?>img/logo.png) center left no-repeat;
+	                   text-align: center;
+	                   background-size: 30px 30px;
+	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('cf_catalog')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
+		</div>
+		<!-- /.navbar-header -->
+
+		<ul class="nav navbar-top-links navbar-right">
+
+			<!-- /.dropdown -->
+			<li class="dropdown">
+				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+					<i class="fa  fa-globe fa-fw"></i> Language <i class="fa fa-caret-down"></i>
+				</a>
+				<ul class="dropdown-menu dropdown-user">
+					<li><a href="#" onclick="fc_navigate('cf_catalog', 'lang=en'); load_menu();">English</a>
+					</li>
+					<li><a href="#" onclick="fc_navigate('cf_catalog', 'lang=ru'); load_menu();">Русский</a>
+					</li>
+				</ul>
+				<!-- /.dropdown-user -->
+			</li>
+			<!-- /.dropdown -->
+		</ul>
+		<!-- /.navbar-top-links -->
+
+	</nav>
+
+
+
 
 <div id="page-wrapper">
 	<div class="row">
 		<div class="col-lg-12">
 			<div id="dc_content"></div>
-
 
 		</div>
 		<!-- /.col-lg-12 -->
@@ -235,37 +106,21 @@
 </div>
 <!-- /#wrapper -->
 
-	<div style="display: none;">
-		<div id="key">key</div>
-		<div id="password">password</div>
-	</div>
-
-
-
-     <!-- Le javascript
-    ================================================== -->
-    <!-- Placed at the end of the document so the pages load faster -->
-
-	<!-- Bootstrap Core JavaScript -->
-	<script src="js2/bootstrap.min.js"></script>
-
-	<!-- Custom Theme JavaScript -->
-
+	<script src="<?php echo $tpl['cf_url']?>js2/bootstrap.min.js"></script>
   	<script>
-	  load_menu();
-	  $( "#dc_content" ).load( "content.php");
-
+    <?php
+	echo "$( document ).ready(function() {{$tpl['nav']}});\n";
+	?>
 	</script>
 
-	<!--<script src="https://maps.googleapis.com/maps/api/js?sensor=false" type="text/javascript"></script>-->
-	<script src="js/markerclusterer.js"></script>
+	<script src="<?php echo $tpl['cf_url']?>js/markerclusterer.js"></script>
 
-	<script type="text/javascript" src="js/jquery-ui.min.js"></script>
+	<script type="text/javascript" src="<?php echo $tpl['cf_url']?>js/jquery-ui.min.js"></script>
 
-	<script type="text/javascript" src="js/jquery-ui-timepicker-addon.js"></script>
-	<script type="text/javascript" src="js/jquery-ui-sliderAccess.js"></script>
+	<script type="text/javascript" src="<?php echo $tpl['cf_url']?>js/jquery-ui-timepicker-addon.js"></script>
+	<script type="text/javascript" src="<?php echo $tpl['cf_url']?>js/jquery-ui-sliderAccess.js"></script>
 
-	<script language="JavaScript" type="text/javascript" src="js2/spin.js"></script>
+	<script language="JavaScript" type="text/javascript" src="<?php echo $tpl['cf_url']?>js2/spin.js"></script>
 
 
 <script>
@@ -322,9 +177,6 @@
 		};
 	})(jQuery);
 
-	//$('#page-wrapper').spin();
-
-
 </script>
-
-  </body></html>
+</body>
+</html>
