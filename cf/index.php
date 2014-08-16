@@ -4,41 +4,51 @@ session_start();
 
 define( 'DC', TRUE);
 
-define( 'ABSPATH', dirname(__FILE__) . '/' );
+define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
 set_time_limit(0);
 
-require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
-
-//require_once( ABSPATH . 'db_config.php' );
+require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 
-if (!isset($lang)) {
-	if (@$_SESSION['lang'])
-		$lang = $_SESSION['lang'];
-	else if (@$_COOKIE['lang'])
-		$lang = $_COOKIE['lang'];
-}
-if (!@$lang)
-	$lang = $default_lang;
+$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-if (!preg_match('/^[a-z]{2}$/iD', $lang))
-	die('lang error');
+$lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
-//$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+$tpl['ver'] = file_get_contents( ABSPATH . 'version' );
 
-//$tpl['title'] = 'Авторизация';
-//print_R($_SESSION);
-//if ( !empty($_SESSION['user_id']) ) {
-//	$tpl['main_include'] = 'login.tpl';
-//}else{
+if ($_GET) {
+	$page = each($_REQUEST);
+	if (preg_match('/category\-([0-9]+)/', $page[0], $m)) {
+		$tpl['nav'] = "fc_navigate ('cf_catalog', {'category_id':{$m[1]}})\n";
+	}
+	else if (preg_match('/([A-Z0-9]{7}|id-[0-9]+)\-?([0-9]+)?\-?(funders|comments|news|home)?/', $page[0], $m)) {
+		// $m[1] - название валюты или id валюты
+		// $m[2] - id языка
+		// $m[3] - тип страницы (funders|comments|news)
+		$add_nav = '';
+		if (preg_match('/id\-([0-9]+)/', $m[1], $c_id))
+			$add_nav .= "'only_project_id':'{$c_id[1]}',";
+		else
+			$add_nav .= "'only_cf_currency_name':'{$m[1]}',";
+		if (@$m[2])
+			$add_nav .= "'lang_id':'{$m[2]}',";
+		if (@$m[3])
+			$add_nav .= "'page':'{$m[3]}',";
+		$add_nav = substr($add_nav, 0, -1);
+		$tpl['nav'] = "fc_navigate ('cf_page_preview', {{$add_nav}})\n";
+	}
+}
+else
+	$tpl['nav'] = "fc_navigate ('cf_catalog')\n";
 
+$tpl['cf_url'] = get_cf_url();
+if (!$tpl['cf_url'])
+	die ('access denied');
 
-require_once( ABSPATH . 'templates/index2.tpl' );
-//}
-
+require_once( ABSPATH . 'templates/index_cf.tpl' );
 
 
 ?>
