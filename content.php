@@ -42,18 +42,7 @@ else if (@$_REQUEST['parameters']=='lang=en') {
 	setlang($lang);
 }
 
-if (!isset($lang)) {
-	if (@$_SESSION['lang'])
-		$lang = $_SESSION['lang'];
-	else if (@$_COOKIE['lang'])
-		$lang = $_COOKIE['lang'];
-}
-if (!isset($lang))
-	$lang = $default_lang;
-
-if (!preg_match('/^[a-z]{2}$/iD', $lang))
-	die('lang error');
-
+$lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
 $tpl['periods'] = array(86400=>'1 '.$lng['day'], 604800=>'1 '.$lng['week'], 31536000=>'1 '.$lng['year'], 2592000=>'1 '.$lng['month'], 1209600=>'2 '.$lng['weeks']);
