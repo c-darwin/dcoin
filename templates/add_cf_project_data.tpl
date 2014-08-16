@@ -12,14 +12,22 @@ $('#save').bind('click', function () {
 	if (!$("#video_url_id").val()) $("#video_url_id").val(0);
 	if (!$("#news_img").val()) $("#news_img").val(0);
 	if (!$("#links").val()) $("#links").val(0);
+	if($("#hide").is(':checked'))
+		var hide = '1';
+	else
+		var hide = '0';
 
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#project_id").val()+','+$("#lang_id").val()+','+$("#blurb_img").val()+','+$("#head_img").val()+','+$("#description_img").val()+','+$("#picture").val()+','+$("#video_type").val()+','+$("#video_url_id").val()+','+$("#news_img").val()+','+$("#links").val());
+	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#project_id").val()+','+$("#lang_id").val()+','+$("#blurb_img").val()+','+$("#head_img").val()+','+$("#description_img").val()+','+$("#picture").val()+','+$("#video_type").val()+','+$("#video_url_id").val()+','+$("#news_img").val()+','+$("#links").val()+','+hide);
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 });
 
 $('#send_to_net').bind('click', function () {
 
+	if($("#hide").is(':checked'))
+		var hide = '1';
+	else
+		var hide = '0';
 	$.post( 'ajax/save_queue.php', {
 			'type' : '<?php echo $tpl['data']['type']?>',
 			'time' : '<?php echo $tpl['data']['time']?>',
@@ -34,6 +42,7 @@ $('#send_to_net').bind('click', function () {
 			'video_url_id' : $('#video_url_id').val(),
 			'news_img' : $('#news_img').val(),
 			'links' : $('#links').val(),
+			'hide' : hide,
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
@@ -80,6 +89,14 @@ $('#send_to_net').bind('click', function () {
 							<?php
 						}
 						?>
+					</div>
+				</div>
+
+				<div class="form-group">
+					<label class="col-md-4 control-label" for="hide"><?php echo $lng['cf_hide']?></label>
+					<div class="col-md-4">
+						<input id="hide" name="hide" class="form-control" type="checkbox" <?php echo (@$tpl['cf_data']['hide'])?'checked':'' ?>>
+						<span class="help-block"><?php echo $lng['cf_hide_info']?></span>
 					</div>
 				</div>
 
