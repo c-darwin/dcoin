@@ -200,6 +200,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_projects_data`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects_data` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `hide` tinyint(1) NOT NULL,
   `project_id` bigint(20) NOT NULL,
   `lang_id` tinyint(4) NOT NULL,
   `blurb_img` varchar(50) NOT NULL,
@@ -231,6 +232,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_cf_projects` (
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_cf_projects_data`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_cf_projects_data` (
   `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `hide` tinyint(1) NOT NULL,
   `lang_id` tinyint(4) NOT NULL,
   `blurb_img` varchar(50) NOT NULL,
   `head_img` varchar(50) NOT NULL,
@@ -1860,7 +1862,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `bad_blocks` text NOT NULL COMMENT 'Номера и sign плохих блоков. Нужно, чтобы не подцепить более длинную, но глючную цепочку блоков',
   `pool_max_users` int(11) NOT NULL DEFAULT '100',
   `pool_admin_user_id`  int(11) NOT NULL,
-  `pool_tech_works`  tinyint(1) NOT NULL
+  `pool_tech_works`  tinyint(1) NOT NULL,
+  `cf_url`  varchar(255) NOT NULL
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";
