@@ -860,7 +860,7 @@ function make_currency_name($id)
 }
 
 
-function project_data($project_data)
+function project_data($project_data, $level_up='')
 {
 	global $db;
 	// наличие описаний
@@ -883,7 +883,7 @@ function project_data($project_data)
 	$row['blurb_img'] = $data['blurb_img'];
 	$row['lang_id'] = $data['lang_id'];
 	if (!$row['blurb_img'])
-		$row['blurb_img'] = 'img/cf_blurb_img.png';
+		$row['blurb_img'] = $level_up.'img/cf_blurb_img.png';
 
 	// сколько собрано
 	$row['funding_amount'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -897,7 +897,7 @@ function project_data($project_data)
 	// % собрано
 	$row['pct'] = round($row['funding_amount'] / $project_data['amount']* 100);
 
-	$row['funding_amount'] = round($row['funding_amount']);
+	$row['funding_amount'] = floor($row['funding_amount']);
 
 	// дней до окончания
 	$row['days'] = round(($project_data['end_time'] - time()) / (3600*24));
@@ -906,7 +906,7 @@ function project_data($project_data)
 	return $row;
 }
 
-function get_cf_author_name($db, $user_id)
+function get_cf_author_name($db, $user_id, $level_up='')
 {
 	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `name`,
@@ -915,7 +915,7 @@ function get_cf_author_name($db, $user_id)
 			WHERE `user_id` = {$user_id}
 			", 'fetch_array');
 	if (!$data['avatar'])
-		$data['avatar'] = 'img/noavatar.png';
+		$data['avatar'] = $level_up.'img/noavatar.png';
 	if (!$data['name'])
 		$data['name'] = 'Noname';
 
@@ -1145,6 +1145,15 @@ function get_my_block_id($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `my_block_id`
+			FROM `".DB_PREFIX."config`
+			", 'fetch_one' );
+}
+
+function get_cf_url()
+{
+	global $db;
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `cf_url`
 			FROM `".DB_PREFIX."config`
 			", 'fetch_one' );
 }
@@ -3810,7 +3819,7 @@ function hash_table_data($db, $table, $where='', $order_by='')
 			WHERE table_schema = '".DB_NAME."'
 			AND table_name = '".DB_PREFIX."{$table}'
 			", 'fetch_one');
-	if ($table!='my_table') {
+	if (!preg_match('/my_table/', $table)) {
 		$columns = str_replace(',notification', '', $columns);
 		$columns = str_replace('notification,', '', $columns);
 	}
