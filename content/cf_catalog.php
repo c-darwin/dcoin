@@ -1,6 +1,8 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+if (!isset($tpl['cf_url'])) $tpl['cf_url'] = '';
+
 $tpl['category_id'] = intval($_REQUEST['parameters']['category_id']);
 $add_sql = '';
 if ($tpl['category_id'])
@@ -14,7 +16,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		ORDER BY `funders` DESC
 		");
 while ( $row =  $db->fetchArray( $res ) ) {
-	$row = array_merge (project_data($row), $row);
+	$row = array_merge (project_data($row, $tpl['cf_url']), $row);
 	$tpl['projects'][$row['id']] = $row;
 }
 
