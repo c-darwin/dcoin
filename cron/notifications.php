@@ -481,21 +481,22 @@ foreach($notifications_array as $name => $notification_info) {
 						SELECT `pool_admin_user_id`
 						FROM `".DB_PREFIX."config`
 						", 'fetch_one' );
-
-				$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						SELECT *
-						FROM `".DB_PREFIX."{$pool_admin_user_id}_my_table`
-						",	'fetch_array');
+				$admin_user_id = $pool_admin_user_id;
 			}
 			else {
 				// проверим, нода ли мы
-				$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				$my_table = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT *
 						FROM `".DB_PREFIX."my_table`
 						", 'fetch_array' );
-				if (!$my_data['miner_id'])
+				if (!$my_table['miner_id'])
 					break;
+				$admin_user_id = $my_table['user_id'];
 			}
+
+			$email_sms = $notification_info[$admin_user_id];
+			$my_data = $user_email_sms_data[$admin_user_id];
+			$my_data['subj'] = $subj;
 
 			if ($my_data) {
 
@@ -508,9 +509,9 @@ foreach($notifications_array as $name => $notification_info) {
 					else
 						$my_data['text'] = "Time error: {$t}";
 
-					if ($my_data['email'])
+					if ($email_sms['email'])
 						send_mail($my_data);
-					if ($my_data['sms_http_get_request'])
+					if ($email_sms['sms'])
 						send_sms($my_data['sms_http_get_request'], $my_data['text']);
 				}
 			}
