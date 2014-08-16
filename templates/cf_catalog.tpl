@@ -1,5 +1,13 @@
-<link href="css2/cf.css" rel="stylesheet">
-
+<link href="<?php echo $tpl['cf_url']?>css2/cf.css" rel="stylesheet">
+<style>
+	<?php
+	if (!$user_id) {
+		echo "#dc_content{width:900px; margin:0 auto}\n";
+		echo "#wrapper{background-color:#fff}\n";
+		echo "#page-wrapper{margin:0}\n";
+	}
+	?>
+</style>
 <h1 class="page-header"><?php echo $lng['cf_projects_title']?></h1>
 <?php
 if ($tpl['cur_category']) {
@@ -38,7 +46,21 @@ if ($tpl['cur_category']) {
 			foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px">
-				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $project_id?><?php echo $data['lang_id']?", 'lang_id':{$data['lang_id']}":""?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+				<?php
+				if ($user_id) {
+					echo "<a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_project_id':{$project_id}";
+					echo ($data['lang_id'])?", 'lang_id':{$data['lang_id']}":"";
+					echo "})\">";
+				}
+				else {
+					echo "<a href='?id-{$project_id}";
+					echo ($data['lang_id'])?"-{$data['lang_id']}":"";
+					echo "'>";
+				}
+				?>
+
+
+					<img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
 				<div>
 					<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
 					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
@@ -59,9 +81,12 @@ if ($tpl['cur_category']) {
 			<h3><i class="fa  fa-folder-open-o  fa-fw"></i> Categories</h3>
 			<ul class="navigation">
 				<?php
-
-				foreach ($lng['cf_category'] as $id=>$name )
-					echo "<li><a href='#' onclick=\"fc_navigate('cf_catalog', {'category_id':{$id}})\">{$name}</a></li>";
+				foreach ($lng['cf_category'] as $id=>$name ) {
+					if (!$user_id)
+						echo "<li><a href='?category-{$id}'>{$name}</a></li>";
+					else
+						echo "<li><a href='#' onclick=\"fc_navigate('cf_catalog', {'category_id':{$id}})\">{$name}</a></li>";
+				}
 				?>
 			</ul>
 		</div>
