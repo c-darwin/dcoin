@@ -59,8 +59,14 @@ if (isset($_REQUEST['blurb_img'])) {
 	#cf_active_menu a:visited{color: #000;}
 	#cf_active_menu a:hover{color: #000;}
 	#cf_active_menu a:active{color: #000;}
+		<?php
+		if (!$user_id) {
+			echo "#page-wrapper{margin:0}\n";
+		}
+		?>
 	</style>
-	<link href="css2/cf.css?3" rel="stylesheet">
+	<link href="<?php echo $tpl['cf_url']?>css2/cf.css" rel="stylesheet">
+	<link href="<?php echo $tpl['cf_url']?>css2/social-buttons.css" rel="stylesheet">
 <?php
 if (1<0) {
 ?>
@@ -136,10 +142,22 @@ if (1<0) {
 	<div class="menu width_max" style="height: 42px">
 
 		<ul class="list-inline left bold">
-			<li <?php echo ($tpl['page']=='home')?'id="cf_active_menu"':'' ?>><a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $tpl['project_id']?>, 'lang_id':<?php echo $tpl['lang_id']?>, 'page':'home'})"><?php echo $lng['cf_home']?></a></li>
-			<li <?php echo ($tpl['page']=='news')?'id="cf_active_menu"':'' ?>><a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $tpl['project_id']?>, 'lang_id':<?php echo $tpl['lang_id']?>, 'page':'news'})"><?php echo $lng['cf_news']?></a></li>
-			<li <?php echo ($tpl['page']=='funders')?'id="cf_active_menu"':'' ?>><a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $tpl['project_id']?>, 'lang_id':<?php echo $tpl['lang_id']?>, 'page':'funders'})"><?php echo $lng['cf_funders']?> <span class="count h6 bg-grey-dark white"><?php echo $tpl['project']['count_funders']?></span></a></li>
-			<li <?php echo ($tpl['page']=='comments')?'id="cf_active_menu"':'' ?>><a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $tpl['project_id']?>, 'lang_id':<?php echo $tpl['lang_id']?>, 'page':'comments'})"><?php echo $lng['cf_comments']?> <span class="count h6 bg-grey-dark white"><?php echo $tpl['project']['count_comments']?></span></a></li>
+			<?php
+			foreach ($tpl['pages_array'] as $page_type) {
+				$counter = '';
+				if ($page_type=='funders')
+					$counter = ' <span class="count h6 bg-grey-dark white">'.$tpl['project']['count_funders'].'</span>';
+				else if ($page_type=='comments')
+					$counter = ' <span class="count h6 bg-grey-dark white">'.$tpl['project']['count_comments'].'</span>';
+				echo "<li ";
+				echo ($tpl['page']==$page_type)?'id="cf_active_menu">':'>';
+				if (!$user_id)
+					echo "<a href='?id-{$tpl['project_id']}-{$tpl['lang_id']}-{$page_type}'>";
+				else
+					echo "<a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_project_id':{$tpl['project_id']}, 'lang_id':{$tpl['lang_id']}, 'page':'{$page_type}'})\">";
+				echo "{$lng['cf_'.$page_type]}{$counter}</a></li>";
+			}
+			?>
 		</ul>
 
 		<ul class="list-inline right bold" style="margin-right:10px">
@@ -147,13 +165,21 @@ if (1<0) {
 			<li><?php echo $tpl['project']['project_currency_name']?></li>
 			<li>Project ID: <?php echo $tpl['project']['id']?></li>
 			<?php echo $tpl['project']['country']?'<li><i class="fa  fa-map-marker  fa-fw"></i>  '.$tpl['project']['country'].', '.$tpl['project']['city'].'</li>':'' ?>
-			<li><a href="#" onclick="fc_navigate('cf_catalog', {'category_id':<?php echo $tpl['project']['category_id']?>})"><i class="fa  fa-folder-open-o  fa-fw"></i> <?php echo $lng['cf_category'][$tpl['project']['category_id']]?></a></li>
+			<li>
+				<?php
+				if ($user_id)
+					echo "<a href=\"#\" onclick=\"fc_navigate('cf_catalog', {'category_id':{$tpl['project']['category_id']}})\">";
+				else
+					echo "<a href='?category-{$tpl['project']['category_id']}'>";
+				?>
+
+				<i class="fa  fa-folder-open-o  fa-fw"></i> <?php echo $lng['cf_category'][$tpl['project']['category_id']]?></a></li>
 		</ul>
 	</div>
 
 	<!-- /.row -->
 	<div class="clearfix"></div>
-	<!-- Portfolio Item Row -->
+
 	<div class="well" style="background-color:#fff;margin:auto; width:1000px; padding-top:0px">
 
 		<div class="row">
@@ -164,8 +190,12 @@ if (1<0) {
 					$num = '';
 					if ($tpl['page'] == 'comments')
 						$num = ' <span class="h6" style="color: #000; border-radius:3px;background:#ddd;font-weight:normal;padding:2px 5px; font-size: 13px;">'.(int)$tpl['project']['lang_comments'][$lang_id].'</span>';
-					if ($tpl['lang_id']!=$lang_id)
-						echo "<li><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_project_id':{$tpl['project_id']}, 'lang_id':{$lang_id}, 'page':'{$tpl['page']}'})\">{$tpl['cf_lng'][$lang_id]}</a>{$num}</li> ";
+					if ($tpl['lang_id']!=$lang_id) {
+						if ($user_id)
+							echo "<li><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_project_id':{$tpl['project_id']}, 'lang_id':{$lang_id}, 'page':'{$tpl['page']}'})\">{$tpl['cf_lng'][$lang_id]}</a>{$num}</li> ";
+						else
+							echo "<li><a href='?id-{$tpl['project_id']}-{$lang_id}-{$tpl['page']}'>{$tpl['cf_lng'][$lang_id]}</a>{$num}</li> ";
+					}
 					else
 						echo "<li>{$tpl['cf_lng'][$lang_id]}{$num}</li> ";
 				}
@@ -175,10 +205,13 @@ if (1<0) {
 			<div style="width:620px; float:left; margin: 5px 35px 0px 25px;">
 			<?php
 			if ($tpl['page'] == 'home') {
+				$project_url = $tpl['cf_url'].'?'.$tpl['project']['project_currency_name'].'-'.$tpl['lang_id'];
 				if ($tpl['video_url_id'])
 					echo '<iframe width="620" height="413" src="http://www.youtube.com/embed/'.$tpl['video_url_id'].'" frameborder="0" allowfullscreen></iframe>';
 				else
 				 echo '<img src="'.$tpl['picture'].'?r='.rand().'" width="620" height="413">';
+				if ($tpl['cf_url'])
+					echo '<div class="text-center" style="margin: 5px 0px 5px 0px"><a class="btn btn-social-icon btn-twitter" href="http://twitter.com/intent/tweet?text='.$project_url.'" target="_blank"><i class="fa fa-twitter"></i></a> <a class="btn btn-social-icon btn-vk" href="http://vk.com/share.php?url='.$project_url.'" target="_blank"><i class="fa fa-vk"></i></a> <a href="https://www.facebook.com/sharer/sharer.php?u='.$project_url.'" target="_blank" class="btn btn-social-icon btn-facebook"><i class="fa fa-facebook"></i></a> <a  href="https://plus.google.com/share?url='.$project_url.'" target="_blank" class="btn btn-social-icon btn-google-plus"><i class="fa fa-google-plus"></i></a></div>';
 			}
 			else if ($tpl['page'] == 'news')
 				echo '<img src="'.$tpl['news_img'].'?r='.rand().'" width="620">';
@@ -226,11 +259,12 @@ if (1<0) {
 					<p style="font-weight: normal"><?php echo $lng['start_date']?> <?php echo $tpl['project']['start_date']?></p>
 
 					<?php
-					if ($tpl['project']['ended']!=1)
+					if (@$tpl['project']['ended']!=1)
 					{
-					?>
-					<button type="button" class="btn btn-success" style="width:240px; height:50px" onclick="fc_navigate('wallets_list', {'project_id':<?php echo $tpl['project']['id']?>})">CONTRIBUTE NOW</button>
-					<?php
+						if ($user_id)
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\">CONTRIBUTE NOW</button>";
+						else
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='http://pool.democratic-coin.com/'\">CONTRIBUTE NOW</button>";
 					}
 					?>
 				</div>
