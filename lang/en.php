@@ -558,6 +558,8 @@ $lng['links_to_pictures'] = 'links to pictures, descriptions';
 $lng['links_format'] = 'In the format [["url1", x1, y1, x2, y2], ["url2", x1, y1, x2, y2], ...]. up to 512 characters. Allowed only link to goo.gl, bit.ly, t.co ';
 $lng['cf_data_limits'] = 'You can add a new description of the edit old is not for more than 10 times per day. This overall limit for all your projects. ';
 $lng['preview'] = 'Preview';
+$lng['cf_hide'] = 'Hide';
+$lng['cf_hide_info'] = 'Description can be hidden';
 
 // cf_catalog
 $lng['cf_projects_title'] = 'Projects';
