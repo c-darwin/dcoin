@@ -173,6 +173,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		$video_url_id = $_REQUEST['video_url_id'];
 		$news_img = $_REQUEST['news_img'];
 		$links = $_REQUEST['links'];
+		$hide = $_REQUEST['hide'];
 
 		$data = dec_binary ($type, 1) .
 			dec_binary ($time, 4) .
@@ -187,6 +188,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			ParseData::encode_length_plus_data($video_url_id) .
 			ParseData::encode_length_plus_data($news_img) .
 			ParseData::encode_length_plus_data($links) .
+			ParseData::encode_length_plus_data($hide) .
 			$bin_signatures;
 
 		break;
