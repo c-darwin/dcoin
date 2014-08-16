@@ -152,7 +152,7 @@
 					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
 					<div class="card-bottom">
 						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['pct']?>%</h5>funded</div>
-						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> DRUB </h5>pledged</div>
+						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> D<?php echo $tpl['currency_list'][$data['currency_id']]?> </h5>pledged</div>
 						<div style="float:left; overflow:auto;"><h5><?php echo $data['days']?></h5>days to go</div>
 					</div>
 				</div>
