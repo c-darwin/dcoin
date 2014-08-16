@@ -11516,7 +11516,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	 * */
 	function cf_project_data_init()
 	{
-		$error = $this->get_tx_data(array('project_id', 'lang_id', 'blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'sign'));
+		$error = $this->get_tx_data(array('project_id', 'lang_id', 'blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'hide', 'sign'));
 		if ($error) return $error;
 		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$this->variables = self::get_all_variables($this->db);
@@ -11548,6 +11548,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'news_img';
 		if ( !check_input_data ($this->tx_data['links'], 'cf_links') && $this->tx_data['links']!=='0' )
 			return 'links';
+		if ( !check_input_data ($this->tx_data['hide'], 'boolean'))
+			return 'hide';
 
 		// является ли юзер владельцем данного проекта и есть ли вообще такой проект
 		$project_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -11561,7 +11563,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'project_user_id';
 
 		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['blurb_img']},{$this->tx_data['head_img']},{$this->tx_data['description_img']},{$this->tx_data['picture']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['news_img']},{$this->tx_data['links']}";
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['blurb_img']},{$this->tx_data['head_img']},{$this->tx_data['description_img']},{$this->tx_data['picture']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['news_img']},{$this->tx_data['links']},{$this->tx_data['hide']}";
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 		if ($error)
 			return $error;
@@ -11576,8 +11578,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		// если описания проекта на этом языке еще нет, то добавляем, иначе - логируем и обновляем
 		$this->selective_logging_and_upd (
-			array('blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links'),
-			array($this->tx_data['blurb_img'], $this->tx_data['head_img'], $this->tx_data['description_img'], $this->tx_data['picture'], $this->tx_data['video_type'], $this->tx_data['video_url_id'], $this->tx_data['news_img'], $this->tx_data['links']),
+			array('blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'hide'),
+			array($this->tx_data['blurb_img'], $this->tx_data['head_img'], $this->tx_data['description_img'], $this->tx_data['picture'], $this->tx_data['video_type'], $this->tx_data['video_url_id'], $this->tx_data['news_img'], $this->tx_data['links'], $this->tx_data['hide']),
 			'cf_projects_data',
 			array('project_id', 'lang_id'),
 			array($this->tx_data['project_id'], $this->tx_data['lang_id'])
@@ -11586,7 +11588,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function cf_project_data_rollback()
 	{
-		$this->selective_rollback (array('blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links'), 'cf_projects_data', "`project_id`={$this->tx_data['project_id']} AND `lang_id` = {$this->tx_data['lang_id']}", true);
+		$this->selective_rollback (array('blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'hide'), 'cf_projects_data', "`project_id`={$this->tx_data['project_id']} AND `lang_id` = {$this->tx_data['lang_id']}", true);
 	}
 
 	function cf_project_data_rollback_front()
