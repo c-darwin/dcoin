@@ -1,36 +1,53 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-if (!preg_match('/^[a-z]{0,10}$/iD', $_REQUEST['parameters']['page']))
+if (!isset($user_id)) 	$user_id = false;
+
+$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
+
+$tpl['cf_url'] = get_cf_url();
+
+if (isset($_REQUEST['parameters']['page']) && !preg_match('/^[a-z]{0,10}$/iD', $_REQUEST['parameters']['page']))
 	die ('error page');
 
-$cf_currency_name = $_REQUEST['parameters']['only_cf_currency_name'];
-if (!preg_match('/^[a-z0-9]{0,7}$/iD', $cf_currency_name))
+$cf_currency_name = @$_REQUEST['parameters']['only_cf_currency_name'];
+if (isset($cf_currency_name) && !preg_match('/^[a-z0-9]{7}$/iD', $cf_currency_name))
 	die ('error only_cf_currency_name');
 
-$tpl['page'] = $_REQUEST['parameters']['page'];
+$tpl['page'] = @$_REQUEST['parameters']['page'];
 if (!$tpl['page'])
 	$tpl['page'] = 'home';
 
-$tpl['lang_id'] = intval($_REQUEST['parameters']['lang_id']);
-$tpl['project_id'] = intval($_REQUEST['parameters']['only_project_id']);
+$tpl['lang_id'] = intval(@$_REQUEST['parameters']['lang_id']);
+$tpl['project_id'] = intval(@$_REQUEST['parameters']['only_project_id']);
 
-if ($_REQUEST['parameters']['only_project_id'] || $_REQUEST['parameters']['only_cf_currency_name']) {
+if ($_REQUEST['parameters']['only_project_id'] || $cf_currency_name) {
 
 	if (!$tpl['project_id']) {
 		$tpl['project_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT `project_id`
-			FROM `".DB_PREFIX."cf_currency`
-			WHERE  `name` = '{$cf_currency_name}'
+			SELECT `id`
+			FROM `".DB_PREFIX."cf_projects`
+			WHERE  `project_currency_name` = '{$cf_currency_name}'
 			", 'fetch_one');
 	}
 
-	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT *
-			FROM `".DB_PREFIX."cf_projects_data`
-			WHERE  `project_id` = {$tpl['project_id']} AND
-						 `lang_id` = {$tpl['lang_id']}
-			", 'fetch_array');
+	if ($tpl['lang_id'])
+		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."cf_projects_data`
+				WHERE  `project_id` = {$tpl['project_id']} AND
+							 `lang_id` = {$tpl['lang_id']}
+				", 'fetch_array');
+	else { // Если язык не указан, то просто берем первое добавленное описание
+		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."cf_projects_data`
+				WHERE  `project_id` = {$tpl['project_id']}
+				ORDER BY `id` ASC
+				LIMIT 1
+				", 'fetch_array');
+		$tpl['lang_id'] = $data['lang_id'];
+	}
 
 	$tpl['blurb_img'] = $data['blurb_img'];
 	$tpl['head_img'] = $data['head_img'];
@@ -53,16 +70,18 @@ else {
 	$tpl['links']= json_decode($_REQUEST['links'], true);
 }
 
+$img_blank = $tpl['cf_url'].'img/blank.png';
+
 if ( !check_input_data ($tpl['blurb_img'], 'img_url'))
-	$tpl['blurb_img'] = 'img/blank.png';
+	$tpl['blurb_img'] = $img_blank;
 if ( !check_input_data ($tpl['head_img'], 'img_url'))
-	$tpl['head_img'] = 'img/blank.png';
+	$tpl['head_img'] = $img_blank;
 if ( !check_input_data ($tpl['description_img'], 'img_url'))
-	$tpl['description_img'] = 'img/blank.png';
+	$tpl['description_img'] = $img_blank;
 if ( !check_input_data ($tpl['picture'], 'img_url'))
-	$tpl['picture'] = 'img/blank.png';
+	$tpl['picture'] = $img_blank;
 if ( !check_input_data ($tpl['news_img'], 'img_url'))
-	$tpl['news_img'] = 'img/blank.png';
+	$tpl['news_img'] = $img_blank;
 if ( !check_input_data ($tpl['video_type'], 'video_type'))
 	$tpl['video_type'] = '';
 if ( !check_input_data ($tpl['video_url_id'], 'video_url_id'))
@@ -85,12 +104,17 @@ $tpl['project']['start_date'] = date('d-m-Y H:i', $tpl['project']['start_time'])
 // в какой валюте идет сбор
 $currency_list = get_currency_list($db);
 $tpl['project']['currency'] = $currency_list[$tpl['project']['currency_id']];
+
 // на каких языках есть описание
+// для home/news можно скрыть язык
+$add_sql = '';
+if ($tpl['page'] == 'home' || $tpl['page'] == 'news')
+	$add_sql = ' AND `hide` = 0';
 $tpl['project']['lang'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `id`,
 						  `lang_id`
 			FROM `".DB_PREFIX."cf_projects_data`
-			WHERE `project_id` = {$tpl['project_id']}
+			WHERE `project_id` = {$tpl['project_id']} {$add_sql}
 			", 'list', array('id', 'lang_id'));
 
 // сколько собрано средств
@@ -100,6 +124,7 @@ $tpl['project']['funding'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __C
 		WHERE `project_id` = {$tpl['project_id']} AND
 					`del_block_id` = 0
 		", 'fetch_one');
+$tpl['project']['funding'] = ($tpl['project']['funding']==0)?0:$tpl['project']['funding'];
 
 // сколько всего фундеров
 $tpl['project']['count_funders'] = (int) $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -124,7 +149,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 while ( $row =  $db->fetchArray( $res ) ) {
 	$row['time'] = date('d.m.Y H:i', $row['time']);
 	if (!$row['avatar'])
-		$row['avatar'] = 'img/noavatar.png';
+		$row['avatar'] = $tpl['cf_url'].'img/noavatar.png';
 	if (!$row['name'])
 		$row['name'] = 'Noname';
 	$tpl['funders'][] = $row;
@@ -144,7 +169,7 @@ if ($tpl['lang_id']) {
 	while ( $row =  $db->fetchArray( $res ) ) {
 		$row['time'] = date('d.m.Y H:i', $row['time']);
 		if (!$row['avatar'])
-			$row['avatar'] = 'img/noavatar.png';
+			$row['avatar'] = $tpl['cf_url'].'img/noavatar.png';
 		if (!$row['name'])
 			$row['name'] = 'Noname';
 		$tpl['comments'][] = $row;
@@ -165,21 +190,24 @@ $tpl['project']['count_comments'] = array_sum($tpl['project']['lang_comments']);
 $tpl['cf_lng'] = get_all_cf_lng($db);
 
 // инфа об авторе проекта
-$tpl['project']['author'] = get_cf_author_name($db, $tpl['project']['user_id']);
+$tpl['project']['author'] = get_cf_author_name($db, $tpl['project']['user_id'], $tpl['cf_url']);
 
 // возможно наш юзер фундер
-$tpl['project']['funder'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `id`
-		FROM `".DB_PREFIX."cf_funding`
-		WHERE `project_id` = {$tpl['project_id']} AND
-					 `user_id` = {$user_id} AND
-					 `del_block_id` = 0
-		");
+if ($user_id)
+	$tpl['project']['funder'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `id`
+			FROM `".DB_PREFIX."cf_funding`
+			WHERE `project_id` = {$tpl['project_id']} AND
+						 `user_id` = {$user_id} AND
+						 `del_block_id` = 0
+			");
 
 $tpl['comment_data']['type'] = 'cf_comment';
 $tpl['comment_data']['type_id'] = ParseData::findType($tpl['comment_data']['type']);
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
+
+$tpl['pages_array'] = array('home', 'news', 'funders', 'comments');
 
 require_once( ABSPATH . 'templates/cf_page_preview.tpl' );
 
