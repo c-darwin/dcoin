@@ -20,17 +20,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 }
 
-if (!isset($lang)) {
-	if (@$_SESSION['lang'])
-		$lang = $_SESSION['lang'];
-	else if (@$_COOKIE['lang'])
-		$lang = $_COOKIE['lang'];
-}
-if (!isset($lang))
-	$lang = $default_lang;
-
-if (!preg_match('/^[a-z]{2}$/iD', $lang))
-	die('lang error');
+$lang = get_lang();
 
 if ( isset($db) && get_community_users($db) )
 	define('COMMUNITY', true);
