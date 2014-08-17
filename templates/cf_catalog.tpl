@@ -13,7 +13,7 @@
 if ($tpl['cur_category']) {
 	?>
 	<ol class="breadcrumb">
-		<li><a href="#">CrowdFunding</a></li>
+		<?php echo ($user_id)?'<li><a href="#">CrowdFunding</a></li>':'' ?>
 		<li><a href="#"onclick="fc_navigate('cf_catalog')"><?php echo $lng['catalog']?></a></li>
 		<li class="active"><?php echo $lng['cf_category'][$tpl['category_id']]?></li>
 	</ol>
@@ -78,7 +78,7 @@ if ($tpl['cur_category']) {
 
 		<div class="menu">
 
-			<h3><i class="fa  fa-folder-open-o  fa-fw"></i> Categories</h3>
+			<h3><i class="fa  fa-folder-open-o  fa-fw"></i> <?php echo $lng['categories']?></h3>
 			<ul class="navigation">
 				<?php
 				foreach ($lng['cf_category'] as $id=>$name ) {
