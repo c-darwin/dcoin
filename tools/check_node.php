@@ -103,7 +103,7 @@ else {
 			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
 			$order_by = "`user_id`, `voting_id`";
 		}
-		else if (preg_match('/^(wallets_buffer|log_time_money_orders)$/i', $table) ) {
+		else if (preg_match('/^(log_time_money_orders)$/i', $table) ) {
 			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
 		}
 		else if (preg_match('/^(log_forex_orders|log_forex_orders_main)$/i', $table) ) {
@@ -113,8 +113,12 @@ else {
 			$sql_where = " WHERE `block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2'])."";
 			$order_by = "`log_id`";
 		}
-		else if (preg_match('/^(cf_comments|cf_currency|cf_funding|cf_lang|cf_projects|cf_projects_data)$/i', $table) ) {
+		else if (preg_match('/^(votes_miners|cf_comments|cf_currency|cf_funding|cf_lang|cf_projects|cf_projects_data)$/i', $table) ) {
 			$order_by = "`id`";
+		}
+		else if (preg_match('/^(wallets_buffer)$/i', $table) ) {
+			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
+			$order_by = "`user_id`";
 		}
 
 		$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
