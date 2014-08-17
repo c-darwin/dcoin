@@ -788,8 +788,8 @@ function get_lang()
 	}
 	if (!@$lang)
 		$lang = $default_lang;
-	if (!preg_match('/^[a-z]{2}$/iD', $lang))
-		$lang = 'en';
+	if (!preg_match('/^[0-9]{1,2}$/D', $lang))
+		$lang = '1';
 	return $lang;
 }
 
@@ -862,7 +862,7 @@ function make_currency_name($id)
 
 function project_data($project_data, $level_up='')
 {
-	global $db;
+	global $db, $lang;
 	// наличие описаний
 	$row['lang'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `id`,
@@ -876,7 +876,8 @@ function project_data($project_data, $level_up='')
 			SELECT `blurb_img`,
 						 `lang_id`
 			FROM `".DB_PREFIX."cf_projects_data`
-			WHERE `project_id` = {$project_data['id']}
+			WHERE `project_id` = {$project_data['id']} AND
+						 `lang_id` = {$lang}
 			ORDER BY `id` ASC
 			LIMIT 1
 			", 'fetch_array');
