@@ -72,12 +72,12 @@
 			<!-- /.dropdown -->
 			<li class="dropdown">
 				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-					<i class="fa  fa-globe fa-fw"></i> Language <i class="fa fa-caret-down"></i>
+					<i class="fa  fa-globe fa-fw"></i> Language: <?php echo $tpl['cf_lang'][$lang]?> <i class="fa fa-caret-down"></i>
 				</a>
 				<ul class="dropdown-menu dropdown-user">
-					<li><a href="#" onclick="fc_navigate('cf_catalog', 'lang=en'); load_menu();">English</a>
+					<li><a href="#" onclick="fc_navigate('cf_catalog', 'lang=1'); load_menu();">English</a>
 					</li>
-					<li><a href="#" onclick="fc_navigate('cf_catalog', 'lang=ru'); load_menu();">Русский</a>
+					<li><a href="#" onclick="fc_navigate('cf_catalog', 'lang=42'); load_menu();">Русский</a>
 					</li>
 				</ul>
 				<!-- /.dropdown-user -->
