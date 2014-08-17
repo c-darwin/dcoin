@@ -33,12 +33,12 @@ else
 	$tpl_name = 'install_step_0';
 
 
-if (@$_REQUEST['parameters']=='lang=ru') {
-	$lang = 'ru';
+if (@$_REQUEST['parameters']=='lang=42') {
+	$lang = 42;
 	setlang($lang);
 }
-else if (@$_REQUEST['parameters']=='lang=en') {
-	$lang = 'en';
+else if (@$_REQUEST['parameters']=='lang=1') {
+	$lang = 1;
 	setlang($lang);
 }
 
