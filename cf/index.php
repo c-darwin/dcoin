@@ -13,6 +13,7 @@ require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
 
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
@@ -47,6 +48,8 @@ else
 $tpl['cf_url'] = get_cf_url();
 if (!$tpl['cf_url'])
 	die ('access denied');
+
+$tpl['cf_lang'] = get_all_cf_lng($db);
 
 require_once( ABSPATH . 'templates/index_cf.tpl' );
 
