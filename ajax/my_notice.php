@@ -18,15 +18,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	require_once( ABSPATH . 'db_config.php' );
 	require_once( ABSPATH . 'includes/class-parsedata.php' );
 
-	if (@$_SESSION['lang'])
-		$lang = $_SESSION['lang'];
-	else if (@$_COOKIE['lang'])
-		$lang = $_COOKIE['lang'];
-	if (!isset($lang))
-		$lang = $default_lang;
-
-	if (!preg_match('/^[a-z]{2}$/iD', $lang))
-		die('lang error');
+	$lang = get_lang();
 
 	require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
