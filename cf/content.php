@@ -13,12 +13,12 @@ require_once( ABSPATH . 'includes/class-mysql.php' );
 require_once( ABSPATH . 'includes/class-parsedata.php' );
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-if (@$_REQUEST['parameters']=='lang=ru') {
-	$lang = 'ru';
+if (@$_REQUEST['parameters']=='lang=42' || $_REQUEST['parameters']['lang_id']=='42') {
+	$lang = 42;
 	setlang($lang);
 }
-else if (@$_REQUEST['parameters']=='lang=en') {
-	$lang = 'en';
+else if (@$_REQUEST['parameters']=='lang=1' || $_REQUEST['parameters']['lang_id']=='1') {
+	$lang = 1;
 	setlang($lang);
 }
 
