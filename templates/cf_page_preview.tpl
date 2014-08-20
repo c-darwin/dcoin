@@ -224,9 +224,9 @@ if (1<0) {
 
 				echo '<div id="main_comment_div">';
 				if (!$tpl['project']['funder'] && $tpl['project']['user_id']!=$user_id)
-					echo '<div class="alert alert-info">Писать комментарии могут только те, кто профинсировал проект</div>';
+					echo '<div class="alert alert-info">'.$lng['comments_only_for_funders'].'</div>';
 				else {
-					echo '<div id="comment_div"><div class="alert alert-info"><strong>Лимиты:</strong> Вы можете отправить только 1 комментарий в сутки.</div><div><textarea id="comment" class="form-control" rows="3" maxlength="140"></textarea></div><div><button type="button" class="btn btn-outline btn-primary btn-lg btn-block" style="margin-bottom: 20px; margin-top: 5px" id="send_comment">Отправить</button></div></div>';
+					echo '<div id="comment_div"><div class="alert alert-info"><strong>'.$lng['limits'].':</strong> '.$lng['comments_limits'].'</div><div><textarea id="comment" class="form-control" rows="3" maxlength="140"></textarea></div><div><button type="button" class="btn btn-outline btn-primary btn-lg btn-block" style="margin-bottom: 20px; margin-top: 5px" id="send_comment">'.$lng['send'].'</button></div></div>';
 					echo '<div style="margin-bottom: 20px" id="comment_send_to_net">';
 					require_once( 'signatures.tpl' );
 					echo '</div>';
@@ -253,18 +253,18 @@ if (1<0) {
 			<div id="project-info" style="overflow:auto;">
 				<div style="margin-left:18px">
 					<h1><?php echo $tpl['project']['funding']?></h1>
-					<p>pledged of <?php echo $tpl['project']['amount']?> D<?php echo $tpl['project']['currency']?> goal </p>
+					<p><?php echo $lng['cf_page_preview_pledged_of']?> <?php echo $tpl['project']['amount']?> D<?php echo $tpl['project']['currency']?> <?php echo $lng['cf_page_preview_goal']?> </p>
 					<h1><?php echo $tpl['project']['days']?></h1>
-					<p>days to go </p>
+					<p><?php echo $lng['days_to_go']?></p>
 					<p style="font-weight: normal"><?php echo $lng['start_date']?> <?php echo $tpl['project']['start_date']?></p>
 
 					<?php
 					if (@$tpl['project']['ended']!=1)
 					{
 						if ($user_id)
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\">CONTRIBUTE NOW</button>";
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\">".strtoupper($lng['contribute_now'])."</button>";
 						else
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='http://pool.democratic-coin.com/'\">CONTRIBUTE NOW</button>";
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='http://pool.democratic-coin.com/'\">".strtoupper($lng['contribute_now'])."</button>";
 					}
 					?>
 				</div>
@@ -275,7 +275,7 @@ if (1<0) {
 
 					<div>
 						<h4 style="margin-top:0px"><?php echo $tpl['project']['author']['name']?></h4>
-						<h5><?php echo $tpl['project']['author']['created']?> created<br><?php echo $tpl['project']['author']['backed']?> backed</h5>
+						<h5><?php echo $tpl['project']['author']['created']?> <?php echo $lng['created']?><br><?php echo $tpl['project']['author']['backed']?>  <?php echo $lng['backed']?></h5>
 						<div class="clearfix"></div>
 					</div>
 				</div>
