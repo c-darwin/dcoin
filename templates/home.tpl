@@ -65,6 +65,9 @@
 				<li class="list-group-item">Соединений: <span id="connections"><?php echo $tpl['my_notice']['connections']?></span></li>
 			</ul>
 		</div>
+		<?php
+		if (!$_SESSION['restricted']) {
+		?>
 		<!-- /.col-lg-4 -->
 		<div class="col-lg-4">
 			<h3><?php echo $lng['last_operation']?></h3>
@@ -104,6 +107,9 @@
 			</div>
 		</div>
 		<!-- /.col-lg-4 -->
+		<?php
+		}
+		?>
 		<div class="col-lg-4">
 
 			<h3><?php echo $lng['balances']?></h3>
