@@ -32,8 +32,6 @@
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
     <div id="new">
-
-
 	    <div id="sql_progress" class="progress">0%</div><br>
 	    <div id="sql_ok" class="alert alert-success" style="display: none"></div>
 	    <form class="form-horizontal">
@@ -53,6 +51,19 @@
 
 		    </fieldset>
 	    </form>
+
+
+	    <?php
+	    echo "<table class='table' style='width: 500px'><thead><tr><th>user_id</th><th>miner_id</th><th>email</th><th>del</th></tr></thead>";
+	    // список юзеров и их удаление
+		foreach ($tpl['users'] as $uid=>$data){
+			echo "<tr><td>{$uid}</td><td>{$data['miner_id']}</td><td>{$data['email']}</td><td><a class=\"btn btn-outline btn-danger\" href=\"#\" onclick=\"fc_navigate('pool_admin', {'del_id':'".$uid."'})\"><i class=\"fa fa-trash-o fa-lg\"></i> {$lng['delete']}</a></td></tr>";
+		}
+	    echo "</table>";
+	    // лист ожидания
+
+
+	    ?>
 
 
     </div>
