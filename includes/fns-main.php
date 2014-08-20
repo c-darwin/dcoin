@@ -1974,7 +1974,7 @@ function get_tx_type_and_user_id ($binary_block)
 	//else if (in_array($type, array(ParseData::findType('votes_geolocation'), ParseData::findType('votes_miner'), ParseData::findType('votes_node_new_miner'), ParseData::findType('votes_pct'), ParseData::findType('votes_promised_amount')) ))
 	//	$voting_id = ParseData::string_shift($binary_block, ParseData::decode_length($binary_block));
 	//$third_var = $to_user_id?$to_user_id:$voting_id;
-	if (in_array($type, array(ParseData::findType('cash_request_out'), ParseData::findType('votes_geolocation'), ParseData::findType('votes_miner'), ParseData::findType('votes_node_new_miner'), ParseData::findType('votes_pct'), ParseData::findType('votes_promised_amount'), ParseData::findType('del_promised_amount')) ))
+	if (in_array($type, array(ParseData::findType('cf_project_data'), ParseData::findType('cf_comment'), ParseData::findType('cf_project_change_category'), ParseData::findType('cf_send_dc'), ParseData::findType('del_cf_project'), ParseData::findType('cash_request_out'), ParseData::findType('votes_geolocation'), ParseData::findType('votes_miner'), ParseData::findType('votes_node_new_miner'), ParseData::findType('votes_pct'), ParseData::findType('votes_promised_amount'), ParseData::findType('del_promised_amount')) ))
 		$third_var = ParseData::string_shift($binary_block, ParseData::decode_length($binary_block));
 
 	debug_print("get_tx_type_and_user_id={$type},{$user_id},{$third_var}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -3195,10 +3195,10 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 
 		clear_incompatible_tx_sql ($db, $type, $user_id, $wait_error);
 
-		// если новая тр-ия - это запрос на удаление банкноты, то нужно проверить
-		// нет ли запросов на получение банкнот к данному юзеру
-		// а также, нужно проверить, нет от данного юзера тр-ии cash_request_in
-		if ($type == ParseData::findType('del_promised_amount')) {
+		// если новая тр-ия - это запрос на удаление или изменение обещанной суммы, то нужно проверить
+		// нет ли запросов на получение обещанных сумм к данному юзеру
+		// а также, нужно проверить, нет ли от данного юзера тр-ии cash_request_in
+		if ($type == ParseData::findType('del_promised_amount') || $type == ParseData::findType('change_promised_amount')) {
 			debug_print('если новая тр-ия - это запрос на удаление банкноты, то нужно проверить, нет ли запросов на получение банкнот к данному юзеру, а также, нужно проверить, нет от данного юзера тр-ии cash_request_in', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT count(*)
@@ -3230,8 +3230,8 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 				$fatal_error= "`third_var` = {$user_id}";
 		}
 
-		// если новая тр-ия - это запрос на получение банкнот, то нужно проверить
-		// нет ли у получающего юзера запросов на удаление банкнот
+		// если новая тр-ия - это запрос на получение наличных, то нужно проверить
+		// нет ли у получающего юзера запросов на удаление или изменение обещанных сумм
 		if ($type == ParseData::findType('cash_request_out')) {
 			debug_print('если новая тр-ия - это запрос на получение банкнот, то нужно проверить, нет ли у получающего юзера запросов на удаление банкнот', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$tx_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3239,14 +3239,14 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			            FROM (
 				            SELECT `data`
 				            FROM `".DB_PREFIX."transactions`
-				            WHERE `type` = ".ParseData::findType('del_promised_amount')." AND
+				            WHERE `type` IN (".ParseData::findType('del_promised_amount').", ".ParseData::findType('change_promised_amount').",) AND
 				                         `user_id` = {$to_user_id} AND
 				                         `verified`=1 AND
 				                         `used` = 0
 							UNION
 							SELECT `data`
 							FROM `".DB_PREFIX."transactions_testblock`
-							WHERE `type` = ".ParseData::findType('del_promised_amount')." AND
+							WHERE `type` IN (".ParseData::findType('del_promised_amount').", ".ParseData::findType('change_promised_amount').") AND
 										 `user_id` = {$to_user_id}
 						)  AS `x`
 						", 'fetch_one');
@@ -3277,9 +3277,9 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 		// если новая тр-ия - это запрос на получение банкнот, то нужно проверить
 		// нет ли у отправителя запроса на отправку DC, т.к. после списания может не остаться средств
 		if ($type == ParseData::findType('cash_request_out'))
-			clear_incompatible_tx_sql ($db, 'send_dc', $user_id, $wait_error);
+			clear_incompatible_tx_sql_set ($db, array('send_dc', 'new_forex_order', 'cf_send_dc'), $user_id, $wait_error);
 		// и наоборот
-		if ($type == ParseData::findType('send_dc'))
+		if (in_array($type, array(ParseData::findType('send_dc'), ParseData::findType('new_forex_order'), ParseData::findType('cf_send_dc'))))
 			clear_incompatible_tx_sql ($db, 'cash_request_out', $user_id, $wait_error);
 
 		// на всякий случай не даем попасть в один блок holidays и тр-им, где holidays используются
@@ -3308,17 +3308,16 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 		if ($type == ParseData::findType('change_node_key'))
 			clear_incompatible_tx_sql ($db, 'new_reduction', $user_id, $wait_error);
 
-		// нельзя удалить банкноту и затем создать запрос на её майнинг
+		// нельзя удалить/изменить обещанную сумму и затем создать запрос на её майнинг
 		if ($type == ParseData::findType('mining'))
-			clear_incompatible_tx_sql ($db, 'del_promised_amount', $user_id, $wait_error);
-        if ($type == ParseData::findType('del_promised_amount'))
+			clear_incompatible_tx_sql_set ($db, array('del_promised_amount', 'change_promised_amount'), $user_id, $wait_error);
+        if (in_array($type, array(ParseData::findType('del_promised_amount'), ParseData::findType('change_promised_amount'))))
             clear_incompatible_tx_sql ($db, 'mining', $user_id, $wait_error);
         // в 1 блоке только 1 майнинг от юзера
         if ($type == ParseData::findType('mining'))
             clear_incompatible_tx_sql ($db, 'mining', $user_id, $wait_error);
         if ($type == ParseData::findType('mining'))
             clear_incompatible_tx_sql ($db, 'admin_ban_miners', 0, $wait_error);
-
 
         if ($type == ParseData::findType('cash_request_out'))
             clear_incompatible_tx_sql ($db, 'admin_ban_miners', 0, $wait_error);
@@ -3387,6 +3386,23 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			}
 		}
 
+		// нельзя удалить CF-проект и в этом же блоке отменить финансирование
+		if ($type == ParseData::findType('del_cf_project')) {
+			$cf_project_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `project_id`
+					FROM `".DB_PREFIX."cf_funding`
+					WHERE `id` = {$third_var}
+					LIMIT 1
+					", 'fetch_one' );
+			if ($cf_project_id)
+				clear_incompatible_tx_sql_set( $db, array('change_geolocation'), 0, $wait_error, $cf_project_id);
+		}
+
+		// нельзя удалять CF-проект и в этом же блоке изменить его описание/профинансировать/отменить финансирование
+		if ($type == ParseData::findType('del_cf_project'))
+			clear_incompatible_tx_sql_set( $db, array('cf_comment','cf_send_dc','cf_project_change_category','cf_project_data'), 0, $wait_error, $third_var);
+		if (in_array($type, array(ParseData::findType('cf_comment'),ParseData::findType('cf_send_dc'),ParseData::findType('cf_project_change_category'),ParseData::findType('cf_project_data') )))
+			clear_incompatible_tx_sql_set( $db, array('del_cf_project'), 0, $wait_error, $third_var);
 
 		// нельзя удалять promised_amount и голосовать за него
 		if ($type == ParseData::findType('del_promised_amount'))
@@ -3427,8 +3443,8 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 				$wait_error = 'only 1 vote';
 		}
 
-		// если новая тр-ия - это запрос, в котором юзер отдает банкноты (cash_request_in)
-		// то нужно проверить, не хочет ли юзер удалить одну из передаваемых банкнот
+		// если новая тр-ия - это запрос, в котором юзер отдает наличные (cash_request_in)
+		// то нужно проверить, не хочет ли юзер удалить или изменить одну из обещанных сумм
 		if ($type == ParseData::findType('cash_request_in')) {
 			debug_print('если новая тр-ия - это запрос, в котором юзер отдает банкноты (cash_request_in), то нужно проверить, не хочет ли юзер удалить одну из передаваемых банкнот', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$tx_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3436,14 +3452,14 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			            FROM (
 				            SELECT `data`
 				            FROM `".DB_PREFIX."transactions`
-				            WHERE `type` = ".ParseData::findType('del_promised_amount')." AND
+				            WHERE `type` IN (".ParseData::findType('del_promised_amount').", ".ParseData::findType('change_promised_amount').") AND
 				                         `user_id` = {$user_id} AND
 				                         `verified`=1 AND
 				                         `used` = 0
 							UNION
 							SELECT `data`
 							FROM `".DB_PREFIX."transactions_testblock`
-							WHERE `type` = ".ParseData::findType('del_promised_amount')." AND
+							WHERE `type` IN (".ParseData::findType('del_promised_amount').", ".ParseData::findType('change_promised_amount').") AND
 										 `user_id` = {$user_id}
 						)  AS `x`
 						", 'fetch_one');
@@ -3522,15 +3538,23 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 		if ($num)
 			$wait_error = 'have change_primary_key tx';
 
+
+		// потом нужно сделать более тонко. но пока так. Если есть удаление проекта, тогда откатываем все тр-ии del_cf_funding
+		if ($type == ParseData::findType('del_cf_project'))
+			rollback_incompatible_tx( array('del_cf_funding') );
+		// потом нужно сделать более тонко. но пока так. Если есть del_cf_funding, тогда откатываем все тр-ии удаления проектов
+		if ($type == ParseData::findType('del_cf_funding'))
+			rollback_incompatible_tx( array('del_cf_project') );
+
 		// если пришло new_pct, то нужно откатить следующие тр-ии
 		if ($type == ParseData::findType('new_pct'))
-			rollback_incompatible_tx( array('new_reduction', 'change_node_key', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining') );
+			rollback_incompatible_tx( array('new_reduction', 'change_node_key', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining', 'cf_send_dc', 'del_cf_project', 'new_forex_order', 'del_forex_order', 'for_repaid_fix', 'actualization_promised_amounts', 'del_cf_funding', 'admin_unban_miners', 'admin_ban_miners') );
 
 		// если пришло new_reduction, то нужно откатить следующие тр-ии
 		if ($type == ParseData::findType('new_reduction'))
-			rollback_incompatible_tx( array('new_pct', 'change_node_key', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining') );
+			rollback_incompatible_tx( array('new_pct', 'change_node_key', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining', 'cf_send_dc', 'del_cf_project', 'new_forex_order', 'del_forex_order', 'for_repaid_fix', 'actualization_promised_amounts', 'del_cf_funding', 'admin_unban_miners', 'admin_ban_miners') );
 
-		// временно запрещаем 2-е тр-ии любого типа от одного юзера, а то затрахался уже.
+		// временно запрещаем 2 тр-ии любого типа от одного юзера, а то затрахался уже.
 		$num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(*)
 				    FROM (
@@ -3880,6 +3904,6 @@ function get_install_progress()
 }
 
 
-$my_tables = array('my_admin_messages','my_cash_requests','my_comments','my_commission','my_complex_votes','my_dc_transactions','my_holidays','my_keys','my_new_users','my_node_keys','my_notifications','my_promised_amount','my_table');
+$my_tables = array('my_admin_messages','my_cash_requests','my_comments','my_commission','my_complex_votes','my_dc_transactions','my_holidays','my_keys','my_new_users','my_node_keys','my_notifications','my_promised_amount','my_table','my_tasks', 'my_cf_funding');
 
 ?>
