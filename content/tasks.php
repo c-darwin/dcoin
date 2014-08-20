@@ -8,18 +8,18 @@ define('TASK_TIME', 3600*24); // чтобы не выдавать одно и т
 	
 $rand_array = array();
 
+// в запросе к votes_miners было votes_start_time` > ".(time()-86400).". Не могу вспомнить, зачем я это делал.
+
 // Модерация новых майнеров
 // берем тех, кто прошел проверку нодов (type='node_voting')
 $num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT count(`id`)
 		FROM `".DB_PREFIX."votes_miners`
-		WHERE `votes_start_time` > ".(time()-86400)." AND
-					 `votes_end` = 0 AND
+		WHERE  `votes_end` = 0 AND
 					 `type` = 'user_voting'
 		", 'fetch_one');
 if ( $num>0 )
 	$rand_array[] = 1;
-
 
 // Модерация promised_amount
 // вначале получим ID валют, которые мы можем проверять.
@@ -86,8 +86,7 @@ switch ($task_type) {
 				FROM `".DB_PREFIX."votes_miners`
 				LEFT JOIN `".DB_PREFIX."miners_data`
 						 ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."votes_miners`.`user_id`
-				WHERE `votes_start_time` > ".(time()-86400)." AND
-							 `votes_end` = 0 AND
+				WHERE `votes_end` = 0 AND
 							 `type` = 'user_voting'
 				ORDER BY rand()
 				LIMIT 1
