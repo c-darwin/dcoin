@@ -19,8 +19,7 @@ require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-if (!empty($_SESSION['restricted']))
-	die(json_encode(array('error'=>'Permission denied')));
+$lang = get_lang();
 
 $project_id = intval($_REQUEST['project_id']);
 
