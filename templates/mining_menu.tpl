@@ -1,6 +1,46 @@
+<script language="JavaScript" type="text/javascript">
 
-<h1 class="page-header"><?php echo $lng['mining']?></h1>
+$('#send').bind('click', function () {
 
+	var key = $("#key").text();
+	var pass = $("#password").text();
+
+	if (key.indexOf('RSA PRIVATE KEY')!=-1)
+		pass = '';
+	if (pass)
+		var decrypt_PEM = mcrypt.Decrypt(atob(key.replace(/\n|\r/g,"")), <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, hex_md5(pass), 'rijndael-128', 'ecb');
+	else
+		var decrypt_PEM = key;
+
+	var rsa = new RSAKey();
+	rsa.readPrivateKeyFromPEMString(decrypt_PEM);
+	var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
+	var modulus = a[1];
+	var exp = a[2];
+	delete rsa;
+
+	// шлем подпись на сервер на проверку
+	$.post( 'ajax/sign_up_in_pool.php', {
+			'email': $('#email').val(),
+			'n' : modulus,
+			'e': exp
+		}, function (data) {
+			console.log(data);
+			if (data.success)
+				$('#alerts').html('<div class="alert alert-success alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+data.success+'</div>');
+			else
+				$('#alerts').html('<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+data.error+'</div>');
+		}, 'JSON');
+});
+
+</script>
+
+
+<h1 class="page-header" xmlns="http://www.w3.org/1999/html"><?php echo $lng['mining']?></h1>
+
+<?php
+if (empty($_SESSION['restricted'])) {
+?>
 <div class="panel panel-primary">
 	<div class="panel-heading">
 		<?php echo $lng['how_to_mining_coins']?>
@@ -185,3 +225,43 @@
 </div>
 <!-- /.row -->
 </div>
+<?php
+}
+else {
+?>
+	<div class="panel panel-primary">
+		<div class="panel-heading">
+			Недостаточно прав
+		</div>
+		<div class="panel-body">
+			<div class="form-horizontal">
+				<fieldset>
+
+					<!-- Form Name -->
+					<legend>Для продолжения Вам необходимо зарегистрировать свой ключ на пуле.</legend>
+					<div id="alerts"></div>
+					<!-- Text input-->
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="textinput">E-mail</label>
+						<div class="col-md-4">
+							<input id="email" name="email" placeholder="" class="form-control input-md" type="text">
+							<span class="help-block">Укажите свой email</span>
+						</div>
+					</div>
+
+					<!-- Button -->
+					<div class="form-group">
+						<label class="col-md-4 control-label" for="singlebutton"></label>
+						<div class="col-md-4">
+							<button id="send" name="send" class="btn btn-primary">Отправить</button>
+						</div>
+					</div>
+
+				</fieldset>
+			</div>
+
+		</div>
+	</div>
+<?php
+}
+?>
