@@ -570,6 +570,14 @@ $lng['cf_home'] = 'Home';
 $lng['cf_news'] = 'News';
 $lng['cf_funders'] = 'Funders';
 $lng['cf_comments'] = 'Comments';
+$lng['contribute_now'] = 'Contribute now';
+$lng['cf_page_preview_pledged_of'] = 'pledged of';
+$lng['cf_page_preview_goal'] = 'goal';
+$lng['days_to_go'] = 'days to go';
+$lng['created'] = 'created';
+$lng['backed'] = 'backed';
+$lng['comments_only_for_funders'] = 'To write comments may be the only ones who financed the project';
+$lng['comments_limits'] = 'You can send only one comment per day.';
 
 //del_cf_project
 $lng['del_cf_project_title'] = 'Deleting a Project';
