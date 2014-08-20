@@ -82,7 +82,7 @@ $queries[] = "INSERT INTO `{$db_name}`.`{$prefix}cf_lang` (`id`, `name`) VALUES
 ";
 
 
-$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}my_cf_funding`;
+$my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}my_cf_funding`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}my_cf_funding` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `from_user_id` bigint(20) NOT NULL,
@@ -1724,7 +1724,7 @@ $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}forex_orders`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}forex_orders` (
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `user_id` bigint(20) NOT NULL COMMENT 'Чей ордер',
-  `sell_currency_id` tinyint(3) unsigned NOT NULL COMMENT  'Что продается',
+  `sell_currency_id` int(10) NOT NULL COMMENT  'Что продается',
   `sell_rate` decimal(20,10) NOT NULL COMMENT 'По какому курсу к buy_currency_id',
   `amount` decimal(15,2)  NOT NULL COMMENT 'Сколько осталось на данном ордере',
   `buy_currency_id` int(10) NOT NULL COMMENT 'Какая валюта нужна',
