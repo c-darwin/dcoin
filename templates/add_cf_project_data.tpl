@@ -95,7 +95,7 @@ $('#send_to_net').bind('click', function () {
 				<div class="form-group">
 					<label class="col-md-4 control-label" for="hide"><?php echo $lng['cf_hide']?></label>
 					<div class="col-md-4">
-						<input id="hide" name="hide" class="form-control" type="checkbox" <?php echo (@$tpl['cf_data']['hide'])?'checked':'' ?>>
+						<input id="hide" name="hide" type="checkbox" <?php echo (@$tpl['cf_data']['hide'])?'checked':'' ?>>
 						<span class="help-block"><?php echo $lng['cf_hide_info']?></span>
 					</div>
 				</div>
