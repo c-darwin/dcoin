@@ -17,9 +17,6 @@ require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-if (!empty($_SESSION['restricted']))
-	die(json_encode(array('error'=>'Permission denied')));
-
 require_once( ABSPATH . 'lang/'.get_lang().'.php' );
 
 $project_currency_name = $_REQUEST['project_currency_name'];
