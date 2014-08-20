@@ -1616,19 +1616,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				             `type` = 'node_voting'
 				");
 
-		// обновим photo_block_id и photo_max_miner_id чтобы получить
-		// 10 новых нодов, которые будут голосовать
-		$max_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT max(`miner_id`)
-				FROM `".DB_PREFIX."miners`
-				", 'fetch_one');
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."miners_data`
-				SET `photo_block_id` = {$this->block_data['block_id']},
-					   `photo_max_miner_id` = {$max_miner_id}
-				WHERE `user_id` = {$this->tx_data['user_id']}
-				");
-
 		// создаем новое голосование
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."votes_miners` (
@@ -1641,6 +1628,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					{$this->tx_data['user_id']},
 					{$this->block_data['time']}
 				)");
+
+		// обновим photo_block_id и photo_max_miner_id чтобы получить
+		// 10 новых нодов, которые будут голосовать
+		$max_miner_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT max(`miner_id`)
+				FROM `".DB_PREFIX."miners`
+				", 'fetch_one');
+		$this->selective_logging_and_upd (array('photo_block_id','photo_max_miner_id'), array($this->block_data['block_id'], $max_miner_id), 'miners_data', array('user_id'), array($this->tx_data['user_id']));
+		/*$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."miners_data`
+				SET `photo_block_id` = {$this->block_data['block_id']},
+					   `photo_max_miner_id` = {$max_miner_id}
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				");*/
 	}
 
 	// 31
@@ -1652,15 +1653,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 31
 	function new_miner_update_rollback() {
 
-		// отменяем отмену голосования
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."votes_miners`
-				SET `votes_end` = 0,
-					   `end_block_id` = 0
-				WHERE `user_id` = {$this->tx_data['user_id']} AND
-				             `type` = 'node_voting' AND
-				             `end_block_id` = {$this->block_data['block_id']}
-				");
+		$this->selective_rollback (array('photo_block_id', 'photo_max_miner_id'), 'miners_data', "`user_id`={$this->tx_data['user_id']}");
+
 
 		// отменяем новое голосование
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -1671,6 +1665,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				");
 		$this->rollbackAI('votes_miners');
+
+		// отменяем отмену голосования
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."votes_miners`
+				SET `votes_end` = 0,
+					   `end_block_id` = 0
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+				             `type` = 'node_voting' AND
+				             `end_block_id` = {$this->block_data['block_id']}
+				");
+
 	}
 
 	function new_max_promised_amounts_init()
@@ -6592,8 +6597,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 5
 	function votes_miner_rollback()
 	{
-		// вычитаем баллы
-		$this->points_rollback($this->variables['miner_points']);
 
 		$user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `user_id`
@@ -6685,6 +6688,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					LIMIT 1
 					");
 		}
+
+		// вычитаем баллы
+		$this->points_rollback($this->variables['miner_points']);
 	}
 
 
@@ -7579,7 +7585,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	// добавляем новые points_status
 	// $points - текущие points юзера из таблы points
-	function points_update($points, $prev_log_id, $time_start, $points_status_time_start, $user_id)
+	// $new_points - новые баллы, если это вызов из тр-ии, где идет головование
+	function points_update($points, $prev_log_id, $time_start, $points_status_time_start, $user_id, $new_points=0)
 	{
 		// среднее значение баллов
 		$mean = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7599,7 +7606,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					", 'fetch_one');
 
 		// и хватает ли наших баллов для получения статуса майнера
-		if ( $count > 0 && $points >= $mean * $this->variables['points_factor'] ) {
+		if ( $count > 0 && $points+$new_points >= $mean * $this->variables['points_factor'] ) {
 
 			// от $time_start до текущего времени могло пройти несколько месяцев. 1-й месяц будет майнер, остальные - юзер
 			$miner_start_time = $points_status_time_start + $this->variables['points_update_time'];
@@ -7819,7 +7826,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		// если прошел месяц
 		} else if ($this->block_data['time'] - $points_status_time_start > $this->variables['points_update_time']) {
-			$this->points_update($data['points']+$points, $prev_log_id, $time_start, $points_status_time_start, $this->tx_data['user_id']);
+			$this->points_update($data['points'], $prev_log_id, $time_start, $points_status_time_start, $this->tx_data['user_id'], $points);
 		// прошло меньше месяца
 		} else {
 			// прибавляем баллы
@@ -10867,6 +10874,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$error = $this->get_tx_data(array('project_id', 'sign'));
 		if ($error) return $error;
 		$this->variables = self::get_all_variables($this->db);
+		$this->getPct();
 	}
 
 	function del_cf_project_front()
@@ -10905,10 +10913,53 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `del_block_id` = {$this->block_data['block_id']}
 				WHERE `id` = {$this->tx_data['project_id']}
 				");
+
+		$project = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `currency_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$this->tx_data['project_id']}
+				", 'fetch_array' );
+
+		$points_status = array(0=>'user');
+		// проходимся по всем фундерам и возращаем на их кошельки деньги
+		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `amount`,
+									 `time`,
+									 `user_id`
+						FROM `".DB_PREFIX."cf_funding`
+						WHERE `project_id` = {$this->tx_data['project_id']} AND
+									`del_block_id` = 0
+						ORDER BY `id` ASC
+						");
+		while ( $row =  $this->db->fetchArray( $res ) ) {
+			// то, что выросло за время сбора
+			$new_DC_sum = $row['amount'] + $this->calc_profit_ ( $row['amount'], $row['time'], $this->block_data['time'], $this->pct[$project['currency_id']], $points_status );
+			// возврат
+			$this -> update_recipient_wallet( $row['user_id'], $project['currency_id'], $new_DC_sum, 'cf_project', $this->tx_data['project_id'], 'cf_project' );
+		}
 	}
 
 	function del_cf_project_rollback()
 	{
+		$project = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `currency_id`
+				FROM `".DB_PREFIX."cf_projects`
+				WHERE `id` = {$this->tx_data['project_id']}
+				", 'fetch_array' );
+
+		// проходимся по всем фундерам и возращаем на их кошельки деньги
+		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."cf_funding`
+						WHERE `project_id` = {$this->tx_data['project_id']} AND
+									 `del_block_id` = 0
+						ORDER BY `id` DESC
+						");
+		while ( $row =  $this->db->fetchArray( $res ) ) {
+			// откат возврата
+			$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project['currency_id']}");
+		}
+
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."cf_projects`
 				SET `del_block_id` = 0
@@ -11228,7 +11279,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT sum(`amount`)
 					FROM `".DB_PREFIX."cf_funding`
-					WHERE `project_id` = {$this->tx_data['project_id']}
+					WHERE `project_id` = {$this->tx_data['project_id']} AND
+								 `del_block_id` = 0
 					", 'fetch_one' );
 
 			$points_status = array(0=>'user');
@@ -11256,7 +11308,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 									 `time`,
 									 `user_id`
 						FROM `".DB_PREFIX."cf_funding`
-						WHERE `project_id` = {$this->tx_data['project_id']}
+						WHERE `project_id` = {$this->tx_data['project_id']} AND
+									 `del_block_id` = 0
 						ORDER BY `id` ASC
 						");
 				$sum_and_pct_author = 0;
@@ -11281,7 +11334,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 									 `time`,
 									 `user_id`
 						FROM `".DB_PREFIX."cf_funding`
-						WHERE `project_id` = {$this->tx_data['project_id']}
+						WHERE `project_id` = {$this->tx_data['project_id']} AND
+									 `del_block_id` = 0
 						ORDER BY `id` ASC
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
@@ -11312,7 +11366,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT sum(`amount`)
 					FROM `".DB_PREFIX."cf_funding`
-					WHERE `project_id` = {$this->tx_data['project_id']}
+					WHERE `project_id` = {$this->tx_data['project_id']} AND
+								 `del_block_id` = 0
 					", 'fetch_one' );
 
 			// нужная сумма набрана
@@ -11331,7 +11386,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT `user_id`
 						FROM `".DB_PREFIX."cf_funding`
-						WHERE `project_id` = {$this->tx_data['project_id']}
+						WHERE `project_id` = {$this->tx_data['project_id']} AND
+									 `del_block_id` = 0
 						ORDER BY `id` DESC
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
@@ -11352,7 +11408,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT `user_id`
 						FROM `".DB_PREFIX."cf_funding`
-						WHERE `project_id` = {$this->tx_data['project_id']}
+						WHERE `project_id` = {$this->tx_data['project_id']} AND
+									 `del_block_id` = 0
 						ORDER BY `id` DESC
 						");
 				while ( $row =  $this->db->fetchArray( $res ) ) {
