@@ -591,6 +591,15 @@ $lng['cf_home'] = 'Описание';
 $lng['cf_news'] = 'Новости';
 $lng['cf_funders'] = 'Спонсоры';
 $lng['cf_comments'] = 'Комментарии';
+$lng['contribute_now'] = 'ПРОФИНАНСИРОВАТЬ';
+$lng['cf_page_preview_pledged_of'] = 'собрано из необходимых';
+$lng['cf_page_preview_goal'] = '';
+$lng['days_to_go'] = 'дней до завершения';
+$lng['created'] = 'создал';
+$lng['backed'] = 'профинанси- ровал';
+$lng['comments_only_for_funders'] = 'Писать комментарии могут только те, кто профинсировал проект';
+$lng['comments_limits'] = 'Вы можете отправить только 1 комментарий за сутки.';
+
 
 //del_cf_project
 $lng['del_cf_project_title'] = 'Удаление проекта';
