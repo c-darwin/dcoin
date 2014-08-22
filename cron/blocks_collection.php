@@ -49,6 +49,7 @@ do {
 	$current_block_id = get_block_id($db);
 	if (!$current_block_id) {
 
+		/*
 		// это обработка локальной базы блоков
 		if (file_exists(ABSPATH . 'localblocks')) {
 			debug_print('localblocks', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -72,6 +73,36 @@ do {
 					exit;
 				}
 			} while (true);
+		}*/
+
+		if (file_exists(ABSPATH . 'blockchain')) {
+			$fp = fopen(ABSPATH . 'blockchain', 'r');
+			do {
+				$data_size = binary_dec(fread($fp, 5));
+				if ($data_size) {
+					$data_binary = fread($fp, $data_size);
+					$block_id = binary_dec(string_shift($data_binary, 5));
+					$data_length = ParseData::decode_length($data_binary);
+					$block_data_binary = string_shift($data_binary, $data_length);
+
+					$parsedata = new ParseData($block_data_binary, $db);
+					$error = $parsedata->ParseDataFull();
+					if ($error) {
+						print $error;
+						break;
+					}
+					$parsedata->insert_into_blockchain();
+					upd_deamon_time($db);
+					if (check_deamon_restart($db)) {
+						main_unlock();
+						exit;
+					}
+
+					// ненужный тут размер в конце блока данных
+					fread($fp, 5);
+				}
+			} while ($data_size);
+			fclose($fp);
 		}
 
 		$new_block = file_get_contents(ABSPATH . '1block.bin');
