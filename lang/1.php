@@ -400,6 +400,8 @@ $lng['install_php_path'] = 'Path to php';
 $lng['if_present'] = 'if exists';
 
 // home
+$lng['connections'] = 'Connections';
+$lng['status_daemons'] = 'Status demons';
 $lng['account_status'] = 'Account Status';
 $lng['you_can'] = 'You can';
 $lng['become_a_miner'] = 'become a miner';
@@ -624,6 +626,9 @@ $lng['mining_menu']['start'][4] = 'Do [0]tasks[1]job[2] to verify the other mine
 $lng['mining_menu']['start'][5] = '[0]voting[1]Vote[2] for the parameters of exchange';
 $lng['mining_menu']['start'][6] = 'Do not miss the [0]cash_requests_in[1]incoming requests[2]';
 $lng['mining_menu']['start'][7] = 'Translate coins with the promised amount to the [0]wallets_list[1]own account[2]';
+$lng['register_key_at_the_pool'] = 'To continue, you need to register your key at the pool.';
+$lng['insufficient_privileges'] = 'Insufficient privileges';
+$lng['enter_your_email'] = 'Enter your email';
 
 $lng['how_to_mining_coins'] = 'How to mining coins?';
 
