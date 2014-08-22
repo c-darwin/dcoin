@@ -9308,7 +9308,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	function get_tx_data($array)
 	{
 		if ( sizeof($this->transaction_array) != sizeof($array)+4 )
-			return 'bad transaction_array ('.sizeof($this->transaction_array).' != '.(sizeof($array)+4).' )';
+			return 'bad transaction_array ('.sizeof($this->transaction_array).' != '.(sizeof($array)+4).' ) type='.$this->transaction_array[1].'';
 		
 		$this->tx_data = array();
 		$this->tx_data['hash'] = $this->transaction_array[0];
@@ -9321,7 +9321,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	/*
-	 * актуалзиация обещанных сумм нужна для того, чтобы обещанные суммы снова стали учитываться
+	 * актуализация обещанных сумм нужна для того, чтобы обещанные суммы снова стали учитываться
 	 * при подсчете сумм обещанных сумм, когда решается, нужно ли делать урезание DC
 	 */
 	function actualization_promised_amounts_init()
@@ -11573,7 +11573,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	 * */
 	function cf_project_data_init()
 	{
-		$error = $this->get_tx_data(array('project_id', 'lang_id', 'blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'hide', 'sign'));
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 134261)
+			$error = $this->get_tx_data(array('project_id', 'lang_id', 'blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'sign'));
+		else
+			$error = $this->get_tx_data(array('project_id', 'lang_id', 'blurb_img', 'head_img', 'description_img', 'picture', 'video_type', 'video_url_id', 'news_img', 'links', 'hide', 'sign'));
+
+
 		if ($error) return $error;
 		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		$this->variables = self::get_all_variables($this->db);
@@ -11605,9 +11610,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'news_img';
 		if ( !check_input_data ($this->tx_data['links'], 'cf_links') && $this->tx_data['links']!=='0' )
 			return 'links';
-		if ( !check_input_data ($this->tx_data['hide'], 'boolean'))
-			return 'hide';
 
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 134261) {
+			$this->tx_data['hide'] = 0;
+		}
+		else {
+			if ( !check_input_data ($this->tx_data['hide'], 'boolean'))
+				return 'hide';
+		}
 		// является ли юзер владельцем данного проекта и есть ли вообще такой проект
 		$project_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `user_id`
@@ -11620,7 +11630,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'project_user_id';
 
 		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['blurb_img']},{$this->tx_data['head_img']},{$this->tx_data['description_img']},{$this->tx_data['picture']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['news_img']},{$this->tx_data['links']},{$this->tx_data['hide']}";
+		if (isset($this->block_data['block_id']) && $this->block_data['block_id'] < 134261)
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['blurb_img']},{$this->tx_data['head_img']},{$this->tx_data['description_img']},{$this->tx_data['picture']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['news_img']},{$this->tx_data['links']}";
+		else
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['project_id']},{$this->tx_data['lang_id']},{$this->tx_data['blurb_img']},{$this->tx_data['head_img']},{$this->tx_data['description_img']},{$this->tx_data['picture']},{$this->tx_data['video_type']},{$this->tx_data['video_url_id']},{$this->tx_data['news_img']},{$this->tx_data['links']},{$this->tx_data['hide']}";
+
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 		if ($error)
 			return $error;
@@ -12909,6 +12923,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."config`
 					SET `my_block_id` = {$block_id}
+					WHERE `my_block_id` < {$block_id}
 					");
 
 
