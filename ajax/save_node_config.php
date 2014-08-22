@@ -29,13 +29,17 @@ if ( !check_input_data ($_REQUEST['in_connections'] , 'int') )
 if ( !check_input_data ($_REQUEST['out_connections'] , 'int') )
 	die('error out_connections');
 
+if ( !check_input_data ($_REQUEST['auto_reload'] , 'int') )
+	die('error auto_reload');
+
 define('MY_PREFIX', get_my_prefix($db));
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX."config`
 		SET  `in_connections_ip_limit` = {$_POST['in_connections_ip_limit']},
 				`in_connections` = {$_POST['in_connections']},
-				`out_connections` = {$_POST['out_connections']}
+				`out_connections` = {$_POST['out_connections']},
+				`auto_reload` = {$_POST['auto_reload']}
 		");
 
 @file_put_contents( ABSPATH . 'config.ini', $_POST['config_ini'] );
