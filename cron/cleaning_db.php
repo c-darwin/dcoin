@@ -29,6 +29,11 @@ if ($main_lock && (time()-WAIT_LOCK > $main_lock) ) {
 			SET `script_name` = 'cleaning_db'
 			");
 
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			UPDATE `".DB_PREFIX."config`
+			SET `pool_tech_works` = 1
+			");
+
 	$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SHOW TABLES
 			", 'array');
@@ -36,7 +41,7 @@ if ($main_lock && (time()-WAIT_LOCK > $main_lock) ) {
 	foreach($tables_array as $table) {
 		//if (!in_array($table, $exceptions))
 
-		if (!preg_match('/(my_|install|config|daemons|payment_systems|community)/i', $table)) {
+		if (!preg_match('/(my_|install|config|daemons|payment_systems|community|cf_lang)/i', $table)) {
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 					TRUNCATE TABLE `".DB_PREFIX."{$table}`
 					");
