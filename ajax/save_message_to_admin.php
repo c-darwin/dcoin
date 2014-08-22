@@ -19,9 +19,10 @@ require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
 require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
 require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 
-if (empty($_SESSION['restricted'])) {
+if (!empty($_SESSION['restricted']))
+	die('Permission denied');
 
-	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 	if ( !check_input_data ($_REQUEST['parent_id'] , 'int') )
 		die('error parent_id');
@@ -55,6 +56,5 @@ if (empty($_SESSION['restricted'])) {
 				)");
 	print $db->getInsertId();
 
-}
 
 ?>
