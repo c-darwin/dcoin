@@ -1,4 +1,7 @@
 <?php
+
+exit;
+
 define( 'DC', true );
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
@@ -362,20 +365,26 @@ foreach($notifications_array as $name => $notification_info) {
 			}
 
 			break;
-
+/*
 		// новые %
 		case 'voting_results':
 
+			$config_block_id = get_my_block_id($db);
 			$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`,
 								 `currency_id`,
 								 `miner`,
-								 `user`
+								 `user`,
+								 `block_id`
 					FROM `".DB_PREFIX."pct`
 					WHERE `notification` = 0
 					");
 			$text = '';
 			while ($data = $db->fetchArray($res)) {
+
+				if ($config_block_id < $data['block_id'])
+					continue;
+
 				$text .= "New pct {$currency_list[$data['currency_id']]}! miners: ".((pow(1+$data['miner'], 3600*24*365)-1)*100)."%/year, users: ".((pow(1+$data['user'], 3600*24*365)-1)*100)."%/year";
 			}
 
@@ -401,7 +410,7 @@ foreach($notifications_array as $name => $notification_info) {
 			}
 
 			break;
-
+*/
 		// Прошло 2 недели с момента Вашего голосования за %
 		case 'voting_time':
 
@@ -437,7 +446,7 @@ foreach($notifications_array as $name => $notification_info) {
 			}
 
 			break;
-
+/*
 		// Необходимость обновления FC-движка
 		case 'new_version':
 
@@ -471,7 +480,7 @@ foreach($notifications_array as $name => $notification_info) {
 			}
 
 			break;
-
+*/
 		// Расхождение времени сервера более чем на 5 сек
 		case 'node_time':
 
