@@ -1864,6 +1864,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_admin_user_id`  int(11) NOT NULL,
   `pool_tech_works`  tinyint(1) NOT NULL,
   `cf_url`  varchar(255) NOT NULL
+  `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа',
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";
