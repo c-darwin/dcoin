@@ -321,6 +321,7 @@ $lng['host'] = 'host';
 $lng['in_connections_ip_limit'] = 'Number of incoming requests with 1 ip';
 $lng['in_connections'] = 'Total number of concurrent incoming connections';
 $lng['out_connections'] = 'Total number of concurrent outbound connections';
+$lng['auto_reload'] = 'If the value is more than 60, in the case of failure, after the specified number of seconds will start the reconfiguration of the database blocks';
 
 // change_host
 $lng['change_host_title'] = 'Change host';
