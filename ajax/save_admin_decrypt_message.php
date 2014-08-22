@@ -31,11 +31,11 @@ if ( !check_input_data ($data['subtype'] , 'int') )
 	die('error subtype');
 
 $data['subject'] = filter_var($data['subject'], FILTER_SANITIZE_STRING);
-$data['subject'] = str_ireplace(array('\'', '"'),  array('', ''), $data['subject']);
+$data['subject'] = str_ireplace(array('\'', '"'),  '', $data['subject']);
 $data['subject'] = $db->escape($data['subject']);
 
 $data['message'] = filter_var($data['message'], FILTER_SANITIZE_STRING);
-$data['message'] = str_ireplace(array('\'', '"'),  array('', ''), $data['message']);
+$data['message'] = str_ireplace(array('\'', '"'),  '', $data['message']);
 $data['message'] = $db->escape($data['message']);
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
