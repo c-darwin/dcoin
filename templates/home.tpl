@@ -1,9 +1,9 @@
 <script>
-	var i=0;
-	function doPoll() {
+
+	function my_notice() {
 		$.post('ajax/my_notice.php', function(data) {
-			poll_time = Date.now();
-			i++;
+			//poll_time = Date.now();
+			//i++;
 
 			$('#main_status').html(data.main_status);
 			if (data.main_status_complete!=1)
@@ -20,13 +20,20 @@
 			else if (data.alert == 1 && i%2 != 0)
 				$('#bar_alert').css("display", "none");
 
-			setTimeout(doPoll,30000);
+			//setTimeout(doPoll,30000);
 
 		}, 'json' );
 	}
+	my_notice();
 
-	if (Date.now() - poll_time > 10000)
-		doPoll();
+	//var i=0;
+	$('#panel_refresh').bind('click', function () {
+		my_notice();
+		return false;
+	});
+
+	//if (Date.now() - poll_time > 10000)
+	//	doPoll();
 
 	$('#new_cf_project').bind('click', function () {
 
@@ -39,7 +46,9 @@
 
 	});
 </script>
-
+<style>
+	.alert-info a:link{text-decoration: underline};
+</style>
 <link href="css2/cf.css" rel="stylesheet">
 <h1 class="page-header">Home</h1>
 
@@ -47,22 +56,22 @@
 	
 <div id="generate">
 	<div class="row" style="padding:0 15px">
-		<div class="alert alert-danger">
+		<div class="alert alert-info">
 			<?php echo $lng['dcoin_risks_alert']?>
 		</div>
 	</div>
 
 	<div class="row">
 		<div class="col-lg-4">
-			<h3><?php echo $lng['panel']?></h3>
+			<h3><?php echo $lng['panel']?> <a href="#" id="panel_refresh"><i class="fa fa-refresh fa-fw"></i></a></h3>
 			<ul class="list-group">
 				<li class="list-group-item" id="main_status"><?php echo $tpl['my_notice']['main_status']?></li>
 				<li class="list-group-item"><?php echo $lng['account_status']?>: <span id="account_status"><?php echo $tpl['my_notice']['account_status'];?></span> <?php echo !empty($_SESSION['restricted'])?'restricted':'' ?> <?php echo defined('POOL_ADMIN')?'(Pool admin)':'' ?></li>
 				<li class="list-group-item">User ID: <span id="user_id"><?php echo $user_id?></span></li>
-				<li class="list-group-item">Статус демонов: <?php echo $tpl['demons_status']?></li>
+				<li class="list-group-item"><?php echo $lng['status_daemons']?>: <?php echo $tpl['demons_status']?></li>
 				<li class="list-group-item"><?php echo $lng['number_of_blocks']?>: <span id="cur_block_id"><?php echo $tpl['my_notice']['number_of_blocks']?></span></li>
 				<li class="list-group-item"><?php echo $lng['time_last_block']?>: <span id="time_last_block"><?php echo $tpl['my_notice']['time_last_block']?></span></li>
-				<li class="list-group-item">Соединений: <span id="connections"><?php echo $tpl['my_notice']['connections']?></span></li>
+				<li class="list-group-item"><?php echo $lng['connections']?>: <span id="connections"><?php echo $tpl['my_notice']['connections']?></span></li>
 			</ul>
 		</div>
 		<?php
@@ -117,8 +126,8 @@
 				<div class="table-responsive table-bordered">
 					<?php
 						echo '<table class="table" style="margin-bottom: 0px">';
-						echo '<thead><tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr></thead>';
 						if ($tpl['wallets']) {
+							echo '<thead><tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr></thead>';
 							foreach ($tpl['wallets'] as $id => $data) {
 								echo "<tr>";
 								if ($data['currency_id']>=1000)
