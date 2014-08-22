@@ -12,6 +12,8 @@ if ($config['pool_admin_user_id'] && $config['pool_admin_user_id']!=$_SESSION['u
 else
 	$tpl['pool_tech_works'] = 0;
 
+$tpl['ver'] = file_get_contents(ABSPATH.'version');
+
 require_once( ABSPATH . 'templates/login.tpl' );
 
 ?>
