@@ -196,8 +196,12 @@ if (1<0) {
 						else
 							echo "<li><a href='?id-{$tpl['project_id']}-{$lang_id}-{$tpl['page']}'>{$tpl['cf_lng'][$lang_id]}</a>{$num}</li> ";
 					}
-					else
-						echo "<li>{$tpl['cf_lng'][$lang_id]}{$num}</li> ";
+					else {
+						if (sizeof($tpl['project']['lang'])==1)
+							echo "";
+						else
+							echo "<li>{$tpl['cf_lng'][$lang_id]}{$num}</li> ";
+					}
 				}
 				?>
 			</ul>
@@ -262,9 +266,9 @@ if (1<0) {
 					if (@$tpl['project']['ended']!=1)
 					{
 						if ($user_id)
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\">".strtoupper($lng['contribute_now'])."</button>";
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
 						else
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='http://pool.democratic-coin.com/'\">".strtoupper($lng['contribute_now'])."</button>";
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='http://pool.democratic-coin.com/'\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
 					}
 					?>
 				</div>
@@ -290,7 +294,7 @@ if (1<0) {
 				if ($tpl['links']) {
 					echo '<map name="Navigation">';
 					foreach ($tpl['links'] as $data)
-						echo "<area shape=\"rect\" coords=\"{$data[1]},{$data[2]},{$data[3]},{$data[4]}\" href=\"{$data[0]}\">";
+						echo "<area shape=\"rect\" coords=\"{$data[1]},{$data[2]},{$data[3]},{$data[4]}\" href=\"{$data[0]}\" target='_blank'>";
 					echo '</map>';
 				}
 			}
