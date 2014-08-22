@@ -162,7 +162,7 @@ if (empty($_SESSION['restricted'])) {
 				<p><?php echo $lng['mining_menu']['outgoing_text']?></p>
 			</div>
 			<div class="panel-footer">
-				<a href="#" onclick="fc_navigate('cash_requests_out')"><?php echo $lng['goto']?></a>
+				<a href="#" onclick="map_navigate('cash_requests_out')"><?php echo $lng['goto']?></a>
 			</div>
 		</div>
 	</div>
@@ -231,21 +231,21 @@ else {
 ?>
 	<div class="panel panel-primary">
 		<div class="panel-heading">
-			Недостаточно прав
+			<?php echo $lng['insufficient_privileges']?>
 		</div>
 		<div class="panel-body">
 			<div class="form-horizontal">
 				<fieldset>
 
 					<!-- Form Name -->
-					<legend>Для продолжения Вам необходимо зарегистрировать свой ключ на пуле.</legend>
+					<legend><?php echo $lng['register_key_at_the_pool']?></legend>
 					<div id="alerts"></div>
 					<!-- Text input-->
 					<div class="form-group">
 						<label class="col-md-4 control-label" for="textinput">E-mail</label>
 						<div class="col-md-4">
 							<input id="email" name="email" placeholder="" class="form-control input-md" type="text">
-							<span class="help-block">Укажите свой email</span>
+							<span class="help-block"><?php echo $lng['enter_your_email']?></span>
 						</div>
 					</div>
 
@@ -253,7 +253,7 @@ else {
 					<div class="form-group">
 						<label class="col-md-4 control-label" for="singlebutton"></label>
 						<div class="col-md-4">
-							<button id="send" name="send" class="btn btn-primary">Отправить</button>
+							<button id="send" name="send" class="btn btn-primary"><?php echo $lng['send']?></button>
 						</div>
 					</div>
 
