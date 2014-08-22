@@ -2,14 +2,15 @@
 	<script>
 		$('#save').bind('click', function () {
 			$.post( 'ajax/save_node_config.php', {
-						'in_connections_ip_limit' : $('#in_connections_ip_limit').val(),
-						'in_connections' : $('#in_connections').val(),
-						'out_connections' : $('#out_connections').val(),
-						'config_ini' : $('#config_ini').val()
-					} ,
-					function () { 
-						fc_navigate ('node_config', {'alert': '<?php echo $lng['saved']?>'} );
-					});
+					'in_connections_ip_limit' : $('#in_connections_ip_limit').val(),
+					'in_connections' : $('#in_connections').val(),
+					'out_connections' : $('#out_connections').val(),
+					'auto_reload' : $('#auto_reload').val(),
+					'config_ini' : $('#config_ini').val()
+				},
+				function () {
+					fc_navigate ('node_config', {'alert': '<?php echo $lng['saved']?>'} );
+				});
 		});
 
 		$('#start').bind('click', function () {
@@ -72,6 +73,7 @@
 		$("#main_div select").addClass( "form-control" );
 		$("#main_div input").addClass( "form-control" );
 		$("#main_div button").addClass( "btn-outline btn-primary" );
+		$("#main_div input[type=text]").width( 500 );
 	</script>
 
 	<div id="main_div">
@@ -83,8 +85,10 @@
 		<input id="in_connections_ip_limit" class="input" type="text" value="<?php echo $tpl['data']['in_connections_ip_limit']?>">
 		<label><?php echo $lng['in_connections']?></label>
 		<input id="in_connections" class="input" type="text" value="<?php echo $tpl['data']['in_connections']?>">
-		<label><?php echo $lng['out_connections']?></label>
-		<input id="out_connections" class="input" type="text" value="<?php echo $tpl['data']['out_connections']?>">
+	    <label><?php echo $lng['out_connections']?></label>
+	    <input id="out_connections" class="input" type="text" value="<?php echo $tpl['data']['out_connections']?>">
+	    <label><?php echo $lng['auto_reload']?></label>
+	    <input id="auto_reload" class="input" type="text" value="<?php echo $tpl['data']['auto_reload']?>">
 		<br>
 
 	    <textarea style="width: 300px; height: 150px" id="config_ini"><?php echo $tpl['config_ini']?></textarea>
