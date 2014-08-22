@@ -360,7 +360,7 @@ function check_input_data ($data, $type, $info='')
 		case 'cf_links':
 
 			$regex = '\["https?\:\/\/(goo\.gl|bit\.ly|t\.co)\/[0-9a-z_-]+",[0-9]+,[0-9]+,[0-9]+,[0-9]+\]';
-			if (preg_match('/^\['.$regex.'(\,'.$regex.')?\]$/iD', $data) && strlen($data) < 512)
+			if (preg_match('/^\['.$regex.'(\,'.$regex.')*\]$/iD', $data) && strlen($data) < 512)
 				return true;
 			break;
 
@@ -2352,6 +2352,7 @@ function get_blocks($block_id, $host, $user_id, $rollback_blocks, $get_block_scr
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."config`
 					SET `my_block_id` = {$last_my_block_data['block_id']}
+					WHERE `my_block_id` < {$last_my_block_data['block_id']}
 					");
 
 			clear_tmp($blocks);
