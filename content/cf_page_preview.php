@@ -95,10 +95,11 @@ $tpl['project'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __M
 		", 'fetch_array');
 // сколько дней осталось
 $tpl['project']['days'] = round( ($tpl['project']['end_time'] - time() ) / (3600*24));
-if ($tpl['project']['days']<=0) {
-	$tpl['project']['ended'] = 1;
+if ($tpl['project']['days']<=0)
 	$tpl['project']['days'] = 0;
-}
+if ($tpl['project']['close_block_id'] || $tpl['project']['del_block_id'])
+	$tpl['project']['ended'] = 1;
+
 // дата старта
 $tpl['project']['start_date'] = date('d-m-Y H:i', $tpl['project']['start_time']);
 // в какой валюте идет сбор
