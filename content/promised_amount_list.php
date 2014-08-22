@@ -6,7 +6,7 @@ $tpl['alert'] = @$_REQUEST['parameters']['alert'];
 
 $tpl['currency_list'] = get_currency_list($db);
 
-$tpl['currency_id'] = @$_REQUEST['parameters']['currency_id'];
+$tpl['currency_id'] = intval(@$_REQUEST['parameters']['currency_id']);
 if (!$tpl['currency_id'])
 	$tpl['currency_id'] = 150;
 
