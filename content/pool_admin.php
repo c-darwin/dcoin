@@ -8,10 +8,16 @@ if (!node_admin_access($db))
 // удаление юзера с пула
 $del_id = intval(@$_REQUEST['parameters']['del_id']);
 if ($del_id) {
+	$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SHOW TABLES
+			", 'array');
+
 	foreach ($my_tables as $table) {
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				DROP TABLE `".DB_PREFIX."{$del_id}_{$table}`
-				");
+		if (in_array(DB_PREFIX."{$del_id}_{$table}", $tables_array)) {
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DROP TABLE `".DB_PREFIX."{$del_id}_{$table}`
+					");
+		}
 	}
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			DELETE FROM `".DB_PREFIX."community`
