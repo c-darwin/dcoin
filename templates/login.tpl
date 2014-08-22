@@ -20,7 +20,7 @@ if (!$user_id) {
 	                   background: url(img/logo.png) center left no-repeat;
 	                   text-align: center;
 	                   background-size: 30px 30px;
-	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')">Dcoin </a>
+	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
 	</div>
 	<!-- /.navbar-header -->
 
