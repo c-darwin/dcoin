@@ -11400,6 +11400,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						DELETE FROM `".DB_PREFIX."cf_currency`
 						WHERE `name` = '{$project['project_currency_name']}'
 						");
+				$this->rollbackAI('cf_currency');
 
 			}
 			else { // нужная сумма не набрана
