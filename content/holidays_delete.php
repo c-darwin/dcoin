@@ -2,7 +2,7 @@
 if (!defined('DC')) die("!defined('DC')");
 
 
-$tpl['del_id'] = $_REQUEST['parameters']['del_id'];
+$tpl['del_id'] = intval($_REQUEST['parameters']['del_id']);
 
 $tpl['data']['type'] = 'holidays_del';
 $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
