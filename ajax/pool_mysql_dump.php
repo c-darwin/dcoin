@@ -22,6 +22,10 @@ $gzip = false;
 if (!node_admin_access($db))
 	die ('Permission denied');
 
+$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SHOW TABLES
+		", 'array');
+
 $tables_cmd = '';
 $dump_user_id = intval($_REQUEST['dump_user_id']);
 if ($dump_user_id) {
@@ -31,8 +35,10 @@ if ($dump_user_id) {
 else {
 	$community_users = get_community_users($db);
 	for ($i=0; $i<sizeof($community_users); $i++) {
-		foreach ($my_tables as $table)
-			$tables_cmd .= "{$community_users[$i]}_{$table} ";
+		foreach ($my_tables as $table) {
+			if (in_array("{$community_users[$i]}_{$table}", $tables_array))
+				$tables_cmd .= "{$community_users[$i]}_{$table} ";
+		}
 	}
 }
 
@@ -48,8 +54,8 @@ else{
 }
 header( 'Content-Disposition: attachment; filename="' . $filename . '"' );
 
-$cmd = "mysqldump  -u ".DB_USER." --password=".DB_PASSWORD."  -h".DB_HOST." --default-character-set=binary  --add-drop-database --databases ".DB_NAME." --tables {$tables_cmd} --lock-tables=false --skip-add-locks {$add_cmd}";
-passthru( $cmd );
+$cmd = "mysqldump  -u ".DB_USER." --password=".DB_PASSWORD."  -h".DB_HOST." --default-character-set=binary  --databases ".DB_NAME." --tables {$tables_cmd} --lock-tables=false --skip-add-locks {$add_cmd}";
+passthru( $cmd, $data );
 
 exit(0);
 
