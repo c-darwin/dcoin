@@ -18,7 +18,7 @@ $ini_array = parse_ini_file(ABSPATH . "config.ini", true);
 if ($ini_array['main']['sign_hash'] == 'ip')
 	$hash = md5($_SERVER['REMOTE_ADDR']);
 else
-	$hash = md5($_SERVER['HTTP_USER_AGENT']);
+	$hash = md5($_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']);
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		INSERT INTO  `".DB_PREFIX."authorization` (
