@@ -51,7 +51,7 @@ $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __
 		", 'fetch_one' );
 
 // если юзер кликнул по кнопку "профинансировать" со страницы проекта
-if ($_REQUEST['parameters']['project_id']){
+if (!empty($_REQUEST['parameters']['project_id'])){
 	$tpl['cf_project_id'] = intval($_REQUEST['parameters']['project_id']);
 }
 
