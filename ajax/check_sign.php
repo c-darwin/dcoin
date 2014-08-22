@@ -46,7 +46,7 @@ if ($community) {
 		if ($ini_array['main']['sign_hash'] == 'ip')
 			$hash = md5($_SERVER['REMOTE_ADDR']);
 		else
-			$hash = md5($_SERVER['HTTP_USER_AGENT']);
+			$hash = md5($_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']);
 		//print $hash."\n";
 
 		$for_sign = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -139,7 +139,7 @@ else {
 	if ($ini_array['main']['sign_hash'] == 'ip')
 		$hash = md5($_SERVER['REMOTE_ADDR']);
 	else
-		$hash = md5($_SERVER['HTTP_USER_AGENT']);
+		$hash = md5($_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']);
 	$for_sign =$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `data`
 				FROM `".DB_PREFIX."authorization`
