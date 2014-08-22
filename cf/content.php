@@ -29,7 +29,16 @@ $tpl['cf_url'] = get_cf_url();
 if (!$tpl['cf_url'])
 	die ('access denied');
 
-if ( isset($_REQUEST['tpl_name']) && check_input_data($_REQUEST['tpl_name'], 'tpl_name') )
+// проверим, не идут ли тех. работы на пуле
+$config = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+				SELECT `pool_admin_user_id`,
+							  `pool_tech_works`
+				FROM `'.DB_PREFIX.'config`
+				', 'fetch_array');
+if ($config['pool_admin_user_id'] && $config['pool_admin_user_id']!=$_SESSION['user_id'] && $config['pool_tech_works']==1)
+	require_once( ABSPATH . 'content/pool_tech_works.php' );
+
+else if ( isset($_REQUEST['tpl_name']) && check_input_data($_REQUEST['tpl_name'], 'tpl_name') )
 	require_once( ABSPATH . 'content/'.$_REQUEST['tpl_name'].'.php' );
 else
 	require_once( ABSPATH . 'content/cf_catalog.php' );
