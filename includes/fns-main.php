@@ -3405,6 +3405,15 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 		if (in_array($type, array(ParseData::findType('cf_comment'),ParseData::findType('cf_send_dc'),ParseData::findType('cf_project_change_category'),ParseData::findType('cf_project_data') )))
 			clear_incompatible_tx_sql_set( $db, array('del_cf_project'), 0, $wait_error, $third_var);
 
+		// на всякий случай не даем попасть в один блок тр-ии отправки в CF-проект монет и другим тр-ям связанным с этим CF-проектом. Т.к. проект может завершиться и 2-я тр-я вызовет ошибку
+		if ($type == ParseData::findType('cf_send_dc'))
+			clear_incompatible_tx_sql_set( $db, array('cf_send_dc','cf_comment','del_cf_project','cf_project_change_category','cf_project_data'), 0, $wait_error, $third_var);
+
+		if (in_array($type, array(ParseData::findType('cf_send_dc'),ParseData::findType('cf_comment'),ParseData::findType('del_cf_project'),ParseData::findType('cf_project_change_category'),ParseData::findType('cf_project_data') )))
+			clear_incompatible_tx_sql_set( $db, array('cf_send_dc'), 0, $wait_error, $third_var);
+
+
+
 		// нельзя удалять promised_amount и голосовать за него
 		if ($type == ParseData::findType('del_promised_amount'))
 			clear_incompatible_tx_sql_set( $db, array('votes_promised_amount'), 0, $wait_error, $third_var);
@@ -3835,6 +3844,11 @@ function get_my_notice_data()
 
 function hash_table_data($db, $table, $where='', $order_by='')
 {
+	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SHOW TABLE STATUS LIKE '".DB_PREFIX."{$table}'
+			", 'fetch_array');
+	$return = $data['Auto_increment'];
+
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SET GLOBAL group_concat_max_len=102400;
 			");
@@ -3855,12 +3869,11 @@ function hash_table_data($db, $table, $where='', $order_by='')
 		if ($order_by)
 			$order_by = " ORDER BY {$order_by}";
 		$columns = '`'.str_replace(',', '`,`', $columns).'`';
-		return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT MD5(GROUP_CONCAT( CONCAT_WS( '#', {$columns})  {$order_by} )) FROM `".DB_PREFIX."{$table}` {$where}
-			", 'fetch_one');
+		$return .= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT MD5(GROUP_CONCAT( CONCAT_WS( '#', {$columns})  {$order_by} )) FROM `".DB_PREFIX."{$table}` {$where}
+				", 'fetch_one');
 	}
-	else
-		return '';
+	return $return;
 }
 
 
