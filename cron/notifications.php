@@ -1,7 +1,5 @@
 <?php
 
-exit;
-
 define( 'DC', true );
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
@@ -80,6 +78,15 @@ foreach($notifications_array as $name => $notification_info) {
 
 			if ($data) {
 
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."alert_messages`
+						SET `notification` = 1
+						WHERE `id` = {$data['id']}
+						");
+
+				if (get_my_block_id($db) > get_block_id($db))
+					break;
+
 				foreach($notification_info as $user_id => $email_sms) {
 
 					$my_data = $user_email_sms_data[$user_id];
@@ -92,11 +99,6 @@ foreach($notifications_array as $name => $notification_info) {
 						send_sms($my_data['sms_http_get_request'], $my_data['text']);
 				}
 
-				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."alert_messages`
-						SET `notification` = 1
-						WHERE `id` = {$data['id']}
-						");
 			}
 
 			break;
@@ -365,11 +367,10 @@ foreach($notifications_array as $name => $notification_info) {
 			}
 
 			break;
-/*
+
 		// новые %
 		case 'voting_results':
 
-			$config_block_id = get_my_block_id($db);
 			$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`,
 								 `currency_id`,
@@ -380,13 +381,20 @@ foreach($notifications_array as $name => $notification_info) {
 					WHERE `notification` = 0
 					");
 			$text = '';
+			$pct_upd = false;
 			while ($data = $db->fetchArray($res)) {
-
-				if ($config_block_id < $data['block_id'])
-					continue;
-
+				$pct_upd = true;
 				$text .= "New pct {$currency_list[$data['currency_id']]}! miners: ".((pow(1+$data['miner'], 3600*24*365)-1)*100)."%/year, users: ".((pow(1+$data['user'], 3600*24*365)-1)*100)."%/year";
 			}
+			if ($pct_upd)
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."pct`
+						SET `notification` = 1
+						WHERE `notification` = 0
+						");
+
+			if (get_my_block_id($db) > get_block_id($db))
+				break;
 
 			if ($text) {
 
@@ -401,16 +409,10 @@ foreach($notifications_array as $name => $notification_info) {
 					if ($email_sms['sms'])
 						send_sms($my_data['sms_http_get_request'], $my_data['text']);
 				}
-
-				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."pct`
-						SET `notification` = 1
-						WHERE `notification` = 0
-						");
 			}
 
 			break;
-*/
+
 		// Прошло 2 недели с момента Вашего голосования за %
 		case 'voting_time':
 
@@ -446,7 +448,7 @@ foreach($notifications_array as $name => $notification_info) {
 			}
 
 			break;
-/*
+
 		// Необходимость обновления FC-движка
 		case 'new_version':
 
@@ -457,6 +459,15 @@ foreach($notifications_array as $name => $notification_info) {
 								 `alert` = 1
 					LIMIT 1
 					", 'fetch_one');
+
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."new_version`
+						SET `notification` = 1
+						WHERE `version` = '{$new_version}'
+						");
+
+			if (get_my_block_id($db) > get_block_id($db))
+				break;
 
 			if ($new_version) {
 
@@ -472,15 +483,10 @@ foreach($notifications_array as $name => $notification_info) {
 						send_sms($my_data['sms_http_get_request'], $my_data['text']);
 				}
 
-				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."new_version`
-						SET `notification` = 1
-						WHERE `version` = '{$new_version}'
-						");
 			}
 
 			break;
-*/
+
 		// Расхождение времени сервера более чем на 5 сек
 		case 'node_time':
 
