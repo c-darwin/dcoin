@@ -122,9 +122,9 @@
 						<li>
 							<a href="http://dcoinforum.org" target="_blank">Forum</a>
 						</li>
-						<li>
+						<!--<li>
 							<a href="#" onclick="fc_navigate('bug_reporting')"><?php echo $lng['bug_reporting']?></a>
-						</li>
+						</li>-->
 						<li>
 							<a href="#" onclick="fc_navigate('abuse')"><?php echo $lng['complaints_miners']?></a>
 						</li>
