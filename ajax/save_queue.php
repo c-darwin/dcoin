@@ -250,17 +250,19 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		$result = $_REQUEST['result'];
 		$comment = $_REQUEST['comment'];
 
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_tasks` (
-						`type`,
-						`id`,
-						`time`
-					)
-					VALUES (
-						'miner',
-						{$vote_id},
-						{$time}
-					)");
+		if (empty($_SESSION['restricted'])) {
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_tasks` (
+							`type`,
+							`id`,
+							`time`
+						)
+						VALUES (
+							'miner',
+							{$vote_id},
+							{$time}
+						)");
+		}
 
 		$data = dec_binary ($type, 1) .
 					dec_binary ($time, 4) .
@@ -345,17 +347,19 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$result = $_REQUEST['result'];
 			$comment = $_REQUEST['comment'];
 
-			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_tasks` (
-						`type`,
-						`id`,
-						`time`
-					)
-					VALUES (
-						'promised_amount',
-						{$promised_amount_id},
-						{$time}
-					)");
+			if (empty($_SESSION['restricted'])) {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_tasks` (
+							`type`,
+							`id`,
+							`time`
+						)
+						VALUES (
+							'promised_amount',
+							{$promised_amount_id},
+							{$time}
+						)");
+			}
 
 			$data = dec_binary ($type, 1) .
 						dec_binary ($time, 4) .
@@ -415,7 +419,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$order_id= $_REQUEST['order_id'];
 
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
