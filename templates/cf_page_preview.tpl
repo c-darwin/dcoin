@@ -268,7 +268,7 @@ if (1<0) {
 						if ($user_id)
 							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
 						else
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='http://pool.democratic-coin.com/'\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
+							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='{$tpl['config']['pool_url']}'\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
 					}
 					?>
 				</div>
