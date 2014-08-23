@@ -2541,7 +2541,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				DELETE FROM `".DB_PREFIX."reduction`
 				WHERE `block_id` = {$this->block_data['block_id']}
 				");
-		$this->rollbackAI('reduction');
+		$AffectedRows = $this->db->getAffectedRows();
+		debug_print( '$AffectedRows='.$AffectedRows, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->rollbackAI('reduction', $AffectedRows);
 
 	}
 
@@ -3681,14 +3683,16 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 
 	}
-	function admin_message_rollback() {
 
+	function admin_message_rollback()
+	{
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,  "
 				DELETE FROM `".DB_PREFIX."alert_messages`
 				WHERE `block_id` = {$this->block_data['block_id']}
 				");
-		$this->rollbackAI('alert_messages');
-
+		$AffectedRows = $this->db->getAffectedRows();
+		debug_print( '$AffectedRows='.$AffectedRows, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->rollbackAI('alert_messages', $AffectedRows);
 	}
 
 	// 19
@@ -10234,7 +10238,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function change_host_rollback()
 	{
-		self::selective_rollback (array('host'), 'miners_data', "`user_id`={$this->tx_data['user_id']}");
+		$this->selective_rollback (array('host'), 'miners_data', "`user_id`={$this->tx_data['user_id']}");
 
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id($this->tx_data['user_id']);
@@ -11560,7 +11564,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function cf_project_change_category_rollback()
 	{
-		$this->selective_rollback (array('category_id'), 'cf_projects', "`id`={$this->tx_data['project_id']}", true);
+		$this->selective_rollback (array('category_id'), 'cf_projects', "`id`={$this->tx_data['project_id']}");
 	}
 
 	function cf_project_change_category_rollback_front()
