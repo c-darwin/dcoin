@@ -1,7 +1,18 @@
 	<script>
 		$('#sql').change(function () {
 			file_upload('sql', 'sql_progress', 'sql', 'pool_add_users.php');
-		})
+		});
+
+		$('#save').bind('click', function () {
+
+			if($("#pool_tech_works").is(':checked'))
+				var pool_tech_works = '1';
+			else
+				var pool_tech_works = '0';
+
+			fc_navigate ('pool_admin', {'pool_tech_works':pool_tech_works, 'pool_max_users':$('#pool_max_users').val() } );
+		} );
+
 	</script>
 	<style>
 		.progress {
@@ -32,9 +43,35 @@
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
     <div id="new">
+
+	    <div class="form-horizontal">
+		    <fieldset>
+			    <div class="form-group">
+				    <label class="col-md-4 control-label" for="pool_tech_works">pool_tech_works</label>
+				    <div class="col-md-4">
+						    <input name="pool_tech_works" id="pool_tech_works" type="checkbox" <?php echo $tpl['config']['pool_tech_works']?'checked':''?>>
+				    </div>
+			    </div>
+			    <div class="form-group">
+				    <label class="col-md-4 control-label" for="pool_max_users">pool_max_users</label>
+				    <div class="col-md-4">
+					    <input id="pool_max_users" name="pool_max_users" class="form-control input-md" type="text" value="<?php echo $tpl['config']['pool_max_users']?>">
+				    </div>
+			    </div>
+			    <div class="form-group">
+				    <label class="col-md-4 control-label" for="save"></label>
+				    <div class="col-md-4">
+					    <button id="save" name="save" class="btn btn-primary"><?php echo $lng['save']?></button>
+				    </div>
+			    </div>
+		    </fieldset>
+	    </div>
+
+
+
 	    <div id="sql_progress" class="progress">0%</div><br>
 	    <div id="sql_ok" class="alert alert-success" style="display: none"></div>
-	    <form class="form-horizontal">
+	    <div class="form-horizontal">
 		    <fieldset>
 			    <div class="form-group">
 				    <label class="col-md-4 control-label" for="filebutton">Import users from sql</label>
@@ -50,7 +87,7 @@
 			    </div>
 
 		    </fieldset>
-	    </form>
+	    </div>
 
 
 	    <?php
