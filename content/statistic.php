@@ -1,7 +1,7 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-$tpl['currency_list'] = get_currency_list($db);
+$tpl['currency_list'] = get_currency_list($db, true);
 
 $variables = ParseData::get_all_variables($db);
 $time = time();
@@ -70,6 +70,21 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		");
 while ( $row = $db->fetchArray( $res ) )
 	$wallets_users[$row['currency_id']] = $row['count'];
+
+
+// таблица обмена на наличные
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT *
+		FROM `".DB_PREFIX."cash_requests`
+		ORDER BY `id` DESC
+		LIMIT 100
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	$row['time'] = date('d/m/Y H:i:s', $row['time']);
+	$tpl['cash_requests'][] = $row;
+}
+
+
 
 require_once( ABSPATH . 'templates/statistic.tpl' );
 
