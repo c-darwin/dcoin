@@ -210,6 +210,8 @@ $tpl['data']['user_id'] = $user_id;
 
 $tpl['pages_array'] = array('home', 'news', 'funders', 'comments');
 
+$tpl['config'] = get_config();
+
 require_once( ABSPATH . 'templates/cf_page_preview.tpl' );
 
 ?>
