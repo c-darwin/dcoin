@@ -52,13 +52,44 @@ function send_video (file_id, progress, type) {
     up.send();
 }
 
+function show_profile (user_id) {
+    $.post( 'ajax/profile.php', {
+        'user_id' : user_id
+    }, function (data) {
+        $("#profile_abuses").html(data.abuses);
+        $("#profile_reg_time").html(data.reg_time);
+        $("#profile_window").css("display", "block");
+        $("#profile_window").center();
+        $("#reloadbtn").html('<button onclick="reload_photo('+user_id+', \'profile_photo\');" class="btn">reload photo</button>');
+        $('#profile_photo').attr('src', '');
+        reload_photo(user_id, 'profile_photo');
+    }, 'JSON' );
+}
 
+function reload_photo(user_id, face_id) {
+    $.post( 'ajax/new_photo.php', {
+        'user_id' : user_id
+    }, function (data) {
+        $('#'+face_id).attr('src', ''+data.face+'');
+    }, "json" );
+}
+
+jQuery.fn.center = function () {
+    this.css("position","absolute");
+    this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
+        $(window).scrollTop()) + "px");
+    this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
+        $(window).scrollLeft()) + "px");
+    return this;
+}
 function decrypt_comment(id, type) {
 
     console.log('decrypt_comment');
 
     var key = $("#key").text();
     var pass = $("#password").text();
+    if (key.indexOf('RSA PRIVATE KEY')!=-1)
+        pass = '';
     var e_text = $("#encrypt_comment_"+id).val();
     console.log('key='+key);
     console.log('pass='+pass);
