@@ -163,6 +163,8 @@ function decrypt_comment_0 (id, type) {
 
 	var key = $("#key").text();
 	var pass = $("#password").text();
+	if (key.indexOf('RSA PRIVATE KEY')!=-1)
+		pass = '';
 	var e_text = $("#encrypt_comment_"+id).val();
 	<?php
 	if ($tpl['miner_id'] > 0) // если майнер, то коммент зашифрован нодовским ключем и тут его не расшифровать
