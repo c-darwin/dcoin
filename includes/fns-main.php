@@ -951,12 +951,21 @@ function get_all_cf_lng($db)
 	return $lang;
 }
 
+function get_config()
+{
+	global $db;
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT *
+			FROM `".DB_PREFIX."config`
+			", 'fetch_array');
+}
+
 function get_block_id($db)
 {
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `block_id`
-				FROM `".DB_PREFIX."info_block`
-				", 'fetch_one');
+			SELECT `block_id`
+			FROM `".DB_PREFIX."info_block`
+			", 'fetch_one');
 }
 
 function get_user_public_key($db)
@@ -3240,7 +3249,7 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			            FROM (
 				            SELECT `data`
 				            FROM `".DB_PREFIX."transactions`
-				            WHERE `type` IN (".ParseData::findType('del_promised_amount').", ".ParseData::findType('change_promised_amount').",) AND
+				            WHERE `type` IN (".ParseData::findType('del_promised_amount').", ".ParseData::findType('change_promised_amount').") AND
 				                         `user_id` = {$to_user_id} AND
 				                         `verified`=1 AND
 				                         `used` = 0
