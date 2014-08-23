@@ -1863,7 +1863,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_max_users` int(11) NOT NULL DEFAULT '100',
   `pool_admin_user_id`  int(11) NOT NULL,
   `pool_tech_works`  tinyint(1) NOT NULL,
-  `cf_url`  varchar(255) NOT NULL
+  `cf_url`  varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
+  `pool_url`  varchar(255) NOT NULL COMMENT 'URL, на который ссылается кнопка Contribute now из внешнего CF-каталога ',
   `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа',
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
