@@ -59,11 +59,11 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="#" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
+			<a class="navbar-brand" href="<?php echo $tpl['cf_url']?>" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
 	                   background: url(<?php echo $tpl['cf_url']?>img/logo.png) center left no-repeat;
 	                   text-align: center;
 	                   background-size: 30px 30px;
-	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('cf_catalog')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
+	                   padding-left: 40px; margin-left: 15px; margin-right: 50px">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
 		</div>
 		<!-- /.navbar-header -->
 
