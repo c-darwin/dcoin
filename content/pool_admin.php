@@ -4,7 +4,6 @@ if (!defined('DC')) die("!defined('DC')");
 if (!node_admin_access($db))
 	die ('Permission denied');
 
-
 // удаление юзера с пула
 $del_id = intval(@$_REQUEST['parameters']['del_id']);
 if ($del_id) {
@@ -25,6 +24,17 @@ if ($del_id) {
 			");
 }
 
+if (isset($_REQUEST['parameters']['pool_tech_works'])) {
+	$pool_tech_works = intval($_REQUEST['parameters']['pool_tech_works']);
+	$pool_max_users = intval($_REQUEST['parameters']['pool_max_users']);
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			UPDATE `".DB_PREFIX."config`
+			SET `pool_tech_works` = {$pool_tech_works},
+				   `cf_url` = '{$cf_url}',
+				   `pool_max_users` = {$pool_max_users}
+			");
+}
+
 $tpl['users'] = array();
 $community = get_community_users($db);
 for ($i=0; $i<sizeof($community); $i++) {
@@ -37,6 +47,11 @@ for ($i=0; $i<sizeof($community); $i++) {
 				", 'fetch_array' );
 	}
 }
+
+$tpl['config'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT *
+		FROM `".DB_PREFIX."config`
+		", 'fetch_array' );
 
 require_once( ABSPATH . 'templates/pool_admin.tpl' );
 ?>
