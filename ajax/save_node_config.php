@@ -32,6 +32,9 @@ if ( !check_input_data ($_REQUEST['out_connections'] , 'int') )
 if ( !check_input_data ($_REQUEST['auto_reload'] , 'int') )
 	die('error auto_reload');
 
+$cf_url = $db->escape($_REQUEST['cf_url']);
+$pool_url = $db->escape($_REQUEST['pool_url']);
+
 define('MY_PREFIX', get_my_prefix($db));
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -39,6 +42,8 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SET  `in_connections_ip_limit` = {$_POST['in_connections_ip_limit']},
 				`in_connections` = {$_POST['in_connections']},
 				`out_connections` = {$_POST['out_connections']},
+				`cf_url` = '{$cf_url}',
+				`pool_url` = '{$pool_url}',
 				`auto_reload` = {$_POST['auto_reload']}
 		");
 
