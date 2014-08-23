@@ -10,10 +10,9 @@ if (empty($_SESSION['restricted'])) {
 	$tpl['public_key'] = bin2hex($tpl['public_key']);
 }
 
+
 $tpl['my_notice'] = get_my_notice_data();
-
 $tpl['script_version'] = str_ireplace('[ver]', get_current_version($db), $lng['script_version']);
-
 $script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `script_name`
 		FROM `".DB_PREFIX."main_lock`
@@ -67,7 +66,7 @@ if (empty($_SESSION['restricted'])) {
 $tpl['wallets'] = get_balances($user_id);
 
 $tpl['block_id'] = get_block_id($db);
-$tpl['currency_list'] = get_currency_list($db);
+$tpl['currency_list'] = get_currency_list($db, 'full');
 
 require_once( ABSPATH . 'templates/home.tpl' );
 
