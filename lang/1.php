@@ -41,6 +41,7 @@ $lng['month'] = 'month';
 $lng['year'] = 'year';
 
 // general
+$lng['impossible'] = 'Impossible';
 $lng['categories'] = 'Categories';
 $lng['goto'] = 'Go';
 $lng['cash'] = 'Cash';
