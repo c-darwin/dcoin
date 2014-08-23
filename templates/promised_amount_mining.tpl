@@ -21,7 +21,10 @@ $('#send_to_net').bind('click', function () {
 	}
 } );
 
+$("#main_div textarea").addClass( "form-control" );
+
 </script>
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['mining']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -49,4 +52,4 @@ $('#send_to_net').bind('click', function () {
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
-
+</div>
