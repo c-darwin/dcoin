@@ -7,7 +7,7 @@ $status = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,
 		WHERE `user_id` = {$user_id}
 		LIMIT 1
 		", 'fetch_one');
-if ($status)
+if ($status && empty($_SESSION['restricted']))
 	$tpl['account_status'] = $status;
 else
 	$tpl['account_status'] = 'user';
