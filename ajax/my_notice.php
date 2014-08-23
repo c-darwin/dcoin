@@ -27,10 +27,10 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	define( 'MY_PREFIX', get_my_prefix($db) );
 	$my_notice = get_my_notice_data();
 
-	$cash_request = '';
+	$cash_requests = 0;
 	if (empty($_SESSION['restricted'])) {
 		$my_user_id = get_my_user_id($db);
-		$cash_request = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		$cash_requests = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(`id`)
 				FROM `".DB_PREFIX."cash_requests`
 				WHERE `to_user_id` = {$my_user_id} AND
@@ -38,6 +38,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 							 `for_repaid_del_block_id` = 0 AND
 							 `del_block_id` = 0
 				", 'fetch_one' );
+		$cash_requests = $cash_requests?1:0;
 	}
 	print json_encode(
 			array(
@@ -47,7 +48,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 				'cur_block_id'=>$my_notice['cur_block_id'],
 				'connections'=>$my_notice['connections'],
 				'time_last_block'=>$my_notice['time_last_block'],
-				'alert'=>$cash_request
+				'inbox'=>$cash_requests
 			)
 	);
 }
