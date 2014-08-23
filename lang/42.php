@@ -40,6 +40,7 @@ $lng['month'] = 'месяц';
 $lng['year'] = 'год';
 
 // general
+$lng['impossible'] = 'Невозможно';
 $lng['categories'] = 'Категории';
 $lng['goto'] = 'Перейти';
 $lng['cash'] = 'Наличные';
