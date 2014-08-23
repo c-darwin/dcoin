@@ -1,13 +1,7 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-$tpl['data'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `in_connections_ip_limit`,
-					 `in_connections`,
-					 `out_connections`,
-					 `auto_reload`
-		FROM `'.DB_PREFIX.'config`
-		', 'fetch_array');
+$tpl['data'] = get_config();
 
 $script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `script_name`
