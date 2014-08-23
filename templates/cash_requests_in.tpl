@@ -42,35 +42,6 @@ $('#send_to_net').bind('click', function () {
 } );
 
 
-jQuery.fn.center = function () {
-	this.css("position","absolute");
-	this.css("top", Math.max(0, (($(window).height() - $(this).outerHeight()) / 2) +
-			$(window).scrollTop()) + "px");
-	this.css("left", Math.max(0, (($(window).width() - $(this).outerWidth()) / 2) +
-			$(window).scrollLeft()) + "px");
-	return this;
-}
-
-function show_profile (user_id) {
-	$.post( 'ajax/profile.php', {
-		'user_id' : user_id
-	}, function (data) {
-		$("#profile_abuses").html(data.abuses);
-		$("#profile_reg_time").html(data.reg_time);
-		$("#profile_window").css("display", "block");
-		$("#profile_window").center();
-		$('#profile_photo').attr('src', '');
-		reload_photo(user_id, 'profile_photo');
-	}, 'JSON' );
-}
-
-function reload_photo(user_id, face_id) {
-	$.post( 'ajax/new_photo.php', {
-		'user_id' : user_id
-	}, function (data) {
-		$('#'+face_id).attr('src', ''+data.face+'');
-	}, "json" );
-}
 
 $('#profileclose').bind('click', function () {
 	$("#profile_window").css("display", "none");
@@ -84,6 +55,7 @@ $('#profileclose').bind('click', function () {
 		<div style="float: left; margin-right: 10px"><img id="profile_photo" width="200"></div>
 		<?php echo $lng['abuses']?>: <span id="profile_abuses"></span><br>
 		<?php echo $lng['reg_time']?>: <span id="profile_reg_time"></span>
+		<div id="reloadbtn"></div>
 	</div>
 	<h1 class="page-header"><?php echo $lng['cash_request_in_title']?></h1>
 	<ol class="breadcrumb">
