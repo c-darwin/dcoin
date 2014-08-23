@@ -6,6 +6,8 @@
 					'in_connections' : $('#in_connections').val(),
 					'out_connections' : $('#out_connections').val(),
 					'auto_reload' : $('#auto_reload').val(),
+					'cf_url' : $('#cf_url').val(),
+					'pool_url' : $('#pool_url').val(),
 					'config_ini' : $('#config_ini').val()
 				},
 				function () {
@@ -87,6 +89,10 @@
 		<input id="in_connections" class="input" type="text" value="<?php echo $tpl['data']['in_connections']?>">
 	    <label><?php echo $lng['out_connections']?></label>
 	    <input id="out_connections" class="input" type="text" value="<?php echo $tpl['data']['out_connections']?>">
+	    <label>cf_url</label>
+	    <input id="cf_url" class="input" type="text" value="<?php echo $tpl['data']['cf_url']?>">
+	    <label>pool_url</label>
+	    <input id="pool_url" class="input" type="text" value="<?php echo $tpl['data']['pool_url']?>">
 	    <label><?php echo $lng['auto_reload']?></label>
 	    <input id="auto_reload" class="input" type="text" value="<?php echo $tpl['data']['auto_reload']?>">
 		<br>
