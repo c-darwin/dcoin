@@ -57,6 +57,7 @@ $('#new_cf_project').bind('click', function () {
 	<div>
 
 		<?php
+		if ($tpl['projects'])
 		foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px">
