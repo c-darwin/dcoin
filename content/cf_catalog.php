@@ -13,9 +13,11 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		FROM `".DB_PREFIX."cf_projects`
 		LEFT JOIN `".DB_PREFIX."cf_projects_data` ON  `".DB_PREFIX."cf_projects_data`.`project_id` = `".DB_PREFIX."cf_projects`.`id`
 		WHERE `del_block_id` = 0 AND
+					 `end_time` > ".time()." AND
 					 `lang_id` = {$lang}
 				 	  {$add_sql}
 		ORDER BY `funders` DESC
+		LIMIT 100
 		");
 while ( $row =  $db->fetchArray( $res ) ) {
 	$row = array_merge (project_data($row, $tpl['cf_url']), $row);
