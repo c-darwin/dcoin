@@ -152,13 +152,11 @@
 					?>
 				</div>
 			</div>
-
-
 		</div>
 		<!-- /.col-lg-4 -->
 	</div>
 	<!-- /.row -->
-	<div class="row">
+	<div class="row" style="margin-bottom: 50px">
 		<div style="width:800px; overflow:auto; margin-left: 15px">
 			<h3>CrowdFunding</h3>
 			<?php
