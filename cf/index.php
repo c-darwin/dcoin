@@ -47,11 +47,13 @@ else
 
 $tpl['cf_url'] = get_cf_url();
 if (!$tpl['cf_url'])
-	die ('access denied');
+	die ('index access denied');
 
 $tpl['cf_lang'] = get_all_cf_lng($db);
 
 require_once( ABSPATH . 'templates/index_cf.tpl' );
 
-
+print '<!--';
+print_R($_SESSION);
+print '-->';
 ?>
