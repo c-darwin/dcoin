@@ -194,6 +194,7 @@ $tpl['cf_lng'] = get_all_cf_lng($db);
 $tpl['project']['author'] = get_cf_author_name($db, $tpl['project']['user_id'], $tpl['cf_url']);
 
 // возможно наш юзер фундер
+$tpl['project']['funder'] = '';
 if ($user_id)
 	$tpl['project']['funder'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `id`
@@ -201,7 +202,7 @@ if ($user_id)
 			WHERE `project_id` = {$tpl['project_id']} AND
 						 `user_id` = {$user_id} AND
 						 `del_block_id` = 0
-			");
+			", 'fetch_one');
 
 $tpl['comment_data']['type'] = 'cf_comment';
 $tpl['comment_data']['type_id'] = ParseData::findType($tpl['comment_data']['type']);
@@ -210,7 +211,7 @@ $tpl['data']['user_id'] = $user_id;
 
 $tpl['pages_array'] = array('home', 'news', 'funders', 'comments');
 
-$tpl['config'] = get_config();
+$tpl['config'] = get_node_config();
 
 require_once( ABSPATH . 'templates/cf_page_preview.tpl' );
 
