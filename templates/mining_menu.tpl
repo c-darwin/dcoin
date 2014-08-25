@@ -222,9 +222,40 @@ if (empty($_SESSION['restricted'])) {
 			</div>
 		</div>
 	</div>
+	<div class="col-lg-4">
+		<div class="panel panel-default">
+			<div class="panel-heading">
+				<?php echo $lng['vote_for_me'] ?>
+			</div>
+			<div class="panel-body">
+				<p><?php echo $lng['mining_menu']['vote_for_me_text']?></p>
+			</div>
+			<div class="panel-footer">
+				<a href="#" onclick="fc_navigate ('vote_for_me')"><?php echo $lng['goto']?></a>
+			</div>
+		</div>
+	</div>
 </div>
 <!-- /.row -->
 </div>
+
+
+	<div  <?php echo $tpl['mode']!=0?'style="display:none"':''?>>
+		<div class="col-lg-4">
+			<div class="panel panel-default">
+				<div class="panel-heading">
+					<?php echo $lng['vote_for_me'] ?>
+				</div>
+				<div class="panel-body">
+					<p><?php echo $lng['mining_menu']['vote_for_me_text']?></p>
+				</div>
+				<div class="panel-footer">
+					<a href="#" onclick="fc_navigate ('vote_for_me')"><?php echo $lng['goto']?></a>
+				</div>
+			</div>
+		</div>
+	</div>
+
 <?php
 }
 else {
