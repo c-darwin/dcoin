@@ -75,8 +75,8 @@ do {
 			} while (true);
 		}*/
 
-		if (file_exists(ABSPATH . 'blockchain')) {
-			$fp = fopen(ABSPATH . 'blockchain', 'r');
+		if (file_exists(ABSPATH . 'public/blockchain')) {
+			$fp = fopen(ABSPATH . 'public/blockchain', 'r');
 			do {
 				$data_size = binary_dec(fread($fp, 5));
 				if ($data_size) {
