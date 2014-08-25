@@ -27,8 +27,12 @@
 			fc_navigate ('upgrade', {'alert': my_alert} );
 		});
 	} );
+
+
+	$("#main_div textarea").addClass( "form-control" );
 </script>
 
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['upgrade_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -66,3 +70,4 @@
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	</script>
 
+</div>
