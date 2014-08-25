@@ -12,7 +12,7 @@ if (isset($_REQUEST['blurb_img'])) {
 	<meta name="description" content="">
 	<meta name="author" content="">
 
-	<title>Portfolio Item - Start Bootstrap Template</title>
+	<title>Preview</title>
 
 	<!-- Bootstrap Core CSS -->
 	<link href="css2/bootstrap.min.css" rel="stylesheet">
