@@ -1949,7 +1949,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	function new_max_other_currencies_rollback()
 	{
 		$new_max_other_currencies = json_decode($this->tx_data['new_max_other_currencies'], true);
-		krsort ($new_max_other_currencies);
+		$new_max_other_currencies = array_reverse ($new_max_other_currencies, true);
 		debug_print($new_max_other_currencies, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		foreach ($new_max_other_currencies as $currency_id => $count) {
 			$log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3992,8 +3992,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						UPDATE `".DB_PREFIX."miners_data`
 						SET  `status` = 'suspended_miner',
-								`miner_id` = 0,
-								`ban_block_id` = 0
+								`miner_id` = 0
 				        WHERE `user_id` =  {$users_ids[$i]}
 				        ");
 
@@ -10111,7 +10110,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// сортируем по $currency_id в обратном порядке
-		krsort($currency_votes);
+		$currency_votes = array_reverse($currency_votes, true);
 		foreach ($currency_votes as $currency_id=>$data) {
 
 			// miner_pct
