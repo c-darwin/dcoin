@@ -1,7 +1,7 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-$tpl['data'] = get_config();
+$tpl['data'] = get_node_config();
 
 $script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `script_name`
