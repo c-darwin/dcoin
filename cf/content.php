@@ -27,7 +27,7 @@ require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
 $tpl['cf_url'] = get_cf_url();
 if (!$tpl['cf_url'])
-	die ('access denied');
+	die ('content access denied');
 
 // проверим, не идут ли тех. работы на пуле
 $config = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
