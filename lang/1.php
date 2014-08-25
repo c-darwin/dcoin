@@ -41,6 +41,9 @@ $lng['month'] = 'month';
 $lng['year'] = 'year';
 
 // general
+$lng['history'] = 'History';
+$lng['password'] = 'Password';
+$lng['find'] = 'Find';
 $lng['impossible'] = 'Impossible';
 $lng['categories'] = 'Categories';
 $lng['goto'] = 'Go';
@@ -279,6 +282,14 @@ $lng['your_new_key'] = 'Your new master key';
 $lng['your_new_key_rules'] = 'The new key will enter into force only after it will DC-network until the act is either the old master key. <br><strong> Sure to save and print the key and password! </strong> If you lose one of their private keys, access to your account will be irretrievably lost.';
 $lng['your_public_keys_1'] = 'Public key 1';
 $lng['your_public_keys_2'] = 'Public key 2';
+$lng['select_the_mode'] = 'Select the mode';
+$lng['normal_mode_1_key'] = 'Normal mode. You will have 1 key. If an attacker steals the key, he will get full control over the account. Loss of key will mean the loss of access to your account.';
+$lng['enhanced_protection_mode'] = 'Enhanced protection mode. You will have 3 keys. And each transaction will require a 2nd additional signatures. The loss of one of the 3 keys will mean the loss of access to your account.';
+$lng['reenter_with_a_new_key'] = 'After the shift key when in the history of the status will be "Accepted", certainly <a href="#myModal" data-toggle="modal" data-backdrop="static">reenter</a> with a new key.';
+$lng['reenter_with_a_new_key_restricted'] = '10-15 minutes after the shift key, carefully <a href="#myModal" data-toggle="modal" data-backdrop="static">reenter</a> with a new key.';
+$lng['choose_a_password'] = 'Choose a password for your new primary key';
+$lng['generate_somewhere_two_different_pairs_of_keys'] = 'Generate somewhere 2 different pairs of keys, for example, <a href="http://democratic-coin.com/ru/keys/index.html?keys" target="_blank">here</a>. Received 2 private key securely store and print better. A public keys indicate below: ';
+
 
 // change node key
 $lng['change_node_key_title'] = 'Change node key';
@@ -492,6 +503,11 @@ $lng['change_promised_amount'] = 'Change promised amount';
 
 // statistic
 $lng['statistic'] = 'Statistic';
+$lng['user_info'] = 'Information about the user';
+$lng['user_info_text'] = 'Specify the number of Dcoin-user account';
+$lng['general'] = 'General';
+$lng['cash_requests'] = 'Cash requests';
+$lng['uid_2_7'] = 'User_id 2-7 - test accounts';
 
 // actualize_promised_amounts
 $lng['actualize_promised_amounts'] = 'Actualize promised amounts';
@@ -534,7 +550,7 @@ $lng['end_date'] = 'End Date';
 $lng['category'] = 'Category';
 $lng['category_for_your_project'] = 'Category for your project';
 $lng['name_of_the_currency'] = 'Name of the currency';
-$lng['name_for_currency'] = 'Choose name for its currency. Valid letters AZ and numbers 0-9. Size - exactly 7 characters long. ';
+$lng['name_for_currency'] = 'Choose name for its currency. Valid letters A-Z and numbers 0-9. Size - exactly 7 characters long. ';
 $lng['check_currency_name'] = 'Check employment';
 $lng['your_city'] = 'Your city';
 $lng['your_city_on_map'] = 'Note on the map Your city';
@@ -609,6 +625,7 @@ $lng['incorrect_key_or_password'] = 'Incorrect key or password';
 $lng['pool_is_full'] = 'Sorry, the pool is full';
 
 // mining_menu
+$lng['vote_for_me'] = 'Comments voters';
 $lng['mining_menu']['inbox_text'] = 'Incoming requests to the specified <a href="#" onclick="fc_navigate(\'promised_amount_list\')"> promised amount </a>. You can configure the reporting of incoming requests in the  <a href="#" onclick="fc_navigate(\'notifications\')"> sms and email notification </a> ';
 $lng['mining_menu']['tasks_text'] = 'To get miners % for the promised sum, you need to get a certain number of points by performing tasks for checking other miners.';
 $lng['mining_menu']['voting_text'] = 'To get miners % in addition to checking other miners, you need to vote for the% growth for each currency that you have in the promised amount, as well as - for the size of referral bonuses.';
@@ -619,6 +636,7 @@ $lng['mining_menu']['points_text'] = 'To get miners %, you get a certain number 
 $lng['mining_menu']['commission_text'] = 'You will receive% of the transfer of funds or forex-trades if the transaction would be in the block, signed by your key.';
 $lng['mining_menu']['holidays_text'] = 'If some days you do not want to be prompted for your promised amount, you can add vacation. At this time, for the promised sum Dcoin will not grow. ';
 $lng['mining_menu']['geolocation_text'] = 'The place where you are willing to trade you mentioned the promised amount for the same number of Dcoin. If you change the location of the need to re-pass the procedure of adding the promised sums';
+$lng['mining_menu']['vote_for_me_text'] = 'Comments from those who voted for you in the miner of transfer or for your promised amount.';
 
 $lng['mining_menu']['start'][0] = 'Make [0]upgrade[1]upgrade your account[2]';
 $lng['mining_menu']['start'][1] = 'Set [0]notifications[1]notice[2]';
@@ -631,8 +649,10 @@ $lng['mining_menu']['start'][7] = 'Translate coins with the promised amount to t
 $lng['register_key_at_the_pool'] = 'To continue, you need to register your key at the pool.';
 $lng['insufficient_privileges'] = 'Insufficient privileges';
 $lng['enter_your_email'] = 'Enter your email';
-
 $lng['how_to_mining_coins'] = 'How to mining coins?';
+$lng['pool_is_full'] = 'Unfortunately, the pool is full. We will notify you when the new pool will be launched.';
+$lng['pool_user_id_is_busy'] = 'Your user_id is already registered in our pool. Please contact the administration.';
+$lng['pool_sign_up_success'] = 'Congratulations, now you are registered on our pool. Refresh the page and re-enter the key.';
 
 // pool_tech_works
 $lng['pool_tech_works'] = 'On the pool are technical works. Please check back later.';
