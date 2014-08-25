@@ -122,18 +122,18 @@ check_key_and_show_modal();
 			<fieldset>
 				<!-- Multiple Radios -->
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="radios">Выберите режим</label>
+					<label class="col-md-4 control-label" for="radios"><?php echo $lng['select_the_mode']?></label>
 					<div class="col-md-4">
 						<div class="radio">
 							<label>
 								<input name="mode" value="1" checked="checked" type="radio">
-								Обычный режим. У Вас будет 1 ключ. Если злоумышленник украдет этот ключ, то он получит полный контроль над аккаунтом. Утеря ключа будет означать утерю доступа к аккаунту.
+								<?php echo $lng['normal_mode_1_key']?>
 							</label>
 						</div>
 						<div class="radio">
 							<label>
 								<input name="mode" value="2" type="radio">
-								Режим усиленной защиты. У Вас будет 3 ключа. И каждая транзакция будет требовать 2-е дополнительные подписи. Утеря одного из 3-х ключей будет означать утерю доступа к аккаунту.
+								<?php echo $lng['enhanced_protection_mode']?>
 							</label>
 						</div>
 					</div>
@@ -152,24 +152,29 @@ check_key_and_show_modal();
 
 		<div style="margin: auto; width: 600px">
 			<div class="alert alert-info">
-				После смены ключа, когда в истории статус станет "Принято", обязательно <a href="#myModal"  data-toggle="modal" data-backdrop="static">перелогиньтесь</a> с новым ключом.
+				<?php
+				if (isset($_SESSION['restricted']))
+					echo $lng['reenter_with_a_new_key_restricted'];
+				else
+					echo $lng['reenter_with_a_new_key'];
+				?>
 			</div>
-			<h3>История</h3>
 			<?php
 			if ($tpl['my_keys']) {
+				echo '<h3>'.$lng['history'].'</h3>';
 				echo '<table class="table table-bordered" style="width:600px">';
-			echo '<thead><tr><th>ID</th><th>'.$lng['block'].'</th><th>'.$lng['time'].'</th><th>'.$lng['status'].'</th></tr></thead>';
-			echo '<tbody>';
-			foreach( $tpl['my_keys'] as $k=>$data ) {
-			echo "<tr>";
-				echo "<td>{$data['id']}</td>";
-				echo "<td>{$data['block_id']}</td>";
-				echo "<td>{$data['time']}</td>";
-				echo "<td>{$status_array[$data['status']]}</td>";
-				echo "</tr>";
-			}
-			echo '</tbody>';
-			echo '</table>';
+				echo '<thead><tr><th>ID</th><th>'.$lng['block'].'</th><th>'.$lng['time'].'</th><th>'.$lng['status'].'</th></tr></thead>';
+				echo '<tbody>';
+				foreach( $tpl['my_keys'] as $k=>$data ) {
+				echo "<tr>";
+					echo "<td>{$data['id']}</td>";
+					echo "<td>{$data['block_id']}</td>";
+					echo "<td>{$data['time']}</td>";
+					echo "<td>{$status_array[$data['status']]}</td>";
+					echo "</tr>";
+				}
+				echo '</tbody>';
+				echo '</table>';
 			}
 			?>
 		</div>
@@ -184,10 +189,10 @@ check_key_and_show_modal();
 			<fieldset>
 				<!-- Password input-->
 				<div class="form-group">
-					<label class="col-md-4 control-label" for="passwordinput">Пароль</label>
+					<label class="col-md-4 control-label" for="passwordinput"><?php echo $lng['password']?></label>
 					<div class="col-md-4">
 						<input id="new_password" class="form-control input-md" type="password">
-						<span class="help-block">Придумайте пароль для Вашего нового праймари ключа</span>
+						<span class="help-block"><?php echo $lng['choose_a_password']?></span>
 					</div>
 				</div>
 
@@ -218,7 +223,7 @@ check_key_and_show_modal();
 
 	<div id="two_keys" style="display: none">
 		<div style="margin: auto; width: 600px">
-			<p>Сгенерируйте где-нибудь 2 разные пары ключей, например, <a href="http://democratic-coin.com/ru/keys/index.html?keys" target="_blank">тут</a>. Полученные 2 приватных ключа надежно сохраните, а лучше распечатайте. А публичные ключи укажите ниже:</p>
+			<p><?php echo $lng['generate_somewhere_two_different_pairs_of_keys']?></p>
 			<label><?php echo $lng['your_public_keys_1']?></label>
 			<textarea class="form-control" rows="5" id="public_key_2" style="width:600px;text-align: justify"></textarea><br>
 			<label><?php echo $lng['your_public_keys_2']?></label>
