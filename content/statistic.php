@@ -85,6 +85,15 @@ while ( $row = $db->fetchArray( $res ) ) {
 }
 
 
+// поиск инфы о юзере
+$tpl['user_info_id'] = intval($_REQUEST['parameters']['user_info_id']);
+if ($tpl['user_info_id']) {
+	$tp['user_info']['wallets'] = get_balances($tpl['user_info_id']);
+	// обещанные суммы юзера
+	get_promised_amounts($tpl['user_info_id']);
+}
+
+$tpl['currency_list'] = get_currency_list($db, 'full');
 
 require_once( ABSPATH . 'templates/statistic.tpl' );
 
