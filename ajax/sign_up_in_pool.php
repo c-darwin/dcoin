@@ -30,6 +30,7 @@ if(!filter_var($email, FILTER_VALIDATE_EMAIL))
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
+$community = get_community_users($db);
 // если мест в пуле нет, то просто запишем юзера в очередь
 $pool_max_users = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `pool_max_users`
@@ -47,7 +48,7 @@ if (sizeof($community) >= $pool_max_users) {
 					".time().",
 					{$user_id}
 			)");
-	die(json_encode(array('error'=>'К сожалению, пул переполнен. Мы сообщим Вам, когда будет запущен новый пул.')));
+	die(json_encode(array('error'=>$lng['pool_is_full'])));
 }
 
 // регистрируем юзера в пуле
@@ -58,7 +59,7 @@ $community = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD
 		WHERE `user_id` = {$user_id}
 		", 'fetch_one' );
 if ($community) {
-	die(json_encode(array('error'=>'Ваш user_id уже зарегистрирован в нашем пуле. Пожалуйста, свяжитесь с администрацией.')));
+	die(json_encode(array('error'=>$lng['pool_user_id_is_busy'])));
 }
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,  "
@@ -89,5 +90,5 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
 		SET `email` = '{$email}'
 		");
-print json_encode(array('success'=>'Поздравляем, теперь Вы зарегистрированы на нашем пуле. Обновите страницу и заново введите свой ключ'));
+print json_encode(array('success'=>$lng['pool_sign_up_success']));
 ?>
