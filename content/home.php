@@ -38,6 +38,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		FROM `".DB_PREFIX."cf_projects`
 		LEFT JOIN `".DB_PREFIX."cf_projects_data` ON  `".DB_PREFIX."cf_projects_data`.`project_id` = `".DB_PREFIX."cf_projects`.`id`
 		WHERE `del_block_id` = 0 AND
+					  `end_time` > ".time()." AND
 					 `lang_id` = {$lang}
 		ORDER BY `funders` DESC
 		LIMIT 3
