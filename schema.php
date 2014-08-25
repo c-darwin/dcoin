@@ -4,6 +4,17 @@ defined('DC') or die('');
 
 $queries = array();
 
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}pool_waiting_list`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}pool_waiting_list` (
+  `email`varchar(200) CHARACTER SET utf8 NOT NULL,
+  `time`  int(11) NOT NULL,
+  `user_id`  int(11) NOT NULL,
+  PRIMARY KEY (`email`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_lang`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_lang` (
   `id` int(11) NOT NULL AUTO_INCREMENT,
@@ -1488,7 +1499,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}recycle_bin` (
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}spots_compatibility`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}spots_compatibility` (
-  `version` int(11) NOT NULL AUTO_INCREMENT,
+  `version` int(11) NOT NULL,
   `example_spots` text NOT NULL COMMENT 'Точки, которые наносим на 2 фото-примера (анфас и профиль)',
   `compatibility` text NOT NULL COMMENT 'С какими версиями совместимо',
   `segments` text NOT NULL COMMENT 'Нужно для составления отрезков в new_miner()',
@@ -1865,7 +1876,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_tech_works`  tinyint(1) NOT NULL,
   `cf_url`  varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
   `pool_url`  varchar(255) NOT NULL COMMENT 'URL, на который ссылается кнопка Contribute now из внешнего CF-каталога ',
-  `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа',
+  `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа'
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";
