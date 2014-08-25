@@ -30,7 +30,6 @@ if (isset($_REQUEST['parameters']['pool_tech_works'])) {
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."config`
 			SET `pool_tech_works` = {$pool_tech_works},
-				   `cf_url` = '{$cf_url}',
 				   `pool_max_users` = {$pool_max_users}
 			");
 }
@@ -48,10 +47,16 @@ for ($i=0; $i<sizeof($community); $i++) {
 	}
 }
 
-$tpl['config'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT *
-		FROM `".DB_PREFIX."config`
-		", 'fetch_array' );
+$tpl['config'] = get_node_config();
 
+// лист ожидания попадания в пул
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT *
+		FROM `".DB_PREFIX."pool_waiting_list`
+		");
+while ( $row = $db->fetchArray( $res ) ) {
+	$row['time'] = date('d/m/Y H:i:s', $row['time']);
+	$tpl['waiting_list'][]  = $row;
+}
 require_once( ABSPATH . 'templates/pool_admin.tpl' );
 ?>
