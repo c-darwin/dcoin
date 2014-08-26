@@ -23,11 +23,6 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_min'][$row['id']] = $min_commission_array[$row['name']];
 }
 
-// для CF-проектов
-$tpl['currency_list'][1000] = 'Crowdfunding';
-$tpl['currency_min'][1000] = '0.01';
-
-
 if (empty($_SESSION['restricted'])) {
 	$res= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 			SELECT *
@@ -47,10 +42,19 @@ while ($row = $db->fetchArray($res)) {
 		$tpl['commission'][$row['id']] = $my_commission[$row['id']];
 	else
 		$tpl['commission'][$row['id']] = array(0.1, $tpl['currency_min'][$row['id']], 0);
-
 }
 
+// для CF-проектов
+$tpl['currency_list'][1000] = 'Crowdfunding';
+if (isset($my_commission[1000]))
+	$tpl['commission'][1000] = $my_commission[1000];
+else
+	$tpl['commission'][1000] = array(0.1, 0.01, 0);
+
 $tpl['limits_text'] = str_ireplace(array('[limit]', '[period]'), array($tpl['variables']['limit_commission'], $tpl['periods'][$tpl['variables']['limit_commission_period']]), $lng['change_commission_limits_text']);
+
+$tpl['config'] = get_node_config();
+$tpl['config']['commission'] = json_decode($tpl['config']['commission'], true);
 
 require_once( ABSPATH . 'templates/change_commission.tpl' );
 
