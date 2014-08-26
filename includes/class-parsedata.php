@@ -5423,8 +5423,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			// проверим, существует ли такая валюта в таблице DC-валют
 			if ( !$this->checkCurrency($currency_id) ) {
-				// если нет, то проверяем список CF-валют
-				if ( !$this->checkCurrencyCF($currency_id) )
+				// если нет, то это может быть $currency_id 1000, которая определяет комиссию для всх CF-валют
+				if ( $currency_id!=1000 )
 					return 'error currency_id';
 			}
 		}
@@ -8363,22 +8363,32 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			$this->get_my_user_id($this->tx_data['user_id']);
 			$node_commission = 0;
-			// проходимся по всем юзерам в my_user_ids, чтобы найти макс. комиссию. Т.к. неизвестно, какой юзер будет генерить блок, то для страховки берем макс. комиссию
-			for ($i=0; $i<sizeof($this->my_user_ids); $i++) {
+
+			// один элемент в  my_user_ids - это сингл мод
+			if (sizeof($this->my_user_ids)==1) {
 				$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT `commission`
 						FROM `".DB_PREFIX."commission`
-						WHERE `user_id` = {$this->my_user_ids[$i]}
+						WHERE `user_id` = {$this->my_user_ids[0]}
 						LIMIT 1
 						", 'fetch_one' );
-				$commission_json = json_decode($commission_json, true);
-				if (isset($commission_json[$currency_id]))
-					$tmp_node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$currency_id], $this->db);
-				else
-					$tmp_node_commission = 0;
-				if ($tmp_node_commission > $node_commission)
-					$node_commission = $tmp_node_commission;
+				debug_print('single $commission_json='.$commission_json, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			}
+			else {
+				// если работаем в режиме пула, тогда комиссию берем из config, т.к. майнеры в пуле, у кого комиссиия больше не смогут генерить блоки
+				$commission_json = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `commission`
+						FROM `".DB_PREFIX."config`
+						", 'fetch_one' );
+				debug_print('pool $commission_json='.$commission_json, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			}
+			$commission_json = json_decode($commission_json, true);
+			if (isset($commission_json[$currency_id]))
+				$tmp_node_commission = self::calc_node_commission($this->tx_data['amount'], $commission_json[$currency_id], $this->db);
+			else
+				$tmp_node_commission = 0;
+			if ($tmp_node_commission > $node_commission)
+				$node_commission = $tmp_node_commission;
 		}
 		// если же тр-ия уже в блоке, то берем комиссию у юзера, который сгенерил этот блок
 		else {
