@@ -62,10 +62,12 @@ if ( !isset($tpl['error']) ) {
 
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `{$prefix}config` (
-					`pool_admin_user_id`
+					`pool_admin_user_id`,
+					`auto_reload`
 				)
 				VALUES (
-					{$_POST['pool_admin_user_id']}
+					{$_POST['pool_admin_user_id']},
+					86400
 				)");
 
 	}
