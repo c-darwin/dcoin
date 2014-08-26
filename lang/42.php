@@ -512,7 +512,7 @@ $lng['statistic'] = 'Статистика';
 $lng['user_info'] = 'Информация о пользователе';
 $lng['user_info_text'] = 'Укажите номер Dcoin-счета пользователя';
 $lng['general'] = 'Общая';
-$lng['cash_requests'] = 'Запросы наличных';
+$lng['statistic_cash_requests'] = 'Обмен монет на наличные';
 $lng['uid_2_7'] = 'User_id 2-7 - тестовые аккаунты';
 
 // actualize_promised_amounts
