@@ -61,6 +61,14 @@ function check_input_data ($data, $type, $info='')
 {
 	switch ($type) {
 
+		case 'commission':
+
+			$dec = "[0-9]{1,5}(\.[0-9]{1,2})?";
+			$r = "\"[0-9]{1,5}\"\:\[$dec,$dec,$dec\]";
+			if (preg_match("/^\{$r(,$r)*\}$/D", $data))
+				return true;
+			break;
+
 		case 'cf_currency_name':
 			if ( preg_match ("/^[A-Z0-9]{7}$/D", $data))
 				return true;
@@ -1132,14 +1140,57 @@ function get_my_local_gate_ip($db)
 			", 'fetch_one' );
 }
 
-function get_my_users_ids($db)
+function del_user_id_from_array(&$array, $user_id)
+{
+	for ($i=0; $i<sizeof($array); $i++)
+		if ($array[$i] == $user_id)
+			unset($array[$i]);
+	sort($array);
+}
+
+
+function get_my_users_ids($db, $check_commission=false)
 {
 	$users_ids = get_community_users($db);
-	if (!$users_ids) // сингл-мод
+	if (!$users_ids) { // сингл-мод
 		$users_ids[0] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 				SELECT `user_id`
 				FROM `".DB_PREFIX."my_table`
 				", 'fetch_one' );
+	}
+	else {
+
+		// нельзя допустить, чтобы блок подписал майнер, у которого комиссия больше той, что разрешана в пуле,
+		// т.к. это приведет к попаднию в блок некорректной тр-ии, что приведет к сбою пула
+		if ($check_commission) {
+
+			debug_print('$users_ids='.print_r($users_ids, true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+			$pool_commission = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+					SELECT `commission`
+					FROM `".DB_PREFIX."config`
+					", 'fetch_one');
+			$pool_commission = json_decode($pool_commission, true);
+
+			if ($pool_commission) {
+				$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+						SELECT `user_id`,
+									 `commission`
+						FROM `".DB_PREFIX."commission`
+						WHERE `user_id` IN (".implode(',', $users_ids).")
+						");
+				while ( $row =  $db->fetchArray( $res ) ) {
+					$commission = json_decode($row['commission'], true);
+					foreach  ($commission as $currency_id => $data) {
+						if ( $data[0] > @$pool_commission[$currency_id][0] || $data[1] > @$pool_commission[$currency_id][1]) {
+							debug_print('del_user_id_from_array : '.$data[0].' > '.@$pool_commission[$currency_id][0].' || '.$data[1] .' > '.@$pool_commission[$currency_id][1].'', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+							del_user_id_from_array($users_ids, $row['user_id']);
+						}
+					}
+				}
+			}
+		}
+	}
 	return $users_ids;
 }
 
@@ -1530,12 +1581,13 @@ class testblock {
 			$i++;
 		} while (!$this->cur_user_id);
 
-		//debug_print('(this->my_table[miner_id]='.$this->my_table['miner_id'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-		$collective = get_my_users_ids($db);
+		$collective = get_my_users_ids($db, true);
+		debug_print('$collective = '.print_r($collective, true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		// в сингл-моде будет только $my_miners_ids[0]
 		$my_miners_ids = get_my_miners_ids( $this->db, $collective);
+		debug_print('$my_miners_ids = '.print_r($my_miners_ids, true), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		// есть ли кто-то из нашего пула (или сингл-мода), кто находится на 0-м уровне
 		if (in_array($cur_miner_id, $my_miners_ids)) {
@@ -2804,9 +2856,13 @@ function decrypt_data (&$binary_tx, $db, &$decrypted_key='')
 	if (!$encrypted_key)
 		return '[error]!$encrypted_key';
 
+	$my_user_id = intval($my_user_id);
 	$collective = get_community_users($db);
-	if ($collective)
+	if ($collective) {
+		if (!in_array($my_user_id, $collective))
+			return '[error] bad user_id';
 		$my_prefix = $my_user_id.'_';
+	}
 	else
 		$my_prefix = '';
 
@@ -3402,23 +3458,24 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			}
 		}
 
-		// нельзя удалить CF-проект и в этом же блоке отменить финансирование
-		if ($type == ParseData::findType('del_cf_project')) {
-			$cf_project_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `project_id`
-					FROM `".DB_PREFIX."cf_funding`
-					WHERE `id` = {$third_var}
-					LIMIT 1
-					", 'fetch_one' );
-			if ($cf_project_id)
-				clear_incompatible_tx_sql_set( $db, array('change_geolocation'), 0, $wait_error, $cf_project_id);
-		}
-
-		// нельзя удалять CF-проект и в этом же блоке изменить его описание/профинансировать/отменить финансирование
+		// нельзя удалять CF-проект и в этом же блоке изменить его описание/профинансировать
 		if ($type == ParseData::findType('del_cf_project'))
 			clear_incompatible_tx_sql_set( $db, array('cf_comment','cf_send_dc','cf_project_change_category','cf_project_data'), 0, $wait_error, $third_var);
 		if (in_array($type, array(ParseData::findType('cf_comment'),ParseData::findType('cf_send_dc'),ParseData::findType('cf_project_change_category'),ParseData::findType('cf_project_data') )))
 			clear_incompatible_tx_sql_set( $db, array('del_cf_project'), 0, $wait_error, $third_var);
+
+		// потом нужно сделать более тонко. но пока так. Если есть удаление проекта, тогда откатываем все тр-ии del_cf_funding
+		if ($type == ParseData::findType('del_cf_project'))
+			rollback_incompatible_tx( array('del_cf_funding') );
+		// потом нужно сделать более тонко. но пока так. Если есть del_cf_funding, тогда откатываем все тр-ии удаления проектов
+		if ($type == ParseData::findType('del_cf_funding'))
+			rollback_incompatible_tx( array('del_cf_project') );
+
+		// потом нужно сделать более тонко. но пока так. Если есть смена комиссии, то нельзя отправлять тр-ии, где указана комиссия
+		if (in_array($type, array(ParseData::findType('cf_send_dc'), ParseData::findType('send_dc'), ParseData::findType('new_forex_order') )))
+			rollback_incompatible_tx( array('change_commission') );
+		if ($type == ParseData::findType('change_commission'))
+			clear_incompatible_tx_sql_set( $db, array('cf_send_dc', 'send_dc', 'new_forex_order'), 0, $wait_error );
 
 		// на всякий случай не даем попасть в один блок тр-ии отправки в CF-проект монет и другим тр-ям связанным с этим CF-проектом. Т.к. проект может завершиться и 2-я тр-я вызовет ошибку
 		if ($type == ParseData::findType('cf_send_dc'))
@@ -3564,12 +3621,6 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			$wait_error = 'have change_primary_key tx';
 
 
-		// потом нужно сделать более тонко. но пока так. Если есть удаление проекта, тогда откатываем все тр-ии del_cf_funding
-		if ($type == ParseData::findType('del_cf_project'))
-			rollback_incompatible_tx( array('del_cf_funding') );
-		// потом нужно сделать более тонко. но пока так. Если есть del_cf_funding, тогда откатываем все тр-ии удаления проектов
-		if ($type == ParseData::findType('del_cf_funding'))
-			rollback_incompatible_tx( array('del_cf_project') );
 
 		// если пришло new_pct, то нужно откатить следующие тр-ии
 		if ($type == ParseData::findType('new_pct'))
