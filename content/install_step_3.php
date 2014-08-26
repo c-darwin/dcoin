@@ -23,10 +23,12 @@ if ($_POST['php_path']) {
 	else {
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			INSERT INTO `".DB_PREFIX."config` (
-				`php_path`
+				`php_path`,
+				`auto_reload`
 			)
 			VALUES (
-				'{$php_path}'
+				'{$php_path}',
+				86400
 			)");
 	}
 
