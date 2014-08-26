@@ -506,7 +506,7 @@ $lng['statistic'] = 'Statistic';
 $lng['user_info'] = 'Information about the user';
 $lng['user_info_text'] = 'Specify the number of Dcoin-user account';
 $lng['general'] = 'General';
-$lng['cash_requests'] = 'Cash requests';
+$lng['statistic_cash_requests'] = 'Exchange of coins for cash';
 $lng['uid_2_7'] = 'User_id 2-7 - test accounts';
 
 // actualize_promised_amounts
