@@ -1876,7 +1876,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_tech_works`  tinyint(1) NOT NULL,
   `cf_url`  varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
   `pool_url`  varchar(255) NOT NULL COMMENT 'URL, на который ссылается кнопка Contribute now из внешнего CF-каталога ',
-  `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа'
+  `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа',
+  `commission` text NOT NULL COMMENT 'Максимальная комиссия, которую могут поставить ноды на данном пуле'
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";
