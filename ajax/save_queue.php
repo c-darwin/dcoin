@@ -1126,10 +1126,39 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$commission = $_REQUEST['commission'];
 			$commission_decode = json_decode($commission, true);
 
+			$pool_commission = false;
+			if (get_community_users($db)) {
+				$pool_commission = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+						SELECT `commission`
+						FROM `".DB_PREFIX."config`
+						", 'fetch_one');
+				$pool_commission = json_decode($pool_commission, true);
+			}
 			foreach  ($commission_decode as $currency_id => $data) {
 
-				if ( !check_input_data ($currency_id, 'int') )
-					die('bad currency_id');
+				if ( !check_input_data ($currency_id, 'bigint') )
+					die('bad $currency_id');
+				// % от 0 до 10
+				if ( !check_input_data ($data[0], 'currency_commission') || $data[0]>10)
+					die('bad pct');
+				// минимальная комиссия от 0. При 0% будет = 0
+				if ( !check_input_data ($data[1], 'currency_commission') )
+					die('bad currency_min_commission');
+				// макс. комиссия. 0 - значит, считается по %
+				if ( !check_input_data ($data[2], 'currency_commission') )
+					die('bad currency_max_commission');
+				if ($data[1]>$data[2] && $data[2])
+					die('bad currency_max_commission');
+
+				// и если в пуле, то
+				if ($pool_commission) {
+					// нельзя допустить, чтобы блок подписал майнер, у которого комиссия больше той, что разрешана в пуле,
+					// т.к. это приведет к попаднию в блок некорректной тр-ии, что приведет к сбою пула
+					if ( $data[0] > @$pool_commission[$currency_id][0] )
+						die( $data[0].' > '.@$pool_commission[$currency_id][0]);
+					if ( $data[1] > @$pool_commission[$currency_id][1] )
+						die($data[1].' > '.@$pool_commission[$currency_id][1]);
+				}
 			}
 
 			if (empty($_SESSION['restricted'])) {
