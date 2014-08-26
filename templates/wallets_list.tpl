@@ -213,10 +213,12 @@ $('#amount, #cf_amount').keyup(function(e) {
 	}
 	amount = amount_;
 
-	commission = amount * (0.1 / 100);
+	var commission = amount * (0.1 / 100);
 	commission = commission.toFixed(2);
 	if (commission==0)
 		commission = 0.01;
+	commission = parseFloat(commission);
+	//commission = commission + 0.01; // чтобы точно прошло
 	amount = parseFloat(amount);
 	commission = parseFloat(commission);
 	//amount_and_commission = amount + commission;
