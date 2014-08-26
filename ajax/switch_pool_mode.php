@@ -35,9 +35,17 @@ if (!get_community_users($db)) { // сингл-мод
 			INSERT INTO`".DB_PREFIX."community` (`user_id`) VALUES ({$my_user_id})
 			");
 
+	$commission = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `commission`
+			FROM `".DB_PREFIX."commission`
+			WHERE `user_id` = {$my_user_id}
+			", 'fetch_one' );
+
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."config`
-			SET `pool_admin_user_id` = {$my_user_id}
+			SET `pool_admin_user_id` = {$my_user_id},
+				   `pool_max_users` = 100,
+				   `commission` = '{$commission}'
 			");
 }
 else {
