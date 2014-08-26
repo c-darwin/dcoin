@@ -27,10 +27,14 @@ if ($del_id) {
 if (isset($_REQUEST['parameters']['pool_tech_works'])) {
 	$pool_tech_works = intval($_REQUEST['parameters']['pool_tech_works']);
 	$pool_max_users = intval($_REQUEST['parameters']['pool_max_users']);
+	$commission = $_REQUEST['parameters']['commission'];
+	if ( !check_input_data ($commission, 'commission') )
+			die('bad commission');
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."config`
 			SET `pool_tech_works` = {$pool_tech_works},
-				   `pool_max_users` = {$pool_max_users}
+				   `pool_max_users` = {$pool_max_users},
+				   `commission` = '{$commission}'
 			");
 }
 
