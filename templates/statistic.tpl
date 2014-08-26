@@ -111,7 +111,7 @@ if ($tpl['user_info_id']) {
 
 
 <?php
-	echo '<h3>'.$lng['cash_requests'].'</h3>';
+	echo '<h3>'.$lng['statistic_cash_requests'].'</h3>';
 	echo '<table class="table table-bordered" style="width:600px">';
 	echo "<thead><tr><th>ID</th><th>{$lng['time']}</th><th>from_user_id</th><th>to_user_id</th><th>{$lng['currency']}</th><th>{$lng['amount']}</th><th>{$lng['status']}</th></tr></thead>";
 	echo '<tbody>';
