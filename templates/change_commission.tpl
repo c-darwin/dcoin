@@ -32,7 +32,7 @@ $('#send_to_net').bind('click', function () {
 			'time' : '<?php echo $tpl['data']['time']?>',
 			'user_id' : '<?php echo $tpl['data']['user_id']?>',
 			'commission' : json_data,
-						'signature1': $('#signature1').val(),
+			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 		}, function (data) {
@@ -42,8 +42,7 @@ $('#send_to_net').bind('click', function () {
 
 } );
 
-$("#main_div select").addClass( "form-control" );
-$("#main_div input").addClass( "form-control" );
+$("#main_div input").width( 60 );
 $("#main_div button").addClass( "btn-outline btn-primary" );
 
 if ( $('#key').text().length < 256 ) {
@@ -51,6 +50,9 @@ if ( $('#key').text().length < 256 ) {
 }
 
 </script>
+<style>
+	.input-group-addon{width: 100px}
+</style>
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['change_commission_title']?></h1>
 <ol class="breadcrumb">
@@ -64,12 +66,16 @@ if ( $('#key').text().length < 256 ) {
 
 		<button type="submit" class="btn" id="save"><?php echo $lng['save']?></button><br><br>
 
-		<table>
-			<tr><th><?php echo $lng['currency']?></th><th>%</th><th><?php echo $lng['min']?></th><th><?php echo $lng['max']?></th></tr>
+
+		<table class="table" style="width: 500px">
+			<tr><th><?php echo $lng['currency']?></th><th style="text-align: center">%</th><th style="text-align: center"><?php echo $lng['min']?></th><th style="text-align: center"><?php echo $lng['max']?></th></tr>
 		<?php
 		 foreach($tpl['commission'] as $currency_id=>$data) {
 
-			print "<tr><td>{$tpl['currency_list'][$currency_id]}<input type='hidden' name='currency_id' value='{$currency_id}'></td><td><input class='span1' type='text' name='pct' value='{$data[0]}'></td><td><input class='span1' type='text' name='min' value='{$data[1]}'></td><td><input class='span1' type='text' name='max' value='{$data[2]}'></td></tr>";
+			print "<tr><td>{$tpl['currency_list'][$currency_id]}<input type='hidden' name='currency_id' value='{$currency_id}'></td>";
+			 print '<td><div class="input-group"><input id="pct" name="pct" class="form-control" value='.$data[0].' type="text"><span class="input-group-addon">max: '.$tpl['config']['commission'][$currency_id][0].'</span></div></td>';
+			 print '<td><div class="input-group"><input id="min" name="min" class="form-control" value='.$data[1].' type="text"><span class="input-group-addon">max: '.$tpl['config']['commission'][$currency_id][1].'</span></div></td>';
+			print " <td><input class='form-control' type='text' name='max' value='{$data[2]}'></td></tr>";
 
 		}
 		 ?>
