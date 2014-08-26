@@ -157,7 +157,7 @@ do {
 	// вычитаем уже прошедшее время
 	$sleep = ($sleep > $diff) ? ($sleep - $diff) : 0;
 	debug_print('$sleep='.$sleep, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-	// если нужно доспать, то просто выремся в начало и доспим нужное время. И на всякий случай убедимся, что блок не изменился
+	// если нужно доспать, то просто вернемся в начало и доспим нужное время. И на всякий случай убедимся, что блок не изменился
 	if ($sleep>0 || $testBlock->prev_block['head_hash']!=$prev_head_hash) {
 		debug_print("continue", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		main_unlock();
