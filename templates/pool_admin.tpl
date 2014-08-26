@@ -10,7 +10,7 @@
 			else
 				var pool_tech_works = '0';
 
-			fc_navigate ('pool_admin', {'pool_tech_works':pool_tech_works, 'pool_max_users':$('#pool_max_users').val() } );
+			fc_navigate ('pool_admin', {'pool_tech_works':pool_tech_works, 'pool_max_users':$('#pool_max_users').val(), 'commission':$('#commission').val() } );
 		} );
 
 	</script>
@@ -56,6 +56,12 @@
 				    <label class="col-md-4 control-label" for="pool_max_users">pool_max_users</label>
 				    <div class="col-md-4">
 					    <input id="pool_max_users" name="pool_max_users" class="form-control input-md" type="text" value="<?php echo $tpl['config']['pool_max_users']?>">
+				    </div>
+			    </div>
+			    <div class="form-group">
+				    <label class="col-md-4 control-label" for="commission">Commission</label>
+				    <div class="col-md-4">
+					    <textarea class="form-control" id="commission" name="commission"><?php echo $tpl['config']['commission']?></textarea>
 				    </div>
 			    </div>
 			    <div class="form-group">
