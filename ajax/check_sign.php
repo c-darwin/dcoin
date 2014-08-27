@@ -25,6 +25,10 @@ if ( !preg_match ("/^[0-9a-z]{1,2048}$/D", $_POST['n']) )
 
 $sign = hextobin($_POST['sign']);
 
+$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SHOW TABLES
+			", 'array');
+
 $community = get_community_users($db);
 $result = 0;
 if ($community) {
@@ -33,6 +37,9 @@ if ($community) {
 	for ($i=0; $i<sizeof($community); $i++) {
 
 		$my_prefix = $community[$i].'_';
+
+		if (!in_array("{$my_prefix}my_keys", $tables_array))
+			continue;
 
 		// получим открытый ключ юзера
 		$public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
