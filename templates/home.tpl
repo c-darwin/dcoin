@@ -7,9 +7,9 @@
 
 			$('#main_status').html(data.main_status);
 			if (data.main_status_complete!=1)
-				$('#main_status').css("class", "list-group-item list-group-item-danger" );
+				$("#main_status").css({ 'color': 'red'});
 			else
-				$('#main_status').css("class", "list-group-item" );
+				$("#main_status").css({ 'color': '#333'});
 
 			$('#account_status').text(data.account_status);
 			$('#cur_block_id').text(data.cur_block_id);
@@ -49,6 +49,11 @@
 		});
 
 	});
+
+	<?php
+	if (preg_match('/user|miner/iD', $tpl['my_notice']['account_status']) && !$user_id)
+		echo '$("#main-login").html(\'<a href="#myModal" data-backdrop="static" data-toggle="modal" role="button" class="btn btn-danger  btn-block "><i class="fa fa-sign-in fa-lg"></i> Login</a><div style="margin: 2px 10px; font-size: 11px">'.$lng['login_alert'].'</div>\');';
+	?>
 </script>
 <style>
 	.alert-info a:link{text-decoration: underline};
