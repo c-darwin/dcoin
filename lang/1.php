@@ -32,6 +32,7 @@ $lng['lang'] = 'Language';
 $lng['catalog'] = 'Catalog';
 $lng['my_projects'] = 'My projects';
 $lng['login_alert'] = 'So that you can send data to the DC-network, you must click "Login" and enter the key.';
+$lng['about_dcoin'] = 'About Dcoin';
 
 // periods
 $lng['day'] = 'day';
@@ -41,6 +42,7 @@ $lng['month'] = 'month';
 $lng['year'] = 'year';
 
 // general
+$lng['pool_error'] = 'Error. Please contact the administrator of the pool.';
 $lng['history'] = 'History';
 $lng['password'] = 'Password';
 $lng['find'] = 'Find';
@@ -586,6 +588,7 @@ $lng['cf_hide_info'] = 'Description can be hidden';
 $lng['cf_projects_title'] = 'Projects';
 
 // cf_page_preview
+$lng['no_DC'] = 'On the [url] remains [amount] [currency_name]';
 $lng['cf_home'] = 'Home';
 $lng['cf_news'] = 'News';
 $lng['cf_funders'] = 'Funders';
@@ -598,6 +601,9 @@ $lng['created'] = 'created';
 $lng['backed'] = 'backed';
 $lng['comments_only_for_funders'] = 'To write comments may be the only ones who financed the project';
 $lng['comments_limits'] = 'You can send only one comment per day.';
+$lng['payment_credited'] = 'Thank you, payment credited. Within 24 hours of [currency_name] will be shipped to the project.';
+$lng['cf_send_money_wo_sign_up'] = 'Without registration. <br> If you just want to send money to the project, while you do not need anything in return, then this option is for you. If the project does not receive the required amount, the money will not be returned.';
+$lng['cf_send_money_with_sign_up'] ='With the registration in Dcoin. <br> Upon successful completion of fundraising, you will be able to get the product / service from the author of the project, in the case of unsuccessful completion of fundraising, you get your money back. You can also write comments on the draft.';
 
 //del_cf_project
 $lng['del_cf_project_title'] = 'Deleting a Project';
@@ -616,7 +622,7 @@ $lng['name'] = 'Name';
 $lng['avatar'] = 'Avatar';
 
 // login
-$lng['login_help_text'] = 'If you do not have a key, you can ask it on the  <a href="http://dcoinforum.org/" style="text-decoration: underline">forum</a> at the miners.';
+$lng['login_help_text'] = 'If you do not have a key, you can ask it on the  <a href="http://dcoinforum.org/" style="text-decoration: underline">forum</a> at the miners  or take  <a href="http://pool.dcrowd.org/tools/available_keys.php" style="text-decoration: underline">here</a>';
 $lng['login'] = 'Login';
 $lng['login_title'] = 'Login';
 $lng['key'] = 'Key';
