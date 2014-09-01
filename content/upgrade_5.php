@@ -11,7 +11,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 					 `profile_coords`,
 					 `video_url_id`,
 					 `video_type`
-		FROM `'.DB_PREFIX.MY_PREFIX.'my_table
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
 		');
 $row = $db->fetchArray($res);
 if (!$row['video_url_id'])
