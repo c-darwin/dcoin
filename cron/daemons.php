@@ -3,6 +3,15 @@ define( 'DC', true );
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 define( 'CRON_DIR', ABSPATH . 'cron/' );
 
+// возможен запуск еще до установки. просто ждем до 120 сек.
+$i=0;
+do {
+	if (!file_exists(ABSPATH . 'db_config.php')) {
+		sleep(1);
+		$i++;
+	}
+} while (!file_exists(ABSPATH . 'db_config.php') && $i<120);
+
 require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'includes/class-parsedata.php' );
 require_once( ABSPATH . 'includes/errors.php' );
@@ -19,11 +28,20 @@ define('WAIT_SCRIPT', 300);
 // ****************************************************************************
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$php_path = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `php_path`
-		FROM `".DB_PREFIX."config`
-		", 'fetch_one');
 do{
+	// если это первый запуск в авто-установке в винде, то таблы могут не успеть создаться.
+	$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SHOW TABLES
+			", 'array');
+	if (!in_array(DB_PREFIX."config", $tables_array) || !in_array(DB_PREFIX."main_lock", $tables_array) ||  !in_array(DB_PREFIX."daemons", $tables_array)) {
+		sleep(1);
+		continue;
+	}
+
+	$php_path = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `php_path`
+			FROM `".DB_PREFIX."config`
+			", 'fetch_one');
 
 	$lock_script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `script_name`
@@ -54,17 +72,19 @@ do{
 				)");
 		}
 
-		$cmd = $php_path.' '.CRON_DIR.''.$script_name;
-		if (OS == 'WIN')
-			pclose(popen("start /B ". $cmd, "r"));
-		else
-			exec( $cmd.' > /dev/null &' );
-		debug_print($cmd , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		if ($php_path) {
+			$cmd = $php_path.' "'.CRON_DIR.''.$script_name.'"';
+			if (OS == 'WIN')
+				pclose(popen("start /B ". $cmd, "r"));
+			else
+				exec( $cmd.' > /dev/null &' );
+			debug_print($cmd , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		}
 	}
 
 	// не в винде у нас скрипт запускается по крону раз в минуту, а  винде юзер запускает его сам 1 раз
-	if (OS!='WIN')
-		break;
+	//if (OS!='WIN')
+	//	break;
 
 	sleep(60);
 
