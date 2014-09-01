@@ -142,18 +142,38 @@ else {
 			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_keys` )
 			", 'fetch_one' );
 
-	$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
-	if ($ini_array['main']['sign_hash'] == 'ip')
-		$hash = md5($_SERVER['REMOTE_ADDR']);
-	else
-		$hash = md5($_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']);
-	$for_sign =$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `data`
-				FROM `".DB_PREFIX."authorization`
-				WHERE `hash` = 0x{$hash}
-				", 'fetch_one' );
+	// для удобства даем юзерам в винде после авто-установки сразу ввести свой ключ
+	if (OS == 'WIN' && !$public_key) {
+		$rsa = new Crypt_RSA();
+		$key = array();
+		$key['e'] = new Math_BigInteger($_POST['e'], 16);
+		$key['n'] = new Math_BigInteger($_POST['n'], 16);
+		$rsa->setPublicKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
+		$PublicKey = clear_public_key($rsa->getPublicKey());
+		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		INSERT INTO `".DB_PREFIX."my_keys`(
+			`public_key`,
+			`status`
+		)
+		VALUES (
+			0x{$PublicKey},
+			'approved'
+		)");
+	}
+	else {
+		$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
+		if ($ini_array['main']['sign_hash'] == 'ip')
+			$hash = md5($_SERVER['REMOTE_ADDR']);
+		else
+			$hash = md5($_SERVER['HTTP_USER_AGENT'].$_SERVER['REMOTE_ADDR']);
+		$for_sign =$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `data`
+					FROM `".DB_PREFIX."authorization`
+					WHERE `hash` = 0x{$hash}
+					", 'fetch_one' );
 
-	$error = ParseData::checkSign($public_key, $for_sign, $sign, true);
+		$error = ParseData::checkSign($public_key, $for_sign, $sign, true);
+	}
 	if ($error)
 		$result = 0;
 	else {
