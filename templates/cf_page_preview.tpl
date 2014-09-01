@@ -81,7 +81,6 @@ if (1<0) {
 <script>
 	$('#send_comment').bind('click', function () {
 
-
 		<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#sign").css("display", "block"); $("#comment_div").css("display", "none");' ?>
 
 		$("#for-signature").val( '<?php echo "{$tpl['comment_data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['project_id']},{$tpl['lang_id']}"; ?>,'+$("#comment").val());
@@ -111,6 +110,83 @@ if (1<0) {
 			}
 	);
 	});
+
+	$('#contribute_now').bind('click', function () {
+		$("#project_info").css("display", "none");
+		$("#payment_mode").css("display", "block");
+	});
+
+	$('#contribute_now_step1').bind('click', function () {
+		if ($('input[name=mode]:checked').val()=='1') {
+			$("#payment_mode").css("display", "none");
+			$("#payment_method").css("display", "block");
+		}
+		else if ($('input[name=mode]:checked').val()=='2') {
+			javascript:location.href='<?php echo $tpl['config']['pool_url']?>';
+		}
+	});
+
+	$('#contribute_now_step2').bind('click', function () {
+
+			$('#page-wrapper').spin();
+			$.post( '<?php echo $tpl['cf_url']?>ajax/available_coins.php', {
+					'dc_currency_id' : '<?php echo $tpl['project']['currency_id']?>',
+					'currency_id' : '1001',
+					'amount' : $("#amount_usd_total").val()
+				}, function (data) {
+					if (data.error) {
+						$("#payment_error").html( '<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button>'+data.error+'</div>');
+					}
+					else if (data.success) {
+						$("#payment_method").css("display", "none");
+						if ($( "#p_method option:selected" ).val() == 'gspay') {
+							$("#gspay_form").submit();
+						}
+						else if ($( "#p_method option:selected" ).val() == 'ik') {
+							$("#ik_form").submit();
+						}
+						else if ($( "#p_method option:selected" ).val() == 'pm') {
+							$("#pm_form").submit();
+						}
+
+					}
+					$('#page-wrapper').spin(false);
+				}, 'JSON'
+			);
+
+	});
+
+	function change_amount() {
+		var amount = $('#amount_usd').val();
+		if ($( "#p_method option:selected" ).val() == 'gspay') {
+			var total_usd = (amount * 0.96) - 0.2;
+		}
+		else if ($( "#p_method option:selected" ).val() == 'ik') {
+			var total_usd = (amount * 0.99);
+		}
+		else if ($( "#p_method option:selected" ).val() == 'pm') {
+			var total_usd = (amount * 0.99);
+		}
+		total_usd = total_usd.toFixed(2);
+		if (total_usd<0)
+			total_usd = 0;
+
+		$('#pm_amount').val(amount);
+		$('#ik_amount').val(amount);
+		$('#gspay_amount').val(amount);
+		$('#amount_usd_total').val(total_usd);
+		$('#amount_dc_total').text('~ '+total_usd);
+	}
+
+	$('#amount_usd').bind('keyup', function(event) {
+		change_amount();
+	});
+
+	$('#p_method').on('change', function(event) {
+		change_amount();
+	});
+
+
 
 </script>
 
@@ -183,6 +259,7 @@ if (1<0) {
 	<div class="well" style="background-color:#fff;margin:auto; width:1000px; padding-top:0px">
 
 		<div class="row">
+			<div id="project_info">
 			<ul class="list-inline lng" style="margin-left:20px; margin-top:13px">
 				<?php
 				if ($tpl['page']!='funders')
@@ -246,68 +323,193 @@ if (1<0) {
 					echo '<div style="overflow: auto;padding: 15px 15px 15px 0;border-bottom: 1px solid #D9D9DE; '.$bd.' "><img src="'.$data['avatar'].'" style="width: 80px; height: 80px; float:left; margin: 0 15px"><div style="overflow: auto;"><p><strong>'.$data['name'].'</strong> <span style="color: #999">'.$data['time'].'</span></p><p>'.$data['comment'].'</p></div></div>';
 				}
 			}
-
-			?>
-
-				<!--<iframe width="620" height="413" src="http://www.youtube.com/embed/mraZd9_6kC0" frameborder="0" allowfullscreen></iframe>-->
-
-
-			</div>
-
-			<div id="project-info" style="overflow:auto;">
-				<div style="margin-left:18px">
-					<h1><?php echo $tpl['project']['funding']?></h1>
-					<p><?php echo $lng['cf_page_preview_pledged_of']?> <?php echo $tpl['project']['amount']?> D<?php echo $tpl['project']['currency']?> <?php echo $lng['cf_page_preview_goal']?> </p>
-					<h1><?php echo $tpl['project']['days']?></h1>
-					<p><?php echo $lng['days_to_go']?></p>
-					<p style="font-weight: normal"><?php echo $lng['start_date']?> <?php echo $tpl['project']['start_date']?></p>
-
-					<?php
-					if (@$tpl['project']['ended']!=1)
-					{
-						if ($user_id)
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
-						else
-							echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"javascript:location.href='{$tpl['config']['pool_url']}'\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
-					}
-					?>
-				</div>
-
-				<div class="well" style="background-color:#E8F6FF; border:0px; pading:10px; margin-top:25px; width:280px; height:140px">
-
-					<div style="width: 100px; float: left;margin-right:10px"><img src="<?php echo $tpl['project']['author']['avatar']?>" style="width:100px; height: 100px"></div>
-
-					<div>
-						<h4 style="margin-top:0px"><?php echo $tpl['project']['author']['name']?></h4>
-						<h5><?php echo $tpl['project']['author']['created']?> <?php echo $lng['created']?><br><?php echo $tpl['project']['author']['backed']?>  <?php echo $lng['backed']?></h5>
-						<div class="clearfix"></div>
-					</div>
-				</div>
-				<div class="clearfix"></div>
-
-			</div>
-
-			<?php
-
-			if ($tpl['page'] == 'home') {
-				echo '<img src="'.$tpl['description_img'].'?r='.rand().'" style="width:990px; margin:auto" '.($tpl['links']?'usemap="#Navigation"':'').'>';
-				if ($tpl['links']) {
-					echo '<map name="Navigation">';
-					foreach ($tpl['links'] as $data)
-						echo "<area shape=\"rect\" coords=\"{$data[1]},{$data[2]},{$data[3]},{$data[4]}\" href=\"{$data[0]}\" target='_blank'>";
-					echo '</map>';
-				}
+			else if ($tpl['page'] == 'payment') {
+				echo '<div style="overflow: hidden; padding: 15px 15px 15px 0;border-bottom: 1px solid #D9D9DE;">'.str_replace('[currency_name]', 'D'.$tpl['project']['currency'], $lng['payment_credited']).'</div>';
 			}
-
-
 			?>
+			</div>
+
+
+				<div id="project-info" style="overflow:auto;">
+					<div style="margin-left:18px">
+						<h1><?php echo $tpl['project']['funding']?></h1>
+						<p><?php echo $lng['cf_page_preview_pledged_of']?> <?php echo $tpl['project']['amount']?> D<?php echo $tpl['project']['currency']?> <?php echo $lng['cf_page_preview_goal']?> </p>
+						<h1><?php echo $tpl['project']['days']?></h1>
+						<p><?php echo $lng['days_to_go']?></p>
+						<p style="font-weight: normal"><?php echo $lng['start_date']?> <?php echo $tpl['project']['start_date']?></p>
+
+						<?php
+						if (@$tpl['project']['ended']!=1)
+						{
+							if ($user_id)
+								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
+							else
+								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" id=\"contribute_now\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
+						}
+						?>
+					</div>
+
+					<div class="well" style="background-color:#E8F6FF; border:0px; pading:10px; margin-top:25px; width:280px; height:140px">
+
+						<div style="width: 100px; float: left;margin-right:10px"><img src="<?php echo $tpl['project']['author']['avatar']?>" style="width:100px; height: 100px"></div>
+
+						<div>
+							<h4 style="margin-top:0px"><?php echo $tpl['project']['author']['name']?></h4>
+							<h5><?php echo $tpl['project']['author']['created']?> <?php echo $lng['created']?><br><?php echo $tpl['project']['author']['backed']?>  <?php echo $lng['backed']?></h5>
+							<div class="clearfix"></div>
+						</div>
+					</div>
+					<div class="clearfix"></div>
+
+				</div>
+
+				<?php
+
+				if ($tpl['page'] == 'home') {
+					echo '<img src="'.$tpl['description_img'].'?r='.rand().'" style="width:990px; margin:auto" '.($tpl['links']?'usemap="#Navigation"':'').'>';
+					if ($tpl['links']) {
+						echo '<map name="Navigation">';
+						foreach ($tpl['links'] as $data)
+							echo "<area shape=\"rect\" coords=\"{$data[1]},{$data[2]},{$data[3]},{$data[4]}\" href=\"{$data[0]}\" target='_blank'>";
+						echo '</map>';
+					}
+				}
+
+
+				?>
+
+			</div>
+
+			<div id="payment_mode" style="display: none;margin-top:35px;margin-left:15px;">
+
+				<div class="form-horizontal">
+					<fieldset>
+						<div class="form-group">
+							<label class="col-md-4 control-label" for="radios"><?php echo $lng['select_the_mode']?></label>
+							<div class="col-md-4">
+								<div class="radio">
+									<label>
+										<input name="mode" value="1" checked="checked" type="radio">
+										<?php echo $lng['cf_send_money_wo_sign_up']?>
+									</label>
+								</div>
+								<div class="radio">
+									<label>
+										<input name="mode" value="2" type="radio">
+										<?php echo $lng['cf_send_money_with_sign_up']?>
+									</label>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-4 control-label" for="singlebutton"></label>
+							<div class="col-md-4">
+								<button id="contribute_now_step1" class="btn btn-outline btn-primary"><?php echo $lng['next']?></button>
+							</div>
+						</div>
+
+					</fieldset>
+				</div>
+			</div>
+
+			<div id="payment_method" style="display: none;margin-top: 35px;margin-left:15px;">
+				<div id="payment_error"></div>
+
+				<div class="form-horizontal" method="post">
+					<fieldset>
+						<div class="form-group">
+							<label class="col-md-4 control-label" for="selectbasic">Method</label>
+							<div class="col-md-4">
+								<select id="p_method" name="p_method" class="form-control">
+									<?php
+									foreach ($tpl['config']['cf_ps'] as $ps_id=>$data) {
+										if (!empty($tpl['project']['ps']['ps'.$ps_id]))
+											echo "<option value='{$data[0]}'>{$data[1]}</option>";
+									}
+									?>
+								</select>
+							</div>
+						</div>
+
+						<div class="form-group">
+							<label class="col-md-4 control-label" for="amount_usd">Amount</label>
+							<div class="col-md-4">
+								<div class="input-group">
+									<input id="amount_usd" name="amount_usd" class="form-control" type="text">
+									<span class="input-group-addon">USD</span>
+								</div>
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-4 control-label" for="textinput">D<?php echo $tpl['project']['currency']?></label>
+							<div class="col-md-4">
+								<p class="form-control-static" id="amount_dc_total">0</p>
+								<input type="hidden" id="amount_usd_total">
+							</div>
+						</div>
+						<div class="form-group">
+							<label class="col-md-4 control-label" for="singlebutton"></label>
+							<div class="col-md-4">
+								<button id="contribute_now_step2" class="btn btn-outline btn-primary"><?php echo $lng['next']?></button>
+								<button id="p_submit" class="btn btn-outline btn-primary" style="display: none"><?php echo $lng['next']?></button>
+							</div>
+						</div>
+					</fieldset>
+				</div>
+			</div>
 
 
 		</div>
 		<!-- /.row -->
 
+		<form id="ik_form" method="post" action="https://sci.interkassa.com/" enctype="utf-8" style="display: none">
+			<input type="hidden" name="ik_co_id" value="5400d4e9bf4efcf8492c867c" />
+			<input type="hidden" name="ik_pm_no" value="ID_4233" />
+			<input type="hidden" name="ik_cur" value="USD" />
+			<input type="hidden" name="ik_suc_u" value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>-payment"/>
+			<input type="hidden" name="ik_suc_m" value="get" />
+			<input type="hidden" name="ik_fal_u" value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>">
+			<input type="hidden" name="ik_fal_m" value="get" />
+			<input type="hidden" name="ik_desc" value="cf-<?php echo $tpl['project']['id']?>" />
+			<input id="ik_amount" name="ik_am" type="text">
+			<input type="submit">
+		</form>
 
+		<form id="pm_form" method="post" action="https://perfectmoney.is/api/step1.asp" style="display: none">
+			<input type="hidden" name="PAYEE_ACCOUNT" value="U8777532">
+			<input type="hidden" name="PAYEE_NAME" value="DcoinSimple">
+			<input type="hidden" name="PAYMENT_ID" value="cf-<?php echo $tpl['project']['id']?>">
+			<input type="hidden" name="PAYMENT_UNITS" value="USD">
+			<input type="hidden" name="STATUS_URL" value="http://DcoinSimple.com/pm.php">
+			<input type="hidden" name="PAYMENT_URL" value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>-payment">
+			<input type="hidden" name="PAYMENT_URL_METHOD" value="LINK">
+			<input type="hidden" name="NOPAYMENT_URL" value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>">
+			<input type="hidden" name="NOPAYMENT_URL_METHOD" value="LINK">
+			<input type="hidden" name="SUGGESTED_MEMO" value="Dcoins">
+			<input type="hidden" name="BAGGAGE_FIELDS" value="">
+			<input id="pm_amount" name="PAYMENT_AMOUNT" type="text">
+			<input type="submit" name="PAYMENT_METHOD">
+		</form>
 
+		<form id="gspay_form" method=post action="https://secure.redirect2pay.com/payment/pay.php" style="display: none">
+			<input type=hidden name="siteID" value="117618">
+			<input type=hidden name='OrderDescription[1]' value='ItemName'>
+			<input id="gspay_amount"  type=hidden name='Amount[1]' value='10'>
+			<input type=hidden name='Qty[1]' value='1'>
+			<input type="hidden" name="OrderID" value="25Nov2008152022_25" />
+			<input type="hidden" name="customerFullName" value="sfafsafsfas" />
+			<input type="hidden" name="customerPhone" value="23232223" />
+			<input type="hidden" name="customerAddress" value="fsasafasf" />
+			<input type="hidden" name="customerCity" value="MyCity" />
+			<input type="hidden" name="customerZip" value="24242424" />
+			<input type="hidden" name="customerCountryCode" value="US" />
+			<input type="hidden" name="customerStateCode" value=”TX" />
+			<input type="hidden" name="customerEmail" value="info@gspay.com" />
+			<input type="hidden" name="returnURL"  value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>" />
+			<input type="hidden" name="ApproveURL" value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>-payment" />
+			<input type="hidden" name="DeclineURL"  value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>" />
+			<input type="submit" value="Checkout">
+		</form>
 
 	</div>
 </div>
