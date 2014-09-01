@@ -41,7 +41,7 @@ function login_ok (result) {
         $('.modal-backdrop').css('display', 'none');
 
         var tpl_name = $('#tpl_name').val();
-        if (!tpl_name)
+        if (!tpl_name || tpl_name=='install_step_0' || tpl_name=='install_step_6')
             tpl_name = 'home';
 
         $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
