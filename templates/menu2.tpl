@@ -114,6 +114,9 @@
 					<a href="#"><i class="fa  fa-life-ring  fa-fw"></i> Help<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level">
 						<li>
+							<a href="http://democratic-coin.com" target="_blank"><?php echo $lng['about_dcoin']?></a>
+						</li>
+						<li>
 							<a href="http://dcoinwiki.com" target="_blank">Wiki</a>
 						</li>
 						<li>
