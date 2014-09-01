@@ -21,10 +21,20 @@ class MySQLidb {
 	private $class;
 	private $method;
 	public function __construct($host, $username, $password, $db, $port=3306) {
-		$this->_mysqli = new mysqli($host, $username, $password, $db);
-		if (mysqli_connect_error()) {
-            trigger_error('Error connecting to MySQL : ' . mysqli_connect_errno() . ' ' .  mysqli_connect_error(), E_USER_ERROR);
-        }
+		$i=0;
+		do {
+			$this->_mysqli = new mysqli($host, $username, $password, $db);
+			if (mysqli_connect_error()) {
+				if (in_array(mysqli_connect_errno(), array(2002, 1049)))
+					sleep(1);
+				else {
+					trigger_error('Error connecting to MySQL : ' . mysqli_connect_errno() . ' ' .  mysqli_connect_error(), E_USER_ERROR);
+					$i = 31;
+				}
+			}
+			$i++;
+
+		} while (in_array(mysqli_connect_errno(), array(2002, 1049)) && $i<30);
 		self::$_instance = $this;
 	}
 
@@ -220,3 +230,5 @@ class MySQLidb {
 		$this->_mysqli->close();
 	}
 }
+
+?>
