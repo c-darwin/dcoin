@@ -212,6 +212,23 @@ $tpl['data']['user_id'] = $user_id;
 $tpl['pages_array'] = array('home', 'news', 'funders', 'comments');
 
 $tpl['config'] = get_node_config();
+$tpl['config']['cf_ps'] = json_decode($tpl['config']['cf_ps'], true);
+
+// узнаем, какие платежные системы доступны данному проекту
+$tpl['project']['ps'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT *
+		FROM `".DB_PREFIX."cf_projects_ps`
+		WHERE `project_id` = {$tpl['project_id']}
+		", 'fetch_array');
+
+// узнаем, не в блек-листе ли проект
+$black = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `project_id`
+		FROM `".DB_PREFIX."cf_blacklist`
+		WHERE `project_id` = {$tpl['project_id']}
+		", 'fetch_one');
+if ($black)
+	die ('project in blacklist');
 
 require_once( ABSPATH . 'templates/cf_page_preview.tpl' );
 
