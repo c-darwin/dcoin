@@ -2,7 +2,7 @@
 
 $tpl['geolocation'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `geolocation`
-		FROM `'.DB_PREFIX.MY_PREFIX.'my_table
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
 		', 'fetch_one');
 if (!$tpl['geolocation'])
 	$tpl['geolocation'] = '39.94887, -75.15005';
