@@ -31,6 +31,7 @@ $lng['lang'] = 'Язык';
 $lng['catalog'] = 'Каталог';
 $lng['my_projects'] = 'Мои проекты';
 $lng['login_alert'] = 'Чтобы Вы могли отправлять данные в DC-сеть, Вам нужно нажать "Login" и указать ключ.';
+$lng['about_dcoin'] = 'О Dcoin';
 
 // периоды
 $lng['day'] = 'день';
@@ -40,6 +41,7 @@ $lng['month'] = 'месяц';
 $lng['year'] = 'год';
 
 // general
+$lng['pool_error'] = 'Ошибка. Пожалуйста, обратитесь к администратору пула.';
 $lng['history'] = 'История';
 $lng['password'] = 'Пароль';
 $lng['find'] = 'Найти';
@@ -607,6 +609,7 @@ $lng['cf_hide_info'] = 'Описание можно скрыть';
 $lng['cf_projects_title'] = 'Каталог проектов';
 
 // cf_page_preview
+$lng['no_DC'] = 'На бирже [url] осталось [amount] [currency_name]';
 $lng['cf_home'] = 'Описание';
 $lng['cf_news'] = 'Новости';
 $lng['cf_funders'] = 'Спонсоры';
@@ -619,7 +622,9 @@ $lng['created'] = 'создал';
 $lng['backed'] = 'профинанси- ровал';
 $lng['comments_only_for_funders'] = 'Писать комментарии могут только те, кто профинсировал проект';
 $lng['comments_limits'] = 'Вы можете отправить только 1 комментарий за сутки.';
-
+$lng['payment_credited'] = 'Спасибо. Платеж зачислен. В течение 24 часов [currency_name] будут отправлены в проект.';
+$lng['cf_send_money_wo_sign_up'] = 'Без регистрации.<br> Если Вы просто хотите отправить деньги в проект, при этом Вам ничего не нужно взамен, то этот вариант для Вас. Если проект не наберет нужной суммы, то деньги возвращены не будут.';
+$lng['cf_send_money_with_sign_up'] ='С регистрацией в Dcoin.<br> В случае успешного завершения сбора средств, у Вас будет возможность получить товар/услугу от автора проекта, в случае неуспешного завершения сбора средств, вы получите назад свои деньги. Также Вы сможете писать комментарии к проекту.';
 
 //del_cf_project
 $lng['del_cf_project_title'] = 'Удаление проекта';
@@ -638,7 +643,7 @@ $lng['name'] = 'Имя';
 $lng['avatar'] = 'Аватар';
 
 // login
-$lng['login_help_text'] = 'Если у Вас нет ключа, Вы можете попросить его на <a href="http://dcoinforum.org/index.php?topic=26.0" style="text-decoration: underline">форуме</a> у майнеров';
+$lng['login_help_text'] = 'Если у Вас нет ключа, Вы можете попросить его на <a href="http://dcoinforum.org/index.php?topic=26.0" style="text-decoration: underline">форуме</a> у майнеров или взять <a href="http://pool.dcrowd.org/tools/available_keys.php" style="text-decoration: underline">тут</a>';
 $lng['login'] = 'Войти';
 $lng['login_title'] = 'Вход';
 $lng['key'] = 'Ключ';
