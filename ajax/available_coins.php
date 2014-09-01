@@ -1,9 +1,5 @@
 <?php
 session_start();
-
-if ( empty($_SESSION['user_id']) )
-	die('!user_id');
-
 define( 'DC', TRUE);
 
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
@@ -16,34 +12,25 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$user_id = $_REQUEST['user_id'];
+$lang = get_lang();
+require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
-if ( !check_input_data ($user_id , 'int') )
-	die('error user_id');
+$dc_currency_id = intval($_REQUEST['dc_currency_id']);
+$currency_id = intval($_REQUEST['currency_id']);
+$amount = $_REQUEST['amount'];
+if ( !preg_match('/^[0-9]{0,6}(\.[0-9]{0,8})?$/D', $amount) || $amount == 0)
+	die(json_encode(array('error'=>'amount_error')));
 
-$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT *
-		FROM `".DB_PREFIX."abuses`
-		WHERE `user_id` = {$user_id}
-		");
-$abuses = '';
-while ($row = $db->fetchArray($res)) {
-	$abuses .= 'from_user_id: '.$row['from_user_id'].'; time: '.date('d-m-Y H:i:s',$row['time']).'; comment: '.$row['comment']."<br>";
+$currency_list = get_currency_list($db);
+$config = get_node_config();
+if ($config['cf_available_coins_url']) {
+	$url =  "{$config['cf_available_coins_url']}?dc_currency_id={$dc_currency_id}&currency_id={$currency_id}&amount={$amount}";
+	$answer = file_get_contents($url);
+	$answer_array = json_decode($answer, true);
+	if (!isset($answer_array['success']))
+		echo json_encode(array('error'=>str_ireplace(array('[url]', '[amount]', '[currency_name]'), array('<a href="'.$config['cf_exchange_url'].'">'.$config['cf_exchange_url'].'</a>', $answer_array['error'], 'D'.$currency_list[$dc_currency_id]), $lng['no_DC'])));
+	else
+		echo $answer;
 }
-if (!$abuses)
-	$abuses = 'No';
-
-$reg_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT `reg_time`
-		FROM `".DB_PREFIX."miners_data`
-		WHERE `user_id` = {$user_id}
-		", 'fetch_one');
-$reg_time = date('d-m-Y H:i:s', $reg_time);
-echo json_encode(
-	array( 'abuses'=>$abuses,
-			   'reg_time'=>$reg_time
-			)
-);
 
 ?>
