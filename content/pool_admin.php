@@ -38,16 +38,21 @@ if (isset($_REQUEST['parameters']['pool_tech_works'])) {
 			");
 }
 
+$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SHOW TABLES
+			", 'array');
 $tpl['users'] = array();
 $community = get_community_users($db);
 for ($i=0; $i<sizeof($community); $i++) {
 	if ($community[$i] != $user_id) {
-		$tpl['users'][$community[$i]] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `miner_id`,
-							 `email`
-				FROM `".DB_PREFIX."{$community[$i]}_my_table`
-				LIMIT 1
-				", 'fetch_array' );
+		if (in_array("{$community[$i]}_my_table", $tables_array)) {
+			$tpl['users'][$community[$i]] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `miner_id`,
+								 `email`
+					FROM `".DB_PREFIX."{$community[$i]}_my_table`
+					LIMIT 1
+					", 'fetch_array' );
+		}
 	}
 }
 
