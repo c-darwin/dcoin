@@ -11225,8 +11225,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
-;
-
 		// разрешено отправлять не более 10-и таких тр-ий за сутки
 		$error = $this -> limit_requests(limit_cf_send_dc, 'cf_send_dc', limit_cf_send_dc_period);
 		if ($error)
