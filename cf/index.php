@@ -25,7 +25,7 @@ if ($_GET) {
 	if (preg_match('/category\-([0-9]+)/', $page[0], $m)) {
 		$tpl['nav'] = "fc_navigate ('cf_catalog', {'category_id':{$m[1]}})\n";
 	}
-	else if (preg_match('/([A-Z0-9]{7}|id-[0-9]+)\-?([0-9]+)?\-?(funders|comments|news|home)?/', $page[0], $m)) {
+	else if (preg_match('/([A-Z0-9]{7}|id-[0-9]+)\-?([0-9]+)?\-?(funders|comments|news|home|payment)?/', $page[0], $m)) {
 		// $m[1] - название валюты или id валюты
 		// $m[2] - id языка
 		// $m[3] - тип страницы (funders|comments|news)
@@ -52,8 +52,4 @@ if (!$tpl['cf_url'])
 $tpl['cf_lang'] = get_all_cf_lng($db);
 
 require_once( ABSPATH . 'templates/index_cf.tpl' );
-
-print '<!--';
-print_R($_SESSION);
-print '-->';
 ?>
