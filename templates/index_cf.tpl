@@ -9,7 +9,7 @@
 <meta name="description" content="">
 <meta name="author" content="">
 
-<title>CrowdFunding for all</title>
+<title>Decentralized CrowdFunding for any projects</title>
 
 <!-- Bootstrap Core CSS -->
 <link href="<?php echo $tpl['cf_url']?>css2/bootstrap.min.css" rel="stylesheet">
@@ -59,16 +59,33 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="<?php echo $tpl['cf_url']?>" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
+			<a class="navbar-brand" href="http://democratic-coin.com/" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
 	                   background: url(<?php echo $tpl['cf_url']?>img/logo.png) center left no-repeat;
-	                   text-align: center;
+	                   text-align: left;
 	                   background-size: 30px 30px;
-	                   padding-left: 40px; margin-left: 15px; margin-right: 50px">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
+	                   padding-left: 40px; margin-left: 15px; margin-right: 0px; line-height: 12px"><nobr>Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></nobr><br><span style="font-size: 12px">All the projects are taken from Dcoin blockchain</span></a>
 		</div>
 		<!-- /.navbar-header -->
 
 		<ul class="nav navbar-top-links navbar-right">
-
+			<li>
+				<a href="http://pool.dcrowd.org">Start Your Campaign</a>
+			</li>
+			<li>
+				<a href="http://democratic-coin.com">About Dcoin</a>
+			</li>
+			<li>
+				<a href="http://dcoinforum.org">Forum</a>
+			</li>
+			<li>
+				<a href="http://dcoinwiki.com/">Wiki</a>
+			</li>
+			<li>
+				<a href="https://github.com/c-darwin/dcoin/">Sources</a>
+			</li>
+			<li>
+				<a href="mailto:admin@democratic-coin.com">Contact</a>
+			</li>
 			<!-- /.dropdown -->
 			<li class="dropdown">
 				<a class="dropdown-toggle" data-toggle="dropdown" href="#">
@@ -178,5 +195,32 @@
 	})(jQuery);
 
 </script>
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+	(function (d, w, c) {
+		(w[c] = w[c] || []).push(function() {
+			try {
+				w.yaCounter25998519 = new Ya.Metrika({id:25998519,
+					webvisor:true,
+					clickmap:true,
+					trackLinks:true,
+					accurateTrackBounce:true});
+			} catch(e) { }
+		});
+
+		var n = d.getElementsByTagName("script")[0],
+			s = d.createElement("script"),
+			f = function () { n.parentNode.insertBefore(s, n); };
+		s.type = "text/javascript";
+		s.async = true;
+		s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+		if (w.opera == "[object Opera]") {
+			d.addEventListener("DOMContentLoaded", f, false);
+		} else { f(); }
+	})(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/25998519" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
 </body>
 </html>
