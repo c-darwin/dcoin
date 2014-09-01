@@ -77,7 +77,7 @@ do {
 	if (!$current_block_id) {
 
 		if (!file_exists(ABSPATH . 'public/blockchain') && OS=='WIN') {
-			downloadFile ('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain-27-08-14', ABSPATH . 'public/blockchain');
+			downloadFile ('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain', ABSPATH . 'public/blockchain');
 			//file_put_contents(ABSPATH . 'public/blockchain', fopen('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain-27-08-14', 'r'));
 		}
 
