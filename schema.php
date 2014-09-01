@@ -6,6 +6,31 @@ $queries = array();
 
 
 
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_projects_ps`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects_ps` (
+`project_id` int(11) NOT NULL,
+  `ps1` tinyint(4) NOT NULL,
+  `ps2` tinyint(4) NOT NULL,
+  `ps3` tinyint(4) NOT NULL,
+  `ps4` tinyint(4) NOT NULL,
+  `ps5` tinyint(4) NOT NULL,
+  `ps6` tinyint(4) NOT NULL,
+  `ps7` tinyint(4) NOT NULL,
+  `ps8` tinyint(4) NOT NULL,
+  PRIMARY KEY (`project_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Каждому CF-проекту вручную указывается платежные системы';
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_blacklist`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_blacklist` (
+`project_id` int(11) NOT NULL,
+  PRIMARY KEY (`project_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Какие проекты не выводим в CF-каталоге';
+";
+
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}pool_waiting_list`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}pool_waiting_list` (
   `email`varchar(200) CHARACTER SET utf8 NOT NULL,
@@ -180,7 +205,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_currency` (
   `name` char(7) NOT NULL,
   `project_id` bigint(20) NOT NULL,
   PRIMARY KEY (`id`)
-) ENGINE=InnoDB  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1000;
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 AUTO_INCREMENT=1000;
 ";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_projects`;
@@ -469,7 +494,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_tasks` (
   `type` enum('promised_amount','miner') NOT NULL,
   `id` int(11) NOT NULL,
   `time` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ";
 
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_new_users`;
@@ -1682,7 +1707,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}referral` (
   `second` tinyint(2) unsigned NOT NULL,
   `third` tinyint(2) unsigned NOT NULL,
   `log_id` int(11) NOT NULL
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_referral`;
@@ -1694,7 +1719,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_referral` (
   `block_id` int(11) NOT NULL,
   `prev_log_id` int(10) unsigned NOT NULL,
   PRIMARY KEY (`log_id`)
-) ENGINE=InnoDB DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}install`;
@@ -1876,6 +1901,11 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_tech_works`  tinyint(1) NOT NULL,
   `cf_url`  varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
   `pool_url`  varchar(255) NOT NULL COMMENT 'URL, на который ссылается кнопка Contribute now из внешнего CF-каталога ',
+  `cf_available_coins_url` varchar(255) NOT NULL COMMENT 'URL биржи, где можно узнать, сколько там осталось монет в продаже по курсу 1',
+  `cf_exchange_url` varchar(255) NOT NULL COMMENT 'URL биржи. Просто, чтобы дать на неё ссылку в сообщении, где говорится, что монеты на бирже кончились',
+  `cf_top_html` text CHARACTER SET utf8 NOT NULL COMMENT 'html-код с платежными системами для страницы cf_page_preview',
+  `cf_bottom_html` text CHARACTER SET utf8 NOT NULL COMMENT 'html-код с платежными системами для страницы cf_page_preview',
+  `cf_ps` text CHARACTER SET utf8 NOT NULL COMMENT 'Массива с платежными системами, которые будут выводиться на cf_page_preview',
   `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа',
   `commission` text NOT NULL COMMENT 'Максимальная комиссия, которую могут поставить ноды на данном пуле'
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
