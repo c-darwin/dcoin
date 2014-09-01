@@ -5,7 +5,7 @@ if (!defined('DC')) die("!defined('DC')");
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `video_url_id`,
 					 `video_type`
-		FROM `'.DB_PREFIX.MY_PREFIX.'my_table
+		FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
 		');
 $row = $db->fetchArray($res);
 switch ($row['video_type']) {
