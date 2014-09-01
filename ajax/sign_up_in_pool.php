@@ -27,6 +27,9 @@ $email = $_REQUEST['email'];
 if(!filter_var($email, FILTER_VALIDATE_EMAIL))
 	die(json_encode(array('error'=>'incorrect email')));
 
+if(empty($_POST['e']) || empty($_POST['n']))
+	die(json_encode(array('error'=>$lng['pool_error'])));
+
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
