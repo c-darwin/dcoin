@@ -2796,7 +2796,7 @@ function check_deamon_restart ($db)
 function setlang($lang)
 {
 	$_SESSION['lang'] = $lang;
-	setcookie("lang", $lang, time()+31536000);
+	setcookie("lang", (string) $lang, time()+31536000);
 }
 
 function generate_password()
@@ -2979,6 +2979,7 @@ function get_from_log($key) {
 
 function nodes_ban ($db, $user_id, $info)
 {
+	$info = $db->escape($info);
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT IGNORE INTO `".DB_PREFIX."nodes_ban` (
 						`user_id`,
