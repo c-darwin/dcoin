@@ -1,6 +1,7 @@
 Democratic Coin
 =====================================
 
+http://democratic-coin.com<br>
 http://dcoinwiki.com<br>
 
 Copyright (c) 2014 Dcoin
