@@ -18,7 +18,34 @@ require_once( ABSPATH . 'phpseclib/Math/BigInteger.php');
 require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
 require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
 require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
-		
+
+function downloadFile ($url, $path) {
+	global $db;
+	$newfname = $path;
+	$file = fopen ($url, "rb");
+	if ($file) {
+		$newf = fopen ($newfname, "wb");
+
+		if ($newf)
+			while(!feof($file)) {
+				fwrite($newf, fread($file, 1024 * 8 ), 1024 * 8 );
+				upd_deamon_time($db);
+				if (check_deamon_restart($db)) {
+					main_unlock();
+					exit;
+				}
+			}
+	}
+
+	if ($file) {
+		fclose($file);
+	}
+
+	if ($newf) {
+		fclose($newf);
+	}
+}
+
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 $error = false;
@@ -49,31 +76,10 @@ do {
 	$current_block_id = get_block_id($db);
 	if (!$current_block_id) {
 
-		/*
-		// это обработка локальной базы блоков
-		if (file_exists(ABSPATH . 'localblocks')) {
-			debug_print('localblocks', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-			$i=0;
-			do {
-				$i++;
-				debug_print(ABSPATH.'tools/blocks/'.$i, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-				if (!file_exists(ABSPATH.'tools/blocks/'.$i))
-					break;
-				$new_block = file_get_contents(ABSPATH.'tools/blocks/'.$i);
-				$parsedata = new ParseData($new_block, $db);
-				$error = $parsedata->ParseDataFull();
-				if ($error) {
-					print $error;
-					break;
-				}
-				$parsedata->insert_into_blockchain();
-				upd_deamon_time($db);
-				if (check_deamon_restart($db)) {
-					main_unlock();
-					exit;
-				}
-			} while (true);
-		}*/
+		if (!file_exists(ABSPATH . 'public/blockchain') && OS=='WIN') {
+			downloadFile ('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain-27-08-14', ABSPATH . 'public/blockchain');
+			//file_put_contents(ABSPATH . 'public/blockchain', fopen('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain-27-08-14', 'r'));
+		}
 
 		if (file_exists(ABSPATH . 'public/blockchain')) {
 			$fp = fopen(ABSPATH . 'public/blockchain', 'r');
