@@ -122,7 +122,8 @@ if (1<0) {
 			$("#payment_method").css("display", "block");
 		}
 		else if ($('input[name=mode]:checked').val()=='2') {
-			javascript:location.href='<?php echo $tpl['config']['pool_url']?>';
+			//javascript:location.href='<?php echo $tpl['config']['pool_url']?>';
+			fc_navigate('cf_start');
 		}
 	});
 
@@ -159,7 +160,7 @@ if (1<0) {
 	function change_amount() {
 		var amount = $('#amount_usd').val();
 		if ($( "#p_method option:selected" ).val() == 'gspay') {
-			var total_usd = (amount * 0.96) - 0.2;
+			var total_usd = (amount * 0.933) - 1;
 		}
 		else if ($( "#p_method option:selected" ).val() == 'ik') {
 			var total_usd = (amount * 0.99);
@@ -342,9 +343,11 @@ if (1<0) {
 						if (@$tpl['project']['ended']!=1)
 						{
 							if ($user_id)
-								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
+								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('wallets_list', {'project_id':{$tpl['project']['id']}})\"><strong>".($lng['contribute_now'])."</strong></button>";
+							else if (!empty($tpl['project']['ps']))
+								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" id=\"contribute_now\"><strong>".($lng['contribute_now'])."</strong></button>";
 							else
-								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" id=\"contribute_now\"><strong>".strtoupper($lng['contribute_now'])."</strong></button>";
+								echo "<button type=\"button\" class=\"btn btn-success\" style=\"width:240px; height:50px\" onclick=\"fc_navigate('cf_start')\"><strong>".($lng['contribute_now'])."</strong></button>";
 						}
 						?>
 					</div>
@@ -380,7 +383,7 @@ if (1<0) {
 
 			</div>
 
-			<div id="payment_mode" style="display: none;margin-top:35px;margin-left:15px;">
+			<div id="payment_mode" style="display: none;margin-top:35px;margin-left:15px;margin-right:15px;"">
 
 				<div class="form-horizontal">
 					<fieldset>
@@ -412,7 +415,7 @@ if (1<0) {
 				</div>
 			</div>
 
-			<div id="payment_method" style="display: none;margin-top: 35px;margin-left:15px;">
+			<div id="payment_method" style="display: none;margin-top: 35px;margin-left:15px;margin-right:15px;">
 				<div id="payment_error"></div>
 
 				<div class="form-horizontal" method="post">
@@ -493,23 +496,15 @@ if (1<0) {
 
 		<form id="gspay_form" method=post action="https://secure.redirect2pay.com/payment/pay.php" style="display: none">
 			<input type=hidden name="siteID" value="117618">
-			<input type=hidden name='OrderDescription[1]' value='ItemName'>
-			<input id="gspay_amount"  type=hidden name='Amount[1]' value='10'>
-			<input type=hidden name='Qty[1]' value='1'>
-			<input type="hidden" name="OrderID" value="25Nov2008152022_25" />
-			<input type="hidden" name="customerFullName" value="sfafsafsfas" />
-			<input type="hidden" name="customerPhone" value="23232223" />
-			<input type="hidden" name="customerAddress" value="fsasafasf" />
-			<input type="hidden" name="customerCity" value="MyCity" />
-			<input type="hidden" name="customerZip" value="24242424" />
-			<input type="hidden" name="customerCountryCode" value="US" />
-			<input type="hidden" name="customerStateCode" value=”TX" />
-			<input type="hidden" name="customerEmail" value="info@gspay.com" />
+			<input type=hidden name='OrderDescription[1]' value='cf-<?php echo $tpl['project']['id']?>'>
+			<input id="gspay_amount"  type=hidden name='Amount[1]' value='0'>
+			<input type="hidden" name="OrderID" value="cf-<?php echo $tpl['project']['id']?>" />
 			<input type="hidden" name="returnURL"  value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>" />
 			<input type="hidden" name="ApproveURL" value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>-payment" />
 			<input type="hidden" name="DeclineURL"  value="http://dcrowd.org/?id-<?php echo $tpl['project_id']?>-<?php echo $tpl['lang_id']?>" />
 			<input type="submit" value="Checkout">
 		</form>
+
 
 	</div>
 </div>
