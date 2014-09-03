@@ -7,89 +7,37 @@
 		echo "#page-wrapper{margin:0}\n";
 	}
 	?>
+
+	.list-inline {margin-left:0px}
 </style>
-<h1 class="page-header"><?php echo $lng['cf_projects_title']?></h1>
-<?php
-if ($tpl['cur_category']) {
-	?>
-	<ol class="breadcrumb">
-		<?php echo ($user_id)?'<li><a href="#">CrowdFunding</a></li>':'' ?>
-		<li><a href="<?php echo $tpl['cf_url']?>"><?php echo $lng['catalog']?></a></li>
-		<li class="active"><?php echo $lng['cf_category'][$tpl['category_id']]?></li>
-	</ol>
-	<?php
-}
-?>
-
-<!--	<div class="width_max" style="margin-bottom:70px">
-		<ul class="nav navbar-nav navbar-left" style="padding-top:10px">
-			<button type="button" class="btn btn-outline btn-default">Explore</button>
-			<button type="button" class="btn btn-outline btn-default">Start your campaign</button>
-		</ul>
-
-		<ul class="nav navbar-nav navbar-right">
-			<li class="dropdown">
-				<a href="#" class="dropdown-toggle" data-toggle="dropdown">Language <span class="caret"></span></a>
-				<ul class="dropdown-menu" role="menu">
-					<li><a href="#">Русский</a></li>
-					<li><a href="#">English</a></li>
-				</ul>
-			</li>
-		</ul>
-
-	</div>
--->
-	<div style="float:left; width:900px; overflow:auto;">
-		<div style="float:left; width:720px; overflow:auto; min-height: 800px">
-		<?php
-			if ($tpl['projects'] )
-			foreach ($tpl['projects'] as $project_id=>$data) {
-			?>
-			<div class="well project-card" style="float:left; margin-right:20px">
-				<?php
-				if ($user_id) {
-					echo "<a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_project_id':{$project_id}";
-					echo ($data['lang_id'])?", 'lang_id':{$data['lang_id']}":"";
-					echo "})\">";
-				}
-				else {
-					echo "<a href='?id-{$project_id}";
-					echo ($data['lang_id'])?"-{$data['lang_id']}":"";
-					echo "'>";
-				}
-				?>
-
-
-					<img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
-				<div>
-					<div class="card-location" style="margin-top:10px;font-size: 13px; color: #828587;"><i class="fa  fa-map-marker  fa-fw"></i> <?php echo "{$data['country']},{$data['city']}"?></div>
-					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
-					<div class="card-bottom">
-						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['pct']?>%</h5>funded</div>
-						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> D<?php echo $tpl['currency_list'][$data['currency_id']]?> </h5>pledged</div>
-						<div style="float:left; overflow:auto;"><h5><?php echo $data['days']?></h5>days to go</div>
-					</div>
-				</div>
-			</div>
-			<?php
+<script>
+	$(document).ready(function () {
+		$.ajax({
+			url: "http://democratic-coin.com/version",
+			type: 'GET',
+			dataType: "html",
+			crossDomain: true,
+			success: function (ver) {
+				$( "#version" ).html( ver );
+				$("#exe").attr("href", 'https://github.com/c-darwin/dcoin/releases/download/'+ver+'/Dcoin.exe');
 			}
-		?>
-		</div>
+		});
+</script>
 
-		<div class="menu">
+	<div style="float:left; width:900px; overflow:auto; text-align: center; padding-top: 100px">
+			<div style="margin-bottom:5px">
 
-			<h3><i class="fa  fa-folder-open-o  fa-fw"></i> <?php echo $lng['categories']?></h3>
-			<ul class="navigation">
-				<?php
-				foreach ($lng['cf_category'] as $id=>$name ) {
-					if (!$user_id)
-						echo "<li><a href='?category-{$id}'>{$name}</a></li>";
-					else
-						echo "<li><a href='#' onclick=\"fc_navigate('cf_catalog', {'category_id':{$id}})\">{$name}</a></li>";
-				}
-				?>
-			</ul>
-		</div>
+					<a id="exe" href="https://github.com/c-darwin/dcoin/releases/download/v0.0.9b3/Dcoin.exe" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['download']?></span></a>
+
+			</div>
+			<span style="color:#ccc">Windows <span id="version">v0.0.9b3</span></span><br><br><?php echo $lng['or']?>
+			<div style="margin-top:10px">
+
+					<a href="http://pool.democratic-coin.com" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['open_in_the_pool']?></span></a>
+
+			</div>
+		<Br>
+		<a href="#" onclick="history.go(-1);return false;">BACK</a>
 	</div>
 
 
