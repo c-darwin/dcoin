@@ -59,7 +59,7 @@
 				<span class="icon-bar"></span>
 				<span class="icon-bar"></span>
 			</button>
-			<a class="navbar-brand" href="http://democratic-coin.com/" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
+			<a class="navbar-brand" href="<?php echo $tpl['cf_url']?>" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
 	                   background: url(<?php echo $tpl['cf_url']?>img/logo.png) center left no-repeat;
 	                   text-align: left;
 	                   background-size: 30px 30px;
@@ -69,7 +69,7 @@
 
 		<ul class="nav navbar-top-links navbar-right">
 			<li>
-				<a href="http://pool.dcrowd.org">Start Your Campaign</a>
+				<a href="#" onclick="fc_navigate('cf_start');return false;">Start Your Campaign</a>
 			</li>
 			<li>
 				<a href="http://democratic-coin.com">About Dcoin</a>
@@ -78,7 +78,7 @@
 				<a href="http://dcoinforum.org">Forum</a>
 			</li>
 			<li>
-				<a href="http://dcoinwiki.com/">Wiki</a>
+				<a href="http://en.dcoinwiki.com/">Wiki</a>
 			</li>
 			<li>
 				<a href="https://github.com/c-darwin/dcoin/">Sources</a>
