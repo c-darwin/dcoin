@@ -13,8 +13,12 @@
 if ($tpl['cur_category']) {
 	?>
 	<ol class="breadcrumb">
-		<?php echo ($user_id)?'<li><a href="#">CrowdFunding</a></li>':'' ?>
-		<li><a href="<?php echo $tpl['cf_url']?>"><?php echo $lng['catalog']?></a></li>
+		<?php
+			if ($user_id)
+				echo "<li><a href='#'>CrowdFunding</a></li><li><a href='#' onclick=\"fc_navigate('cf_catalog')\">{$lng['catalog']}</a></li>";
+			else
+				echo "<li><a href='{$tpl['cf_url']}'>{$lng['catalog']}</a></li>";
+		?>
 		<li class="active"><?php echo $lng['cf_category'][$tpl['category_id']]?></li>
 	</ol>
 	<?php
