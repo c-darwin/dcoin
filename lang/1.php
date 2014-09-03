@@ -42,6 +42,7 @@ $lng['month'] = 'month';
 $lng['year'] = 'year';
 
 // general
+$lng['or'] = 'or';
 $lng['pool_error'] = 'Error. Please contact the administrator of the pool.';
 $lng['history'] = 'History';
 $lng['password'] = 'Password';
@@ -290,7 +291,7 @@ $lng['enhanced_protection_mode'] = 'Enhanced protection mode. You will have 3 ke
 $lng['reenter_with_a_new_key'] = 'After the shift key when in the history of the status will be "Accepted", certainly <a href="#myModal" data-toggle="modal" data-backdrop="static">reenter</a> with a new key.';
 $lng['reenter_with_a_new_key_restricted'] = '10-15 minutes after the shift key, carefully <a href="#myModal" data-toggle="modal" data-backdrop="static">reenter</a> with a new key.';
 $lng['choose_a_password'] = 'Choose a password for your new primary key';
-$lng['generate_somewhere_two_different_pairs_of_keys'] = 'Generate somewhere 2 different pairs of keys, for example, <a href="http://democratic-coin.com/ru/keys/index.html?keys" target="_blank">here</a>. Received 2 private key securely store and print better. A public keys indicate below: ';
+$lng['generate_somewhere_two_different_pairs_of_keys'] = 'Generate somewhere 2 different pairs of keys, for example, <a href="http://democratic-coin.com/en/keys/index.html?keys" target="_blank">here</a>. Received 2 private key securely store and print better. A public keys indicate below: ';
 
 
 // change node key
@@ -380,7 +381,7 @@ $lng['type'] = 'Type';
 $lng['error_in_tx'] = 'The information in the table "transactions" may be wrong. Wallets balances are displayed without errors.';
 $lng['balances'] = 'Balances';
 $lng['where_get_dc'] = 'Where can I get coins?';
-$lng['where_get_dc_text'] = 'Coins can be purchased an <a href="http://dcoinsimple.com/" target="_blank">exchange</a> or create your own.';
+$lng['where_get_dc_text'] = 'Coins can be purchased an а <a href="http://en.dcoinwiki.com/Exchange" target="_blank">exchange</a> or create your own.';
 $lng['project_id'] = 'Project ID';
 $lng['check_data'] = 'Check the accuracy of the data';
 
@@ -520,7 +521,7 @@ $lng['new_cf_project_title'] = 'New project';
 $lng['currency_name_busy'] = 'Name busy';
 $lng['incorrect_currency_name'] = 'Incorrect name';
 $lng['name_is_not_occupied'] = 'Name is not occupied';
-$lng['sent_to_DC_CF'] = 'Request sent to the DC-network. After about 5 minutes, your project will appear on this page. If this is not prozoydet write on a forum or in a support';
+$lng['sent_to_DC_CF'] = 'Request sent to the DC-network. After about 5 minutes, your project will appear on this page. If it does not, please write to the forum or a support.';
 $lng['cf_category'][0] = 'Other';
 $lng['cf_category'][1] = 'Animals';
 $lng['cf_category'][2] = 'Art';
@@ -593,7 +594,7 @@ $lng['cf_home'] = 'Home';
 $lng['cf_news'] = 'News';
 $lng['cf_funders'] = 'Funders';
 $lng['cf_comments'] = 'Comments';
-$lng['contribute_now'] = 'Contribute now';
+$lng['contribute_now'] = 'CONTRIBUTE NOW';
 $lng['cf_page_preview_pledged_of'] = 'pledged of';
 $lng['cf_page_preview_goal'] = 'goal';
 $lng['days_to_go'] = 'days to go';
@@ -604,6 +605,8 @@ $lng['comments_limits'] = 'You can send only one comment per day.';
 $lng['payment_credited'] = 'Thank you, payment credited. Within 24 hours of [currency_name] will be shipped to the project.';
 $lng['cf_send_money_wo_sign_up'] = 'Without registration. <br> If you just want to send money to the project, while you do not need anything in return, then this option is for you. If the project does not receive the required amount, the money will not be returned.';
 $lng['cf_send_money_with_sign_up'] ='With the registration in Dcoin. <br> Upon successful completion of fundraising, you will be able to get the product / service from the author of the project, in the case of unsuccessful completion of fundraising, you get your money back. You can also write comments on the draft.';
+$lng['open_in_the_pool'] = 'Open in the pool';
+$lng['download'] = 'Download';
 
 //del_cf_project
 $lng['del_cf_project_title'] = 'Deleting a Project';
