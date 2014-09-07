@@ -666,5 +666,33 @@ $lng['pool_sign_up_success'] = 'Congratulations, now you are registered on our p
 // pool_tech_works
 $lng['pool_tech_works'] = 'On the pool are technical works. Please check back later.';
 
+// credits
+$lng['credits'] = 'Credits';
+$lng['I_debtor'] = 'I - debtor';
+$lng['I_creditor'] = 'I - creditor';
+$lng['transfer '] = 'Transfer';
+$lng['pay'] = 'Pay';
+$lng['create_credit'] = 'Create credit';
+$lng['will_not_be_used'] = 'What part of coming to your funds will not be used for repayment of loans';
+
+// change_creditor
+$lng['transfer_of_credit'] = 'Transfer of credit';
+$lng['to'] = 'To';
+$lng['new_creditor_user_id'] = 'User_id the person to whom you transfer credit';
+
+// del_credit
+$lng['removal_of_the_loan'] = 'Removal of the loan';
+$lng['del_credit_confirm'] = 'Are you sure you want to remove the credit?';
+
+// repayment credit
+$lng['payment_on_the_loan'] = 'Payment on the loan';
+
+// new_credit
+$lng['credit_creation'] = 'Credit creation';
+$lng['amount_of_loan'] = 'Amount of loan';
+$lng['creditor_user_id'] = 'User_id who will be your lender.';
+$lng['credit_pct'] = 'Percent';
+$lng['credit_part'] = 'What percentage of your incoming funds will be paid to the creditor.';
+$lng['new_credit_alert'] = 'Be careful! You can not delete the new loan.';
 
 ?>
