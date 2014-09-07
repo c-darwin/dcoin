@@ -69,6 +69,11 @@ function check_input_data ($data, $type, $info='')
 				return true;
 			break;
 
+		case 'credit_pct':
+			if ( preg_match ("/^[0-9]{1,3}(\.[0-9]{2})?$/D", $data))
+				return true;
+			break;
+
 		case 'cf_currency_name':
 			if ( preg_match ("/^[A-Z0-9]{7}$/D", $data))
 				return true;
