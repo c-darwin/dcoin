@@ -63,6 +63,20 @@ if (empty($_SESSION['restricted'])) {
 	}
 }
 
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT *
+		FROM `".DB_PREFIX."credits`
+		WHERE (`from_user_id` = {$user_id} OR `to_user_id` = {$user_id}) AND
+					 `del_block_id` = 0
+		");
+while ($row = $db->fetchArray($res)) {
+	if ($user_id == $row['from_user_id'])
+		$tpl['I_debtor'][] = $row;
+	else
+		$tpl['I_creditor'][] = $row;
+}
+
+
 // балансы
 $tpl['wallets'] = get_balances($user_id);
 
