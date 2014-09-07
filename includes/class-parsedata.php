@@ -77,9 +77,6 @@ define( 'limit_time_comments_cf_project', 3600*24 );
 define( 'limit_user_avatar', 5 );
 define( 'limit_user_avatar_period', 3600*24 );
 
-/*
- * Сменить лимиты !!!!!!!
- * */
 define( 'limit_new_credit', 10 );
 define( 'new_credit_period', 3600*24 );
 define( 'limit_change_creditor', 10 );
@@ -1272,7 +1269,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$take = $sum;
 			$amount_for_credit -= $take;
 			debug_print("take={$take}\namount={$row['amount']}\nsum={$sum}\nnew_amount={$amount_for_credit}\namount={$amount}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-			$this->selective_logging_and_upd (array('amount','tx_hash','tx_block_id'), array($row['amount']-$take, $this->tx_data['hash'], $this->block_data['block_id']), 'credits', array('id'), array($row['id']));
+			$this->selective_logging_and_upd (array('amount','tx_hash','tx_block_id'), array($row['amount']-$take, $this->tx_hash, $this->block_data['block_id']), 'credits', array('id'), array($row['id']));
 			$this->update_recipient_wallet ( $row['to_user_id'], $currency_id, $take, 'loan_payment', $to_user_id, 'loan payment', 'decrypted', false);
 		}
 
@@ -8498,7 +8495,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_main($credit_data['to_user_id']);
 
-		$this->selective_logging_and_upd (array('amount','tx_hash','tx_block_id'), array($credit_data['amount'] - $this->tx_data['amount'], $this->tx_data['hash'], $this->block_data['block_id']), 'credits', array('id'), array($this->tx_data['credit_id']));
+		$this->selective_logging_and_upd (array('amount','tx_hash','tx_block_id'), array($credit_data['amount'] - $this->tx_data['amount'], $this->tx_hash, $this->block_data['block_id']), 'credits', array('id'), array($this->tx_data['credit_id']));
 		$this->update_recipient_wallet ( $credit_data['to_user_id'], $credit_data['currency_id'], $this->tx_data['amount'], 'loan_payment', $credit_data['to_user_id'], 'loan payment', 'decrypted', false);
 
 		$this -> update_sender_wallet($this->tx_data['user_id'], $credit_data['currency_id'], $this->tx_data['amount'], 0, 'loan_payment', $credit_data['to_user_id'], $credit_data['to_user_id'], 'loan_payment', 'decrypted');
@@ -8728,7 +8725,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					{$this->tx_data['to_user_id']},
 					{$this->tx_data['currency_id']},
 					{$this->tx_data['pct']},
-					0x".$this->tx_data['hash'].",
+					0x{$this->tx_hash},
 					{$this->block_data['block_id']}
 				)");
 	}
@@ -8738,7 +8735,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				DELETE FROM `".DB_PREFIX."credits`
 				WHERE `tx_block_id` = {$this->block_data['block_id']} AND
-							 `tx_hash` = 0x".$this->tx_data['hash']."
+							 `tx_hash` = 0x{$this->tx_hash}
 				LIMIT 1
 				");
 		$this->rollbackAI('credits');
@@ -9098,7 +9095,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `currency_id` = {$currency_id} AND
 								 `amount` > 0  AND
 								 `tx_block_id` = {$this->block_data['block_id']} AND
-								 `tx_hash` = 0x".$this->tx_data['hash']." AND
+								 `tx_hash` = 0x{$this->tx_hash} AND
 								 `del_block_id` = 0
 					ORDER BY `time` DESC
 					");
