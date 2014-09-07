@@ -64,11 +64,11 @@
 <div id="message"></div>
 	
 <div id="generate">
-	<div class="row" style="padding:0 15px">
+	<!--<div class="row" style="padding:0 15px">
 		<div class="alert alert-info">
 			<?php echo $lng['dcoin_risks_alert']?>
 		</div>
-	</div>
+	</div>-->
 
 	<div class="row">
 		<div class="col-lg-4">
@@ -132,7 +132,7 @@
 		<div class="col-lg-4">
 
 			<h3><?php echo $lng['balances']?></h3>
-			<div style="height: 328px; overflow: auto">
+			<div style="height: 144px; overflow: auto">
 				<div class="table-responsive table-bordered">
 					<?php
 						echo '<table class="table" style="margin-bottom: 0px">';
@@ -157,6 +157,29 @@
 					?>
 				</div>
 			</div>
+
+
+			<h3><?php echo $lng['credits']?></h3>
+			<div style="height: 144px; overflow: auto">
+				<div class="table-responsive table-bordered">
+					<table class="table" style="margin-bottom: 0px">
+						<?php
+						echo '<tr><th>'.$lng['amount'].'</th><th>'.$lng['currency'].'</th><th>User_ID</th></tr>';
+						foreach ($tpl['I_creditor'] as $data) {
+							echo "<tr>";
+							echo "<td>{$data['amount']}</td>";
+							echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+							echo "<td>{$data['from_user_id']}</td>";
+						}
+						?>
+					</table>
+				</div>
+			</div>
+
+
+
+
+
 		</div>
 		<!-- /.col-lg-4 -->
 	</div>
