@@ -247,6 +247,8 @@ $('#amount, #cf_amount').keyup(function(e) {
 				</li>
 				<li class=""><a href="#" onclick="fc_navigate('currency_exchange')"><?php echo $lng['currency_exchange1']?></a>
 				</li>
+				<li class=""><a href="#" onclick="fc_navigate('credits')"><?php echo $lng['credits']?></a>
+				</li>
 			</ul>
 
 			<!-- Tab panes -->
