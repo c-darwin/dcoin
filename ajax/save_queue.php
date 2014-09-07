@@ -97,6 +97,63 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		break;
 
+
+		case 'new_credit' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['to_user_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['amount']) .
+				ParseData::encode_length_plus_data($_REQUEST['currency_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['pct']) .
+				$bin_signatures;
+
+			break;
+
+
+		case 'del_credit' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['credit_id']) .
+				$bin_signatures;
+
+			break;
+
+		case 'repayment_credit' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['credit_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['amount']) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_creditor' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['to_user_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['credit_id']) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_credit_part' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['pct']) .
+				$bin_signatures;
+
+			break;
+
 	case 'user_avatar' :
 
 		$name = $_REQUEST['name'];
