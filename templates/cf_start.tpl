@@ -13,7 +13,7 @@
 <script>
 	$(document).ready(function () {
 		$.ajax({
-			url: "http://democratic-coin.com/version",
+			url: "http://pool.democratic-coin.com/ajax/get_ver.php",
 			type: 'GET',
 			dataType: "html",
 			crossDomain: true,
@@ -22,15 +22,16 @@
 				$("#exe").attr("href", 'https://github.com/c-darwin/dcoin/releases/download/'+ver+'/Dcoin.exe');
 			}
 		});
+	});
 </script>
 
 	<div style="float:left; width:900px; overflow:auto; text-align: center; padding-top: 100px">
 			<div style="margin-bottom:5px">
 
-					<a id="exe" href="https://github.com/c-darwin/dcoin/releases/download/v0.0.9b3/Dcoin.exe" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['download']?></span></a>
+					<a id="exe" href="https://github.com/c-darwin/dcoin/releases/download/v0.0.9b4/Dcoin.exe" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['download']?></span></a>
 
 			</div>
-			<span style="color:#ccc">Windows <span id="version">v0.0.9b3</span></span><br><br><?php echo $lng['or']?>
+			<span style="color:#ccc">Windows <span id="version">v0.0.9b4</span></span><br><br><?php echo $lng['or']?>
 			<div style="margin-top:10px">
 
 					<a href="http://pool.democratic-coin.com" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['open_in_the_pool']?></span></a>
