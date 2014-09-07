@@ -684,8 +684,36 @@ $lng['pool_is_full'] = 'К сожалению, пул переполнен. Мы
 $lng['pool_user_id_is_busy'] = 'Ваш user_id уже зарегистрирован в нашем пуле. Пожалуйста, свяжитесь с администрацией.';
 $lng['pool_sign_up_success'] = 'Поздравляем, теперь Вы зарегистрированы на нашем пуле. Обновите страницу и заново введите свой ключ.';
 
-
 // pool_tech_works
 $lng['pool_tech_works'] = 'На пуле идут технические работы. Пожалуйста, зайдите позже.';
+
+// credits
+$lng['credits'] = 'Кредиты';
+$lng['I_debtor'] = 'Мне должны';
+$lng['I_creditor'] = 'Я должен';
+$lng['transfer '] = 'Передать';
+$lng['pay'] = 'Оплатить';
+$lng['create_credit'] = 'Создать кредит';
+$lng['will_not_be_used'] = 'Какая часть от поступающих на Ваш счет средств не будет использована для погашения кредитов';
+
+// change_creditor
+$lng['transfer_of_credit'] = 'Передача кредита';
+$lng['to'] = 'Кому';
+$lng['new_creditor_user_id'] = 'User_id того, кому Вы передаете кредит';
+
+// del_credit
+$lng['removal_of_the_loan'] = 'Удаление кредита';
+$lng['del_credit_confirm'] = 'Вы уверены, что хотите удалить кредит?';
+
+// repayment credit
+$lng['payment_on_the_loan'] = 'Взнос по кредиту';
+
+// new_credit
+$lng['credit_creation'] = 'Создание кредита';
+$lng['amount_of_loan'] = 'Размер кредита';
+$lng['creditor_user_id'] = 'User_id того, кому Вы будете должны';
+$lng['credit_pct'] = 'Процент';
+$lng['credit_part'] = 'Какой процент от поступающих на Ваш счет средств будет выплачиваться кредитору';
+$lng['new_credit_alert'] = 'Будьте внимательны! Вы не сможете удалить созданный кредит.';
 
 ?>
