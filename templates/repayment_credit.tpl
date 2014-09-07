@@ -3,7 +3,7 @@
 
 		<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
 
-		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#credit_id").val());
+		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#credit_id").val()+','+$("#amount").val());
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 	});
@@ -15,6 +15,7 @@
 				'time' : '<?php echo $tpl['data']['time']?>',
 				'user_id' : '<?php echo $tpl['data']['user_id']?>',
 				'credit_id' : $('#credit_id').val(),
+				'amount' : $('#amount').val(),
 				'signature1': $('#signature1').val(),
 				'signature2': $('#signature2').val(),
 				'signature3': $('#signature3').val()
@@ -26,11 +27,11 @@
 
 </script>
 <div id="main_div">
-	<h1 class="page-header">Удаление кредита</h1>
+	<h1 class="page-header"><?php echo $lng['payment_on_the_loan']?></h1>
 	<ol class="breadcrumb">
 		<li><a href="#"onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
 		<li><a href="#"onclick="fc_navigate('credits')"><?php echo $lng['credits']?></a></li>
-		<li class="active">Удаление кредита</li>
+		<li class="active"><?php echo $lng['payment_on_the_loan']?></li>
 	</ol>
 
 	<div id="main_data">
@@ -38,9 +39,16 @@
 		<div class="form-horizontal">
 
 			<div class="form-group">
-				<label class="col-md-4 control-label" for="singlebutton">Вы уверены, что хотите удалить кредит?</label>
+				<label class="col-md-4 control-label" for="amount"><?php echo $lng['amount']?></label>
 				<div class="col-md-4">
-					<button type="button" class="btn btn-danger" id="save"><i class="fa fa-trash-o fa-lg"></i> <?php echo $lng['delete']?></button>
+					<input style="min-width: 100px" id="amount"  class="form-control" type="text">
+				</div>
+			</div>
+
+			<div class="form-group">
+				<label class="col-md-4 control-label" for="save"></label>
+				<div class="col-md-4">
+					<button type="button" class="btn btn-outline btn-primary" id="save"><?php echo $lng['send_to_net']?></button>
 				</div>
 			</div>
 
