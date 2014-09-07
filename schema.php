@@ -5,8 +5,68 @@ defined('DC') or die('');
 $queries = array();
 
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_new_credit`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_new_credit` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_creditor`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_creditor` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_repayment_credit`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_repayment_credit` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_credit_part`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_credit_part` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}credits`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}credits` (
+  `id` int(11) NOT NULL AUTO_INCREMENT,
+  `time` int(11) NOT NULL,
+  `del_block_id` int(11) NOT NULL,
+  `amount` decimal(10,2) NOT NULL,
+  `from_user_id` int(11) NOT NULL,
+  `to_user_id` int(11) NOT NULL,
+  `currency_id` int(11) NOT NULL,
+  `pct` decimal(5,2) NOT NULL,
+  `monthly_payment` decimal(10,2) NOT NULL COMMENT 'Ежемесячный платеж по кредиту. Пока не используется',
+  `last_payment` int(11) NOT NULL COMMENT 'Время последнего платежа по кредиту. Пока не используется',
+  `surety_1` int(11) NOT NULL COMMENT 'Поручитель 1. Пока не используется',
+  `surety_2` int(11) NOT NULL COMMENT 'Поручитель 2. Пока не используется',
+  `surety_3` int(11) NOT NULL COMMENT 'Поручитель 3. Пока не используется',
+  `surety_4` int(11) NOT NULL COMMENT 'Поручитель 4. Пока не используется',
+  `surety_5` int(11) NOT NULL COMMENT 'Поручитель 5. Пока не используется',
+  `tx_hash` binary(16) NOT NULL,
+  `tx_block_id` int(11) NOT NULL,
+  `log_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_credits`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_credits` (
+  `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `amount` decimal(10,2) NOT NULL,
+  `to_user_id` int(11) NOT NULL,
+  `last_payment` int(11) NOT NULL,
+  `tx_hash` binary(16) NOT NULL,
+  `tx_block_id` int(11) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` bigint(20) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
+";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}cf_projects_ps`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_projects_ps` (
@@ -907,6 +967,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_users` (
   `public_key_1` varbinary(512) NOT NULL,
   `public_key_2` varbinary(512) NOT NULL,
   `referral` bigint(20) NOT NULL,
+  `credit_part` decimal(5,2) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`log_id`)
@@ -1069,7 +1130,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions`
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `status` enum('pending','approved') NOT NULL DEFAULT 'approved' COMMENT 'pending - только при отправки DC с нашего кошелька, т.к. нужно показать юзеру, что запрос принят',
   `notification` tinyint(1) NOT NULL COMMENT 'Уведомления по sms и email',
-  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral','cf_project','cf_project_refund') NOT NULL,
+  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral','cf_project','cf_project_refund','loan_payment') NOT NULL,
   `type_id` bigint(20) NOT NULL,
   `to_user_id` bigint(20) NOT NULL COMMENT 'Тут не всегда user_id, может быть ID проекта или cash_request',
   `amount` decimal(15,2) NOT NULL,
@@ -1641,6 +1702,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}users` (
   `public_key_1` varbinary(512) NOT NULL COMMENT '2-й ключ, если есть',
   `public_key_2` varbinary(512) NOT NULL COMMENT '3-й ключ, если есть',
   `referral` bigint(20) NOT NULL COMMENT 'Тот, кто зарегал данного юзера и теперь получает с него рефские',
+  `credit_part` decimal(5,2) NOT NULL COMMENT '% от поступлений, которые юзер осталяет себе. Если есть активные кредиты, то можно только уменьшать',
   `log_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
