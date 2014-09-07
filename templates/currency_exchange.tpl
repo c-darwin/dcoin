@@ -103,7 +103,7 @@
 </script>
 
 <div id="main_div">
-<h1><?php echo $lng['currency_exchange']?></h1>
+<h1 class="page-header"><?php echo $lng['currency_exchange']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#"onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
 	<li class="active"><?php echo $lng['currency_exchange']?></li>
