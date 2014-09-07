@@ -77,6 +77,19 @@ define( 'limit_time_comments_cf_project', 3600*24 );
 define( 'limit_user_avatar', 5 );
 define( 'limit_user_avatar_period', 3600*24 );
 
+/*
+ * Сменить лимиты !!!!!!!
+ * */
+define( 'limit_new_credit', 10 );
+define( 'new_credit_period', 3600*24 );
+define( 'limit_change_creditor', 10 );
+define( 'change_creditor_period', 3600*24 );
+define( 'limit_repayment_credit', 5 );
+define( 'repayment_credit_period', 3600*24 );
+define( 'limit_change_credit_part', 10 );
+define( 'limit_change_credit_part_period', 3600*24 );
+
+
 $reduction_dc = array(0,10,25,50,90);
 
 
@@ -327,6 +340,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			21 => 'admin_variables',
 			// админ обновил набор точек для проверки лиц
 			22 => 'admin_spots',
+			// юзер создал кредит
+			23 => 'new_credit',
 			// админ вернул майнерам звание "майнер"
 			24 => 'admin_unban_miners',
 			// админ отправил alert message
@@ -370,7 +385,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			47=>'cf_comment',
 			48=>'cf_send_dc',
 			49=>'user_avatar',
-			50=>'cf_project_change_category'
+			50=>'cf_project_change_category',
+			51 =>'change_creditor',
+			52 =>'del_credit',
+			53 =>'repayment_credit',
+			54 =>'change_credit_part'
 		);
 
 	}
@@ -1213,11 +1232,57 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
+	function loan_payments($to_user_id, $amount, $currency_id)
+	{
+		$amount_for_credit = $amount;
+
+		// нужно узнать, какую часть от суммы заещик хочет оставить себе
+		$credit_part = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `credit_part`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$to_user_id}
+				LIMIT 1
+				", 'fetch_one');
+		if ($credit_part > 0) {
+			$save = floor( round( $amount*($credit_part/100), 3) *100 ) / 100;
+			if ($save<0.01)
+				$save = 0;
+			$amount_for_credit-=$save;
+		}
+		$amount_for_credit_save = $amount_for_credit;
+
+		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."credits`
+				WHERE `from_user_id` = {$to_user_id} AND
+							 `currency_id` = {$currency_id} AND
+							 `amount` > 0 AND
+							 `del_block_id` = 0
+				ORDER BY `time`
+				");
+		while ( $row = $this->db->fetchArray( $res ) ) {
+			$sum = round($row['pct']/100 * $amount, 2);
+			if ($sum < 0.01)
+				$sum = 0.01;
+			if ($sum > $amount_for_credit)
+				$sum = $amount_for_credit;
+			if ($sum - $row['amount'] > 0)
+				$take = $row['amount'];
+			else
+				$take = $sum;
+			$amount_for_credit -= $take;
+			debug_print("take={$take}\namount={$row['amount']}\nsum={$sum}\nnew_amount={$amount_for_credit}\namount={$amount}\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			$this->selective_logging_and_upd (array('amount','tx_hash','tx_block_id'), array($row['amount']-$take, $this->tx_data['hash'], $this->block_data['block_id']), 'credits', array('id'), array($row['id']));
+			$this->update_recipient_wallet ( $row['to_user_id'], $currency_id, $take, 'loan_payment', $to_user_id, 'loan payment', 'decrypted', false);
+		}
+
+		return $amount - ($amount_for_credit_save - $amount_for_credit);
+	}
 
 	/*
 	 * Начисляем новые DC юзеру, пересчитав ему % от того, что уже было на кошельке
 	 * */
-	function update_recipient_wallet ( $to_user_id, $currency_id, $amount, $from='', $from_id='', $comment='', $comment_status='encrypted' )
+	function update_recipient_wallet ( $to_user_id, $currency_id, $amount, $from='', $from_id='', $comment='', $comment_status='encrypted', $credits=true)
 	{
 
 		$from_id = intval($from_id);
@@ -1238,6 +1303,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// если кошелек получателя создан, то
 		// начисляем DC на кошелек получателя.
 		if ($wallet_data) {
+
+			// возможно у юзера есть долги и по ним нужно рассчитаться.
+			if ($credits!==false && $currency_id<1000) {
+				$amount = $this->loan_payments($to_user_id, $amount, $currency_id);
+			}
 
 			// нужно залогировать текущие значения для to_user_id
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -1274,18 +1344,21 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			// Плюсуем на кошелек с соответствующей валютой.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE
-						`".DB_PREFIX."wallets`
-					SET
-						`amount` = {$new_DC_sum_end},
-						`last_update` = {$this->block_data['time']},
-						`log_id` = {$log_id}
-					WHERE
-						{$wallet_where}
+					UPDATE `".DB_PREFIX."wallets`
+					SET  `amount` = {$new_DC_sum_end},
+							`last_update` = {$this->block_data['time']},
+							`log_id` = {$log_id}
+					WHERE {$wallet_where}
 					");
 			//debug_print($this->db->printsql()."\nAffectedRows=".$this->db->getAffectedRows() , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		}
 		else {
+
+			// возможно у юзера есть долги и по ним нужно рассчитаться.
+			if ($credits!==false && $currency_id < 1000) {
+				$amount = $this->loan_payments($to_user_id, $amount, $currency_id);
+			}
+
 			// если кошелек получателя не создан, то создадим и запишем на него сумму перевода.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO
@@ -6393,6 +6466,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		    if ($ref_amount > 0) {
 			    $this->general_rollback('wallets', $refs[2], "AND `currency_id` = {$promised_amount_data['currency_id']}");
 			    $users_wallets_rollback[] = $refs[2];
+			    // возможно были списания по кредиту
+			    $this -> loan_payments_rollback($refs[2], $promised_amount_data['currency_id']);
 		    }
 	    }
 	    if (@$refs[1]>0) {
@@ -6400,6 +6475,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		    if ($ref_amount > 0) {
 			    $this->general_rollback('wallets', $refs[1], "AND `currency_id` = {$promised_amount_data['currency_id']}");
 			    $users_wallets_rollback[] = $refs[1];
+			    // возможно были списания по кредиту
+			    $this -> loan_payments_rollback($refs[1], $promised_amount_data['currency_id']);
 		    }
 	    }
 	    if (@$refs[0]>0) {
@@ -6407,6 +6484,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		    if ($ref_amount > 0) {
 			    $this->general_rollback('wallets', $refs[0], "AND `currency_id` = {$promised_amount_data['currency_id']}");
 			    $users_wallets_rollback[] = $refs[0];
+			    // возможно были списания по кредиту
+			    $this -> loan_payments_rollback($refs[0], $promised_amount_data['currency_id']);
 		    }
 	    }
 
@@ -6418,10 +6497,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
         if ($system_commission > 0) {
             $this->general_rollback('wallets', 1, "AND `currency_id` = {$promised_amount_data['currency_id']}");
 	        $users_wallets_rollback[] = 1;
+	        // возможно были списания по кредиту
+	        $this -> loan_payments_rollback(1, $promised_amount_data['currency_id']);
         }
 
 		// откатим начисленные DC
 		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$promised_amount_data['currency_id']}");
+	    // возможно были списания по кредиту
+	    $this -> loan_payments_rollback($this->tx_data['user_id'], $promised_amount_data['currency_id']);
 
 		// данные, которые восстановим в promised_amount
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7053,8 +7136,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			        ", 'fetch_array' );
 
 			$add_sql_update= '';
-			foreach ($fields as $field)
-				$add_sql_update.="`{$field}` = '{$log_data[$field]}',";
+			foreach ($fields as $field) {
+				if (in_array($field, array('hash', 'tx_hash')))
+					$add_sql_update.="`{$field}` = 0x".bin2hex($log_data[$field]).",";
+				else
+					$add_sql_update.="`{$field}` = '{$log_data[$field]}',";
+			}
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."{$table}`
@@ -7106,8 +7193,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($log_data) {
 
 			$add_sql_values = '';
-			foreach ($log_data as $k=>$v)
-				$add_sql_values.="'{$v}',";
+			foreach ($log_data as $k=>$v) {
+				if (in_array($k, array('hash', 'tx_hash')))
+					$add_sql_values.="0x".bin2hex($v).",";
+				else
+					$add_sql_values.="'{$v}',";
+			}
 			$add_sql_values = substr($add_sql_values, 0, -1);
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7120,11 +7211,16 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						{$add_sql_values},
 						{$this->block_data['block_id']}
 					)");
+			debug_print($this->db->printsql() , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$log_id = $this->db->getInsertId();
 
 			$add_sql_update= '';
-			for ($i=0; $i<sizeof($fields); $i++)
-				$add_sql_update.="`{$fields[$i]}` = '{$values[$i]}',";
+			for ($i=0; $i<sizeof($fields); $i++) {
+				if (in_array($fields[$i], array('hash', 'tx_hash')))
+					$add_sql_update.="`{$fields[$i]}` = 0x{$values[$i]},";
+				else
+					$add_sql_update.="`{$fields[$i]}` = '{$values[$i]}',";
+			}
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."{$table}`
@@ -7139,7 +7235,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$add_sql_ins1 = '';
 			for($i=0; $i<sizeof($fields); $i++) {
 				$add_sql_ins0.="`{$fields[$i]}`,";
-				$add_sql_ins1.=" '{$values[$i]}',";
+				if (in_array($fields[$i], array('hash', 'tx_hash')))
+					$add_sql_ins1.="0x{$values[$i]},";
+				else
+					$add_sql_ins1.=" '{$values[$i]}',";
 			}
 			for ($i=0; $i<sizeof($where_fields); $i++){
 				$add_sql_ins0.="`{$where_fields[$i]}`,";
@@ -8263,6 +8362,393 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							");
 	}
 
+	function change_credit_part_init()
+	{
+		$error = $this->get_tx_data(array('pct', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_credit_part_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['pct'], 'credit_pct') || $this->tx_data['pct']>100 )
+			return  __LINE__.'#'.__METHOD__.'(credit_pct)';
+
+		$credit_part = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `credit_part`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_one');
+		// проверим, есть ли активные кредиты
+		$credits = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."credits`
+				WHERE `from_user_id` = {$this->tx_data['user_id']} AND
+							 `del_block_id` = 0 AND
+							 `amount` > 0
+				LIMIT 1
+				", 'fetch_one');
+		// нельзя увеличивать credit_part, т.к. это будет нечестно по отношению к кредиторам
+		if ($this->tx_data['pct'] > $credit_part && $credits)
+			return  __LINE__.'#'.__METHOD__.'(credit_part)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['pct']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		// разрешено отправлять не более 10-и таких тр-ий за сутки
+		$error = $this -> limit_requests(limit_change_credit_part, 'change_credit_part', limit_change_credit_part_period);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+	}
+	function change_credit_part()
+	{
+		$this->selective_logging_and_upd (array('credit_part'), array($this->tx_data['pct']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function change_credit_part_rollback()
+	{
+		$this->selective_rollback (array('credit_part'), 'users', "`user_id`={$this->tx_data['user_id']}");
+	}
+
+	function change_credit_part_rollback_front()
+	{
+		$this -> limit_requests_rollback( 'change_credit_part' );
+	}
+
+	function repayment_credit_init()
+	{
+		$this->getPct();
+		$error = $this->get_tx_data(array('credit_id', 'amount', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function repayment_credit_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['credit_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(credit_id)';
+		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
+			return  __LINE__.'#'.__METHOD__.'(amount)';
+
+		// явлется данный юзер заемщиком по данному кредиту - не проверяем.
+		// т.к. нельзя запрещать кому-лбио погашать чей-либо кредит
+
+		// не удален ли этот кредит и не погашен ли он
+		$currency_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `currency_id`
+				FROM `".DB_PREFIX."credits`
+				WHERE `id` = {$this->tx_data['credit_id']} AND
+							 `amount` > 0 AND
+							 `del_block_id` = 0
+				", 'fetch_one');
+		if (!$currency_id)
+			return  __LINE__.'#'.__METHOD__.'(credits id)';
+
+		// есть ли нужная сумма на кошельке
+		$this->tx_data['currency_id'] = $currency_id;
+		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
+		$this->tx_data['commission'] = 0;
+		$error = $this->check_sender_money();
+		if ($error)
+			return __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['credit_id']},{$this->tx_data['amount']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests(limit_repayment_credit, 'repayment_credit', repayment_credit_period);
+		if ($error)
+			return $error;
+
+	}
+
+	function repayment_credit_rollback_front()
+	{
+
+	}
+
+	function repayment_credit()
+	{
+		$credit_data= $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."credits`
+				WHERE `id` = {$this->tx_data['credit_id']}
+				", 'fetch_array');
+		if ($this->tx_data['amount'] > $credit_data['amount'])
+			$this->tx_data['amount'] = $credit_data['amount'];
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($this->tx_data['user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($credit_data['to_user_id']);
+
+		$this->selective_logging_and_upd (array('amount','tx_hash','tx_block_id'), array($credit_data['amount'] - $this->tx_data['amount'], $this->tx_data['hash'], $this->block_data['block_id']), 'credits', array('id'), array($this->tx_data['credit_id']));
+		$this->update_recipient_wallet ( $credit_data['to_user_id'], $credit_data['currency_id'], $this->tx_data['amount'], 'loan_payment', $credit_data['to_user_id'], 'loan payment', 'decrypted', false);
+
+		$this -> update_sender_wallet($this->tx_data['user_id'], $credit_data['currency_id'], $this->tx_data['amount'], 0, 'loan_payment', $credit_data['to_user_id'], $credit_data['to_user_id'], 'loan_payment', 'decrypted');
+	}
+
+	function repayment_credit_rollback()
+	{
+		$credit_data= $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT *
+				FROM `".DB_PREFIX."credits`
+				WHERE `id` = {$this->tx_data['credit_id']}
+				", 'fetch_array');
+
+		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$credit_data['currency_id']}");
+		$this->general_rollback('wallets', $credit_data['to_user_id'], "AND `currency_id` = {$credit_data['currency_id']}");
+		$this->selective_rollback (array('amount', 'tx_hash', 'tx_block_id'), 'credits', "`id`={$this->tx_data['credit_id']}");
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($credit_data['to_user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($this->tx_data['user_id']);
+
+	}
+
+	function del_credit_init()
+	{
+		$error = $this->get_tx_data(array('credit_id', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function del_credit_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['credit_id'], 'bigint') )
+			return 'change_creditor_front credit_id';
+
+		// явлется данный юзер кредитором
+		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."credits`
+				WHERE `id` = {$this->tx_data['credit_id']} AND
+							 `to_user_id` = {$this->tx_data['user_id']} AND
+							 `del_block_id` = 0
+				", 'fetch_one');
+		if (!$id)
+			return 'not a creditor';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['credit_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+	}
+
+	function del_credit_rollback_front()
+	{
+	}
+
+	function del_credit()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."credits`
+				SET `del_block_id` = {$this->block_data['block_id']}
+				WHERE `id` = {$this->tx_data['credit_id']}
+				");
+	}
+
+	function del_credit_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."credits`
+				SET `del_block_id` = 0
+				WHERE `id` = {$this->tx_data['credit_id']}
+				");
+	}
+
+	function change_creditor_init()
+	{
+		$error = $this->get_tx_data(array('to_user_id', 'credit_id', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_creditor_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return $error;
+
+		if ( !check_input_data ($this->tx_data['to_user_id'], 'bigint') )
+			return 'change_creditor_front to_user_id';
+
+		if ( !check_input_data ($this->tx_data['credit_id'], 'bigint') )
+			return 'change_creditor_front credit_id';
+
+		// явлется данный юзер кредитором
+		$from_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `from_user_id`
+				FROM `".DB_PREFIX."credits`
+				WHERE `id` = {$this->tx_data['credit_id']} AND
+							 `to_user_id` = {$this->tx_data['user_id']} AND
+							 `del_block_id` = 0 AND
+							 `amount` > 0
+				", 'fetch_one');
+		if (!$from_user_id)
+			return  __LINE__.'#'.__METHOD__.'(not a creditor)';
+
+		// существет ли полуатель
+		if ( !$this->check_user($this->tx_data['to_user_id']) )
+			return  __LINE__.'#'.__METHOD__.'(!to_user_id)';
+
+		// нельзя давать кредит самому себе или заемщику
+		if ($from_user_id == $this->tx_data['to_user_id'] || $this->tx_data['to_user_id'] == $this->tx_data['user_id'])
+			return  __LINE__.'#'.__METHOD__.'(from_user_id == to_user_id)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['credit_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return $error;
+
+		$error = $this -> limit_requests(limit_change_creditor, 'change_creditor', change_creditor_period);
+		if ($error)
+			return $error;
+	}
+
+	function change_creditor_front_rollback()
+	{
+		$this->limit_requests_rollback('change_creditor');
+	}
+
+	function change_creditor()
+	{
+		$this->selective_logging_and_upd (array('to_user_id'), array($this->tx_data['to_user_id']), 'credits', array('id'), array($this->tx_data['credit_id']));
+	}
+
+	function change_creditor_rollback()
+	{
+		$this->selective_rollback (array('to_user_id'), 'credits', "`id`={$this->tx_data['credit_id']}");
+	}
+
+	// 23
+	function new_credit_init()
+	{
+		$error = $this->get_tx_data(array('to_user_id', 'amount', 'currency_id', 'pct', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+
+	function new_credit_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['to_user_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(to_user_id)';
+
+		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
+			return  __LINE__.'#'.__METHOD__.'(amount)';
+
+		if ( !check_input_data ($this->tx_data['pct'], 'credit_pct') )
+			return  __LINE__.'#'.__METHOD__.'(credit_pct)';
+
+		if ($this->tx_data['amount']<0.01) // 0.01 - минимальная сумма
+			return  __LINE__.'#'.__METHOD__.'(min amount)';
+
+		// является ли данный юзер майнером
+		if (!$this->check_miner($this->tx_data['user_id']))
+			return  __LINE__.'#'.__METHOD__.'(miner id)';
+
+		// нельзя давать кредит самому себе
+		if ($this->tx_data['user_id'] == $this->tx_data['to_user_id'])
+			return  __LINE__.'#'.__METHOD__.'(user_id == to_user_id)';
+
+		// существет ли полуатель
+		if ( !$this->check_user($this->tx_data['to_user_id']) )
+			return  __LINE__.'#'.__METHOD__.'(!to_user_id)';
+
+		// проверим, существует ли такая валюта в таблице DC-валют
+		if ( !$this->checkCurrency($this->tx_data['currency_id']) ) {
+			// если нет, то проверяем список CF-валют
+			if ( !$this->checkCurrencyCF($this->tx_data['currency_id']) )
+				return 'error currency_id';
+		}
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['amount']},{$this->tx_data['currency_id']},{$this->tx_data['pct']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ($this->tx_data['user_id']==1)
+			$error = $this -> limit_requests(500, 'new_credit', new_credit_period);
+		else
+			$error = $this -> limit_requests(limit_new_credit, 'new_credit', new_credit_period);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function new_credit()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX."credits` (
+					`time`,
+					`amount`,
+					`from_user_id`,
+					`to_user_id`,
+					`currency_id`,
+					`pct`,
+					`tx_hash`,
+					`tx_block_id`
+				)
+				VALUES (
+					{$this->block_data['time']},
+					{$this->tx_data['amount']},
+					{$this->tx_data['user_id']},
+					{$this->tx_data['to_user_id']},
+					{$this->tx_data['currency_id']},
+					{$this->tx_data['pct']},
+					0x".$this->tx_data['hash'].",
+					{$this->block_data['block_id']}
+				)");
+	}
+
+	function new_credit_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."credits`
+				WHERE `tx_block_id` = {$this->block_data['block_id']} AND
+							 `tx_hash` = 0x".$this->tx_data['hash']."
+				LIMIT 1
+				");
+		$this->rollbackAI('credits');
+	}
+
+	function new_credit_rollback_front()
+	{
+		$this->limit_requests_rollback('new_credit');
+	}
+
 	// 12
 	function send_dc_init()
 	{
@@ -8408,6 +8894,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		return $node_commission;
 	}
 
+	function check_user($user_id)
+	{
+		// существует ли юзер-получатель
+		$user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$user_id}
+				", 'fetch_one');
+		if ( !$user_id )
+			return false;
+		else
+			return true;
+	}
+
 	// 12
 	function send_dc_front()
 	{
@@ -8469,9 +8969,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."users`
 				WHERE `user_id` = {$this->tx_data['to_user_id']}
 				", 'fetch_one');
-		if ( !$to_user_id )
-			return 'to_user_id error';
 
+		if ( !$this->check_user($this->tx_data['to_user_id']) )
+			return 'to_user_id error';
 
 		$error = $this->check_spam_money($this->tx_data['currency_id']);
 		if ($error)
@@ -8589,9 +9089,28 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->points_update_rollback($data['log_id'], $user_id);
 	}
 
-	// 12
-	function send_dc_rollback() {
+	function loan_payments_rollback($user_id, $currency_id)
+	{
+		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT *
+					FROM `".DB_PREFIX."credits`
+					WHERE `from_user_id` = {$user_id} AND
+								 `currency_id` = {$currency_id} AND
+								 `amount` > 0  AND
+								 `tx_block_id` = {$this->block_data['block_id']} AND
+								 `tx_hash` = 0x".$this->tx_data['hash']." AND
+								 `del_block_id` = 0
+					ORDER BY `time` DESC
+					");
+		while ($row = $this->db->fetchArray($res)) {
+			$this->selective_rollback (array('amount', 'tx_hash', 'tx_block_id'), 'credits', "`id`={$row['id']}");
+			$this->general_rollback('wallets', $row['to_user_id'], "AND `currency_id` = {$currency_id}");
+		}
+	}
 
+	// 12
+	function send_dc_rollback()
+	{
 		// нужно отметить в log_time_money_orders, что тр-ия НЕ прошла в блок
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."log_time_money_orders`
@@ -8606,6 +9125,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->block_data['user_id']);
 
+		debug_print('this->tx_data[hash]='.$this->tx_data['hash'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 		// отменяем чистку буфера
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."wallets_buffer`
@@ -8613,38 +9134,23 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `hash` = 0x{$this->tx_data['hash']}
 				LIMIT 1
 				");
-		if ($this->tx_data['commission']>=0.01) {
+		if ($this->tx_data['commission'] >= 0.01) {
+
 			$LOG_MARKER = 'send_dc_rollback - commission';
 			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
+
+			// возможно были списания по кредиту
+			$this -> loan_payments_rollback($this->block_data['user_id'], $this->tx_data['currency_id']);
 		}
+
 		$LOG_MARKER = 'send_dc_rollback - to_user_id';
 		$this->general_rollback('wallets', $this->tx_data['to_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
+		// возможно были списания по кредиту
+		$this -> loan_payments_rollback($this->tx_data['to_user_id'], $this->tx_data['currency_id']);
 		$LOG_MARKER = 'send_dc_rollback - from_user_id';
 		$this->general_rollback('wallets', $this->tx_data['from_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
 
-		/*$this->get_my_user_id(0); // тут просто получаем my_block_id и my_user_ids
-		if ( ( in_array($this->tx_data['from_user_id'], $this->my_user_ids) || in_array($this->tx_data['to_user_id'], $this->my_user_ids) || in_array($this->block_data['user_id'], $this->my_user_ids) ) && $this->my_block_id <= $this->block_data['block_id'] ) {
 
-			$collective = get_community_users($this->db);
-			if ($collective && in_array($this->tx_data['from_user_id'], $this->my_user_ids)) // отправитель
-				$my_prefix = $this->tx_data['from_user_id'].'_';
-			else if ($collective && in_array($this->tx_data['to_user_id'], $this->my_user_ids)) // получатель
-				$my_prefix = $this->tx_data['to_user_id'].'_';
-			else if ($collective && in_array($this->block_data['block_id'], $this->my_user_ids)) // тот, кто получил нодовскую комиссию
-				$my_prefix = $this->block_data['block_id'].'_';
-			else
-				$my_prefix = '';
-
-			// может захватиться несколько транзакций, но это не страшно, т.к. всё равно надо откатывать
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					DELETE FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
-					WHERE `block_id` = {$this->block_data['block_id']}
-					");
-			$AffectedRows = $this->db->getAffectedRows();
-			$this->rollbackAI("{$my_prefix}my_dc_transactions", $AffectedRows);
-		}
-		упростил до $this->mydctx_rollback();
-		*/
 		$this->mydctx_rollback();
 	}
 
@@ -10971,6 +11477,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		while ( $row =  $this->db->fetchArray( $res ) ) {
 			// откат возврата
 			$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project['currency_id']}");
+			// возможно были списания по кредиту
+			$this -> loan_payments_rollback($row['user_id'], $project['currency_id']);
 		}
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -11104,6 +11612,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `id` = {$this->tx_data['funding_id']}
 				", 'fetch_array');
 		$this->general_rollback('wallets', $this->tx_data['user_id'], "AND `currency_id` = {$funding_data['currency_id']}");
+		// возможно были списания по кредиту
+		$this -> loan_payments_rollback($this->tx_data['user_id'], $funding_data['currency_id']);
 
 		$this->mydctx_rollback();
 	}
@@ -11385,6 +11895,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($sum >= $project['amount']) {
 				// откатываем начисление общей суммы на кошелек автора проекта
 				$this->general_rollback('wallets', $project['user_id'], "AND `currency_id` = {$project['currency_id']}");
+				// возможно были списания по кредиту
+				$this -> loan_payments_rollback($project['user_id'], $project['currency_id']);
 
 				// узнаем ID валюты, которая была создана
 				$project_currency_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -11404,6 +11916,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				while ( $row =  $this->db->fetchArray( $res ) ) {
 					// откат возврата
 					$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project_currency_id}");
+					// возможно были списания по кредиту
+					$this -> loan_payments_rollback($row['user_id'], $project_currency_id);
 				}
 
 				// Удаляем созданную валюту
@@ -11427,6 +11941,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				while ( $row =  $this->db->fetchArray( $res ) ) {
 					// откат возврата
 					$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$project['currency_id']}");
+					// возможно были списания по кредиту
+					$this -> loan_payments_rollback($row['user_id'], $project['currency_id']);
 				}
 			}
 
@@ -11454,6 +11970,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// откат комиссии
 		if ($this->tx_data['commission']>=0.01) {
 			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$project['currency_id']}");
+			// возможно были списания по кредиту
+			$this -> loan_payments_rollback($this->block_data['user_id'], $project['currency_id']);
 		}
 
 		// возможно нужно откатить таблицу points_status
@@ -12336,6 +12854,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				// возможно нужно обновить таблицу points_status
 				$this->points_update_rollback_main($row['to_user_id']);
 				$this->general_rollback('wallets', $row['to_user_id'], "AND `currency_id` = {$row['sell_currency_id']}");
+				// возможно были списания по кредиту
+				$this -> loan_payments_rollback($row['to_user_id'], $row['sell_currency_id']);
 
 				$LOG_MARKER = 'new_forex_order_rollback - general_rollback - $row[to_user_id] buy_currency_id';
 				debug_print($LOG_MARKER, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -12347,6 +12867,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				// возможно нужно обновить таблицу points_status
 				$this->points_update_rollback_main($row['user_id']);
 				$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$row['buy_currency_id']}");
+				// возможно были списания по кредиту
+				$this -> loan_payments_rollback($row['user_id'], $row['buy_currency_id']);
 				$LOG_MARKER = 'new_forex_order_rollback - general_rollback - $row[user_id] sell_currency_id';
 				debug_print($LOG_MARKER, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this->general_rollback('wallets', $row['user_id'], "AND `currency_id` = {$row['sell_currency_id']}");
@@ -12362,6 +12884,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// возможно нужно обновить таблицу points_status
 			$this->points_update_rollback_main($this->block_data['user_id']);
 			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$this->tx_data['sell_currency_id']}");
+			// возможно были списания по кредиту
+			$this -> loan_payments_rollback( $this->block_data['user_id'], $this->tx_data['sell_currency_id']);
 			$LOG_MARKER = 'new_forex_order_rollback - general_rollback - tx_data[user_id] sell_currency_id';
 			debug_print($LOG_MARKER, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			// возможно нужно обновить таблицу points_status
