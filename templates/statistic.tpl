@@ -40,6 +40,21 @@ if ($tpl['user_info_id']) {
 	}
 	echo '</table>';
 
+	if ($tpl['credits']['debtor']) {
+		echo '<h3>'.$lng['credits'].'</h3>';
+		echo '<table class="table table-bordered" style="width:600px">';
+		echo "<thead><tr><th>{$lng['currency']}</th><th>{$lng['amount']}</th></tr></thead>";
+		echo '<tbody>';
+		foreach($tpl['credits']['debtor'] as $data) {
+			echo "<tr>";
+			echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+			echo "<td>{$data['amount']}</td>";
+			echo "</tr>";
+		}
+		echo '</tbody>';
+		echo '</table>';
+	}
+
 	if ($tpl['promised_amount_list']['accepted']) {
 		echo '<h3>'.$lng['promised_amounts'].'</h3>';
 		echo '<table class="table table-bordered" style="width:600px">';
@@ -61,6 +76,7 @@ if ($tpl['user_info_id']) {
 		echo '</tbody>';
 		echo '</table>';
 	}
+
 }
 ?>
 
