@@ -18,6 +18,8 @@ require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
 require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
 require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
 require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
+if (!defined('PARSEDATA'))
+	die('!PARSEDATA');
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
