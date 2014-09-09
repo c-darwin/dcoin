@@ -12,6 +12,8 @@ require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'includes/class-parsedata.php' );
+if (!defined('PARSEDATA'))
+	die('!PARSEDATA');
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
