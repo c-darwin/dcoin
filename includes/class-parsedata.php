@@ -9088,12 +9088,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function loan_payments_rollback($user_id, $currency_id)
 	{
+		// было `amount` > 0  в WHERE, из-за чего были проблемы с откатами, т.к. amount может быть равно 0, если кредит был погашен этой тр-ей
 		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT *
 					FROM `".DB_PREFIX."credits`
 					WHERE `from_user_id` = {$user_id} AND
 								 `currency_id` = {$currency_id} AND
-								 `amount` > 0  AND
 								 `tx_block_id` = {$this->block_data['block_id']} AND
 								 `tx_hash` = 0x{$this->tx_hash} AND
 								 `del_block_id` = 0
@@ -14179,5 +14179,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 }
+
+define('PARSEDATA', true);
 
 ?>
