@@ -18,6 +18,8 @@ require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 require_once( ABSPATH . 'cron/daemons_inc.php' );
+if (!defined('PARSEDATA'))
+	die('!PARSEDATA');
 
 define('WAIT_SCRIPT', 300);
 
