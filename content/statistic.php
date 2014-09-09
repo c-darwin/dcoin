@@ -91,7 +91,22 @@ if ($tpl['user_info_id']) {
 	$tp['user_info']['wallets'] = get_balances($tpl['user_info_id']);
 	// обещанные суммы юзера
 	get_promised_amounts($tpl['user_info_id']);
+
+	// кредиты
+	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT sum(`amount`) as `amount`,
+						 `currency_id`
+			FROM `".DB_PREFIX."credits`
+			WHERE `from_user_id` = {$tpl['user_info_id']} AND
+						 `del_block_id` = 0
+			GROUP BY `currency_id`
+			");
+	while ($row = $db->fetchArray($res)) {
+		$tpl['credits']['debtor'][] = $row;
+	}
+
 }
+
 
 $tpl['currency_list'] = get_currency_list($db, 'full');
 
