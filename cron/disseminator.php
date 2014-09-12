@@ -1,4 +1,6 @@
 <?php
+if (!$argv) die('browser');
+
 define( 'DC', true );
 /*
  * просто шлем всем, кто есть в nodes_connection хэши блока и тр-ий
