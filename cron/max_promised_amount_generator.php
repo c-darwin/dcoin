@@ -1,4 +1,6 @@
 <?php
+if (!$argv) die('browser');
+
 define( 'DC', true );
 /*
  * Каждые 2 недели собираем инфу о голосах за max_promised_amount и создаем тр-ию, которая
