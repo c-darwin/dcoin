@@ -1,4 +1,6 @@
 <?php
+if (!$argv) die('browser');
+
 define( 'DC', true );
 /*
  * Поддержииваем таблицу nodes_connection в актуальном состоянии
