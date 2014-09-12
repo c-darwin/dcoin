@@ -1,4 +1,5 @@
 <?php
+if (!$argv) die('browser');
 
 /*
  * Парсим и разносим данные из queue_testblock
