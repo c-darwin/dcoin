@@ -1,4 +1,6 @@
 <?php
+if (!$argv) die('browser');
+
 /*
  * Берем блоки (queue_blocks) и обрабатываем
  * */
