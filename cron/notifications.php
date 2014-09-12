@@ -1,4 +1,5 @@
 <?php
+if (!$argv) die('browser');
 
 define( 'DC', true );
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
