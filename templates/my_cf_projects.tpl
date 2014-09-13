@@ -46,7 +46,7 @@ $('#new_cf_project').bind('click', function () {
 <style>
 .mlng li{padding-right:5px; padding-left: 0px}
 </style>
-<link href="css2/cf.css" rel="stylesheet">
+<link href="css/cf.css" rel="stylesheet">
 
 	<h1 class="page-header"><?php echo $lng['my_cf_projects_title']?></h1>
 
