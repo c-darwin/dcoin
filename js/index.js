@@ -24,8 +24,8 @@ function map_navigate (page) {
 function load_menu() {
     $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
        // $( "#dc_content" ).load( "content.php", { }, function() {
-            $.getScript("js2/plugins/metisMenu/metisMenu.min.js", function(){
-                $.getScript("js2/sb-admin.js");
+            $.getScript("js/plugins/metisMenu/metisMenu.min.js", function(){
+                $.getScript("js/sb-admin.js");
             });
         //});
     });
@@ -46,8 +46,8 @@ function login_ok (result) {
 
         $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
            $( "#dc_content" ).load( "content.php", { tpl_name: tpl_name}, function() {
-                $.getScript("js2/plugins/metisMenu/metisMenu.min.js", function() {
-                    $.getScript("js2/sb-admin.js");
+                $.getScript("js/plugins/metisMenu/metisMenu.min.js", function() {
+                    $.getScript("js/sb-admin.js");
                     $("#main-login").html('');
                     $("#page-wrapper").spin(false);
                 });
