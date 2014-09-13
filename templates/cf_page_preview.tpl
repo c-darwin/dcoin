@@ -15,16 +15,16 @@ if (isset($_REQUEST['blurb_img'])) {
 	<title>Preview</title>
 
 	<!-- Bootstrap Core CSS -->
-	<link href="css2/bootstrap.min.css" rel="stylesheet">
+	<link href="css/bootstrap.min.css" rel="stylesheet">
 
 	<!-- MetisMenu CSS -->
-	<link href="css2/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+	<link href="css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
 
 	<!-- Custom CSS -->
-	<link href="css2/sb-admin.css" rel="stylesheet">
+	<link href="css/sb-admin.css" rel="stylesheet">
 
 	<!-- Custom Fonts -->
-	<link href="css2/font-awesome.css" rel="stylesheet">
+	<link href="css/font-awesome.css" rel="stylesheet">
 
 	<!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 	<!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -65,8 +65,8 @@ if (isset($_REQUEST['blurb_img'])) {
 		}
 		?>
 	</style>
-	<link href="<?php echo $tpl['cf_url']?>css2/cf.css" rel="stylesheet">
-	<link href="<?php echo $tpl['cf_url']?>css2/social-buttons.css" rel="stylesheet">
+	<link href="<?php echo $tpl['cf_url']?>css/cf.css" rel="stylesheet">
+	<link href="<?php echo $tpl['cf_url']?>css/social-buttons.css" rel="stylesheet">
 <?php
 if (1<0) {
 ?>
@@ -516,10 +516,10 @@ if (1<0) {
 <!-- /.container -->
 
 <!-- jQuery Version 1.11.0 -->
-<script src="js2/jquery-1.11.0.js"></script>
+<script src="js/jquery-1.11.0.js"></script>
 
 <!-- Bootstrap Core JavaScript -->
-<script src="js2/bootstrap.min.js"></script>
+<script src="js/bootstrap.min.js"></script>
 
 
 </body>
