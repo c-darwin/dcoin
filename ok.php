@@ -18,7 +18,10 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$user_id = intval(@$_GET['user_id']);
+if (isset($_GET['user_id']))
+	$user_id = intval($_GET['user_id']);
+else
+	$user_id = 0;
 // если работаем в режиме пула, то нужно проверить, верный ли у юзера нодовский ключ.
 if (get_community_users($db)) {
 	$table_exists = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
