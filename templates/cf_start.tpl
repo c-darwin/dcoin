@@ -1,4 +1,4 @@
-<link href="<?php echo $tpl['cf_url']?>css2/cf.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css/cf.css" rel="stylesheet">
 <style>
 	<?php
 	if (!$user_id) {
