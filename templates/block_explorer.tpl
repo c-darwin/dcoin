@@ -4,7 +4,7 @@ $('#show_block').bind('click', function () {
 });
 </script>
 
-<link href="css2/cf.css?2" rel="stylesheet">
+<link href="css/cf.css?2" rel="stylesheet">
 
 <h1 class="page-header">Block explorer</h1>
 
