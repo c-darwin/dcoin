@@ -12,16 +12,16 @@
 <title>Decentralized CrowdFunding for any projects</title>
 
 <!-- Bootstrap Core CSS -->
-<link href="<?php echo $tpl['cf_url']?>css2/bootstrap.min.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css/bootstrap.min.css" rel="stylesheet">
 
 <!-- MetisMenu CSS -->
-<link href="<?php echo $tpl['cf_url']?>css2/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css/plugins/metisMenu/metisMenu.min.css" rel="stylesheet">
 
 <!-- Custom CSS -->
-<link href="<?php echo $tpl['cf_url']?>css2/sb-admin.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css/sb-admin.css" rel="stylesheet">
 
 <!-- Custom Fonts -->
-<link href="<?php echo $tpl['cf_url']?>css2/font-awesome.css" rel="stylesheet">
+<link href="<?php echo $tpl['cf_url']?>css/font-awesome.css" rel="stylesheet">
 
 <!-- HTML5 Shim and Respond.js IE8 support of HTML5 elements and media queries -->
 <!-- WARNING: Respond.js doesn't work if you view the page via file:// -->
@@ -30,7 +30,7 @@
 <script src="https://oss.maxcdn.com/libs/respond.js/1.4.2/respond.min.js"></script>
 <![endif]-->
 <script src="<?php echo $tpl['cf_url']?>js/index.js"></script>
-<script src="<?php echo $tpl['cf_url']?>js2/jquery-1.11.0.js"></script>
+<script src="<?php echo $tpl['cf_url']?>js/jquery-1.11.0.js"></script>
 <link rel="stylesheet" media="all" type="text/css" href="<?php echo $tpl['cf_url']?>css/jquery-ui.css" />
 	<style>
 		#page-wrapper{
@@ -123,7 +123,7 @@
 </div>
 <!-- /#wrapper -->
 
-	<script src="<?php echo $tpl['cf_url']?>js2/bootstrap.min.js"></script>
+	<script src="<?php echo $tpl['cf_url']?>js/bootstrap.min.js"></script>
   	<script>
     <?php
 	echo "$( document ).ready(function() {{$tpl['nav']}});\n";
@@ -137,7 +137,7 @@
 	<script type="text/javascript" src="<?php echo $tpl['cf_url']?>js/jquery-ui-timepicker-addon.js"></script>
 	<script type="text/javascript" src="<?php echo $tpl['cf_url']?>js/jquery-ui-sliderAccess.js"></script>
 
-	<script language="JavaScript" type="text/javascript" src="<?php echo $tpl['cf_url']?>js2/spin.js"></script>
+	<script language="JavaScript" type="text/javascript" src="<?php echo $tpl['cf_url']?>js/spin.js"></script>
 
 
 <script>
