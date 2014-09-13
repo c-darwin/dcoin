@@ -8,7 +8,7 @@
 	}
 </style>
 
-<link href="css2/cf.css?2" rel="stylesheet">
+<link href="css/cf.css?2" rel="stylesheet">
 <script>
 
 var type = '';
