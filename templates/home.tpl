@@ -58,7 +58,7 @@
 <style>
 	.alert-info a:link{text-decoration: underline};
 </style>
-<link href="css2/cf.css" rel="stylesheet">
+<link href="css/cf.css" rel="stylesheet">
 <h1 class="page-header">Home</h1>
 
 <div id="message"></div>
