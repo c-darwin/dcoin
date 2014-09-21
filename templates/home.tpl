@@ -12,6 +12,10 @@
 				$("#main_status").css({ 'color': '#333'});
 
 			$('#account_status').text(data.account_status);
+			if (data.account_status=='Miner') {
+				$('#account_status').css("color", "green");
+				$('#account_status').css("font-weight", "bold");
+			}
 			$('#cur_block_id').text(data.cur_block_id);
 			$('#connections').text(data.connections);
 			$('#time_last_block').text(data.time_last_block);
@@ -62,8 +66,66 @@
 <h1 class="page-header">Home</h1>
 
 <div id="message"></div>
-	
+<script>
+
+	console.log('intervalIdArray='+intervalIdArray);
+	if (typeof intervalIdArray != "undefined") {
+		for (i=0; i<intervalIdArray.length; i++)
+			clearInterval(intervalIdArray[i]);
+	}
+	var intervalIdArray = [];
+
+	function dc_counter(amount, pct, currency_id)
+	{
+		var i=0;
+		pct = pct / 3;
+
+		var intervalID = setInterval( function() {
+			 i++;
+			 //console.log(i);
+			 var new_amount =  Math.pow(1+pct, i) * amount;
+			 $('#'+currency_id).text(new_amount.toFixed(5));
+		} , 300);
+		intervalIdArray.push(intervalID);
+	}
+
+</script>
+
 <div id="generate">
+<?php
+if (isset($tpl['wallets'])) {
+	$i = 0;
+	$js = '';
+	foreach ($tpl['wallets'] as $id => $data) {
+		if ($data['currency_id']==1)
+			$style = 'primary';
+		else
+			$style = 'green';
+		?>
+			<div style="width: 340px; float: left; margin-right:20px">
+				<div class="panel panel-<?php echo $style?>" style="height: 75px">
+					<div class="panel-heading" style="height: 75px">
+						<div class="row">
+							<div class="col-xs-3 text-right" style="font-size: 32px;line-height: 0; padding-top:30px" id="currency_<?php echo $data['currency_id']?>">
+								<?php echo $data['amount']?>
+							</div>
+							<div class="col-xs-9 text-right">
+								<div class="huge" style="font-size: 40px;line-height: 0; padding-top:30px"><?php echo "D{$tpl['currency_list'][$data['currency_id']]}"?></div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		<?php
+		if ($data['pct_sec']>0)
+			$js.="dc_counter({$data['amount']}, {$data['pct_sec']}, 'currency_{$data['currency_id']}');\n";
+		$i++;
+	}
+	echo "<script>{$js}</script>";
+}
+?>
+
+	<div style="clear: both"></div>
 	<!--<div class="row" style="padding:0 15px">
 		<div class="alert alert-info">
 			<?php echo $lng['dcoin_risks_alert']?>
@@ -77,15 +139,15 @@
 				<li class="list-group-item" id="main_status"><?php echo $tpl['my_notice']['main_status']?></li>
 				<li class="list-group-item"><?php echo $lng['account_status']?>: <span id="account_status"><?php echo $tpl['my_notice']['account_status'];?></span> <?php echo !empty($_SESSION['restricted'])?'restricted':'' ?> <?php echo defined('POOL_ADMIN')?'(Pool admin)':'' ?></li>
 				<li class="list-group-item">User ID: <span id="user_id"><?php echo $user_id?></span></li>
-				<li class="list-group-item"><?php echo $lng['inbox']?>: <span id="inbox"><?php echo $tpl['my_notice']['inbox']?></span></li>
+				<li class="list-group-item"><?php echo $lng['inbox']?>: <span id="inbox">0</span></li>
 				<li class="list-group-item"><?php echo $lng['status_daemons']?>: <?php echo $tpl['demons_status']?></li>
-				<li class="list-group-item"><?php echo $lng['number_of_blocks']?>: <span id="cur_block_id"><?php echo $tpl['my_notice']['number_of_blocks']?></span></li>
+				<li class="list-group-item"><?php echo $lng['number_of_blocks']?>: <span id="cur_block_id">0</span></li>
 				<li class="list-group-item"><?php echo $lng['time_last_block']?>: <span id="time_last_block"><?php echo $tpl['my_notice']['time_last_block']?></span></li>
 				<li class="list-group-item"><?php echo $lng['connections']?>: <span id="connections"><?php echo $tpl['my_notice']['connections']?></span></li>
 			</ul>
 		</div>
 		<?php
-		if (!$_SESSION['restricted']) {
+		if (!isset($_SESSION['restricted'])) {
 		?>
 		<!-- /.col-lg-4 -->
 		<div class="col-lg-4">
@@ -103,7 +165,7 @@
 				</thead>
 				<tbody>
 				<?php
-				if ($tpl['my_dc_transactions'])
+				if (isset($tpl['my_dc_transactions']))
 				foreach ($tpl['my_dc_transactions'] as $data) {
 					echo "<tr>";
 					if ($data['to_user_id']==$user_id)
@@ -131,40 +193,14 @@
 		?>
 		<div class="col-lg-4">
 
-			<h3><?php echo $lng['balances']?></h3>
-			<div style="height: 144px; overflow: auto">
-				<div class="table-responsive table-bordered">
-					<?php
-						echo '<table class="table" style="margin-bottom: 0px">';
-						if ($tpl['wallets']) {
-							echo '<thead><tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr></thead>';
-							foreach ($tpl['wallets'] as $id => $data) {
-								echo "<tr>";
-								if ($data['currency_id']>=1000)
-									echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
-								else
-									echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
-
-								echo "<td>{$data['amount']}</td>";
-								echo "<td>{$data['pct']}</td></tr>";
-							}
-						}
-						else {
-							echo "<tr><td colspan='3'>{$lng['no_coins']} {$lng['where_get_dc_text']}</td></tr>";
-						}
-
-						echo '</table>';
-					?>
-				</div>
-			</div>
-
 
 			<h3><?php echo $lng['credits']?></h3>
-			<div style="height: 144px; overflow: auto">
+			<div style="height: 328px; overflow: auto">
 				<div class="table-responsive table-bordered">
 					<table class="table" style="margin-bottom: 0px">
 						<?php
 						echo '<tr><th>'.$lng['amount'].'</th><th>'.$lng['currency'].'</th><th>User_ID</th></tr>';
+						if (isset($tpl['I_creditor']))
 						foreach ($tpl['I_creditor'] as $data) {
 							echo "<tr>";
 							echo "<td>{$data['amount']}</td>";
@@ -188,7 +224,7 @@
 		<div style="width:800px; overflow:auto; margin-left: 15px">
 			<h3>CrowdFunding</h3>
 			<?php
-			if ($tpl['projects'])
+			if (isset($tpl['projects']))
 			foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px; background-color: #fff">
@@ -212,7 +248,7 @@
 
 
 
-		<?php if (@$_SESSION['ADMIN']==1) {?>
+		<?php if (@$_SESSION['ADMIN']==10) {?>
 			<br><br><br><br><button type="button" class="btn" data-toggle="button"  onclick="$.post('admin/content.php', { tpl_name: 'index', parameters: '' },
 	              function(data) {
 	              $('#dc_content').html( data );

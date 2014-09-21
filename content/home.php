@@ -10,7 +10,6 @@ if (empty($_SESSION['restricted'])) {
 	$tpl['public_key'] = bin2hex($tpl['public_key']);
 }
 
-
 $tpl['my_notice'] = get_my_notice_data();
 $tpl['script_version'] = str_ireplace('[ver]', get_current_version($db), $lng['script_version']);
 $script_name = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "

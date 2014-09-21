@@ -3,7 +3,7 @@
 if (!defined('DC'))
 	die('!DC');
 
-if (preg_match('/install/', $_REQUEST['tpl_name']))
+if (preg_match('/install/', @$_REQUEST['tpl_name']))
 	return true;
 
 $show = false;

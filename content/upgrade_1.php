@@ -24,6 +24,9 @@ switch ($row['video_type']) {
 
 }
 
+$tpl['user_face'] = '';
+$tpl['user_profile'] = '';
+
 $path = 'public/'.$_SESSION['user_id'].'_user_profile.jpg';
 if ( file_exists( ABSPATH . $path ) )
 	$tpl['user_profile'] = $path;

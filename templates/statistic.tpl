@@ -105,6 +105,7 @@ if ($tpl['user_info_id']) {
 	echo '<table class="table table-bordered" style="width:600px">';
 	echo "<thead><tr><th>{$lng['currency']}</th><th>Coins</th><th>{$lng['promised_amounts']}</th><th>miners</th><th>users</th></tr></thead>";
 	echo '<tbody>';
+	if (isset($sum_wallets))
 	foreach ($sum_wallets as $currency_id => $sum_amount) {
 		print "<tr>";
 		if ($currency_id>=1000)
@@ -119,7 +120,7 @@ if ($tpl['user_info_id']) {
 		else
 			echo "<td>".intval($sum_promised_amount[$currency_id])."</td>";
 
-		print "<td>".intval($promised_amount_miners[$currency_id])."</td><td>".intval($wallets_users[$currency_id])."</td></tr>";
+		print "<td>".intval(@$promised_amount_miners[$currency_id])."</td><td>".intval($wallets_users[$currency_id])."</td></tr>";
 	}
 	echo '</tbody>';
 	echo '</table>';
@@ -131,6 +132,7 @@ if ($tpl['user_info_id']) {
 	echo '<table class="table table-bordered" style="width:600px">';
 	echo "<thead><tr><th>ID</th><th>{$lng['time']}</th><th>from_user_id</th><th>to_user_id</th><th>{$lng['currency']}</th><th>{$lng['amount']}</th><th>{$lng['status']}</th></tr></thead>";
 	echo '<tbody>';
+	if (isset($tpl['cash_requests']))
 	foreach ($tpl['cash_requests'] as $data) {
 		echo "<tr>";
 		echo "<td>{$data['id']}</td>";
