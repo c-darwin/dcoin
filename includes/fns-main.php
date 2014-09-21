@@ -809,6 +809,7 @@ function get_lang()
 function get_balances($user_id)
 {
 	global $db;
+	$balances = array();
 	// получаем список кошельков, на которых есть FC
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT *
@@ -827,15 +828,15 @@ function get_balances($user_id)
 							 `del_block_id` = 0
 				", 'fetch_one' );
 		$row['amount'] -= $forex_orders_amount;
-		$pct = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		$pct_sec = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `user`
 				FROM `".DB_PREFIX."pct`
 				WHERE `currency_id` = {$row['currency_id']}
 				ORDER BY `block_id` DESC
 				LIMIT 1
 				", 'fetch_one');
-		$pct = round((pow(1+$pct, 3600*24*365)-1)*100, 2);
-		$balances[] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount'], 'pct' => $pct);
+		$pct = round( (pow(1+$pct_sec, 3600*24*365)-1)*100, 2 );
+		$balances[] = array( 'currency_id' => $row['currency_id'], 'amount' => $row['amount'], 'pct' => $pct, 'pct_sec' => $pct_sec);
 
 	}
 	return $balances;
@@ -4106,6 +4107,7 @@ function get_promised_amounts($user_id)
 				ORDER BY `block_id` DESC
 				LIMIT 1
 				", 'fetch_one');
+		$row['pct_sec'] = $pct;
 		$row['pct'] = round((pow(1+$pct, 3600*24*365)-1)*100, 2);
 
 		// тут accepted значит просто попало в блок
