@@ -279,7 +279,8 @@ $('#amount, #cf_amount').keyup(function(e) {
 					<?php
 					if (isset($tpl['wallets'])) {
 						echo '<h3>'.$lng['balances'].'</h3><table class="table" style="width:400px">';
-						echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
+						//echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
+						echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th></tr>';
 						foreach ($tpl['wallets'] as $id => $data) {
 							echo "<tr>";
 
@@ -289,7 +290,8 @@ $('#amount, #cf_amount').keyup(function(e) {
 								echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
 
 							echo "<td>{$data['amount']}</td>";
-							echo "<td>{$data['pct']}</td></tr>";
+							//echo "<td>{$data['pct']}</td>";
+							echo "</tr>";
 						}
 						echo '</table>';
 					}
@@ -340,7 +342,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 								echo "<button class=\"btn\" onclick=\"fc_navigate('del_cf_funding', {'del_id':'{$data['to_user_id']}'})\">Cancel</button>";
 								echo "</td><td>{$data['to_user_id']}</td><td>{$data['amount']}</td><td>".(($data['commission']>0)?$data['commission']:"")."</td>";
 							if ($data['comment_status']=='decrypted')
-								echo "<td><div style=\"width: 200px; overflow: auto\">{$data['comment']}</div></td>";
+								echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div></td>";
 							else
 								echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
 					echo "<td>{$data['status']}</td><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$data['block_id']}})\">{$data['block_id']}</a></td><td>".($tpl['data']['current_block_id'] - $data['block_id'])."</td></tr>";
