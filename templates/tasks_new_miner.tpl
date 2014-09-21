@@ -226,6 +226,7 @@ $('#send_to_net').bind('click', function () {
 
 		<div style="padding-top:220px">
 			<?php
+			if (isset($tpl['search']))
 			for ($i=0; $i<sizeof($tpl['search']); $i++) {
 				print '<div style="float:left;"><img id="face_'.$tpl['search'][$i]['user_id'].'" src="'.$tpl['search'][$i]['host'].'public/face_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
 						<div style="float:left;"><img id="profile_'.$tpl['search'][$i]['user_id'].'" src="'.$tpl['search'][$i]['host'].'public/profile_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
