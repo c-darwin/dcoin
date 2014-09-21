@@ -1,7 +1,7 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-$tpl['block_id'] = intval($_REQUEST['parameters']['block_id']);
+$tpl['block_id'] = intval(@$_REQUEST['parameters']['block_id']);
 $tpl['start'] = intval(@$_REQUEST['parameters']['start']);
 
 $tpl['data'] = '';
@@ -21,7 +21,7 @@ if ($tpl['start'] || (!$tpl['start'] && !$tpl['block_id'])) {
 				ORDER BY `id` ASC
 				LIMIT ".($tpl['start']-1).", 100";
 	}
-	$tpl['data'].= '<table class="table"><tr><th>Block</th><th>Hash</th><th>Time</th><th>User id</th><th>Level</th><th>Transactions</th></tr>';
+	$tpl['data'].= '<table class="table"><tr><th>Block</th><th>Hash</th><th>Time</th><th><nobr>User id</nobr></th><th>Level</th><th>Transactions</th></tr>';
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, $sql);
 	$bin_to_hex_array = array('sign', 'public_key', 'encrypted_message', 'comment', 'bin_public_keys');
 	while ( $row = $db->fetchArray( $res ) ) {
@@ -33,7 +33,7 @@ if ($tpl['start'] || (!$tpl['start'] && !$tpl['block_id'])) {
 		$block_data = $parsedata->block_data;
 		$tx_array = $parsedata->tx_array;
 		$block_data['sign'] = bin2hex($block_data['sign']);
-		$tpl['data'].= "<tr><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$block_data['block_id']}})\">{$block_data['block_id']}</a></td><td>{$hash}</td><td>".date('d-m-Y H:i:s', $block_data['time'])."</td><td>{$block_data['user_id']}</td><td>{$block_data['level']}</td><td>";
+		$tpl['data'].= "<tr><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$block_data['block_id']}})\">{$block_data['block_id']}</a></td><td>{$hash}</td><td><nobr>".date('d-m-Y H:i:s', $block_data['time'])."</nobr></td><td>{$block_data['user_id']}</td><td>{$block_data['level']}</td><td>";
 		if ($tx_array) {
 			$tpl['data'].= sizeof($tx_array);
 		}
@@ -73,7 +73,7 @@ else if ($tpl['block_id']) {
 	$tpl['data'].= "<tr><td><strong>Time</strong></td><td>".date('d-m-Y H:i:s', $block_data['time'])." / {$block_data['time']}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>User_id</strong></td><td>{$block_data['user_id']}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>Level</strong></td><td>{$block_data['level']}</td></tr>";
-	$tpl['data'].= "<tr><td><strong>Sign</strong></td><td>".chunk_split($block_data['sign'], 130)."</td></tr>";
+	$tpl['data'].= "<tr><td><strong>Sign</strong></td><td>".chunk_split($block_data['sign'], 105)."</td></tr>";
 	if ($tx_array) {
 		//$tpl['data'].= sizeof($tx_array);
 		$tpl['data'].= "<tr><td><strong>Transactions</strong></td><td><div><pre style='width: 700px'>";
