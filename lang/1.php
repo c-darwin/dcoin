@@ -31,7 +31,7 @@ $lng['interface'] = 'Interface';
 $lng['lang'] = 'Language';
 $lng['catalog'] = 'Catalog';
 $lng['my_projects'] = 'My projects';
-$lng['login_alert'] = 'So that you can send data to the DC-network, you must click "Login" and enter the key.';
+$lng['login_alert'] = 'For sending a data to the DC-network you have to click "Login" and enter the key.';
 $lng['about_dcoin'] = 'About Dcoin';
 
 // periods
@@ -381,7 +381,7 @@ $lng['type'] = 'Type';
 $lng['error_in_tx'] = 'The information in the table "transactions" may be wrong. Wallets balances are displayed without errors.';
 $lng['balances'] = 'Balances';
 $lng['where_get_dc'] = 'Where can I get coins?';
-$lng['where_get_dc_text'] = 'Coins can be purchased an а <a href="http://en.dcoinwiki.com/Exchange" target="_blank">exchange</a> or create your own.';
+$lng['where_get_dc_text'] = 'You don\'t have coins. Coins can be purchased on the <a href="http://en.dcoinwiki.com/Exchange" target="_blank">exchange</a> or you can mined it by your own.';
 $lng['project_id'] = 'Project ID';
 $lng['check_data'] = 'Check the accuracy of the data';
 
@@ -417,7 +417,7 @@ $lng['if_present'] = 'if exists';
 
 // home
 $lng['connections'] = 'Connections';
-$lng['status_daemons'] = 'Status demons';
+$lng['status_daemons'] = 'Deamons\' status';
 $lng['account_status'] = 'Account Status';
 $lng['you_can'] = 'You can';
 $lng['become_a_miner'] = 'become a miner';
@@ -431,8 +431,8 @@ $lng['home_text'] = '1. Wait until the status upgrades to "User"<br>
 $lng['script_version'] = 'v. [ver]';
 $lng['downloading_blocks'] = 'Downloading block chain, please wait before continuing';
 $lng['downloading_complete'] = 'Block chain is updated, DCoin is ready to use';
-$lng['number_of_blocks'] = 'Number of blocks in block chain';
-$lng['time_last_block'] = 'Time of the last block';
+$lng['number_of_blocks'] = 'Blocks number in the block chain';
+$lng['time_last_block'] = 'Last block has generated on';
 $lng['home_text_risks'] = '<p>Risks in Dcoin: <br>
 1. <a Href="http://dcoinwiki.com/Сокращение_объема_монет" target="_blank"> Reduction of coins </a> <br>
 2. <a Href="http://dcoinwiki.com/Pul" target="_blank"> Poole </a> <br>
@@ -443,7 +443,7 @@ $lng['dcoin_risks_alert'] = 'With the help of Dcoin possible to make money and l
 $lng['panel'] = 'Panel';
 $lng['last_operation'] = 'Last operation';
 $lng['confirms'] = 'Confirms';
-$lng['start_your_cf_project'] = 'Start your CrowdFunding project!';
+$lng['start_your_cf_project'] = 'Start your own crowdfunding project!';
 
 // change_commission
 $lng['change_commission_title'] = 'Commission';
@@ -480,7 +480,7 @@ $lng['points_votes_period'] = 'Recalculation of points and status change occurs 
 $lng['start_stop_title'] = 'Start/Stop';
 
 $lng['alert_change_node_key'] = 'Need <a href="#" onclick="fc_navigate(\'change_node_key\')">to generate a new node-key</a>';
-$lng['alert_change_primary_key'] = 'Need <a href="#" onclick="fc_navigate(\'change_primary_key\')">to generate a new primary-key</a>';
+$lng['alert_change_primary_key'] = 'If you took your key from a public source, you have to <a href="#" onclick="fc_navigate(\'change_node_key\')">change</a> it immediately, otherwise whoever can be loggined from your name.';
 
 $lng['pct'] = 'Interest';
 $lng['pct_year'] = '%/year';
