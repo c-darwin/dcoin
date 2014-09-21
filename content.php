@@ -44,6 +44,7 @@ require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
 $tpl['periods'] = array(86400=>'1 '.$lng['day'], 604800=>'1 '.$lng['week'], 31536000=>'1 '.$lng['year'], 2592000=>'1 '.$lng['month'], 1209600=>'2 '.$lng['weeks']);
 
+$count_sign = 0;
 if (!empty($_SESSION['user_id']) && $_SESSION['user_id']!='wait' && isset($db) && $install_progress=='complete') {
 	$user_id = $_SESSION['user_id'];
 	//$user_id =  get_my_user_id($db);
