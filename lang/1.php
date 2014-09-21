@@ -176,13 +176,13 @@ $lng['cash_request_out_title'] = 'Outgoing requests';
 $lng['invalid_contacts'] = 'invalid contacts';
 $lng['user_not_selected'] = 'user not selected';
 $lng['to'] = ' To';
-$lng['amount_due'] = 'amount due';
-$lng['you_send'] = 'you send';
-$lng['you_contacts'] = 'you contacts';
+$lng['amount_due'] = 'Amount due';
+$lng['you_send'] = 'You send';
+$lng['you_contacts'] = 'Your contacts';
 $lng['after_transfer'] = 'after transfer';
 $lng['cash_request_out_limits_text'] = 'Max [limit] requests per  [period]';
 $lng['including_commission'] = 'including commission';
-$lng['you_requests'] = 'your requests';
+$lng['you_requests'] = 'Your requests';
 $lng['approved'] = 'accepted';
 $lng['rejected'] = 'rejected';
 $lng['empty_wallets'] = 'On your wallets no DC';
@@ -625,7 +625,7 @@ $lng['name'] = 'Name';
 $lng['avatar'] = 'Avatar';
 
 // login
-$lng['login_help_text'] = 'If you do not have a key, you can ask it on the  <a href="http://dcoinforum.org/" style="text-decoration: underline">forum</a> at the miners  or take  <a href="http://pool.dcrowd.org/tools/available_keys.php" style="text-decoration: underline">here</a>';
+$lng['login_help_text'] = 'If you do not have a key, you can ask it on the  <a href="http://dcoinforum.org/index.php?topic=32.0" style="text-decoration: underline">forum</a> at the miners  or take  <a href="http://pool.dcrowd.org/tools/available_keys.php" style="text-decoration: underline">here</a>';
 $lng['login'] = 'Login';
 $lng['login_title'] = 'Login';
 $lng['key'] = 'Key';
@@ -649,7 +649,7 @@ $lng['mining_menu']['vote_for_me_text'] = 'Comments from those who voted for you
 
 $lng['mining_menu']['start'][0] = 'Make [0]upgrade[1]upgrade your account[2]';
 $lng['mining_menu']['start'][1] = 'Set [0]notifications[1]notice[2]';
-$lng['mining_menu']['start'][2] = 'Add [0]promised_amount_list[1]promised sum[2]';
+$lng['mining_menu']['start'][2] = 'Add [0]promised_amount_list[1]promised amount[2]';
 $lng['mining_menu']['start'][3] = 'Set [0]change_commission[1]Commission[2]';
 $lng['mining_menu']['start'][4] = 'Do [0]tasks[1]job[2] to verify the other miners';
 $lng['mining_menu']['start'][5] = '[0]voting[1]Vote[2] for the parameters of exchange';
@@ -694,5 +694,10 @@ $lng['creditor_user_id'] = 'User_id who will be your lender.';
 $lng['credit_pct'] = 'Percent';
 $lng['credit_part'] = 'What percentage of your incoming funds will be paid to the creditor.';
 $lng['new_credit_alert'] = 'Be careful! You can not delete the new loan.';
+
+// reduction
+$lng['reduction'] = 'Reduction';
+$lng['reduction_title'] = 'Reduction';
+$lng['reduction_pct'] = '%';
 
 ?>
