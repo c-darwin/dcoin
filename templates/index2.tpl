@@ -210,10 +210,43 @@
 	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui.css" />
 	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
 
+	<link rel="icon" href="http://dcoin.me/favicon.ico" type="image/x-icon">
+	<link rel="shortcut icon" href="http://dcoin.me/favicon.ico" type="image/x-icon">
 
+<style>
+	.DCava{
+		display:inline-block;
+		position:relative;
+		overflow:hidden;
+	}
+	.DCava>img{
+		vertical-align:top;
+	}
+	.DCava, .DCava:before{
+		-moz-border-radius:100em;
+		border-radius:100em;
+
+	}
+	.DCava>img{
+		-webkit-border-radius:100em;
+	}
+	.DCava:before{
+		content:'';
+		display:block;
+		position:absolute;
+		left:0;
+		right:0;
+		width:100%;
+		height:100%;
+		margin:-10em;
+		border:10em solid #333;
+		-moz-box-sizing: padding-box;
+
+</style>
 </head>
 
 <body>
+
 
 <div id="wrapper">
 
@@ -353,4 +386,4 @@
 </script>
 <noscript><div><img src="//mc.yandex.ru/watch/25998519" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
 <!-- /Yandex.Metrika counter -->
-  </body></html>
+</body></html>
