@@ -19,7 +19,7 @@ if ($id) {
 
 	if (isset($_REQUEST['download'])) {
 		header('Content-type: application/octet-stream');
-		header('Content-Disposition: attachment; filename="'.$id.'"');
+		header('Content-Disposition: attachment; filename="'.$id.'.binary"');
 	}
 
 	$block = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
