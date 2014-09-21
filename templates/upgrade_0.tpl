@@ -4,6 +4,7 @@
 		$.post('ajax/save_race_country.php', {'race' : $('input:radio[name=race]:checked').val(), 'country' : $("#country option:selected").val()},
 				function(data) {
 					fc_navigate('upgrade_1');
+					window.scrollTo(0,0);
 				});
 	});
 </script>
