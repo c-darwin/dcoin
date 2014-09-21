@@ -29,6 +29,11 @@
 	} );
 
 
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#main_data").css("display", "none");':'' ?>
+
+	doSign();
+	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
+
 	$("#main_div textarea").addClass( "form-control" );
 </script>
 
@@ -50,6 +55,7 @@
     
 	<h3><?php echo $lng['sending_data_to_net']?></h3>
 
+	<div id="main_data">
 	<p><?php echo @$tpl['upgrade_limit_text']?></p>
 
 	<?php echo $lng['data']?>:<br>
@@ -64,10 +70,6 @@
 	</textarea><br>
 
 	<button class="btn btn-success" id="send_to_net"><?php echo $lng['send_to_net']?></button>
-	
-	<script>
-		doSign();
-		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
-	</script>
+	</div>
 
 </div>
