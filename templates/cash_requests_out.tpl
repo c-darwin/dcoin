@@ -7,6 +7,7 @@
 	.table input, .table textarea {
 		margin-bottom: 0px;
 	}
+	.form-control{display: inline}
 </style>
 
 
@@ -116,10 +117,10 @@ $('#show_map').bind('click', function () {
 
 					var markers = [];
 
-					var center = new google.maps.LatLng(35, -100);
+					var center = new google.maps.LatLng(37.35, -122.07);
 
 					map = new google.maps.Map(document.getElementById('map_canvas'), {
-						zoom: 1,
+						zoom: 14,
 						center: center,
 						mapTypeId: google.maps.MapTypeId.ROADMAP
 					});
@@ -180,8 +181,15 @@ $('#send_amount').keyup(function(e) {
 	$("#amount_due").text($('#send_amount').val());
 });
 
-</script>
+$("#main_div select").addClass( "form-control" );
+$("#main_div input").addClass( "form-control" );
+$("#main_div textarea").addClass( "form-control" );
+$("#main_div button").addClass( "btn-outline btn-primary" );
+$("#main_div input").width( 170 );
+$("#main_div textarea").width( 170 );
 
+</script>
+<div id="main_div">
 <h1 class="page-header"><?php echo $lng['cash_request_out_title']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
@@ -231,13 +239,13 @@ $('#send_amount').keyup(function(e) {
 		<tr><td><?php echo $lng['you_send']?></td><td><input type="text" id="send_amount" class="input-mini"> D<span id="currency_name"></span></td></tr>
 		<tr><td><?php echo $lng['amount_due']?></td><td><span id="amount_due"></span> <span id="currency_name"></span></td></tr>
 		<tr><td><?php echo $lng['you_contacts']?></td><td><textarea id="comment" maxlength="<?php echo $tpl['maxlength']?>"></textarea><p id="counter"></p></td></tr>
-		<tr><td><?php echo $lng['code']?></td><td><?php echo $tpl['code']?><br>(<?php echo $lng['after_transfer']?>)</td></tr>
+		<tr><td><?php echo $lng['code']?></td><td><strong><?php echo $tpl['code']?></strong><br>(<?php echo $lng['after_transfer']?>)</td></tr>
 		</table>
 		<div id="message"></div>
-		<button id="next" class="btn btn-primary" type="button"><?php echo $lng['next']?></button>
+		<button id="next" class="btn btn-primary" type="button"><?php echo $lng['next']?></button><br><br>
 
-		<div style="padding-top:10px"><p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?> </p></div>
-
+		<!--<div style="padding-top:10px"><p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?> </p></div>
+-->
 	</div>
 	<?php
 	}
@@ -273,3 +281,5 @@ $('#send_amount').keyup(function(e) {
 
 
 
+
+</div>
