@@ -59,7 +59,7 @@
 		<div class="sidebar-collapse">
 			<ul class="nav" id="side-menu">
 				<li class="sidebar-search">
-					<div style="" class="text-center"><a href="#" onclick="fc_navigate('change_avatar')"><img src="<?php echo $tpl['avatar']?>" style="width: 100px; height: 100px; margin-bottom: 5px"></a></div>
+					<div style="" class="text-center"><a href="#" onclick="fc_navigate('change_avatar')"><span class="DCava"><img src="<?php echo $tpl['avatar']?>" style="width: 100px; height: 100px;"></span></a></div>
 					<div style="" class="text-center"><a href="#" onclick="fc_navigate('change_avatar')"><strong><?php echo $tpl['name']?></strong></a></div>
 				</li>
 				<li>
@@ -70,10 +70,7 @@
 				</li>
 				<li>
 					<a href="#" onclick="fc_navigate('mining_menu')"><i class="fa  fa-money  fa-fw"></i> <?php echo $lng['mining']?></a>
-
 				</li>
-
-
 				<li>
 					<a href="#"><i class="fa  fa-users  fa-fw"></i> CrowdFunding<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level">
@@ -92,6 +89,9 @@
 					<ul class="nav nav-second-level">
 						<li>
 							<a href="#" onclick="fc_navigate('pct')"><?php echo $lng['pct']?></a>
+						</li>
+						<li>
+							<a href="#" onclick="fc_navigate('reduction')"><?php echo $lng['reduction']?></a>
 						</li>
 						<li>
 							<a href="#" onclick="fc_navigate('information')"><?php echo $lng['information']?></a>
