@@ -5,8 +5,9 @@ function fc_navigate (page, parameters) {
     $.post("content.php?page="+page, { tpl_name: page, parameters: parameters },
         function(data) {
             $("#page-wrapper").spin(false);
-            console.log('$("#page-wrapper").spin(false)');
+            //console.log('$("#page-wrapper").spin(false)');
             $('#dc_content').html( data );
+            window.scrollTo(0,0);
         }, "html");
 
 }
