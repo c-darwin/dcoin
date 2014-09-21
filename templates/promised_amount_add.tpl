@@ -19,7 +19,7 @@
 		-webkit-transition-property:width;
 		-webkit-transition-duration:.5s;
 	}
-
+	.form-control{display: inline}
 </style>
 <script type="text/javascript" src="js/uploader.js"></script>
 <script src="js/js.js"></script>
@@ -69,8 +69,8 @@ $('#add_promised_amount').bind('click', function () {
 	else
 		payment_systems_ids = '0';
 
-	$("#add").css("display", "none");
-	$("#sign").css("display", "block");
+	<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#add").css("display", "none");	$("#sign").css("display", "block");' ?>
+
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+video_type+','+video_url_id+','+payment_systems_ids );
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
@@ -128,8 +128,6 @@ $( "#currency_id" ).change(function () {
 	$("#main_div select").addClass( "form-control" );
 	$("#main_div input").addClass( "form-control" );
 	$("#main_div button").addClass( "btn-outline btn-primary" );
-	$("#main_div input[type=text]").width( 500 );
-	$("#main_div select").width( 500 );
 	$("#main_div textarea").width( 500 );
 
 </script>
@@ -146,7 +144,7 @@ $( "#currency_id" ).change(function () {
     <div id="add">
 	
 		<label><?php echo $lng['currency']?></label>
-		<select id="currency_id">
+		<select id="currency_id" style="width: 150px">
 		<?php
 		foreach ($tpl['currency_list'] as $id => $data) {
 			if ($id == @$tpl['currency_id'])
@@ -157,10 +155,10 @@ $( "#currency_id" ).change(function () {
 		}
 		?>
 		</select>
-		<label><?php echo $lng['amount']?></label>
-		<input id="amount" class="input-mini" type="text"> max: <span id="max_promised_amount"></span>
+		<label style="margin-left: 10px"><?php echo $lng['amount']?></label>
+		<input id="amount" class="input-mini" type="text" style="width: 70px;"> max: <span id="max_promised_amount"></span>
 		<br>
-	    <label><?php echo $lng['promised_amount_payment_systems']?></label>
+	    <p style="margin-top: 20px"><?php echo $lng['promised_amount_payment_systems']?></p>
 		 <?php
 		 for ($i=1; $i<6; $i++) {
 		    echo '<select id="ps'.$i.'" style="width:100px">';
@@ -173,7 +171,7 @@ $( "#currency_id" ).change(function () {
 
 	    <br>
 
-	    <?php echo $lng['promised_amount_add_video_text']?>
+	   <p style="margin-top: 20px"><?php echo $lng['promised_amount_add_video_text']?></p>
 
 	    <div>
 		    <table class="table table-bordered">
@@ -221,7 +219,7 @@ $( "#currency_id" ).change(function () {
 	    <div class="alert alert-info"><strong><?php echo $lng['limits'] ?></strong>  <?php echo $tpl['limits_text'] ?></div>
 
 
-		<button class="btn" id="add_promised_amount"><?php echo $lng['next']?></button><br>
+		<button class="btn" id="add_promised_amount"><?php echo $lng['next']?></button><br><br>
 
     </div>
     
