@@ -1068,7 +1068,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	public function count_miner_attempt ($db, $user_id, $type) {
+	static function count_miner_attempt ($db, $user_id, $type) {
 
 		return  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT count(`user_id`)
@@ -3099,7 +3099,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 
 		// проверим, не кончились ли попытки стать майнером у данного юзера
-		$num = $this->count_miner_attempt($this->db, $this->tx_data['user_id'], 'user_voting');
+		$num = self::count_miner_attempt($this->db, $this->tx_data['user_id'], 'user_voting');
 		if ( $num >= $this->variables['miner_votes_attempt'] )
 			return 'miner_votes_attempt';
 
