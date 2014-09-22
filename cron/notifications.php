@@ -10,6 +10,7 @@ require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'db_config.php' );
 require_once( ABSPATH . 'includes/class-mysql.php' );
 require_once( ABSPATH . 'includes/fns-main.php' );
+require_once( ABSPATH . 'includes/class-parsedata.php' );
 require_once( ABSPATH . 'includes/class.phpmailer.php');
 require_once( ABSPATH . 'includes/class.smtp.php');
 if (!defined('PARSEDATA'))
