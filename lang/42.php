@@ -469,6 +469,11 @@ $lng['hold_time_wait'] = 'Вы сможете голосовать за данн
 $lng['hold_time_wait2'] = 'Вы сможете голосовать через [sec] секунд';
 $lng['min_miners_count'] = 'Голосование будет доступно после того, как наберется [miners_count] майнеров. Осталось [remaining]';
 $lng['wait_voting'] = 'Вы сможете проголосовать через [sec] секунд';
+$lng['refs'] = 'Реферальные бонусы';
+$lng['ref_level'] = 'Уровень';
+$lng['currency_properties'] = 'Параметры валют';
+$lng['elections_admin'] = 'Выборы админа';
+$lng['elections_admin_text'] = 'Оставьте 0, если не хотите менять админа.';
 
 // change_country_race
 $lng['change_country_race_title'] = 'Смена страны и расы';
