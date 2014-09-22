@@ -216,7 +216,7 @@ $lng['show_miner_on_map'] = 'Show location miner';
 // upgrade
 $lng['upgrade_title'] = 'Upgrade to miner';
 $lng['your_race'] = 'Your race';
-$lng['find_your_race'] = 'If you don’t belong to any of these three races, just choose the closest option. <br> You are kindly required to specify your race because it is easier for supervisor to find inconsistencies in users of their own race when verifying new miners. <Br>';
+$lng['find_your_race'] = 'If you don\'t belong to any of these three races, just choose the closest option. <br> You are kindly required to specify your race because it is easier for supervisor to find inconsistencies in users of their own race when verifying new miners. <Br>';
 $lng['country'] = 'Country';
 $lng['any_country'] = 'You can select the country from which you want your verifying miner to originate from.';
 
@@ -381,7 +381,7 @@ $lng['type'] = 'Type';
 $lng['error_in_tx'] = 'The information in the table "transactions" may be wrong. Wallets balances are displayed without errors.';
 $lng['balances'] = 'Balances';
 $lng['where_get_dc'] = 'Where can I get coins?';
-$lng['where_get_dc_text'] = 'You don\'t have coins. Coins can be purchased on the <a href="http://en.dcoinwiki.com/Exchange" target="_blank">exchange</a> or you can mined it by your own.';
+$lng['where_get_dc_text'] = 'You don\'t have coins. Coins can be purchased on the <a href="http://en.dcoinwiki.com/Exchange" target="_blank">exchange</a> or you can mine it by your own.';
 $lng['project_id'] = 'Project ID';
 $lng['check_data'] = 'Check the accuracy of the data';
 
@@ -464,6 +464,11 @@ $lng['hold_time_wait'] = 'You can vote for this currency through [sec] seconds';
 $lng['hold_time_wait2'] = 'You can vote through [sec] seconds';
 $lng['min_miners_count'] = 'Voting will be available after the typed [miners_count] miners. Remaining [remaining]';
 $lng['wait_voting'] = 'You can vote through [sec] seconds';
+$lng['refs'] = 'Referral bonuses';
+$lng['ref_level'] = 'Level';
+$lng['currency_properties'] = 'Currency properties';
+$lng['elections_admin'] = 'Elections admin';
+$lng['elections_admin_text'] = 'Leave 0 if you do not want to change the admin.';
 
 // change_country_race
 $lng['change_country_race_title'] = 'Change country and race';
@@ -497,9 +502,9 @@ $lng['buy_orders'] = 'Buy orders';
 $lng['price'] = 'Price';
 $lng['forex_alert'] = 'The fee is charged at the time of entering orders in the DC-network. Even if you delete the order, the commission will not be refunded.';
 $lng['currency_exchange1'] = 'Currency exchange';
-$lng['send_to_wallet'] = 'Transfer of coins on Dcoin account';
-$lng['send_to_cf_project'] = 'Transfer of coins in CrowdFunding project';
-$lng['you_do_not_have_the_coins'] = 'You do not have the dcoin for the transfer.';
+$lng['send_to_wallet'] = 'Coins transferring on the Dcoin account';
+$lng['send_to_cf_project'] = 'Coins transferring in a crowdfunding project';
+$lng['you_do_not_have_the_coins'] = 'You don\'t have Dcoins for the transfer.';
 
 // change_promised_amount
 $lng['change_promised_amount'] = 'Change promised amount';
@@ -509,7 +514,7 @@ $lng['statistic'] = 'Statistic';
 $lng['user_info'] = 'Information about the user';
 $lng['user_info_text'] = 'Specify the number of Dcoin-user account';
 $lng['general'] = 'General';
-$lng['statistic_cash_requests'] = 'Exchange of coins for cash';
+$lng['statistic_cash_requests'] = 'Coins exchange';
 $lng['uid_2_7'] = 'User_id 2-7 - test accounts';
 
 // actualize_promised_amounts
@@ -634,7 +639,7 @@ $lng['incorrect_key_or_password'] = 'Incorrect key or password';
 $lng['pool_is_full'] = 'Sorry, the pool is full';
 
 // mining_menu
-$lng['vote_for_me'] = 'Comments voters';
+$lng['vote_for_me'] = 'Voters\' comments';
 $lng['mining_menu']['inbox_text'] = 'Incoming requests to the specified <a href="#" onclick="fc_navigate(\'promised_amount_list\')"> promised amount </a>. You can configure the reporting of incoming requests in the  <a href="#" onclick="fc_navigate(\'notifications\')"> sms and email notification </a> ';
 $lng['mining_menu']['tasks_text'] = 'To get miners % for the promised sum, you need to get a certain number of points by performing tasks for checking other miners.';
 $lng['mining_menu']['voting_text'] = 'To get miners % in addition to checking other miners, you need to vote for the% growth for each currency that you have in the promised amount, as well as - for the size of referral bonuses.';
@@ -645,20 +650,20 @@ $lng['mining_menu']['points_text'] = 'To get miners %, you get a certain number 
 $lng['mining_menu']['commission_text'] = 'You will receive% of the transfer of funds or forex-trades if the transaction would be in the block, signed by your key.';
 $lng['mining_menu']['holidays_text'] = 'If some days you do not want to be prompted for your promised amount, you can add vacation. At this time, for the promised sum Dcoin will not grow. ';
 $lng['mining_menu']['geolocation_text'] = 'The place where you are willing to trade you mentioned the promised amount for the same number of Dcoin. If you change the location of the need to re-pass the procedure of adding the promised sums';
-$lng['mining_menu']['vote_for_me_text'] = 'Comments from those who voted for you in the miner of transfer or for your promised amount.';
+$lng['mining_menu']['vote_for_me_text'] = 'Comments of those voters, who wanted you to become miner, or who voted for your promised amounts.';
 
-$lng['mining_menu']['start'][0] = 'Make [0]upgrade[1]upgrade your account[2]';
-$lng['mining_menu']['start'][1] = 'Set [0]notifications[1]notice[2]';
+$lng['mining_menu']['start'][0] = 'Make an [0]upgrade[1]upgrade of your account[2]';
+$lng['mining_menu']['start'][1] = 'Tweak [0]notifications[1]notifications[2]';
 $lng['mining_menu']['start'][2] = 'Add [0]promised_amount_list[1]promised amount[2]';
-$lng['mining_menu']['start'][3] = 'Set [0]change_commission[1]Commission[2]';
-$lng['mining_menu']['start'][4] = 'Do [0]tasks[1]job[2] to verify the other miners';
-$lng['mining_menu']['start'][5] = '[0]voting[1]Vote[2] for the parameters of exchange';
+$lng['mining_menu']['start'][3] = 'Make a [0]change_commission[1]commission[2]';
+$lng['mining_menu']['start'][4] = 'Do an [0]tasks[1]assignment[2] to verify the other miners';
+$lng['mining_menu']['start'][5] = '[0]voting[1]Vote[2] for the currency properties';
 $lng['mining_menu']['start'][6] = 'Do not miss the [0]cash_requests_in[1]incoming requests[2]';
-$lng['mining_menu']['start'][7] = 'Translate coins with the promised amount to the [0]wallets_list[1]own account[2]';
+$lng['mining_menu']['start'][7] = 'Exchange coins from the promised amount to your [0]wallets_list[1]own account[2]';
 $lng['register_key_at_the_pool'] = 'To continue, you need to register your key at the pool.';
 $lng['insufficient_privileges'] = 'Insufficient privileges';
 $lng['enter_your_email'] = 'Enter your email';
-$lng['how_to_mining_coins'] = 'How to mining coins?';
+$lng['how_to_mining_coins'] = 'How to mine coins?';
 $lng['pool_is_full'] = 'Unfortunately, the pool is full. We will notify you when the new pool will be launched.';
 $lng['pool_user_id_is_busy'] = 'Your user_id is already registered in our pool. Please contact the administration.';
 $lng['pool_sign_up_success'] = 'Congratulations, now you are registered on our pool. Refresh the page and re-enter the key.';
