@@ -9,9 +9,45 @@ if (!defined('DC'))
 if (!node_admin_access($db))
 	die ('Permission denied');
 
-if (version_compare($cur_ver, '0.0.1b15') == -1) {
+if (version_compare($cur_ver, '0.1.2b3') == -1) {
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			ALTER TABLE `".DB_PREFIX."forex_orders` CHANGE `sell_rate` `sell_rate` DECIMAL(20,10) NOT NULL COMMENT 'По какому курсу к buy_currency_id';
+			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."admin` (
+			  `user_id` int(11) NOT NULL,
+			  `time` int(11) NOT NULL,
+			  `log_id` int(11) NOT NULL
+			) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+			");
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			INSERT INTO `".DB_PREFIX."admin` (`user_id`) VALUES (1)
+			");
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."log_admin` (
+			  `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+			  `user_id` int(11) NOT NULL,
+			  `time` int(11) NOT NULL,
+			  `block_id` int(11) NOT NULL,
+			  `prev_log_id` int(11) NOT NULL,
+			  PRIMARY KEY (`log_id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+			");
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."votes_admin` (
+			  `user_id` int(11) NOT NULL,
+			  `time` int(11) NOT NULL,
+			  `admin_user_id` int(11) NOT NULL,
+			  `log_id` int(11) NOT NULL,
+			  PRIMARY KEY (`user_id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+			");
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			CREATE TABLE IF NOT EXISTS `".DB_PREFIX."log_votes_admin` (
+			  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+			  `time` int(11) NOT NULL,
+			  `admin_user_id` int(11) NOT NULL,
+			  `block_id` int(11) NOT NULL,
+			  `prev_log_id` int(11) NOT NULL,
+			  PRIMARY KEY (`log_id`)
+			) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 			");
 }
 
