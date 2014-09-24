@@ -120,7 +120,7 @@ $('#show_map').bind('click', function () {
 					var center = new google.maps.LatLng(37.35, -122.07);
 
 					map = new google.maps.Map(document.getElementById('map_canvas'), {
-						zoom: 14,
+						zoom: 3,
 						center: center,
 						mapTypeId: google.maps.MapTypeId.ROADMAP
 					});
