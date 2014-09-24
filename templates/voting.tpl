@@ -4,8 +4,8 @@
 var json_data = '';
 $('#next').bind('click', function () {
 
-	$("#voting").css("display", "none");
-	$("#sign").css("display", "block");
+	<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#voting").css("display", "none");	$("#sign").css("display", "block");' ?>
+
 	var data = '';
 	$("input[type=text],input[type=hidden],select", $("#voting")).each(function(){
 		if ($(this).attr('name')=='currency_id'){
@@ -23,7 +23,7 @@ $('#next').bind('click', function () {
 		if ($(this).attr('name')=='reduction')
 			data=data+''+$(this).val()+'],';
 	} );
-	json_data = '{"currency":{'+data.substr(0, data.length-1)+'},"referral":{"first":"'+$('#ref_first').val()+'","second":"'+$('#ref_second').val()+'","third":"'+$('#ref_third').val()+'"}}';
+	json_data = '{"currency":{'+data.substr(0, data.length-1)+'},"referral":{"first":"'+$('#ref_first').val()+'","second":"'+$('#ref_second').val()+'","third":"'+$('#ref_third').val()+'"},"admin":"'+$('#admin').val()+'"}';
 	console.log(json_data);
 
 	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+json_data);
@@ -39,9 +39,9 @@ $('#send_to_net').bind('click', function () {
 				'user_id' : '<?php echo $tpl['data']['user_id']?>',
 				'currency_id' : $('#currency_id').val(),
 				'json_data' : json_data,
-							'signature1': $('#signature1').val(),
-			'signature2': $('#signature2').val(),
-			'signature3': $('#signature3').val()
+				'signature1': $('#signature1').val(),
+				'signature2': $('#signature2').val(),
+				'signature3': $('#signature3').val()
 			}, function (data) {
 				fc_navigate ('voting', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
 			}
@@ -159,6 +159,7 @@ $( "#main_div select").width(100);
 		echo $tpl['miner_newbie'];
 	} else if ($tpl['promised_amount_currency_list']) {
 	?>
+	<h3><?php echo $lng['currency_properties']?></h3>
 	<div style="width: 600px"><?php echo $lng['voting_message']?></div>
 	<table class="table" style="width: 500px">
 		<tr><th><?php echo $lng['currency']?></th><th><?php echo $lng['voting_miner_pct']?></th><th><?php echo $lng['voting_user_pct']?></th><th><?php echo $lng['voting_max_promised_amount']?></th><th><?php echo $lng['voting_max_other_currencies']?></th><th><?php echo $lng['voting_reduction']?></th></tr>
@@ -216,15 +217,22 @@ $( "#main_div select").width(100);
 	if (empty($tpl['miner_newbie'])) {
 
 		$refs = array('first', 'second', 'third');
+		echo '<h3>'.$lng['refs'].'</h1><table class="table" style="width: 200px"><tr><th>'.$lng['ref_level'].'</th><th>%</th><th></tr>';
 		for ($i=0; $i<sizeof($refs); $i++) {
-			print "Реферальные ".($i+1)."-го уровня: <select style='width: 60px' id='ref_{$refs[$i]}'>";
+			print "<tr><td>".($i+1)."</td><td><select id='ref_{$refs[$i]}'>";
 			for ($j=0; $j<=30; $j++)
 				print "<option ".($j==$tpl['referral'][$refs[$i]]?"selected":"").">{$j}</option>";
-			print "</select>%<br>";
+			print "</select></td></tr>";
 		}
+		echo "</table>";
 	}
+
+	// выборы админа
+	echo "<h3>{$lng['elections_admin']}</h3>";
+	echo "<div class='form-inline'>Admin user_id: <input type='text' class='form-control' style='width: 70px' id='admin' value='0'> {$lng['elections_admin_text']}</div>";
+
 	if ( isset($tpl['promised_amount_currency_list']) || empty($tpl['miner_newbie']) )
-		print '<div class="control-group"><div class="controls"><button class="btn" type="button" id="next">'.$lng['next'].'</button></div></div>';
+		print '<div class="control-group" style="margin-top:20px; margin-bottom:20px"><div class="controls"><button class="btn btn-outline btn-primary" type="button" id="next">'.$lng['next'].'</button></div></div>';
 
 	?>
 </div>
