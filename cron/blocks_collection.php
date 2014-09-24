@@ -85,6 +85,7 @@ do {
 			//file_put_contents(ABSPATH . 'public/blockchain', fopen('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain-27-08-14', 'r'));
 		}
 
+		$first = true;
 		if (file_exists(ABSPATH . 'public/blockchain')) {
 			$fp = fopen(ABSPATH . 'public/blockchain', 'r');
 			do {
@@ -96,6 +97,10 @@ do {
 					$block_data_binary = string_shift($data_binary, $data_length);
 
 					$parsedata = new ParseData($block_data_binary, $db);
+					if ($first) {
+						$parsedata->current_version = trim(file_get_contents(ABSPATH . 'version'));
+						$first = false;
+					}
 					$error = $parsedata->ParseDataFull();
 					if ($error) {
 						print $error;
@@ -114,12 +119,14 @@ do {
 			} while ($data_size);
 			fclose($fp);
 		}
+		else {
+			$new_block = file_get_contents(ABSPATH . '1block.bin');
+			$parsedata = new ParseData($new_block, $db);
+			$parsedata->current_version = trim(file_get_contents(ABSPATH . 'version'));
+			$error = $parsedata->ParseDataFull();
+			$parsedata->insert_into_blockchain();
+		}
 
-		$new_block = file_get_contents(ABSPATH . '1block.bin');
-		$parsedata = new ParseData($new_block, $db);
-		$parsedata->current_version = trim(file_get_contents(ABSPATH . 'version'));
-		$error = $parsedata->ParseDataFull();
-		$parsedata->insert_into_blockchain();
 
 		/*$version = file_get_contents( ABSPATH . 'version' );
 		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
