@@ -54,6 +54,9 @@ if ($my_users_ids) {
 		$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT * FROM `".DB_PREFIX."{$my_prefix}my_table`
 				",	'fetch_array');
+		// на пуле шлем уведомления только майнерам
+		if ($community && !$my_data['miner_id'])
+			continue;
 		$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
 				FROM `".DB_PREFIX."{$my_prefix}my_notifications`
@@ -400,6 +403,10 @@ foreach($notifications_array as $name => $notification_info) {
 			if (get_my_block_id($db) > get_block_id($db))
 				break;
 
+			// шлется что-то не то, потом поправлю, пока отключил
+			if ($community)
+				break;
+
 			if ($text) {
 
 				foreach($notification_info as $user_id => $email_sms) {
@@ -471,6 +478,10 @@ foreach($notifications_array as $name => $notification_info) {
 						");
 
 			if (get_my_block_id($db) > get_block_id($db))
+				break;
+
+			// в пуле это лишняя инфа
+			if ($community)
 				break;
 
 			if ($new_version) {
