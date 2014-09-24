@@ -4,6 +4,46 @@ defined('DC') or die('');
 
 $queries = array();
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}admin`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}admin` (
+  `user_id` int(11) NOT NULL,
+  `time` int(11) NOT NULL,
+  `log_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		INSERT INTO `{$db_name}`.`{$prefix}admin` (`user_id`) VALUES (1)
+		");
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_admin`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_admin` (
+  `log_id` bigint(20) NOT NULL AUTO_INCREMENT,
+  `user_id` int(11) NOT NULL,
+  `time` int(11) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` int(11) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}votes_admin`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}votes_admin` (
+  `user_id` int(11) NOT NULL,
+  `time` int(11) NOT NULL,
+  `admin_user_id` int(11) NOT NULL,
+  `log_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_votes_admin`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_votes_admin` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `time` int(11) NOT NULL,
+  `admin_user_id` int(11) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` int(11) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_new_credit`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_new_credit` (
