@@ -6,7 +6,7 @@ $lng['geolocation'] = 'Location';
 $lng['inbox'] = 'Incoming requests';
 $lng['outgoing'] = 'Exchange for cash';
 $lng['holidays'] = 'Holidays';
-$lng['tasks'] = 'Tasks';
+$lng['tasks'] = 'Assignments';
 $lng['settings'] = 'Settings';
 $lng['change_master_key'] = 'Change master key';
 $lng['change_node_key'] = 'Change node key';
@@ -188,7 +188,7 @@ $lng['rejected'] = 'rejected';
 $lng['empty_wallets'] = 'On your wallets no DC';
 
 // tasks
-$lng['tasks_title'] = 'Tasks';
+$lng['tasks_title'] = 'Assignments';
 $lng['tasks_title_new_miner'] = 'Checking new miner ';
 $lng['tasks_new_miner_spots'] = 'Check the location of points on the photo ';
 $lng['tasks_new_miner_clones'] = 'Search clones ';
@@ -454,21 +454,21 @@ $lng['no_saved_values'] = 'You have no saved values. Please send it to the DC-ne
 
 // voting
 $lng['voting_title'] = 'Voting';
-$lng['voting_message'] = 'Be sure to fill in all the listed currencies. Zero values ​​also are participating in the vote';
+$lng['voting_message'] = 'Fill the lines of every mentioned currency. Zero values also take a part in voting.';
 $lng['voting_miner_pct'] = '%/year for miners';
 $lng['voting_user_pct'] = '%/year for users';
-$lng['voting_max_promised_amount'] = 'Max promised amount';
-$lng['voting_max_other_currencies'] = 'How many currencies can be mined';
-$lng['voting_reduction'] = 'Reduction the money supply';
+$lng['voting_max_promised_amount'] = 'Max. promised amount';
+$lng['voting_max_other_currencies'] = 'A number of currency you can mine with';
+$lng['voting_reduction'] = 'Reduction of all the coins amounts';
 $lng['hold_time_wait'] = 'You can vote for this currency through [sec] seconds';
 $lng['hold_time_wait2'] = 'You can vote through [sec] seconds';
 $lng['min_miners_count'] = 'Voting will be available after the typed [miners_count] miners. Remaining [remaining]';
 $lng['wait_voting'] = 'You can vote through [sec] seconds';
 $lng['refs'] = 'Referral bonuses';
 $lng['ref_level'] = 'Level';
-$lng['currency_properties'] = 'Currency properties';
-$lng['elections_admin'] = 'Elections admin';
-$lng['elections_admin_text'] = 'Leave 0 if you do not want to change the admin.';
+$lng['currency_properties'] = 'Currency parameters';
+$lng['elections_admin'] = 'Administrator\'s choice';
+$lng['elections_admin_text'] = 'Leave 0, if you\'re not going to change the administrator.';
 
 // change_country_race
 $lng['change_country_race_title'] = 'Change country and race';
@@ -476,9 +476,9 @@ $lng['change_country_race_title'] = 'Change country and race';
 // points
 $lng['points'] = 'Points';
 $lng['points_status'] = 'Change of status from points';
-$lng['points_min'] = 'The current minimum number of points required to get "miner" status';
-$lng['points_yours'] = 'Your score';
-$lng['points_votes'] = '<a href="#" onclick="fc_navigate(\'voting\')">Voting</a> within the past 4 weeks';
+$lng['points_min'] = 'Current minimum of points for becoming a miner';
+$lng['points_yours'] = 'Your points';
+$lng['points_votes'] = '<a href="#" onclick="fc_navigate(\'voting\')">Voting</a> for over the last 4 weeks';
 $lng['points_votes_period'] = 'Recalculation of points and status change occurs every 30 days';
 
 // start_stop
@@ -641,7 +641,7 @@ $lng['pool_is_full'] = 'Sorry, the pool is full';
 // mining_menu
 $lng['vote_for_me'] = 'Voters\' comments';
 $lng['mining_menu']['inbox_text'] = 'Incoming requests to the specified <a href="#" onclick="fc_navigate(\'promised_amount_list\')"> promised amount </a>. You can configure the reporting of incoming requests in the  <a href="#" onclick="fc_navigate(\'notifications\')"> sms and email notification </a> ';
-$lng['mining_menu']['tasks_text'] = 'To get miners % for the promised sum, you need to get a certain number of points by performing tasks for checking other miners.';
+$lng['mining_menu']['tasks_text'] = 'To get miners % for the promised sum, you need to get a certain number of points by performing assignments for checking other miners.';
 $lng['mining_menu']['voting_text'] = 'To get miners % in addition to checking other miners, you need to vote for the% growth for each currency that you have in the promised amount, as well as - for the size of referral bonuses.';
 $lng['mining_menu']['reg_users_text'] = 'Each user who signs up for the search key issued, it becomes your referral. And you\'ll receive a coin namaynennyh of the promised sums, referral bonuses';
 $lng['mining_menu']['promised_amounts_text'] = 'This is the amount that you are willing to pay in exchange for the same number of Dcoin. Except DWOC, which Mein themselves. ';
