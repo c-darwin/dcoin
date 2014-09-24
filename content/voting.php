@@ -31,7 +31,8 @@ else {
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `currency_id`,
 						  `name`,
-						  `full_name`
+						  `full_name`,
+						  `start_time`
 			FROM `".DB_PREFIX."promised_amount`
 	        LEFT JOIN `currency` ON `currency`.`id` = `promised_amount`.`currency_id`
 			WHERE `user_id` = {$user_id} AND
