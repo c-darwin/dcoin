@@ -94,6 +94,8 @@ class ParseData extends OldParseData {
 
 	protected static $_instance;
 
+	public $admin_user_id;
+
 	// для тестов
 	public $tx_array;
 
@@ -386,7 +388,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			51 =>'change_creditor',
 			52 =>'del_credit',
 			53 =>'repayment_credit',
-			54 =>'change_credit_part'
+			54 =>'change_credit_part',
+			55 => 'new_admin'
 		);
 
 	}
@@ -1541,14 +1544,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
+	function get_admin_user_id()
+	{
+		$this->admin_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."admin`
+				LIMIT 1
+				", 'fetch_one' );
+	}
 
 	function general_check_admin() {
 
-		if ( !check_input_data ($this->tx_data['user_id'], 'admin_id') )
-			return 'error admin_id';
+		if ( !check_input_data ($this->tx_data['user_id'], 'int') )
+			return  __LINE__.'#'.__METHOD__.'(admin_id)';
 
-		if ( !check_input_data ($this->tx_data['time'], 'int') )
-			return 'admin error time';
+		// точно ли это текущий админ
+		$this->get_admin_user_id();
+		if ( $this->admin_user_id  != $this->tx_data['user_id'] )
+			return  __LINE__.'#'.__METHOD__.'(admin_user_id)';
 
 		// проверим, есть ли такой юзер и заодно получим public_key
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -1567,12 +1580,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->public_keys[2] = $data['public_key_2'];
 		debug_print( '$this->public_keys:'.print_r_hex($this->public_keys), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		if  ( !$this->public_keys ) {
-			return 'user_id';
+			return  __LINE__.'#'.__METHOD__.'(user_id)';
 		}
 
-		if ( strlen($this->tx_data['sign'])<256 || strlen($this->tx_data['sign'])>2048 )
-			return 'strlen sign '.strlen($this->tx_data['sign']);
-
+		if ( strlen($this->tx_data['sign'])<256 || strlen($this->tx_data['sign'])>2048 ) {
+			return  __LINE__.'#'.__METHOD__.'(strlen sign '.strlen($this->tx_data['sign']).')';
+		}
 	}
 
 	// общая проверка для всех _front кроме new_user_front
@@ -2057,6 +2070,92 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					");
 
 		}
+	}
+
+	function new_admin_init()
+	{
+		$error = $this->get_tx_data(array('admin_user_id', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	}
+
+	function new_admin_front()
+	{
+		$error = $this -> general_check();
+		if ($error) {
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+		}
+
+		// является ли данный юзер майнером
+		if (!$this->check_miner($this->tx_data['user_id'])) {
+			return  __LINE__.'#'.__METHOD__.'(miner_id)';
+		}
+
+		// получим public_key
+		$this->node_public_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `node_public_key`
+				FROM `".DB_PREFIX."miners_data`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_one' );
+		if  ( !$this->node_public_key ) {
+			return  __LINE__.'#'.__METHOD__.'(node_public_key)';
+		}
+
+		if ( !$this->tx_data['admin_user_id'] || !check_input_data ($this->tx_data['admin_user_id'], 'int') ) {
+			return  __LINE__.'#'.__METHOD__.'(admin_user_id)';
+		}
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['admin_user_id']}";
+		$error = self::checkSign ($this->node_public_key, $for_sign, $this->tx_data['sign'], true);
+		if ($error) {
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+		}
+
+		// проверим, прошло ли 2 недели с момента последнего обновления
+		$admin_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `time`
+				FROM `".DB_PREFIX."admin`
+				", 'fetch_one' );
+		if ( $this->tx_data['time']  - $admin_time <= $this->variables['new_pct_period'] ) {
+			return  __LINE__.'#'.__METHOD__.'(14 day error)';
+		}
+
+		// сколько всего майнеров
+		$count_miners = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`miner_id`)
+				FROM `".DB_PREFIX."miners`
+				WHERE `active` = 1
+				", 'fetch_one' );
+		if ($count_miners < 1000) {
+			return  __LINE__.'#'.__METHOD__.'(count_miners)';
+		}
+
+		// берем все голоса
+		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`user_id`)
+				FROM `".DB_PREFIX."votes_admin`
+				WHERE `time` > ".($this->tx_data['time'] - $this->variables['new_pct_period'])." AND
+							 `admin_user_id` = {$this->tx_data['admin_user_id']}
+				", 'fetch_one');
+		if ($count <= $count_miners/2) {
+			return  __LINE__.'#'.__METHOD__.'(count miners)';
+		}
+	}
+
+	function new_admin()
+	{
+		$this->selective_logging_and_upd (array('user_id', 'time'), array($this->tx_data['admin_user_id'], $this->tx_data['time']), 'admin');
+	}
+
+	function new_admin_rollback_front()
+	{
+	}
+
+	function new_admin_rollback()
+	{
+		$this->selective_rollback (array('user_id', 'time'), 'admin');
 	}
 
 	// Эту транзакцию имеет право генерить только нод, который генерит данный блок
@@ -3466,8 +3565,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		        WHERE `user_id` = {$this->tx_data['user_id']}
 		        LIMIT 1
 		        ", 'fetch_one');
+		$this->get_admin_user_id();
 		if (!isset($this->block_data['block_id']) || isset($this->block_data['block_id']) && $this->block_data['block_id'] > 29047)
-			if ( $reg_time > ($time - $this->variables['miner_newbie_time']) && $this->tx_data['user_id'] != 1)
+			if ( $reg_time > ($time - $this->variables['miner_newbie_time']) && $this->tx_data['user_id'] != $this->admin_user_id)
 				return "error miner_newbie ({$reg_time} > {$time}-{$this->variables['miner_newbie_time']})";
 	}
 
@@ -3513,7 +3613,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'exists public_key';
 		}
 
-		if ($this->tx_data['user_id'] == 1)
+		$this->get_admin_user_id();
+		if ($this->tx_data['user_id'] == $this->admin_user_id)
 			$error = $this -> limit_requests( 1000, 'new_user', 86400 );
 		else
 			$error = $this -> limit_requests( $this->variables['limit_new_user'], 'new_user', $this->variables['limit_new_user_period'] );
@@ -4892,7 +4993,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// админ
-		if ($this->my_user_id == 1) {
+		$this->get_admin_user_id();
+		if ($this->my_user_id == $this->admin_user_id) {
 
 			// обновим статус в нашей локальной табле.
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -4921,7 +5023,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// админ
-		if ($this->my_user_id == 1) {
+		$this->get_admin_user_id();
+		if ($this->my_user_id == $this->admin_user_id) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					UPDATE `".DB_PREFIX."_my_admin_messages`
@@ -5013,7 +5116,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// админ
-		if ($this->my_user_id == 1) {
+		$this->get_admin_user_id();
+		if ($this->my_user_id == $this->admin_user_id) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						INSERT INTO `".DB_PREFIX."_my_admin_messages` (
@@ -5054,7 +5158,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// админ
-		if ($this->my_user_id == 1) {
+		$this->get_admin_user_id();
+		if ($this->my_user_id == $this->admin_user_id) {
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					DELETE FROM `".DB_PREFIX."_my_admin_messages`
@@ -6796,7 +6901,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				 )
 				 ||
 				 (  /*голос админа решающий в любое время, если <1000 майнеров в системе*/
-					$this->tx_data['user_id'] == 1 && $data['count_miners'] < 1000
+					$this->tx_data['user_id'] == $this->admin_user_id && $data['count_miners'] < 1000
 				 )
 			)
 				return true;
@@ -6811,7 +6916,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if  (
 				$data['votes_1'] >= $data['votes_1_min'] ||
 				(
-					$this->tx_data['user_id'] == 1 &&
+					$this->tx_data['user_id'] == $this->admin_user_id &&
 					$this->tx_data['result'] == 1 &&
 					$data['count_miners'] < 1000
 				) ||
@@ -6966,6 +7071,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// если голос решающий или голос админа
 		// голос админа решающий только при <1000 майнеров.
 		// -----------------------------------------------------------------------------
+		$this->get_admin_user_id();
 		if ( $this->check_24h_or_admin_vote ($data) ) {
 
 			debug_print('check_24h_or_admin_vote', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -7478,7 +7584,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 `type` = 'promised_amount'
 				LIMIT 1
 				", 'fetch_one' );
-		if  ( $num>0 && $this->tx_data['user_id'] != 1 ) // админу можно
+		$this->get_admin_user_id();
+		if  ( $num>0 && $this->tx_data['user_id'] != $this->admin_user_id ) // админу можно
 			return 'double voting';
 
 		// проверяем подпись
@@ -7997,6 +8104,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// если голос решающий или голос админа
 		// голос админа - решающий только при <1000 майнеров.
 		// -----------------------------------------------------------------------------
+		$this->get_admin_user_id();
 		if ( $this->check_24h_or_admin_vote ($data) ) {
 
 			// нужно залогировать, т.к. не известно, какие были status и tdc_amount_update
@@ -8697,7 +8805,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 
-		if ($this->tx_data['user_id']==1)
+		$this->get_admin_user_id();
+		if ($this->tx_data['user_id'] == $this->admin_user_id)
 			$error = $this -> limit_requests(500, 'new_credit', new_credit_period);
 		else
 			$error = $this -> limit_requests(limit_new_credit, 'new_credit', new_credit_period);
@@ -10454,12 +10563,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		global $reduction_dc;
 
 		$error = $this -> general_check();
-		if ($error)
-			return $error;
+		if ($error) {
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+		}
 
 		// является ли данный юзер майнером
-		if (!$this->check_miner($this->tx_data['user_id']))
-			return 'error miner id';
+		if (!$this->check_miner($this->tx_data['user_id'])) {
+			return  __LINE__.'#'.__METHOD__.'(miner)';
+		}
 
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
@@ -10467,28 +10578,29 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$time = time()-30; // просто на всякий случай небольшой запас
 		// У юзера должно либо вообще не быть cash_requests, либо должен быть последний со статусом approved. Иначе у него заморожен весь майнинг
 		$error =  self::check_cash_requests ($this->tx_data['user_id'], $this->db);
-		if ($error)
-			return $error;
+		if ($error) {
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+		}
 
 		// у юзера не должно быть обещанных сумм с for_repaid
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 
 		// прошло ли 30 дней с момента регистрации майнера
 		$error = $this->check_miner_newbie();
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['json_data']}";
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 
 		$json_data = json_decode($this->tx_data['json_data'], true);
 		if (!$json_data)
-			return 'error json_data';
+			return  __LINE__.'#'.__METHOD__.'(json_data)';
 
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
@@ -10499,30 +10611,53 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		debug_print($json_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		// раньше не было рефских
-		if (isset($this->block_data['block_id']) && $this->block_data['block_id']<=77951)
+		if ( isset($this->block_data['block_id']) && $this->block_data['block_id']<=77951 ) {
 			$currency_votes = $json_data;
+		}
 		else {
-			if (!isset($json_data['currency']) || !isset($json_data['referral']))
-				return 'error json_data currency';
+			if ( !isset($json_data['currency']) || !isset($json_data['referral']) )
+				return  __LINE__.'#'.__METHOD__.'(json_data currency)';
+
+			if ( !isset($this->block_data['block_id']) || $this->block_data['block_id']>=152900 ) {
+				if (!isset($json_data['admin']))
+					return  __LINE__.'#'.__METHOD__.'(json_data admin)';
+				if ( !check_input_data ($json_data['admin'], 'int') )
+					return  __LINE__.'#'.__METHOD__.'(json_data int)';
+				// есть ли такой юзер
+				if ($json_data['admin'] != 0) {
+					$admin_user_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+							SELECT `user_id`
+							FROM `".DB_PREFIX."users`
+							WHERE `user_id` = {$json_data['admin']}
+							", 'fetch_one');
+					if ( !$admin_user_id ) {
+						return  __LINE__.'#'.__METHOD__.'($admin_user_id)';
+					}
+				}
+			}
+
 			$currency_votes = $json_data['currency'];
 			// и проверяем голоса за реф. %
-			if ( !check_input_data (@$json_data['referral']['first'] , 'referral') || !check_input_data (@$json_data['referral']['second'] , 'referral') || !check_input_data (@$json_data['referral']['third'] , 'referral') )
-				return '!referral';
+			if ( !check_input_data (@$json_data['referral']['first'] , 'referral') || !check_input_data (@$json_data['referral']['second'] , 'referral') || !check_input_data (@$json_data['referral']['third'] , 'referral') ) {
+				return  __LINE__.'#'.__METHOD__.'(!referral)';
+			}
 		}
 
-		if (!is_array($currency_votes))
-			return 'error json_data currency_votes';
+		if (!is_array($currency_votes)) {
+			return  __LINE__.'#'.__METHOD__.'(json_data currency_votes)';
+		}
 
 		foreach ($currency_votes as $currency_id=>$data) {
 
 			debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 			if ( !check_input_data ($currency_id, 'int') )
-				return '$currency_id';
+				return  __LINE__.'#'.__METHOD__.'($currency_id)';
 
 			// проверим, что нет дублей
 			if (in_array($currency_id, $double_check))
-				return '$currency_id';
+				return  __LINE__.'#'.__METHOD__.'($currency_id)';
+
 			$double_check[] = $currency_id;
 
 			// есть ли такая валюта
@@ -10533,7 +10668,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					", 'fetch_one');
 
 			if ( !check_input_data ($currency_id, 'int') )
-				return '$currency_id';
+				return  __LINE__.'#'.__METHOD__.'($currency_id)';
 
 			// у юзера по данной валюте должна быть обещанная сумма, которая имеет статус mining/repaid и находится с таким статусом >90 дней
 			$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -10547,8 +10682,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `del_block_id` = 0 AND
 								 `del_mining_block_id` = 0
 					", 'fetch_one');
-			if ( !$id )
-				return 'no currency in promised_amount <('.$time.' - '.$this->variables['min_hold_time_promise_amount'].')';
+			if ( !$id ) {
+				return  __LINE__.'#'.__METHOD__.'(no currency in promised_amount <('.$time.' - '.$this->variables['min_hold_time_promise_amount'].'))';
+			}
 
 			// если по данной валюте еще не набралось >1000 майнеров, то за неё голосовать нельзя.
 			$count_miners = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -10563,17 +10699,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					GROUP BY `user_id`
 					", 'num_rows' );
 			if ($count_miners < $this->variables['min_miners_of_voting'])
-				return '$count_miners';
+				return  __LINE__.'#'.__METHOD__.'($count_miners)';
 
 			if ( !self::checkPct ($data[0]) )
-				return 'votes_pct_front miner_pct';
+				return  __LINE__.'#'.__METHOD__.'(votes_pct_front miner_pct)';
 
 			if ( !self::checkPct ($data[1]) )
-				return 'votes_pct_front user_pct';
+				return  __LINE__.'#'.__METHOD__.'(votes_pct_front user_pct)';
 
 			// max promise amount
 			if (!in_array($data[2], self::getAllMaxPromisedAmount()))
-				return 'max promised amount';
+				return  __LINE__.'#'.__METHOD__.'(max promised amount)';
 
 			$total_count_currencies = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT count(`id`)
@@ -10581,25 +10717,25 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_one' );
 			// max other currency 0/1/2/3/.../76
 			if ( !check_input_data ($data[3], 'int') || $data[3]>$total_count_currencies )
-				return 'max other currency';
+				return  __LINE__.'#'.__METHOD__.'(max other currency)';
 
 			$currency_count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT count(`id`)
 					FROM `".DB_PREFIX."currency`
 					", 'fetch_one');
 			if ($data[3] > $currency_count-1)
-				return 'max other currency';
+				return  __LINE__.'#'.__METHOD__.'(max other currency)';
 
 			// reduction 10/25/50/90
 			if (!in_array($data[4], $reduction_dc)) {
 				debug_print('$data[4]='.$data[4], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-				return 'reduction';
+				return  __LINE__.'#'.__METHOD__.'(reduction)';
 			}
 		}
 
 		$error = $this -> limit_requests( $this->variables['limit_votes_complex'], 'votes_complex', $this->variables['limit_votes_complex_period'] );
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 	}
 
 	// 15
@@ -10612,6 +10748,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	function votes_complex_rollback()
 	{
 		$json_data = json_decode($this->tx_data['json_data'], true);
+
+		// раньше не было выборов админа
+		if ($this->block_data['block_id']>=152900 && $json_data['admin'] != 0) {
+			$this->selective_rollback (array('admin_user_id', 'time'), 'votes_admin', "`user_id`={$this->tx_data['user_id']}");
+		}
 
 		// раньше не было рефских
 		if ($this->block_data['block_id']<=77951)
@@ -10662,6 +10803,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$currency_votes = $json_data['currency'];
 			// голоса за реф. %
 			$this->selective_logging_and_upd (array('first', 'second', 'third'), array($json_data['referral']['first'], $json_data['referral']['second'], $json_data['referral']['third']), 'votes_referral', array('user_id'), array($this->tx_data['user_id']));
+
+			// раньше не было выборов админа
+			if ( $this->block_data['block_id']>=152900 && $json_data['admin'] != 0 ) {
+				$this->selective_logging_and_upd (array('admin_user_id', 'time'), array($json_data['admin'], $this->tx_data['time']), 'votes_admin', array('user_id'), array($this->tx_data['user_id']));
+			}
+
 		}
 
 		foreach ($currency_votes as $currency_id=>$data) {
