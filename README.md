@@ -9,10 +9,10 @@ Copyright (c) 2014 Dcoin
 ### Dcoin structure
 
 ##### Core
-includes/*<br>
-cron/*
+includes/\*<br>
+cron/\*
 
-##### Incoming requests from the nodes::
+##### Incoming requests from the nodes
 ok.php<br>
 get_tx.php<br>
 gate_hashes.php<br>
@@ -23,22 +23,22 @@ get_max_block.php<br>
 gate_testblock.php<br>
 get_testblock_transactions.php
 
-##### Incoming requests from the internal network::
+##### Incoming requests from the internal network
 protected_gate_tx.php<br>
 protected_get_block.php<br>
 protected_get_max_block.php
 
-##### Interface::
-ajax/*<br>
-cf/*<br>
-content/*<br>
-css/*<br>
-fonts/*<br>
-img/*<br>
-js/*<br>
-lang/*<br>
-templates/*<br>
-tools/*<br>
+##### Interface
+ajax/\*<br>
+cf/\*<br>
+content/\*<br>
+css/\*<br>
+fonts/\*<br>
+img/\*<br>
+js/\*<br>
+lang/\*<br>
+templates/\*<br>
+tools/\*<br>
 index.php<br>
 content.php
 
