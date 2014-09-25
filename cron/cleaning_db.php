@@ -77,10 +77,16 @@ if ( $main_lock && (time() - $auto_reload > $main_lock) ) {
 					TRUNCATE TABLE `".DB_PREFIX."{$table}`
 					");
 
-			if ($table == 'cf_currency')
+			if ($table == 'cf_currency') {
 				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 						ALTER TABLE `".DB_PREFIX."cf_currency` auto_increment = 1000
 						");
+			}
+			else if ($table == 'admin') {
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+						INSERT INTO `".DB_PREFIX."admin` (`user_id`) VALUES (1)
+						");
+			}
 
 		}
 	}
