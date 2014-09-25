@@ -10618,7 +10618,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ( !isset($json_data['currency']) || !isset($json_data['referral']) )
 				return  __LINE__.'#'.__METHOD__.'(json_data currency)';
 
-			if ( !isset($this->block_data['block_id']) || $this->block_data['block_id']>=152900 ) {
+			if ( !isset($this->block_data['block_id']) || $this->block_data['block_id']>=153750 ) {
 				if (!isset($json_data['admin']))
 					return  __LINE__.'#'.__METHOD__.'(json_data admin)';
 				if ( !check_input_data ($json_data['admin'], 'int') )
@@ -10750,7 +10750,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$json_data = json_decode($this->tx_data['json_data'], true);
 
 		// раньше не было выборов админа
-		if ($this->block_data['block_id']>=152900 && $json_data['admin'] != 0) {
+		if ($this->block_data['block_id']>=153750 && $json_data['admin'] != 0) {
 			$this->selective_rollback (array('admin_user_id', 'time'), 'votes_admin', "`user_id`={$this->tx_data['user_id']}");
 		}
 
@@ -10805,7 +10805,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->selective_logging_and_upd (array('first', 'second', 'third'), array($json_data['referral']['first'], $json_data['referral']['second'], $json_data['referral']['third']), 'votes_referral', array('user_id'), array($this->tx_data['user_id']));
 
 			// раньше не было выборов админа
-			if ( $this->block_data['block_id']>=152900 && $json_data['admin'] != 0 ) {
+			if ( $this->block_data['block_id']>=153750 && $json_data['admin'] != 0 ) {
 				$this->selective_logging_and_upd (array('admin_user_id', 'time'), array($json_data['admin'], $this->tx_data['time']), 'votes_admin', array('user_id'), array($this->tx_data['user_id']));
 			}
 
