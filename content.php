@@ -23,8 +23,8 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 			', 'fetch_one');
 }
 
-if ( isset($_REQUEST['tpl_name']) && check_input_data($_REQUEST['tpl_name'], 'tpl_name') && ( !empty($_SESSION['user_id']) || preg_match('/install/', $_REQUEST['tpl_name']) ) )
-	$tpl_name = $_REQUEST['tpl_name'];
+if ( isset($_REQUEST['tpl_name']) && check_input_data($_REQUEST['tpl_name'], 'tpl_name') && ( !empty($_SESSION['user_id']) || preg_match("/^install_step_[0-9]+$/D", $_REQUEST['tpl_name']) ) )
+	$tpl_name = filter_var($_REQUEST['tpl_name'], FILTER_SANITIZE_STRING);
 else if ( isset($install_progress) && $install_progress==='complete' )
 	$tpl_name = 'login';
 else
