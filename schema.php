@@ -11,9 +11,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}admin` (
   `log_id` int(11) NOT NULL
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
 ";
-$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		INSERT INTO `{$db_name}`.`{$prefix}admin` (`user_id`) VALUES (1)
-		");
+$queries[] = "INSERT INTO `{$db_name}`.`{$prefix}admin` (`user_id`) VALUES (1)";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_admin`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_admin` (
