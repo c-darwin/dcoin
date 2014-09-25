@@ -22,6 +22,7 @@ if (!empty($_SESSION['restricted']))
 
 $_REQUEST['data'] = str_ireplace("\n", "<br>", $_REQUEST['data']);
 $data = json_decode($_REQUEST['data'], true);
+$id = intval($_REQUEST['id']);
 
 if ( !check_input_data ($data['parent_id'] , 'int') )
 	die('error parent_id');
@@ -47,7 +48,7 @@ $sql = "
 			   `message_type` = '{$data['type']}',
 			   `message_subtype` = '{$data['subtype']}',
 			   `decrypted` = 1
-		WHERE `id` = {$_REQUEST['id']}
+		WHERE `id` = {$id}
 		";
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,$sql);
 print json_encode(array('parent_id'=>$data['parent_id']));
