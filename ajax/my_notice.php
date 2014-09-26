@@ -10,13 +10,10 @@ define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 set_time_limit(0);
 
 //require_once( ABSPATH . 'includes/errors.php' );
-require_once( ABSPATH . 'includes/fns-main.php' );
-require_once( ABSPATH . 'includes/class-mysql.php' );
-
 if (file_exists(ABSPATH . 'db_config.php')) {
 
 	require_once( ABSPATH . 'db_config.php' );
-	require_once( ABSPATH . 'includes/class-parsedata.php' );
+	require_once( ABSPATH . 'includes/autoload.php' );
 
 	$lang = get_lang();
 

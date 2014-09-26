@@ -8,11 +8,8 @@ define( 'ABSPATH', dirname(__FILE__) . '/' );
 
 set_time_limit(0);
 
+require_once( ABSPATH . 'includes/autoload.php' );
 require_once( ABSPATH . 'includes/errors.php' );
-require_once( ABSPATH . 'includes/fns-main.php' );
-
-//require_once( ABSPATH . 'db_config.php' );
-require_once( ABSPATH . 'includes/class-mysql.php' );
 
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );

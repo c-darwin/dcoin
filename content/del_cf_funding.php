@@ -1,8 +1,6 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-
 $tpl['data']['type'] = 'del_cf_funding';
 $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
 $tpl['data']['time'] = time();

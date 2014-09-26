@@ -9,9 +9,8 @@ define( 'DC', TRUE);
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
 //require_once( ABSPATH . 'includes/errors.php' );
-require_once( ABSPATH . 'includes/fns-main.php' );
 require_once( ABSPATH . 'db_config.php' );
-require_once( ABSPATH . 'includes/class-mysql.php' );
+require_once( ABSPATH . 'includes/autoload.php' );
 
 
 if (!empty($_SESSION['restricted']))

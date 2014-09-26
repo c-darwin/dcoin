@@ -1,7 +1,5 @@
 <?php
 
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-
 $tpl['data']['type'] = 'mining';
 $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
 $tpl['data']['time'] = time();

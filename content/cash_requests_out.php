@@ -1,8 +1,6 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-
 $cash_requests_status =
 	array(
 		'my_pending'=> $lng['local_pending'],

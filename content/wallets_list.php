@@ -2,8 +2,6 @@
 
 if (!defined('DC')) die("!defined('DC')");
 
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-
 // уведомления
 $tpl['alert'] = @$_REQUEST['parameters']['alert'];
 

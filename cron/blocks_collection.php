@@ -11,17 +11,9 @@ define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
 set_time_limit(0);
 
-require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'db_config.php' );
-require_once( ABSPATH . 'includes/class-mysql.php' );
-require_once( ABSPATH . 'includes/fns-main.php' );
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-require_once( ABSPATH . 'phpseclib/Math/BigInteger.php');
-require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
-require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
-require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
-if (!defined('PARSEDATA'))
-	die('!PARSEDATA');
+require_once( ABSPATH . 'includes/autoload.php' );
+require_once( ABSPATH . 'includes/errors.php' );
 
 function downloadFile ($url, $path) {
 	global $db;

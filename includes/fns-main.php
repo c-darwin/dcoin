@@ -4118,4 +4118,5 @@ function get_promised_amounts($user_id)
 
 $my_tables = array('my_admin_messages','my_cash_requests','my_comments','my_commission','my_complex_votes','my_dc_transactions','my_holidays','my_keys','my_new_users','my_node_keys','my_notifications','my_promised_amount','my_table','my_tasks', 'my_cf_funding');
 
+$reduction_dc = array(0,10,25,50,90);
 ?>

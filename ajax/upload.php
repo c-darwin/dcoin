@@ -11,13 +11,12 @@ define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 set_time_limit(0);
 
 //require_once( ABSPATH . 'includes/errors.php' );
-require_once( ABSPATH . 'includes/fns-main.php' );
 
 if (!empty($_SESSION['restricted']))
 	die('Permission denied');
 
 require_once( ABSPATH . 'db_config.php' );
-require_once( ABSPATH . 'includes/class-mysql.php' );
+require_once( ABSPATH . 'includes/autoload.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 

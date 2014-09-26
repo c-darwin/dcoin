@@ -14,14 +14,10 @@ do {
 	}
 } while (!file_exists(ABSPATH . 'db_config.php') && $i<120);
 
-require_once( ABSPATH . 'includes/fns-main.php' );
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'db_config.php' );
-require_once( ABSPATH . 'includes/class-mysql.php' );
+require_once( ABSPATH . 'includes/autoload.php' );
+require_once( ABSPATH . 'includes/errors.php' );
 require_once( ABSPATH . 'cron/daemons_inc.php' );
-if (!defined('PARSEDATA'))
-	die('!PARSEDATA');
 
 define('WAIT_SCRIPT', 300);
 

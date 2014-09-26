@@ -1,6 +1,5 @@
 <?php
-
-require_once( ABSPATH . 'includes/class-parsedata.php' );
+if (!defined('DC')) die("!defined('DC')");
 
 $tpl['data']['type'] = 'change_promised_amount';
 $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);

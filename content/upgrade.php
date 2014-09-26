@@ -86,8 +86,6 @@ else {
 	$tpl['result'] = 'ok';
 }
 
-require_once( ABSPATH . 'includes/class-parsedata.php' );
-
 // сколько у нас осталось попыток стать майнером.
 $count_attempt = ParseData::count_miner_attempt($db, $user_id, 'user_voting');
 $variables = ParseData::get_variables($db,  array('miner_votes_attempt') );
