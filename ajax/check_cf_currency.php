@@ -19,7 +19,7 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 require_once( ABSPATH . 'lang/'.get_lang().'.php' );
 
-$project_currency_name = $_REQUEST['project_currency_name'];
+$project_currency_name = $db->escape($_REQUEST['project_currency_name']);
 if ( !check_input_data ($project_currency_name, 'cf_currency_name') )
 	die(json_encode(array('error'=>$lng['incorrect_currency_name'])));
 

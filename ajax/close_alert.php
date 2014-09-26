@@ -17,10 +17,11 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 if (!node_admin_access($db))
 	die ('Permission denied');
 
+$id = intval($_REQUEST['id']);
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			UPDATE `".DB_PREFIX."alert_messages`
 			SET `close` = 1
-			WHERE `id` <= {$_REQUEST['id']}
+			WHERE `id` <= {$id}
 			");
 
 

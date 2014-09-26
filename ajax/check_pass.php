@@ -13,7 +13,7 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 $community = get_community_users($db);
 if (!$community) {
 
-	$hash_pass= $_POST['hash_pass'];
+	$hash_pass = filter_var($_POST['hash_pass'], FILTER_SANITIZE_STRING);
 
 	if ( check_input_data ($hash_pass, 'hash_code') ) {
 

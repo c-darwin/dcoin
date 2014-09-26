@@ -23,8 +23,8 @@ require_once( ABSPATH . 'phpseclib/Crypt/AES.php');
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$email = $_REQUEST['email'];
-if(!filter_var($email, FILTER_VALIDATE_EMAIL))
+$email = filter_var($_REQUEST['email'], FILTER_SANITIZE_EMAIL);
+if(!filter_var($_REQUEST['email'], FILTER_VALIDATE_EMAIL))
 	die(json_encode(array('error'=>'incorrect email')));
 
 if(empty($_POST['e']) || empty($_POST['n']))

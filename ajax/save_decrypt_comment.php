@@ -56,13 +56,14 @@ $comment = filter_var($_REQUEST['comment'], FILTER_SANITIZE_STRING);
 $comment = str_ireplace(array('\'', '"'),  array('', ''), $comment);
 $comment = $db->escape($comment);
 
-
+$id = intval($_REQUEST['id']);
+$type = filter_var($_REQUEST['type'], FILTER_SANITIZE_STRING);
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
-		UPDATE `".DB_PREFIX.MY_PREFIX."my_{$_REQUEST['type']}`
+		UPDATE `".DB_PREFIX.MY_PREFIX."my_{$type}`
 		SET `comment`='{$comment}',
 			   `comment_status` = 'decrypted'
-		WHERE `id` = {$_REQUEST['id']}
+		WHERE `id` = {$id}
 		");
 print htmlentities($comment);
 

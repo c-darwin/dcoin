@@ -22,9 +22,9 @@ if (!empty($_SESSION['restricted']))
 
 $my_user_id = $_SESSION['user_id'];
 
-$min_amount = $_REQUEST['min_amount'];
-$currency_id = $_REQUEST['currency_id'];
-$ps_id = $_REQUEST['payment_system_id'];
+$min_amount = $db->escape($_REQUEST['min_amount']);
+$currency_id = $db->escape($_REQUEST['currency_id']);
+$ps_id = $db->escape($_REQUEST['payment_system_id']);
 
 if ( !check_input_data ($min_amount , 'amount') )
 	die('error min_amount');

@@ -22,12 +22,13 @@ if (!empty($_SESSION['restricted']))
 
 if ( !check_input_data ($_REQUEST['show_sign_data'] , 'int') )
 	die('error show_sign_data');
+$show_sign_data = intval($_REQUEST['show_sign_data']);
 
 define('MY_PREFIX', get_my_prefix($db));
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
-		SET  `show_sign_data` = {$_REQUEST['show_sign_data']}
+		SET  `show_sign_data` = {$show_sign_data}
 		");
 
 ?>

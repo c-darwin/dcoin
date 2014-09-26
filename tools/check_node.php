@@ -22,9 +22,9 @@ $block_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHO
 		", 'fetch_array');
 
 if ( isset($_REQUEST['col'], $_REQUEST['row'], $_REQUEST['table']) ) {
-	$table = $_REQUEST['table'];
-	$row = $_REQUEST['row'];
-	$col = $_REQUEST['col'];
+	$table = filter_var($_REQUEST['table'], FILTER_SANITIZE_STRING);
+	$row = filter_var($_REQUEST['row'], FILTER_SANITIZE_STRING);
+	$col = filter_var($_REQUEST['col'], FILTER_SANITIZE_STRING);
 	$all_tables = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SHOW TABLES
 			", 'array');

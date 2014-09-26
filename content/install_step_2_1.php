@@ -1,6 +1,9 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+if ($_SESSION['install_progress'] < 2)
+	die('access denied');
+
 if (file_exists(ABSPATH . 'db_config.php') && !@$_POST['mysql_host']){
 	require_once(ABSPATH . 'db_config.php');
 	$tpl['mysql_host'] = DB_HOST;
@@ -56,7 +59,7 @@ if ( !isset($tpl['error']) ) {
 
 		if ( !check_input_data ($_POST['pool_admin_user_id'], 'int') )
 			die('bad pool_admin_user_id');
-
+		$pool_admin_user_id = intval($_POST['pool_admin_user_id']);
 		$error = pool_add_users ($_POST['pool_data'], $my_queries, $mysqli_link, $prefix, true);
 		if ($error) die ($error);
 
@@ -66,7 +69,7 @@ if ( !isset($tpl['error']) ) {
 					`auto_reload`
 				)
 				VALUES (
-					{$_POST['pool_admin_user_id']},
+					{$pool_admin_user_id},
 					86400
 				)");
 
@@ -159,10 +162,6 @@ if (!isset($tpl['error'])) {
 		$tpl['php_path'] = $defined_constants['PHP_BINDIR'].'/php';
 	}
 
-
-
-	if ($_SESSION['install_progress'] < 2)
-		die('access denied');
 	$_SESSION['install_progress'] = 2.1;
 
 	require_once( ABSPATH . 'templates/install_step_2_1.tpl' );

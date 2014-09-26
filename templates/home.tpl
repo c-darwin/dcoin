@@ -248,7 +248,7 @@ if (isset($tpl['wallets'])) {
 
 
 
-		<?php if (@$_SESSION['ADMIN']==10) {?>
+		<?php if (@$_SESSION['ADMIN']==1) {?>
 			<br><br><br><br><button type="button" class="btn" data-toggle="button"  onclick="$.post('admin/content.php', { tpl_name: 'index', parameters: '' },
 	              function(data) {
 	              $('#dc_content').html( data );

@@ -20,7 +20,7 @@ if (!empty($_SESSION['restricted']))
 
 define('MY_PREFIX', get_my_prefix($db));
 
-$host = $_REQUEST['host'];
+$host = filter_var($_REQUEST['host'], FILTER_SANITIZE_URL);
 if ( substr ($host, strlen($host)-1, strlen($host) ) != '/' )
 	$host.='/';
 

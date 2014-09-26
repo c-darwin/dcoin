@@ -22,14 +22,16 @@ define('MY_PREFIX', get_my_prefix($db));
 
 if ( !check_input_data ($_REQUEST['race'] , 'int') )
 	die('error race');
+$race = intval($_REQUEST['race']);
 
 if ( !check_input_data ($_REQUEST['country'] , 'int') )
 	die('error country');
+$country = intval($_REQUEST['country']);
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
-		SET  `race` = {$_REQUEST['race']},
-				`country` = {$_REQUEST['country']}
+		SET  `race` = {$race},
+				`country` = {$country}
 		");
 
 ?>

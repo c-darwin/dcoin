@@ -47,7 +47,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			die('error public_key');
 
 		$public_key = hextobin($_REQUEST['public_key']);
-
+		$public_key_hex = $db->escape($_REQUEST['public_key']);
+		$private_key = $db->escape($_REQUEST['private_key']);
 		if (empty($_SESSION['restricted'])) {
 			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_new_users` (
@@ -55,8 +56,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 						`private_key`
 					)
 					VALUES (
-						0x{$_REQUEST['public_key']},
-						'{$_REQUEST['private_key']}'
+						0x{$public_key_hex},
+						'{$private_key}'
 					)");
 		}
 
@@ -333,8 +334,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 	case 'new_promised_amount' :
 
-		$currency_id = $_REQUEST['currency_id'];
-		$amount = $_REQUEST['amount'];
+		$currency_id = $db->escape($_REQUEST['currency_id']);
+		$amount = $db->escape($_REQUEST['amount']);
 		$video_type = $_REQUEST['video_type'];
 		$video_url_id = $_REQUEST['video_url_id'];
 		$payment_systems_ids = $_REQUEST['payment_systems_ids'];
@@ -374,7 +375,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$promised_amount_id = $_REQUEST['promised_amount_id'];
 			$amount = $_REQUEST['amount'];
-			$signature = hextobin($_POST['signature']);
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
 				encode_length(strlen($user_id)) . $user_id .
@@ -388,7 +388,6 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$promised_amount_id = $_REQUEST['promised_amount_id'];
 			$amount = $_REQUEST['amount'];
-			$signature = hextobin($_POST['signature']);
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .
 				encode_length(strlen($user_id)) . $user_id .
@@ -430,9 +429,9 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'change_geolocation' :
 
-			$latitude = $_REQUEST['latitude'];
-			$longitude = $_REQUEST['longitude'];
-			$country = $_REQUEST['country'];
+			$latitude = $db->escape($_REQUEST['latitude']);
+			$longitude = $db->escape($_REQUEST['longitude']);
+			$country = intval($_REQUEST['country']);
 
 			if ( !check_input_data ($latitude, 'coordinate' ) )
 				die('error latitude');
@@ -488,10 +487,10 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'send_dc' :
 
-			$to_user_id = $_REQUEST['to_id'];
-			$currency_id = $_REQUEST['currency_id'];
-			$amount = $_REQUEST['amount'];
-			$commission = $_REQUEST['commission'];
+			$to_user_id = intval($_REQUEST['to_id']);
+			$currency_id = intval($_REQUEST['currency_id']);
+			$amount = $db->escape($_REQUEST['amount']);
+			$commission = $db->escape($_REQUEST['commission']);
 			$comment = $_REQUEST['comment'];
 			$comment_text = $_REQUEST['comment_text'];
 
@@ -555,9 +554,9 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'cf_send_dc' :
 
-			$project_id = $_REQUEST['to_id'];
-			$amount = $_REQUEST['amount'];
-			$commission = $_REQUEST['commission'];
+			$project_id = intval($_REQUEST['to_id']);
+			$amount = $db->escape($_REQUEST['amount']);
+			$commission = $db->escape($_REQUEST['commission']);
 			$comment = $_REQUEST['comment'];
 			$comment_text = $_REQUEST['comment_text'];
 
@@ -622,13 +621,13 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'cash_request_out' :
 
-			$to_user_id = $_REQUEST['to_user_id'];
-			$currency_id = $_REQUEST['currency_id'];
-			$amount = $_REQUEST['amount'];
+			$to_user_id = intval($_REQUEST['to_user_id']);
+			$currency_id = intval($_REQUEST['currency_id']);
+			$amount = $db->escape($_REQUEST['amount']);
 			$comment = hextobin($_REQUEST['comment']);
 			$comment_text = $_REQUEST['comment_text'];
 			$hash_code = $_REQUEST['hash_code'];
-			$code = $_REQUEST['code'];
+			$code = $db->escape($_REQUEST['code']);
 
 			if ( !check_input_data ($code, 'cash_code' ) )
 				die('error code');
@@ -725,7 +724,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `time`
 					FROM `".DB_PREFIX."log_time_abuses`
-					WHERE `user_id` = '{$user_id}'
+					WHERE `user_id` = {$user_id}
 					LIMIT 1
 					", 'num_rows' );
 			if ( $num > 0 )
@@ -814,11 +813,11 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'change_primary_key' :
 
-			$public_key_1 = $_REQUEST['public_key_1'];
+			$public_key_1 = $db->escape($_REQUEST['public_key_1']);
 			$public_key_2 = $_REQUEST['public_key_2'];
 			$public_key_3 = $_REQUEST['public_key_3'];
-			$private_key = $_REQUEST['private_key'];
-			$password_hash = $_REQUEST['password_hash'];
+			$private_key = $db->escape($_REQUEST['private_key']);
+			$password_hash = $db->escape($_REQUEST['password_hash']);
 			$save_private_key = $_REQUEST['save_private_key'];
 
 			if ( !check_input_data ($public_key_1, 'public_key' ) )
@@ -868,8 +867,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'change_node_key' :
 
-			$public_key = $_REQUEST['public_key'];
-			$private_key = $_REQUEST['private_key'];
+			$public_key = $db->escape($_REQUEST['public_key']);
+			$private_key = $db->escape($_REQUEST['private_key']);
 
 			if ( !check_input_data ($public_key, 'public_key' ) )
 				die('error public_key');
@@ -911,8 +910,8 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'new_holidays' :
 
-			$start_time = $_REQUEST['start_time'];
-			$end_time = $_REQUEST['end_time'];
+			$start_time = intval($_REQUEST['start_time']);
+			$end_time = intval($_REQUEST['end_time']);
 
 			if ( !check_input_data ($start_time, 'int' ) )
 				die('error start_time');
@@ -1045,13 +1044,13 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			//print_r($_REQUEST);
 
-			$message_id = $_REQUEST['message_id'];
+			$message_id = intval($_REQUEST['message_id']);
 			$parent_id = $_REQUEST['parent_id'];
 			$subject = $_REQUEST['subject'];
 			$message = $_REQUEST['message'];
 			$message_type = $_REQUEST['message_type'];
 			$message_subtype = $_REQUEST['message_subtype'];
-			$encrypted_message = $_REQUEST['encrypted_message'];
+			$encrypted_message = $db->escape($_REQUEST['encrypted_message']);
 
 			if ( !check_input_data ($message_id, 'int' ) )
 				die('error message_id');
@@ -1117,7 +1116,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 		case 'change_host' :
 
-			$host = $_REQUEST['host'];
+			$host = $db->escape($_REQUEST['host']);
 
 			if ( !check_input_data ($host, 'host' ) )
 				die('error host');
@@ -1146,7 +1145,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$buy_currency_id = $_REQUEST['buy_currency_id'];
 			$commission = $_REQUEST['commission'];
 
-			print_R($_REQUEST);
+			//print_R($_REQUEST);
 //			$error = $this->get_tx_data(array('sell_currency_id', 'sell_rate', 'amount', 'buy_currency_id', 'commission', 'sign'));
 			$data = dec_binary ($type, 1) .
 				dec_binary ($time, 4) .

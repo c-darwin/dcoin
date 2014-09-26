@@ -21,20 +21,16 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 define('MY_PREFIX', get_my_prefix($db));
 
-	$_REQUEST['data'] = $db->escape($_REQUEST['data']);
-	$_REQUEST['data'] = str_replace('\"', '"', $_REQUEST['data']);
-	$data = json_decode($_REQUEST['data']);
+$data = json_decode($_REQUEST['data']);
 
-	for ($i=0; $i<sizeof($data); $i++ ) {
-		$data[$i]->name = $db->escape($data[$i]->name);
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX.MY_PREFIX."my_notifications`
-				SET `email` = ".intval($data[$i]->email).",
-					   `sms` = ".intval($data[$i]->sms)."
-			    WHERE `name` = '{$data[$i]->name}'
-				");
-		//print $db->printsql()."\n";
-	}
-	print '{"error":0}';
+for ($i=0; $i<sizeof($data); $i++ ) {
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			UPDATE `".DB_PREFIX.MY_PREFIX."my_notifications`
+			SET `email` = ".intval($data[$i]->email).",
+				   `sms` = ".intval($data[$i]->sms)."
+		    WHERE `name` = '".$db->escape($data[$i]->name)."'
+			");
+}
+print '{"error":0}';
 
 ?>

@@ -21,7 +21,7 @@ function decode_length (&$string) {
 }
 
 $ip = $_SERVER['REMOTE_ADDR'];
-if (substr($ip, 0, 7)!='192.168' && substr($ip, 0, 3)!='127' && substr($ip, 0, 3)!='10.' )
+if (substr($ip, 0, 7)!='192.168')
 	die('error ip '.$ip);
 
 $encrypted_data = $_POST['data'];

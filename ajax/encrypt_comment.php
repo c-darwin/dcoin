@@ -23,9 +23,9 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
 $to_id = 0;
 if (isset($_REQUEST['to_id']))
-	$to_id = $_REQUEST['to_id'];
+	$to_id = intval($_REQUEST['to_id']);
 if (!$to_id)
-	$to_id = $_REQUEST['to_user_id'];
+	$to_id = intval($_REQUEST['to_user_id']);
 if ( !check_input_data ($to_id , 'int') )
 	die('error $to_id');
 

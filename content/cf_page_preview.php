@@ -10,11 +10,11 @@ $tpl['cf_url'] = get_cf_url();
 if (isset($_REQUEST['parameters']['page']) && !preg_match('/^[a-z]{0,10}$/iD', $_REQUEST['parameters']['page']))
 	die ('error page');
 
-$cf_currency_name = @$_REQUEST['parameters']['only_cf_currency_name'];
+$cf_currency_name = filter_var(@$_REQUEST['parameters']['only_cf_currency_name'], FILTER_SANITIZE_STRING);
 if (isset($cf_currency_name) && !preg_match('/^[a-z0-9]{7}$/iD', $cf_currency_name))
 	die ('error only_cf_currency_name');
 
-$tpl['page'] = @$_REQUEST['parameters']['page'];
+$tpl['page'] = filter_var(@$_REQUEST['parameters']['page'], FILTER_SANITIZE_STRING);
 if (!$tpl['page'])
 	$tpl['page'] = 'home';
 
@@ -60,13 +60,13 @@ if ($_REQUEST['parameters']['only_project_id'] || $cf_currency_name) {
 }
 else {
 	$tpl['project_id'] = intval($_REQUEST['project_id']);
-	$tpl['blurb_img'] = $_REQUEST['blurb_img'];
-	$tpl['head_img'] = $_REQUEST['head_img'];
-	$tpl['description_img'] = $_REQUEST['description_img'];
-	$tpl['picture'] = $_REQUEST['picture'];
-	$tpl['video_type'] = $_REQUEST['video_type'];
-	$tpl['video_url_id'] = $_REQUEST['video_url_id'];
-	$tpl['news_img']= $_REQUEST['news_img'];
+	$tpl['blurb_img'] = filter_var($_REQUEST['blurb_img'], FILTER_SANITIZE_URL);
+	$tpl['head_img'] = filter_var($_REQUEST['head_img'], FILTER_SANITIZE_URL);
+	$tpl['description_img'] = filter_var($_REQUEST['description_img'], FILTER_SANITIZE_URL);
+	$tpl['picture'] = filter_var($_REQUEST['picture'], FILTER_SANITIZE_URL);
+	$tpl['video_type'] = $db->escape($_REQUEST['video_type']);
+	$tpl['video_url_id'] = $db->escape($_REQUEST['video_url_id']);
+	$tpl['news_img']= filter_var($_REQUEST['news_img'], FILTER_SANITIZE_URL);
 	$tpl['links']= json_decode($_REQUEST['links'], true);
 }
 

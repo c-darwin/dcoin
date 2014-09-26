@@ -27,8 +27,8 @@ if (!$PublicKey)
 // пишем в нашу таблу паблик-кей и если нужно, запароленный приватный ключ и хэш пароля
 if (!$tpl['error'] && $_POST['save_private_key']) {
 
-	$private_key = $_POST['private_key'];
-	$hash_pass = $_POST['hash_pass'];
+	$private_key = $db->escape($_POST['private_key']);
+	$hash_pass = $db->escape($_POST['hash_pass']);
 
 	if ($private_key && !preg_match('/^[0-9a-z=\-\/\+\s\n\r]{256,4096}$/Di', $private_key))
 		$tpl['error'][] = 'bad $private_key: '.$private_key;

@@ -1,10 +1,10 @@
 <?php
 
 $ip = $_SERVER['REMOTE_ADDR'];
-if (substr($ip, 0, 7)!='192.168' && substr($ip, 0, 3)!='127' && substr($ip, 0, 3)!='10.' )
+if (substr($ip, 0, 7)!='192.168' )
 	die('error ip '.$ip);
 
-$host = $_REQUEST['node_host'];
+$host = filter_var($_REQUEST['node_host'], FILTER_SANITIZE_URL);
 if (!preg_match('/^https?:\/\/[0-9a-z\_\.\-\/:]{1,100}[\/]$/iD', $host))
 	die('error host');
 

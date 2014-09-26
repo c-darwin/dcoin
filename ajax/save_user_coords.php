@@ -20,6 +20,7 @@ if (!empty($_SESSION['restricted']))
 
 define('MY_PREFIX', get_my_prefix($db));
 
+$type = filter_var($_REQUEST['type'], FILTER_SANITIZE_STRING);
 if ( $_REQUEST['type']!='face' &&  $_REQUEST['type']!='profile' )
 	die ('type error');
 
@@ -31,7 +32,7 @@ for ($i=0; $i<sizeof($_REQUEST['coords']); $i++) {
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
-		SET `{$_REQUEST['type']}_coords` = '".json_encode($coords)."'
+		SET `{$type}_coords` = '".json_encode($coords)."'
 		");
 
 ?>

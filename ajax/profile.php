@@ -16,7 +16,7 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$user_id = $_REQUEST['user_id'];
+$user_id = intval($_REQUEST['user_id']);
 
 if ( !check_input_data ($user_id , 'int') )
 	die('error user_id');

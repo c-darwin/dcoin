@@ -22,15 +22,19 @@ if (!node_admin_access($db))
 
 if ( !check_input_data ($_REQUEST['in_connections_ip_limit'] , 'int') )
 	die('error in_connections_ip_limit');
+$in_connections_ip_limit = intval($_REQUEST['in_connections_ip_limit']);
 
 if ( !check_input_data ($_REQUEST['in_connections'] , 'int') )
 	die('error in_connections');
+$in_connections = intval($_REQUEST['in_connections']);
 
 if ( !check_input_data ($_REQUEST['out_connections'] , 'int') )
 	die('error out_connections');
+$out_connections = intval($_REQUEST['out_connections']);
 
 if ( !check_input_data ($_REQUEST['auto_reload'] , 'int') )
 	die('error auto_reload');
+$auto_reload = intval($_REQUEST['auto_reload']);
 
 $cf_url = $db->escape($_REQUEST['cf_url']);
 $pool_url = $db->escape($_REQUEST['pool_url']);
@@ -39,14 +43,17 @@ define('MY_PREFIX', get_my_prefix($db));
 
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX."config`
-		SET  `in_connections_ip_limit` = {$_POST['in_connections_ip_limit']},
-				`in_connections` = {$_POST['in_connections']},
-				`out_connections` = {$_POST['out_connections']},
+		SET  `in_connections_ip_limit` = {$in_connections_ip_limit},
+				`in_connections` = {$in_connections},
+				`out_connections` = {$out_connections},
 				`cf_url` = '{$cf_url}',
 				`pool_url` = '{$pool_url}',
-				`auto_reload` = {$_POST['auto_reload']}
+				`auto_reload` = {$auto_reload}
 		");
+$config_ini = $_POST['config_ini'];
+if (!parse_ini_string($config_ini))
+	die('error config_ini');
 
-@file_put_contents( ABSPATH . 'config.ini', $_POST['config_ini'] );
+@file_put_contents( ABSPATH . 'config.ini', $config_ini );
 
 ?>

@@ -17,7 +17,7 @@ require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
 $dc_currency_id = intval($_REQUEST['dc_currency_id']);
 $currency_id = intval($_REQUEST['currency_id']);
-$amount = $_REQUEST['amount'];
+$amount = $db->escape($_REQUEST['amount']);
 if ( !preg_match('/^[0-9]{0,6}(\.[0-9]{0,8})?$/D', $amount) || $amount == 0)
 	die(json_encode(array('error'=>'amount_error')));
 

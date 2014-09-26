@@ -14,8 +14,8 @@ require_once( ABSPATH . 'includes/class-parsedata.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
-$start = @$_REQUEST['start'];
-$block_id = @$_REQUEST['block_id'];
+$start = intval(@$_REQUEST['start']);
+$block_id = intval(@$_REQUEST['block_id']);
 if ( !empty($start) && !check_input_data ($start, 'bigint'))
 	die ('bad input data');
 if ( !empty($block_id) && !check_input_data ($block_id, 'bigint'))
