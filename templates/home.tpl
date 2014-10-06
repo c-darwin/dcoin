@@ -110,7 +110,7 @@ if (isset($tpl['wallets'])) {
 								<?php echo $data['amount']?>
 							</div>
 							<div class="col-xs-9 text-right">
-								<div class="huge" style="font-size: 40px;line-height: 0; padding-top:30px"><?php echo "D{$tpl['currency_list'][$data['currency_id']]}"?></div>
+								<div class="huge" style="font-size: 40px;line-height: 0; padding-top:30px"><?php echo "d{$tpl['currency_list'][$data['currency_id']]}"?></div>
 							</div>
 						</div>
 					</div>
@@ -122,6 +122,30 @@ if (isset($tpl['wallets'])) {
 		$i++;
 	}
 	echo "<script>{$js}</script>";
+}
+?>
+<style>
+	.dc{font: bold italic 20px serif; }
+	.dc_div{position:absolute; top:50px; right:15px; color:#555}
+	.credit{position:absolute; top:8px; right:15px;}
+	.amount{font-size:40px; font-weight:bold; color:#5CB85C}
+	.my_panel_body{padding-top:5px; position:relative;}
+	.my_panel{width:215px; height:100px; margin-left:20px; background: linear-gradient(to bottom, #fff, #f0f0f0);}
+</style>
+
+	<div style="clear: both"></div>
+<?php
+if (isset($tpl['I_creditor'])) {
+	foreach ($tpl['I_creditor'] as $data) {
+	?>
+			<div class="panel panel-default my_panel" style="width: 215px; float: left; margin-right:20px; margin-left:0px">
+				<div class="panel-body my_panel_body">
+					<div class="amount"><?php echo round($data['amount'], 1)?></div> <div class="dc_div"><span class="dc">d</span><span style="font-size:30px; font-weight:bold;"><?php echo $tpl['currency_list'][$data['currency_id']]?></span></div>
+					<div class="credit"><a href="http://en.dcoinwiki.com/Crediting" target="_blank">Credit</a></div>
+				</div>
+			</div>
+	<?php
+	}
 }
 ?>
 
