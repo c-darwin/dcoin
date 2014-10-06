@@ -40,7 +40,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `currency_id`,
 					 `amount`
 		FROM `".DB_PREFIX."max_promised_amounts`
-		WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."max_promised_amounts` )
+		WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."max_promised_amounts` ) OR `block_id` = 0
 		");
 while ($row = $db->fetchArray($res))
 	$tpl['max_promised_amounts'][$row['currency_id']] = $row['amount'];
