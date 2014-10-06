@@ -1673,7 +1673,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}transactions` (
   `high_rate` tinyint(1) NOT NULL COMMENT '1 - админские, 0 - другие',
   `for_self_use` tinyint(1) NOT NULL COMMENT 'для new_pct(pct_generator.php), т.к. эта тр-ия валидна только вместе с блоком, который сгенерил тот, кто сгенерил эту тр-ию',
   `type` tinyint(4) NOT NULL COMMENT 'Тип тр-ии. Нужно для недопущения попадения в блок 2-х тр-ий одного типа от одного юзера',
-  `user_id` tinyint(4) NOT NULL COMMENT 'Нужно для недопущения попадения в блок 2-х тр-ий одного типа от одного юзера',
+  `user_id` int(11) NOT NULL COMMENT 'Нужно для недопущения попадения в блок 2-х тр-ий одного типа от одного юзера',
   `third_var` int(11) NOT NULL COMMENT 'Для исключения пересения в одном блоке удаления обещанной суммы и запроса на её обмен на DC. И для исключения голосования за один и тот же объект одним и тем же юзеров и одном блоке',
   `counter` tinyint(3) NOT NULL COMMENT 'Чтобы избежать зацикливания при проверке тр-ии: verified=1, новый блок, verified=0. При достижении 10-и - удаляем тр-ию ',
   `sent` tinyint(1) NOT NULL COMMENT 'Была отправлена нодам, указанным в nodes_connections',
