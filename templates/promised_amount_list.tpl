@@ -99,7 +99,7 @@ $("#main_div .amount").width( 70 );
 						$color = '#428BCA';
 					else
 						$color = 'green';
-					echo "<td id='currency_{$data['currency_id']}' style='color: {$color}; font-weight: bold; font-size: 15px'>{$data['tdc']}</td>";
+					echo "<td id='currency_{$data['currency_id']}_{$data['status']}' style='color: {$color}; font-weight: bold; font-size: 15px'>{$data['tdc']}</td>";
 					echo "<td style='text-align: center'><input type='text' class='input-mini' id='repaid-input-{$data['id']}' onkeyup=\"calc_commission('{$data['id']}')\" value='{$to_wallet}'><br><span id='commission-{$data['id']}'></span><button  onclick=\"mining_click({$data['id']})\" class='btn put_in_the_wallet' style='width:130px'>{$lng['put_in_the_wallet']}</button></td>";
 					//echo "<td>{$data['max_other_currencies']}</td>";
 					if ($data['currency_id'] > 1)
@@ -108,7 +108,7 @@ $("#main_div .amount").width( 70 );
 						echo "<td></td>";
 					echo "</tr>";
 					if ($data['pct_sec']>0)
-						$js.="dc_counter({$data['tdc']}, {$data['pct_sec']}, 'currency_{$data['currency_id']}');\n";
+						$js.="dc_counter({$data['tdc']}, {$data['pct_sec']}, 'currency_{$data['currency_id']}_{$data['status']}');\n";
 			}
 			echo '</tbody>';
 			echo '</table>';
