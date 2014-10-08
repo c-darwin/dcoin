@@ -2001,6 +2001,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_tech_works`  tinyint(1) NOT NULL,
   `cf_url`  varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
   `pool_url`  varchar(255) NOT NULL COMMENT 'URL, на который ссылается кнопка Contribute now из внешнего CF-каталога ',
+  `pool_email` varchar(255) NOT NULL COMMENT 'В режиме пула используется как адрес отправителя при рассылке уведомлений',
   `cf_available_coins_url` varchar(255) NOT NULL COMMENT 'URL биржи, где можно узнать, сколько там осталось монет в продаже по курсу 1',
   `cf_exchange_url` varchar(255) NOT NULL COMMENT 'URL биржи. Просто, чтобы дать на неё ссылку в сообщении, где говорится, что монеты на бирже кончились',
   `cf_top_html` text CHARACTER SET utf8 NOT NULL COMMENT 'html-код с платежными системами для страницы cf_page_preview',
