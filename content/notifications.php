@@ -1,6 +1,8 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+if (!empty($_SESSION['restricted']))
+	exit;
 
 $data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `email`,
