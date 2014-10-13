@@ -164,7 +164,7 @@ if (empty($_SESSION['restricted'])) {
 }
 // просто информируем, что в данном разделе у юзера нет прав
 $skip_community = array('node_config', 'nulling', 'start_stop');
-$skip_restricted_users = array('node_config', 'change_node_key', 'nulling', 'start_stop', 'cash_requests_in', 'cash_requests_out', 'upgrade', 'notifications');
+$skip_restricted_users = array('node_config', 'change_node_key', 'nulling', 'start_stop', 'cash_requests_in', 'cash_requests_out', 'upgrade', 'notifications', 'interface');
 if ( (!node_admin_access($db) && in_array($tpl_name, $skip_community)) ||  (!empty($_SESSION['restricted']) && in_array($tpl_name, $skip_restricted_users)) ) {
 	echo "
 			  <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
