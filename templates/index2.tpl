@@ -142,7 +142,7 @@
 
 			console.log('SIGN_LOGIN || PASS_LOGIN');
 
-			$("#page-wrapper").spin();
+			//$("#page-wrapper").spin();
 			if (key) {
 				// шлем подпись на сервер на проверку
 				$.post( 'ajax/check_sign.php', {
@@ -176,7 +176,7 @@
 
 			}
 
-			$("#page-wrapper").spin(false);
+			//$("#page-wrapper").spin(false);
 
 		}
 		else {
@@ -282,13 +282,6 @@
 	<!-- Bootstrap Core JavaScript -->
 	<script src="js/bootstrap.min.js"></script>
 
-	<!-- Custom Theme JavaScript -->
-
-  	<script>
-	  load_menu();
-	  $( "#dc_content" ).load( "content.php");
-
-	</script>
 
 	<!--<script src="https://maps.googleapis.com/maps/api/js?sensor=false" type="text/javascript"></script>-->
 	<script src="js/markerclusterer.js"></script>
@@ -359,6 +352,16 @@
 
 
 </script>
+
+<script>
+	$( document ).ready(function() {
+		$('#page-wrapper').spin();
+		load_menu();
+		$( "#dc_content" ).load( "content.php");
+	});
+</script>
+
+
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
 	(function (d, w, c) {

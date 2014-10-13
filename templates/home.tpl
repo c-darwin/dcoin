@@ -1,6 +1,11 @@
+<link rel="stylesheet" type="text/css" href="css/tooltipster.css" />
+<link rel="stylesheet" type="text/css" href="css/tooltipster-shadow.css" />
+<script type="text/javascript" src="js/jquery.tooltipster.min.js"></script>
+
 <script>
 
 	function my_notice() {
+		$('#page-wrapper').spin();
 		$.post('ajax/my_notice.php', function(data) {
 			//poll_time = Date.now();
 			//i++;
@@ -29,6 +34,7 @@
 				$('#bar_alert').css("display", "none");
 
 			//setTimeout(doPoll,30000);
+			$('#page-wrapper').spin(false);
 
 		}, 'json' );
 	}
@@ -90,7 +96,16 @@
 	}
 
 </script>
-
+<script>
+	$(document).ready(function() {
+		$('.tooltip').tooltipster({
+			delay: 50,
+			contentAsHTML: true,
+			interactive: true,
+			theme: 'tooltipster-shadow'
+		});
+	});
+</script>
 <div id="generate">
 <?php
 if (isset($tpl['wallets'])) {
@@ -128,6 +143,7 @@ if (isset($tpl['wallets'])) {
 	.dc{font: bold italic 20px serif; }
 	.dc_div{position:absolute; top:50px; right:15px; color:#555}
 	.credit{position:absolute; top:8px; right:15px;}
+	.rate{position:absolute; top:65px; left:18px;font-size:16px; font-weight:bold; color:#5CB85C}
 	.amount{font-size:40px; font-weight:bold; color:#5CB85C}
 	.my_panel_body{padding-top:5px; position:relative;}
 	.my_panel{width:215px; height:100px; margin-left:20px; background: linear-gradient(to bottom, #fff, #f0f0f0);}
@@ -142,6 +158,7 @@ if (isset($tpl['I_creditor'])) {
 				<div class="panel-body my_panel_body">
 					<div class="amount"><?php echo round($data['amount'], 1)?></div> <div class="dc_div"><span class="dc">d</span><span style="font-size:30px; font-weight:bold;"><?php echo $tpl['currency_list'][$data['currency_id']]?></span></div>
 					<div class="credit"><a href="http://en.dcoinwiki.com/Crediting" target="_blank">Credit</a></div>
+					<?php echo ($data['currency_id']==1)?'<div class="rate tooltip" title=\''.$lng['rate_1_1_dwoc'].'\'><i class="fa fa-line-chart"></i></div>':'<div class="rate tooltip" title=\''.str_replace('[currency]', $tpl['currency_list'][$data['currency_id']], htmlspecialchars($lng['rate_1_1'])).'\'>1:1</div>' ?>
 				</div>
 			</div>
 	<?php
@@ -223,13 +240,19 @@ if (isset($tpl['I_creditor'])) {
 				<div class="table-responsive table-bordered">
 					<table class="table" style="margin-bottom: 0px">
 						<?php
-						echo '<tr><th>'.$lng['amount'].'</th><th>'.$lng['currency'].'</th><th>User_ID</th></tr>';
+						echo '<tr><th>'.$lng['amount'].'</th><th>'.$lng['currency'].'</th><th>Debtor User ID</th></tr>';
 						if (isset($tpl['I_creditor']))
 						foreach ($tpl['I_creditor'] as $data) {
-							echo "<tr>";
+							if ($data['from_user_id']==1)
+								echo "<tr class='tooltip' title='{$lng['admin_debtor']}'>";
+							else
+								echo "<tr>";
 							echo "<td>{$data['amount']}</td>";
 							echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
-							echo "<td>{$data['from_user_id']}</td>";
+							if ($data['from_user_id']==1)
+								echo '<td><strong>'.$data['from_user_id'].'</strong></a></td>';
+							else
+								echo "<td>{$data['from_user_id']}</td>";
 						}
 						?>
 					</table>

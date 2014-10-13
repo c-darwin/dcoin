@@ -16,16 +16,11 @@ if (!$user_id) {
 ?>
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
 	<div class="navbar-header">
-		<a class="navbar-brand" href="#" style="display: block;
-	                   background: url(img/logo.png) center left no-repeat;
-	                   text-align: center;
-	                   background-size: 30px 30px;
-	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
+		<a class="navbar-brand" href="#" style="display: block; padding-left: 0px;  padding-top: 6px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')"><img src="../img/logo3.png" height="40"></a>
 	</div>
 	<!-- /.navbar-header -->
-
+	<!--
 	<ul class="nav navbar-top-links navbar-right">
-		<!-- /.dropdown -->
 		<li class="dropdown">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<i class="fa  fa-globe fa-fw"></i> Language <i class="fa fa-caret-down"></i>
@@ -36,10 +31,9 @@ if (!$user_id) {
 				<li><a href="#" onclick="fc_navigate('home', 'lang=42'); load_menu();">Русский</a>
 				</li>
 			</ul>
-			<!-- /.dropdown-user -->
 		</li>
-		<!-- /.dropdown -->
 	</ul>
+	-->
 	<!-- /.navbar-top-links -->
 
 </nav>
@@ -51,7 +45,7 @@ if (!$user_id) {
 	if ($tpl['pool_tech_works'])
 		echo '<div class="alert alert-info" style="width: 540px;position:absolute; top: 50%; left: 50%; margin-left: -270px; text-align:center">'.$lng['pool_tech_works'].'</div><div id="show_login" style="width: 40px; height:40px"></div>';
 	else
-		echo '<button type="button" class="btn btn-primary btn-lg" id="show_login">'.$lng['login'].'</button>';
+		echo '<button type="button" class="btn btn-primary btn-lg" id="show_login" style="display: none">'.$lng['login'].'</button>';
 	?>
 
 </div>
@@ -68,5 +62,11 @@ echo str_ireplace('myModal', 'myModalLogin', $modal);
 	$('#show_login').bind('click', function () {
 		$('#myModalLogin').modal({ backdrop: 'static' });
 	});
+
+	$( document ).ready(function() {
+		$('#show_login').css('display', 'block');
+		$('#page-wrapper').spin(false);
+	});
+
 </script>
 <div class="for-signature"></div>

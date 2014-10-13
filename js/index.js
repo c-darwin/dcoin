@@ -8,6 +8,9 @@ function fc_navigate (page, parameters) {
             //console.log('$("#page-wrapper").spin(false)');
             $('#dc_content').html( data );
             window.scrollTo(0,0);
+            if ($(".sidebar-collapse").is(":visible") && $(".navbar-toggle").is(":visible")) {
+               $('.sidebar-collapse').collapse('toggle');
+            }
         }, "html");
 
 }
@@ -19,6 +22,10 @@ function map_navigate (page) {
             $.getScript("https://maps.googleapis.com/maps/api/js?sensor=false&callback=initialize", function(){
                 $('#page-wrapper').spin(false);
             });
+            window.scrollTo(0,0);
+            if ($(".sidebar-collapse").is(":visible")) {
+                $('.sidebar-collapse').collapse('toggle');
+            }
         });
 }
 
@@ -68,6 +75,10 @@ function login_ok (result) {
 
 
 function save_key () {
+
+    $('#page-wrapper').spin();
+    console.log("$('#page-wrapper').spin();");
+
     var key = $("#modal_key").val();
     var password = $("#modal_password").val();
 

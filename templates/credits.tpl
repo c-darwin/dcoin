@@ -44,8 +44,8 @@
 	<div id="main_data">
 		<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
-		<h3><?php echo $lng['I_debtor']?></h3>
-		<table class="table" style="width:500px">
+		<h3><?php echo $lng['I_creditor']?></h3>
+		<table class="table" style="width:600px">
 		<?php
 			echo "<tr><th>{$lng['time']}</th><th>{$lng['amount']}</th><th>{$lng['currency']}</th><th>User_ID</th><th style='text-align: center'>{$lng['action']}</th></tr>";
 			foreach ($tpl['I_creditor'] as $data) {
@@ -60,7 +60,7 @@
 		</table>
 
 		<br>
-		<h3><?php echo $lng['I_creditor']?></h3>
+		<h3><?php echo $lng['I_debtor']?></h3>
 		<table class="table" style="width:500px">
 			<?php
 			echo "<tr><th>{$lng['time']}</th><th>{$lng['amount']}</th><th>{$lng['currency']}</th><th>User_ID</th><th>%</th><th style='text-align: center'>{$lng['pay']}</th></tr>";
@@ -86,4 +86,5 @@
 	</div>
 
 </div>
+
 <?php require_once( 'signatures.tpl' );?>

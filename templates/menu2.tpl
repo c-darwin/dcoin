@@ -6,18 +6,20 @@
 			<span class="icon-bar"></span>
 			<span class="icon-bar"></span>
 		</button>
-		<a class="navbar-brand" href="#" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
+
+		<a class="navbar-brand" href="#" style="display: block; padding-left: 0px;  padding-top: 6px; margin-left: 15px; margin-right: 5px" onclick="fc_navigate('home')"><img src="../img/logo3.png" height="40"></a>
+		<!--<a class="navbar-brand" href="#" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
 	                   background: url(img/logo.png) center left no-repeat;
 	                   text-align: center;
 	                   background-size: 30px 30px;
-	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>
+	                   padding-left: 40px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')">Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></a>-->
 	</div>
 	<!-- /.navbar-header -->
 
 	<ul class="nav navbar-top-links navbar-right">
 		<li class="dropdown">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
-				<i class="fa fa-cog fa-fw"></i>  <i class="fa fa-caret-down"></i>
+				<i class="fa fa-cog fa-fw"></i> Settings <i class="fa fa-caret-down"></i>
 			</a>
 			<ul class="dropdown-menu">
 				<?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'change_node_key\')">'.$lng['change_node_key'].'</a></li>':''?>
@@ -39,6 +41,7 @@
 		</li>
 
 		<!-- /.dropdown -->
+		<!--
 		<li class="dropdown">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<i class="fa  fa-globe fa-fw"></i> Language <i class="fa fa-caret-down"></i>
@@ -49,8 +52,8 @@
 				<li><a href="#" onclick="fc_navigate('home', 'lang=42'); load_menu();">Русский</a>
 				</li>
 			</ul>
-			<!-- /.dropdown-user -->
 		</li>
+		-->
 		<!-- /.dropdown -->
 	</ul>
 	<!-- /.navbar-top-links -->
@@ -114,13 +117,13 @@
 					<a href="#"><i class="fa  fa-life-ring  fa-fw"></i> Help<span class="fa arrow"></span></a>
 					<ul class="nav nav-second-level">
 						<li>
-							<a href="http://democratic-coin.com" target="_blank"><?php echo $lng['about_dcoin']?></a>
+							<a href="http://dcoin.me" target="_blank"><?php echo $lng['about_dcoin']?></a>
 						</li>
 						<li>
-							<a href="http://dcoinwiki.com" target="_blank">Wiki</a>
+							<a href="http://en.dcoinwiki.com" target="_blank">Wiki</a>
 						</li>
 						<li>
-							<a href="mailto: admin@democratic-coin.com">Support</a>
+							<a href="mailto: admin@dcoin.me">Support</a>
 						</li>
 						<li>
 							<a href="http://dcoinforum.org" target="_blank">Forum</a>
@@ -145,6 +148,7 @@
 	</div>
 	<!-- /.navbar-static-side -->
 </nav>
+
 <?php
 require_once( ABSPATH . 'templates/modal.tpl' );
 echo $modal;
