@@ -62,7 +62,7 @@ if ($my_users_ids) {
 	}
 }
 
-$subj = "From DCoin server";
+$subj = "DCoin notifications";
 
 foreach($notifications_array as $name => $notification_info) {
 
@@ -195,7 +195,9 @@ foreach($notifications_array as $name => $notification_info) {
 				$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 						SELECT `id`,
 									  `amount`,
-									 `currency_id`
+									 `currency_id`,
+									 `comment_status`,
+									 `comment`
 						FROM `".DB_PREFIX."{$my_prefix}my_dc_transactions`
 						WHERE `to_user_id` = {$user_id} AND
 									 `notification` = 0 AND
@@ -204,7 +206,11 @@ foreach($notifications_array as $name => $notification_info) {
 				while ($row = $db->fetchArray($res)) {
 
 					$my_data = $user_email_sms_data[$user_id];
-					$my_data['text'] = "New DC: {$row['amount']} D{$currency_list[$row['currency_id']]}";
+					if ($row['comment_status'] == 'decrypted')
+						$comment = "<br><span style=\"font-size:16px\">{$row['comment']}</span>";
+					else
+						$comment = '';
+					$my_data['text'] = "New DC: {$row['amount']} D{$currency_list[$row['currency_id']]} {$comment}";
 					$my_data['subj'] = $subj;
 					if ($notifications_array[$name][$user_id]['email'])
 						send_mail($my_data);

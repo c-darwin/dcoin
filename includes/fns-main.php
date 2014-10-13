@@ -747,9 +747,10 @@ function clear_public_key($key)
 
 function send_mail($mail_data)
 {
+	global $db;
 	//debug_print($mail_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-
 	$mail                = new PHPMailer();
+	$mail->IsHTML(true);
 	if ($mail_data['use_smtp'] && $mail_data['smtp_server'])
 	{
 		$mail->IsSMTP();
@@ -760,11 +761,47 @@ function send_mail($mail_data)
 		$mail->Username      = $mail_data['smtp_username'];
 		$mail->Password      = $mail_data['smtp_password'];
 	}
-	$mail->SetFrom($mail_data['email'], 'Server');
-
+	if (get_community_users($db)) {
+		$config = get_node_config();
+		$mail_from = $config['pool_email'];
+		$node_url = $config['pool_url'];
+	}
+	else {
+		$mail_from = $mail_data['email'];
+		$node_url = '';
+	}
+	$mail->SetFrom($mail_from, 'DemocraticCoin');
 	$mail->Subject       = $mail_data['subj'];
-	$mail->Body    = $mail_data['text'];
-	$mail->AddAddress($mail_data['email'], 'Server');
+	$mail->Body    = '<table width="100%" cellspacing="0" cellpadding="0" border="0">
+        <tr>
+                 <td style="font-family: \'helvetica neue\', \'helvetica\', \'arial\', \'sans-serif\'; font-size: 14px;">
+                          <table width="100%" bgcolor="f0f0f0" color="000000" cellspacing="0" cellpadding="0" border="0">
+                                   <tr>
+                                            <td>
+                                                     <table width="560" align="center" cellspacing="0" cellpadding="8" border="0">
+                                                     <tr>
+														<td><img src="http://dcoin.me/email/logo.png" alt="Dcoin" style="width: 280px; height: 62px; margin: 10px 0 15px;" />
+															<table width="100%" bgcolor="ffffff" style="border: 1px solid #eeeeee; margin-bottom: 10px; padding: 30px 16px; box-shadow: 0 1px 2px rgba(0,0,0,0.07); line-height: 1.4;" cellspacing="0" cellpadding="0" border="0">
+															<tr>
+																<td>
+																<table width="100%" cellspacing="0" cellpadding="0" border="0"><tr><td valign="middle" align="center" height="200" style="font-size: 20px; text-decoration: none; color: #111111;">'.$mail_data['text'].'</td></tr></table>
+																</td>
+															</tr>
+															</table>
+														</td>
+                                                     </tr>
+                                                     <tr>
+														<td><p style="margin-bottom: 20px; text-align: center; font-size: 11px; color: #555555;">You can cut off the e-mail notifications here: '.$node_url.' -> Settings -> Sms and email notifications</p>
+														</td>
+                                                     </tr>
+													</table>
+                                            </td>
+                                   </tr>
+                          </table>
+                 </td>
+        </tr>
+</table>';
+	$mail->AddAddress($mail_data['email']);
 
 	if(!$mail->Send()) {
 		echo json_encode(
