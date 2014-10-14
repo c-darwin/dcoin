@@ -452,6 +452,11 @@ $lng['max'] = 'max';
 $lng['change_commission_limits_text'] = 'Change Commission can be no more [limit] times per [period]';
 $lng['no_saved_values'] = 'You have no saved values. Please send it to the DC-network';
 
+$lng['rate_1_1'] = 'The rate of d[currency] to [currency] is always 1:1, because it is accepted by those who become "ATM" (<a href="http://dcoin.me/" target="_blank">watch the video</a>). The decrease of demand for d[currency] causes an automatic d[currency] volume’s reduction. And the increase of demand makes inverse consequences. The rate doesn’t fluctuate, number of coins does. If on the external exchanges the rate is decreased, then "ATM" realizing that will stop to fulfil their commitments (to exchange d[currency] into [currency] at the rate of 1:1) and as a result there will be an automatic coins volume’s reduction (<a href="http://dcoin.me/" target="_blank">watch the video</a>). The reduction of coins’ volume doesn’t influence the credits.';
+
+$lng['rate_1_1_dwoc'] = 'The rate of dWOC determines by the market, just as value of every other cryptocurrency.';
+$lng['admin_debtor'] = 'The founder of Dcoin is your debtor. The credit will repay out of a system commission and any others founder’s receipts.';
+
 // voting
 $lng['voting_title'] = 'Voting';
 $lng['voting_message'] = 'Fill the lines of every mentioned currency. Zero values also take a part in voting.';
@@ -630,7 +635,7 @@ $lng['name'] = 'Name';
 $lng['avatar'] = 'Avatar';
 
 // login
-$lng['login_help_text'] = 'If you do not have a key, you can ask it on the  <a href="http://dcoinforum.org/index.php?topic=32.0" style="text-decoration: underline">forum</a> at the miners  or take  <a href="http://pool.dcrowd.org/tools/available_keys.php" style="text-decoration: underline">here</a>';
+$lng['login_help_text'] = 'If you don’t have a key, you can ask miners on the  <a href="http://dcoinforum.org/index.php?topic=32.0" style="text-decoration: underline">forum</a> for it, or take it <a href="http://pool.dcrowd.org/tools/available_keys.php" style="text-decoration: underline">here</a>';
 $lng['login'] = 'Login';
 $lng['login_title'] = 'Login';
 $lng['key'] = 'Key';
@@ -675,10 +680,10 @@ $lng['pool_tech_works'] = 'On the pool are technical works. Please check back la
 $lng['credits'] = 'Credits';
 $lng['I_debtor'] = 'I - debtor';
 $lng['I_creditor'] = 'I - creditor';
-$lng['transfer '] = 'Transfer';
+$lng['transfer'] = 'Transfer';
 $lng['pay'] = 'Pay';
 $lng['create_credit'] = 'Create credit';
-$lng['will_not_be_used'] = 'What part of coming to your funds will not be used for repayment of loans';
+$lng['will_not_be_used'] = 'What part of coming to your funds will <strong>not</strong> be used for repayment of loans';
 
 // change_creditor
 $lng['transfer_of_credit'] = 'Transfer of credit';

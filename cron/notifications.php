@@ -127,7 +127,7 @@ foreach($notifications_array as $name => $notification_info) {
 				if ($data) {
 
 					$my_data = $user_email_sms_data[$user_id];
-					$my_data['text'] = "Cash request: {$data['amount']}{$currency_list[$data['currency_id']]}";
+					$my_data['text'] = "You've got the request for {$data['amount']} {$currency_list[$data['currency_id']]}. It has to be repaid during next 48 hours.";
 					$my_data['subj'] = $subj;
 					if ($notifications_array[$name][$user_id]['email'])
 						send_mail($my_data);
@@ -210,7 +210,7 @@ foreach($notifications_array as $name => $notification_info) {
 						$comment = "<br><span style=\"font-size:16px\">{$row['comment']}</span>";
 					else
 						$comment = '';
-					$my_data['text'] = "New DC: {$row['amount']} D{$currency_list[$row['currency_id']]} {$comment}";
+					$my_data['text'] = "You've got {$row['amount']} D{$currency_list[$row['currency_id']]} {$comment}";
 					$my_data['subj'] = $subj;
 					if ($notifications_array[$name][$user_id]['email'])
 						send_mail($my_data);
@@ -251,7 +251,7 @@ foreach($notifications_array as $name => $notification_info) {
 				while ($row = $db->fetchArray($res)) {
 
 					$my_data = $user_email_sms_data[$user_id];
-					$my_data['text'] = "Sending DC: {$row['amount']} D{$currency_list[$row['currency_id']]}";
+					$my_data['text'] = "Debiting {$row['amount']} D{$currency_list[$row['currency_id']]}";
 					$my_data['subj'] = $subj;
 					if ($notifications_array[$name][$user_id]['email'])
 						send_mail($my_data);
@@ -444,7 +444,7 @@ foreach($notifications_array as $name => $notification_info) {
 				if ( $last_voting && (time()-$last_voting) > 3600*24*14 ) {
 
 					$my_data = $user_email_sms_data[$user_id];
-					$my_data['text'] = "Time for voting";
+					$my_data['text'] = "It's 2 weeks from the moment you voted.";
 					$my_data['subj'] = $subj;
 					if ($notifications_array[$name][$user_id]['email'])
 						send_mail($my_data);
