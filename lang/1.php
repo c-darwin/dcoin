@@ -452,9 +452,9 @@ $lng['max'] = 'max';
 $lng['change_commission_limits_text'] = 'Change Commission can be no more [limit] times per [period]';
 $lng['no_saved_values'] = 'You have no saved values. Please send it to the DC-network';
 
-$lng['rate_1_1'] = 'The rate of d[currency] to [currency] is always 1:1, because it is accepted by those who become "ATM" (<a href="http://dcoin.me/" target="_blank">watch the video</a>). The decrease of demand for d[currency] causes an automatic d[currency] volume’s reduction. And the increase of demand makes inverse consequences. The rate doesn’t fluctuate, number of coins does. If on the external exchanges the rate is decreased, then "ATM" realizing that will stop to fulfil their commitments (to exchange d[currency] into [currency] at the rate of 1:1) and as a result there will be an automatic coins volume’s reduction (<a href="http://dcoin.me/" target="_blank">watch the video</a>). The reduction of coins’ volume doesn’t influence the credits.';
+$lng['rate_1_1'] = 'The rate of d[currency] to [currency] is always 1:1, because it is accepted by those who become "ATM" (<a href="http://dcoin.me/" target="_blank">watch the video</a>). The decrease of demand for d[currency] causes an automatic reduction in the volume of the d[currency]. And the increase of demand has the inverse consequence. The rate doesn`t fluctuate, but the number of coins does. If on the external exchanges the rate is decreased, then "ATM" will cease to fulfil their commitments (to exchange d[currency] into [currency] at the rate of 1:1) and as a result there will be a reduction in the volume of the coins (<a href="http://dcoin.me/" target="_blank">watch the video</a>). The reduction of volume doesn`t influence the credits.';
 
-$lng['rate_1_1_dwoc'] = 'The rate of dWOC determines by the market, just as value of every other cryptocurrency.';
+$lng['rate_1_1_dwoc'] = 'The rate of dWOC is determined by the market, just like the value of every other cryptocurrency';
 $lng['admin_debtor'] = 'The founder of Dcoin is your debtor. The credit will repay out of a system commission and any others founder’s receipts.';
 
 // voting

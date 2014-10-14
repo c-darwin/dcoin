@@ -127,7 +127,7 @@ foreach($notifications_array as $name => $notification_info) {
 				if ($data) {
 
 					$my_data = $user_email_sms_data[$user_id];
-					$my_data['text'] = "You've got the request for {$data['amount']} {$currency_list[$data['currency_id']]}. It has to be repaid during next 48 hours.";
+					$my_data['text'] = "You've got the request for {$data['amount']} {$currency_list[$data['currency_id']]}. It has to be repaid within the next 48 hours.";
 					$my_data['subj'] = $subj;
 					if ($notifications_array[$name][$user_id]['email'])
 						send_mail($my_data);
