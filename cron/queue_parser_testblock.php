@@ -75,7 +75,7 @@ do {
 			$tx_binary_data = ParseData::string_shift ( $tx, $tx_size ) ;
 
 			// проверим, нет ли несовместимых тр-ий
-			list($fatal_error, $wait_error) = clear_incompatible_tx($binary_tx, $type, $user_id, $to_user_id, $db, false);
+			list($fatal_error, $wait_error) = clear_incompatible_tx($tx_binary_data, $type, $user_id, $to_user_id, $db, false);
 
 			if ($fatal_error || $wait_error) {
 				debug_print('[incompatible_tx] continue', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
