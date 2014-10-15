@@ -23,14 +23,14 @@ if ( !empty($block_id) && !check_input_data ($block_id, 'bigint'))
 <head>
 	<title>Block explorer</title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-</head>
-<link href="../css/bootstrap.css" rel="stylesheet">
+	<link href="../css/bootstrap.min.css" rel="stylesheet">
+	<link href="../css/sb-admin.css" rel="stylesheet">
 <style type="text/css">
 	body {
 		padding: 10px 10px 10px 10px;
 	}
 </style>
-<link href="../css/bootstrap-responsive.css" rel="stylesheet">
+</head>
 <body>
 <?php
 if ($start || (!$start && !$block_id)) {
