@@ -62,7 +62,8 @@
 		<div class="sidebar-collapse">
 			<ul class="nav" id="side-menu">
 				<li class="sidebar-search">
-					<div style="" class="text-center"><a href="#" onclick="fc_navigate('change_avatar')"><span class="DCava"><img src="<?php echo $tpl['avatar']?>" style="width: 100px; height: 100px;"></span></a></div>
+					<div><img src="img/circle.png" style="position: absolute; height: 102px"></div>
+					<div style="" class="text-center"><a href="#" onclick="fc_navigate('change_avatar')"><img src="<?php echo $tpl['avatar']?>" style="width: 100px; height: 100px;"></a></div>
 					<div style="" class="text-center"><a href="#" onclick="fc_navigate('change_avatar')"><strong><?php echo $tpl['name']?></strong></a></div>
 				</li>
 				<li>

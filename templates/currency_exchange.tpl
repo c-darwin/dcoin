@@ -98,9 +98,13 @@
 	} );
 
 	$("#main_div select").addClass( "form-control" );
-	$("#main_div input").addClass( "form-control" );
+	$("#main_div input").addClass( "form-control form-control-fix" );
 	$("#main_div button").addClass( "btn-outline btn-primary" );
 </script>
+<style>
+	.form-control-fix{display: inline; width: 100px}
+	td{padding: 3px}
+</style>
 
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['currency_exchange']?></h1>

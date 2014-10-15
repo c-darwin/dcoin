@@ -59,7 +59,7 @@
 						<li><a href="#" onclick="fc_navigate('bug_reporting')"><?php echo $lng['bug_reporting']?></a></li>
 						<?php echo defined('POOL_ADMIN')?'<li><a href="#" onclick="fc_navigate(\'pool_admin\')">Pool admin</a></li>':'' ?>
 			            <li> <a href="http://dcoinwiki.com" target="_blank">Wiki</a></li>
-			            <li> <a href="mailto: admin@democratic-coin.com">Support</a></li>
+			            <li> <a href="mailto: admin@dcoin.me">Support</a></li>
 	                     <li><a href="#" onclick="logout()"><?php echo $lng['logout']?> (user_id: <?php echo $_SESSION['user_id']?>)</a></li>
 
 					</ul>

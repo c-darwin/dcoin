@@ -72,7 +72,7 @@
 				<a href="#" onclick="fc_navigate('cf_start');return false;">Start Your Campaign</a>
 			</li>
 			<li>
-				<a href="http://democratic-coin.com">About Dcoin</a>
+				<a href="http://dcoin.me">About Dcoin</a>
 			</li>
 			<li>
 				<a href="http://dcoinforum.org">Forum</a>
