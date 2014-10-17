@@ -885,6 +885,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		$this->my_user_id = 0;
 		$this->my_prefix = '';
+		$this->my_user_ids = array();
 		$collective = get_community_users($this->db);
 		if ($collective) {// если работаем в пуле
 			$this->my_user_ids = $collective;
@@ -10838,6 +10839,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$error = $this->get_tx_data(array('bin_public_keys', 'sign'));
 		if ($error) return $error;
 
+		$this->new_public_keys = array();
+		$this->new_public_keys_hex = array();
 		// в 1 new_public_keys может быть от 1 до 3-х ключей
 		do {
 			$length = self::decode_length($this->tx_data['bin_public_keys']);
@@ -14072,11 +14075,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					$this->insert_in_log_tx ($transaction_binary_data_full, $this->tx_data['time']);
 
 					// ===================>ради эксперимента
+					/*
 					$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 							UPDATE `".DB_PREFIX."transactions`
 							SET `verified` = 1
 							WHERE `hash` = 0x".md5($transaction_binary_data_full)."
 							");
+					*/
 					// ====================================
 
 					$i++;
