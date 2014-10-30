@@ -41,7 +41,7 @@ if ($mail_data['use_smtp'] && $mail_data['smtp_server'])
 	$mail->SetFrom($mail_data['email'], 'Server');
 }
 
-$mail->SetFrom('admin@democratic-coin.com', 'Dcoin');
+$mail->SetFrom('hello@dcoin.me', 'Dcoin');
 $mail->Subject       = "Test";
 $mail->Body    = "Test";
 $mail->AddAddress($mail_data['email']);
