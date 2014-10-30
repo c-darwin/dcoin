@@ -738,7 +738,7 @@ function get_example_spots($db) {
 
 function clear_public_key($key)
 {
-	preg_match('/[\-]+BEGIN PUBLIC KEY[\-]+([\w\+\/\n\r]+)[\-]+END PUBLIC KEY[\-]+/ms', $key, $matches);
+	preg_match('/[\-]+BEGIN PUBLIC KEY[\-]+([\=\w\+\/\n\r]+)[\-]+END PUBLIC KEY[\-]+/ms', $key, $matches);
 	$bin = base64_decode( trim($matches[1] ) );
 	list(, $hex) = unpack( "H*", $bin);
 	return  $hex;
@@ -1242,6 +1242,14 @@ function get_my_user_id($db)
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `user_id`
 			FROM `".DB_PREFIX.MY_PREFIX."my_table`
+			", 'fetch_one' );
+}
+
+function get_admin_user_id($db)
+{
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `user_id`
+			FROM `".DB_PREFIX."admin`
 			", 'fetch_one' );
 }
 
@@ -2078,7 +2086,8 @@ function get_tx_type_and_user_id ($binary_block)
 	//else if (in_array($type, array(ParseData::findType('votes_geolocation'), ParseData::findType('votes_miner'), ParseData::findType('votes_node_new_miner'), ParseData::findType('votes_pct'), ParseData::findType('votes_promised_amount')) ))
 	//	$voting_id = ParseData::string_shift($binary_block, ParseData::decode_length($binary_block));
 	//$third_var = $to_user_id?$to_user_id:$voting_id;
-	if (in_array($type, array(ParseData::findType('cf_project_data'), ParseData::findType('cf_comment'), ParseData::findType('cf_project_change_category'), ParseData::findType('cf_send_dc'), ParseData::findType('del_cf_project'), ParseData::findType('cash_request_out'), ParseData::findType('votes_geolocation'), ParseData::findType('votes_miner'), ParseData::findType('votes_node_new_miner'), ParseData::findType('votes_pct'), ParseData::findType('votes_promised_amount'), ParseData::findType('del_promised_amount')) ))
+
+	if (in_array($type, array(ParseData::findType('admin_change_primary_key'), ParseData::findType('change_key_request'), ParseData::findType('cf_project_data'), ParseData::findType('cf_comment'), ParseData::findType('cf_project_change_category'), ParseData::findType('cf_send_dc'), ParseData::findType('del_cf_project'), ParseData::findType('cash_request_out'), ParseData::findType('votes_geolocation'), ParseData::findType('votes_miner'), ParseData::findType('votes_node_new_miner'), ParseData::findType('votes_pct'), ParseData::findType('votes_promised_amount'), ParseData::findType('del_promised_amount')) ))
 		$third_var = ParseData::string_shift($binary_block, ParseData::decode_length($binary_block));
 
 	debug_print("get_tx_type_and_user_id={$type},{$user_id},{$third_var}", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -3424,6 +3433,12 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 		if ($type == ParseData::findType('change_node_key'))
 			clear_incompatible_tx_sql ($db, 'new_reduction', $user_id, $wait_error);
 
+		// восстановление ключа
+		if ($type == ParseData::findType('change_key_request'))
+			clear_incompatible_tx_sql_set ($db, array('change_key_active'), $third_var, $wait_error);
+		if ($type == ParseData::findType('change_key_active'))
+			clear_incompatible_tx_sql_set ($db, array('change_key_request'), 0, $wait_error, $user_id);
+
 		// нельзя удалить/изменить обещанную сумму и затем создать запрос на её майнинг
 		if ($type == ParseData::findType('mining'))
 			clear_incompatible_tx_sql_set ($db, array('del_promised_amount', 'change_promised_amount'), $user_id, $wait_error);
@@ -3630,6 +3645,27 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 								SELECT `user_id`
 								FROM `".DB_PREFIX."transactions_testblock`
 								WHERE `user_id` = {$user_id}
+							)  AS `x`
+						", 'fetch_one');
+			debug_print('$num ='.$num, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			if ($num)
+				$wait_error = 'there are other tr-s';
+		}
+
+		if ($type == ParseData::findType('admin_change_primary_key')) {
+			debug_print('если новая тр-я - это смена праймари ключа, то не должно быть никаких других тр-ий от юзера, которому меняем ключ', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			$num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT count(*)
+				            FROM (
+					            SELECT `user_id`
+					            FROM `".DB_PREFIX."transactions`
+					            WHERE  `user_id` = {$third_var} AND
+					                         `verified`=1 AND
+					                         `used` = 0
+								UNION
+								SELECT `user_id`
+								FROM `".DB_PREFIX."transactions_testblock`
+								WHERE `user_id` = {$third_var}
 							)  AS `x`
 						", 'fetch_one');
 			debug_print('$num ='.$num, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);

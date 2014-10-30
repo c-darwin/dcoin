@@ -28,6 +28,8 @@
 				</li>
 				<li><a href="#" onclick="fc_navigate('change_primary_key')"><?php echo $lng['change_master_key']?></a>
 				</li>
+				<li><a href="#" onclick="fc_navigate('restoring_access')"><?php echo $lng['restoring_access']?></a>
+				</li>
 				<li><a href="#" onclick="fc_navigate('interface')"><?php echo $lng['interface']?></a>
 				</li>
 				<?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'node_config\')">'.$lng['config_node'].'</a></li>':''?>
@@ -41,7 +43,7 @@
 		</li>
 
 		<!-- /.dropdown -->
-		<!--
+
 		<li class="dropdown">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<i class="fa  fa-globe fa-fw"></i> Language <i class="fa fa-caret-down"></i>
@@ -53,7 +55,7 @@
 				</li>
 			</ul>
 		</li>
-		-->
+
 		<!-- /.dropdown -->
 	</ul>
 	<!-- /.navbar-top-links -->

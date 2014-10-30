@@ -1243,6 +1243,52 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			break;
 
+		case 'change_key_active' :
+
+			$secret = hextobin($_REQUEST['secret']);
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($secret) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_key_close' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_key_request' :
+
+			$to_user_id = $_REQUEST['to_user_id'];
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($to_user_id) .
+				$bin_signatures;
+
+			break;
+
+		case 'admin_change_primary_key' :
+
+			$for_user_id = $_REQUEST['for_user_id'];
+			$new_public_key = hextobin($_REQUEST['new_public_key']);
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($for_user_id) .
+				ParseData::encode_length_plus_data($new_public_key) .
+				$bin_signatures;
+
+			break;
 	}
 
 

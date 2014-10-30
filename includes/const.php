@@ -80,8 +80,14 @@ define( 'limit_repayment_credit', 5 );
 define( 'repayment_credit_period', 3600*24 );
 define( 'limit_change_credit_part', 10 );
 define( 'limit_change_credit_part_period', 3600*24 );
+define( 'limit_change_key_active', 3 );
+define( 'limit_change_key_active_period', 3600*24*7 );
+define( 'limit_change_key_request', 1 );
+define( 'limit_change_key_request_period', 3600*24*7 );
 
-
+// через какое время админ имеет право изменить ключ юзера, если тот дал на это свое согласие. Это время дается юзеру на то, чтобы отменить запрос.
+//define( 'CHANGE_KEY_PERIOD', 3600*24*30 );
+define( 'CHANGE_KEY_PERIOD', 60 );
 
 
 ?>

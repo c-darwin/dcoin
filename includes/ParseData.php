@@ -305,7 +305,15 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			52 =>'del_credit',
 			53 =>'repayment_credit',
 			54 =>'change_credit_part',
-			55 => 'new_admin'
+			55 =>'new_admin',
+			// по истечении 30 дней после поступления запроса о восстановлении утерянного ключа, админ может изменить ключ юзера
+			56=>'admin_change_primary_key',
+			// юзер разрешает или отменяет разрешение на смену своего ключа админом
+			57=>'change_key_active',
+			// юзер отменяет запрос на смену ключа
+			58=>'change_key_close',
+			// юзер отправляет с другого акка запрос на получение доступа к акку, ключ к которому он потерял
+			59=>'change_key_request'
 		);
 
 	}
@@ -1500,7 +1508,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return  __LINE__.'#'.__METHOD__.'(user_id)';
 		}
 
-		if ( strlen($this->tx_data['sign'])<256 || strlen($this->tx_data['sign'])>2048 ) {
+		if ( strlen($this->tx_data['sign'])<128 || strlen($this->tx_data['sign'])>2048 ) {
 			return  __LINE__.'#'.__METHOD__.'(strlen sign '.strlen($this->tx_data['sign']).')';
 		}
 	}
@@ -4859,7 +4867,74 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 
+	function admin_change_primary_key_init()
+	{
+		$error = $this->get_tx_data(array('for_user_id', 'public_key', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+		$this->tx_data['public_key_hex'] = bin2hex($this->tx_data['public_key']);
+	}
 
+	function admin_change_primary_key_front()
+	{
+		$error = $this -> general_check_admin();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['for_user_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(for_user_id)';
+
+		if ( !check_input_data ($this->tx_data['public_key_hex'], 'public_key' ) )
+			return  __LINE__.'#'.__METHOD__.'(public_key_hex)';
+
+		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
+			$time = $this->block_data['time'];
+		else // голая тр-ия
+			$time = time()-30; // просто на всякий случай небольшой запас
+
+		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`,
+				             `change_key`,
+							 `change_key_time`,
+							 `change_key_close`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$this->tx_data['for_user_id']}
+				LIMIT 1
+				", 'fetch_array' );
+		// проверим, есть ли такой юзер
+		if (!$data['user_id'])
+			return  __LINE__.'#'.__METHOD__.'(!$user_id)';
+		// разрешил ли юзер смену ключа админом
+		if ($data['change_key'] == 0)
+			return  __LINE__.'#'.__METHOD__.'(change_key=0)';
+		// юзер отменил запрос на смену ключа
+		if ($data['change_key_close'] == 1)
+			return  __LINE__.'#'.__METHOD__.'(change_key_close=1)';
+		// прошел ли месяц с момента, когда кто-то запросил смену ключа
+		if ( $time - $data['change_key_time'] < CHANGE_KEY_PERIOD )
+			return  __LINE__.'#'.__METHOD__.'('.($time - $data['change_key_time']).' < '.CHANGE_KEY_PERIOD.')';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['for_user_id']},{$this->tx_data['public_key_hex']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+	}
+
+	function admin_change_primary_key()
+	{
+		$this->selective_logging_and_upd( array('public_key_0', 'public_key_1', 'public_key_2', 'change_key_close'), array($this->tx_data['public_key_hex'], '', '', 1), 'users', array('user_id'), array($this->tx_data['for_user_id']) );
+	}
+
+	function admin_change_primary_key_rollback_front()
+	{
+	}
+
+	function admin_change_primary_key_rollback()
+	{
+		$this->selective_rollback (array('public_key_0', 'public_key_1', 'public_key_2', 'change_key_close'), 'users', "`user_id`={$this->tx_data['for_user_id']}");
+	}
 
 	// 39
 	function admin_answer_init()
@@ -7157,7 +7232,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			$add_sql_update= '';
 			foreach ($fields as $field) {
-				if (in_array($field, array('hash', 'tx_hash')))
+				if (in_array($field, array('hash', 'tx_hash', 'public_key_0', 'public_key_1', 'public_key_2')) && $log_data[$field]!='')
 					$add_sql_update.="`{$field}` = 0x".bin2hex($log_data[$field]).",";
 				else
 					$add_sql_update.="`{$field}` = '{$log_data[$field]}',";
@@ -7214,7 +7289,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 			$add_sql_values = '';
 			foreach ($log_data as $k=>$v) {
-				if (in_array($k, array('hash', 'tx_hash')))
+				if (in_array($k, array('hash', 'tx_hash', 'public_key_0', 'public_key_1', 'public_key_2')) && $v!='')
 					$add_sql_values.="0x".bin2hex($v).",";
 				else
 					$add_sql_values.="'{$v}',";
@@ -7234,20 +7309,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			debug_print($this->db->printsql() , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			$log_id = $this->db->getInsertId();
 
-			$add_sql_update= '';
+			$add_sql_update = '';
 			for ($i=0; $i<sizeof($fields); $i++) {
-				if (in_array($fields[$i], array('hash', 'tx_hash')))
+				if (in_array($fields[$i], array('hash', 'tx_hash', 'public_key_0', 'public_key_1', 'public_key_2')) && $values[$i]!='')
 					$add_sql_update.="`{$fields[$i]}` = 0x{$values[$i]},";
 				else
 					$add_sql_update.="`{$fields[$i]}` = '{$values[$i]}',";
 			}
 
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."{$table}`
-				SET $add_sql_update
-					   `log_id` = {$log_id}
-				{$add_sql_where}
-				");
+					UPDATE `".DB_PREFIX."{$table}`
+					SET $add_sql_update
+						   `log_id` = {$log_id}
+					{$add_sql_where}
+					");
 		}
 		else {
 
@@ -7255,7 +7330,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$add_sql_ins1 = '';
 			for($i=0; $i<sizeof($fields); $i++) {
 				$add_sql_ins0.="`{$fields[$i]}`,";
-				if (in_array($fields[$i], array('hash', 'tx_hash')))
+				if (in_array($fields[$i], array('hash', 'tx_hash', 'public_key_0', 'public_key_1', 'public_key_2')) && $values[$i]!='')
 					$add_sql_ins1.="0x{$values[$i]},";
 				else
 					$add_sql_ins1.=" '{$values[$i]}',";
@@ -7284,7 +7359,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->getPct();
 		$this->getMaxPromisedAmount();
 
-		self::selective_logging_and_upd (array('latitude', 'longitude', 'country'), array($this->tx_data['latitude'], $this->tx_data['longitude'], $this->tx_data['country']), 'miners_data', array('user_id'), array($this->tx_data['user_id']));
+		$this->selective_logging_and_upd (array('latitude', 'longitude', 'country'), array($this->tx_data['latitude'], $this->tx_data['longitude'], $this->tx_data['country']), 'miners_data', array('user_id'), array($this->tx_data['user_id']));
 
 		// смена местоположения влечет инициацию процедуры выдачи разрешения майнить имеющиеся у юзера валюты в данном местоположении
 		// установка promised_amount.status в change_geo возможна, только если до этого был статус mining/pending/change_geo
@@ -10831,6 +10906,167 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	function change_host_rollback_front()
 	{
 		$this->limit_requests_rollback('change_host');
+	}
+
+	function change_key_active_init()
+	{
+		$error = $this->get_tx_data(array('secret', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+
+		$this->tx_data['secret_hex'] = bin2hex($this->tx_data['secret']);
+		if ($this->tx_data['secret_hex']==='30')
+			$this->tx_data['active']= 0;
+		else
+			$this->tx_data['active'] = 1;
+	}
+
+	function change_key_active_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( strlen($this->tx_data['secret']) > 2048 )
+			return  __LINE__.'#'.__METHOD__.'(strlen secret = '.strlen($this->tx_data['secret']).')';
+
+		// проверим, чтобы не было повторных смен
+		$change_key = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `change_key`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_one');
+		if ($change_key == $this->tx_data['active'])
+			return  __LINE__.'#'.__METHOD__.'(active)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['secret_hex']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests( limit_change_key_active, 'change_key_active', limit_change_key_active_period );
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_key_active()
+	{
+		$this->selective_logging_and_upd (array('change_key'), array($this->tx_data['active']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function change_key_active_rollback()
+	{
+		$this->selective_rollback (array('change_key'), 'users', "`user_id`={$this->tx_data['user_id']}");
+	}
+
+	function change_key_active_rollback_front()
+	{
+		$this->limit_requests_rollback('change_key_active');
+	}
+
+	function change_key_request_init()
+	{
+		$error = $this->get_tx_data(array('to_user_id', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_key_request_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['to_user_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(to_user_id)';
+
+		if ( $this->tx_data['to_user_id'] == $this->tx_data['user_id'] )
+			return  __LINE__.'#'.__METHOD__.'(to_user_id=user_id)';
+
+		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`,
+							 `change_key`,
+							 `change_key_close`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$this->tx_data['to_user_id']}
+				LIMIT 1
+				", 'fetch_array' );
+		// проверим, есть ли такой юзер
+		if (!$data['user_id'])
+			return  __LINE__.'#'.__METHOD__.'(!$user_id)';
+		// разрешил ли юзер смену ключа админом
+		if ($data['change_key'] == 0)
+			return  __LINE__.'#'.__METHOD__.'(change_key=0)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests( limit_change_key_request, 'change_key_request', limit_change_key_request_period );
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_key_request()
+	{
+		// change_key_close ставим в 0. чтобы админ через 30 дней мог сменить ключ
+		$this->selective_logging_and_upd (array('change_key_time', 'change_key_close'), array($this->block_data['time'], 0), 'users', array('user_id'), array($this->tx_data['to_user_id']));
+	}
+
+	function change_key_request_rollback()
+	{
+		$this->selective_rollback (array('change_key_time', 'change_key_close'), 'users', "`user_id`={$this->tx_data['to_user_id']}");
+	}
+
+	function change_key_request_rollback_front()
+	{
+		$this->limit_requests_rollback('change_key_request');
+	}
+
+	function change_key_close_init()
+	{
+		$error = $this->get_tx_data(array('sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_key_close_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		// проверим, не стоит ли уже close
+		$change_key_close = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `change_key_close`
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_one');
+		if ($change_key_close)
+			return  __LINE__.'#'.__METHOD__.'(change_key_close=1)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_key_close()
+	{
+		$this->selective_logging_and_upd (array('change_key_close'), array(1), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function change_key_close_rollback()
+	{
+		$this->selective_rollback (array('change_key_close'), 'users', "`user_id`={$this->tx_data['user_id']}");
+	}
+
+	function change_key_close_rollback_front()
+	{
 	}
 
 	// 16
