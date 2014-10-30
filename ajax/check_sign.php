@@ -70,7 +70,7 @@ if ($community) {
 			if (!$_SESSION['user_id'])
 				$_SESSION['user_id'] = 'wait';
 
-			if ($my_user_id==1)
+			if ($my_user_id==get_admin_user_id($db))
 				$_SESSION['ADMIN'] = 1;
 
 			print json_encode(array('result'=>1));
@@ -181,7 +181,7 @@ else {
 		if (!$_SESSION['user_id'])
 			$_SESSION['user_id'] = 'wait';
 
-		if ($my_user_id==1)
+		if ($my_user_id==get_admin_user_id($db))
 			$_SESSION['ADMIN'] = 1;
 
 		print json_encode(array('result'=>1));
