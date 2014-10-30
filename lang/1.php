@@ -9,6 +9,7 @@ $lng['holidays'] = 'Holidays';
 $lng['tasks'] = 'Assignments';
 $lng['settings'] = 'Settings';
 $lng['change_master_key'] = 'Change master key';
+$lng['restoring_access'] = 'Restoring access';
 $lng['change_node_key'] = 'Change node key';
 $lng['change_host'] = 'Change host';
 $lng['sms_and_email_notifications'] = 'SMS and email notifications';
@@ -24,7 +25,7 @@ $lng['promised_amounts'] = 'Promised amounts';
 $lng['reg_users'] = 'User registration';
 $lng['start_stop'] = 'Start/stop';
 $lng['demons'] = 'Demons';
-$lng['db_info'] = 'Db info';
+$lng['db_info'] = 'Service information';
 $lng['exchange'] = 'Exchange';
 $lng['logout'] = 'Logout';
 $lng['interface'] = 'Interface';
@@ -709,5 +710,17 @@ $lng['new_credit_alert'] = 'Be careful! You can not delete the new loan.';
 $lng['reduction'] = 'Reduction';
 $lng['reduction_title'] = 'Reduction';
 $lng['reduction_pct'] = '%';
+
+// change_key_request
+$lng['request_access_to_the_account'] = 'Request access to the account';
+
+// change_key_close
+$lng['cancellation_requests'] = 'Cancellation requests';
+$lng['cancel_the_requests'] = 'Cancel the request';
+
+// restoring_access
+$lng['restoring_secret_text'] = 'Make a secret question so only you can answer it. Also we recommend you to enter your phone number.';
+$lng['forbid_admin_to_change_my_key'] = 'Forbid admin to change my key';
+$lng['make_a_request_for_a_access_to_the_account'] = 'Make a request for a access to the account';
 
 ?>
