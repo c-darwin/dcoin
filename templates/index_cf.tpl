@@ -81,10 +81,7 @@
 				<a href="http://en.dcoinwiki.com/">Wiki</a>
 			</li>
 			<li>
-				<a href="https://github.com/c-darwin/dcoin/">Sources</a>
-			</li>
-			<li>
-				<a href="mailto:admin@democratic-coin.com">Contact</a>
+				<a href="mailto:hello@dcoin.me">Contact</a>
 			</li>
 			<!-- /.dropdown -->
 			<li class="dropdown">

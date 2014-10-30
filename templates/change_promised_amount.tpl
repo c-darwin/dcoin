@@ -24,17 +24,19 @@ $('#send_to_net').bind('click', function () {
 </script>
   <h1 class="page-header"><?php echo $lng['change_promised_amount']?></h1>
 
-    <div id="sign_banknote">
-	
+    <div id="main">
+
+	    <div class="form-group">
 		<label><?php echo $lng['data']?></label>
-		<textarea id="for-signature" style="width:500px;" rows="4"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$_REQUEST['parameters']['promised_amount_id']},{$_REQUEST['parameters']['amount']}"?></textarea>
+		<textarea id="for-signature"  class="form-control" style="" rows="4"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$_REQUEST['parameters']['promised_amount_id']},{$_REQUEST['parameters']['amount']}"?></textarea>
+	    </div>
 	    <?php
-	for ($i=1; $i<=$count_sign; $i++) {
-		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
+		for ($i=1; $i<=$count_sign; $i++) {
+			echo "<div class='form-group'><label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" class='form-control' rows='4'></textarea></div>";
 	    }
 	    ?>
 		<br>
-	    <button class="btn" id="send_to_net"><?php echo $lng['send_to_net']?></button>
+	    <button class="btn btn-outline btn-primary" id="send_to_net"><?php echo $lng['send_to_net']?></button>
 
     </div>
 

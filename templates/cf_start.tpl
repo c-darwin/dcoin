@@ -34,7 +34,7 @@
 			<span style="color:#ccc">Windows <span id="version">v0.0.9b4</span></span><br><br><?php echo $lng['or']?>
 			<div style="margin-top:10px">
 
-					<a href="http://pool.democratic-coin.com" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['open_in_the_pool']?></span></a>
+					<a href="http://pool.dcoin.me" class="btn btn-default btn-lg"><span class="network-name"><?php echo $lng['open_in_the_pool']?></span></a>
 
 			</div>
 		<Br>
