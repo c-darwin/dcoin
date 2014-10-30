@@ -4,6 +4,20 @@ defined('DC') or die('');
 
 $queries = array();
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_key_request`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_key_request` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_key_active`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_key_active` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}admin`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}admin` (
   `user_id` int(11) NOT NULL,
