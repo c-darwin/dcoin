@@ -81,6 +81,8 @@ while ($row = $db->fetchArray($res)) {
 $tpl['wallets'] = get_balances($user_id);
 
 $tpl['block_id'] = get_block_id($db);
+$tpl['confirmed_block_id'] = get_confirmed_block_id();
+
 $tpl['currency_list'] = get_currency_list($db, 'full');
 
 require_once( ABSPATH . 'templates/home.tpl' );

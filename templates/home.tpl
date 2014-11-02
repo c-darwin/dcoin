@@ -157,7 +157,7 @@ if (isset($tpl['I_creditor'])) {
 			<div class="panel panel-default my_panel" style="width: 215px; float: left; margin-right:20px; margin-left:0px">
 				<div class="panel-body my_panel_body">
 					<div class="amount"><?php echo round($data['amount'], 1)?></div> <div class="dc_div"><span class="dc">d</span><span style="font-size:30px; font-weight:bold;"><?php echo $tpl['currency_list'][$data['currency_id']]?></span></div>
-					<div class="credit"><a href="http://en.dcoinwiki.com/Crediting" target="_blank">Credit</a></div>
+					<div class="credit"><?php echo $lng['credit_link']?></div>
 					<?php echo ($data['currency_id']==1)?'<div class="rate tooltip" title=\''.$lng['rate_1_1_dwoc'].'\'><i class="fa fa-line-chart"></i></div>':'<div class="rate tooltip" title=\''.str_replace('[currency]', $tpl['currency_list'][$data['currency_id']], htmlspecialchars($lng['rate_1_1'])).'\'>1:1</div>' ?>
 				</div>
 			</div>
@@ -181,10 +181,8 @@ if (isset($tpl['I_creditor'])) {
 				<li class="list-group-item"><?php echo $lng['account_status']?>: <span id="account_status"><?php echo $tpl['my_notice']['account_status'];?></span> <?php echo !empty($_SESSION['restricted'])?'restricted':'' ?> <?php echo defined('POOL_ADMIN')?'(Pool admin)':'' ?></li>
 				<li class="list-group-item">User ID: <span id="user_id"><?php echo $user_id?></span></li>
 				<li class="list-group-item"><?php echo $lng['inbox']?>: <span id="inbox">0</span></li>
-				<li class="list-group-item"><?php echo $lng['status_daemons']?>: <?php echo $tpl['demons_status']?></li>
 				<li class="list-group-item"><?php echo $lng['number_of_blocks']?>: <span id="cur_block_id">0</span></li>
 				<li class="list-group-item"><?php echo $lng['time_last_block']?>: <span id="time_last_block"><?php echo $tpl['my_notice']['time_last_block']?></span></li>
-				<li class="list-group-item"><?php echo $lng['connections']?>: <span id="connections"><?php echo $tpl['my_notice']['connections']?></span></li>
 			</ul>
 		</div>
 		<?php
@@ -201,7 +199,7 @@ if (isset($tpl['I_creditor'])) {
 					<th></th>
 					<th><?php echo $lng['amount']?></th>
 					<th><?php echo $lng['note']?></th>
-					<th><?php echo $lng['confirms']?></th>
+					<th><nobr><?php echo $lng['confirms']?> <span class="tooltip" title='<?php echo $lng['conf_text']?>'><a href="#"><i class="fa fa-question-circle" style="font-size: 18px"></i></a></span></nobr></th>
 				</tr>
 				</thead>
 				<tbody>
@@ -220,7 +218,7 @@ if (isset($tpl['I_creditor'])) {
 						echo "<td>{$data['comment']}</td>";
 					else
 						echo "<td>Encrypted</td>";
-					echo "<td>".($tpl['block_id'] - $data['block_id'])."</td>";
+					echo "<td>".($tpl['confirmed_block_id'] - $data['block_id'])."</td>";
 				}
 				?>
 				</tbody>
@@ -235,12 +233,12 @@ if (isset($tpl['I_creditor'])) {
 		<div class="col-lg-4">
 
 
-			<h3><?php echo $lng['credits']?></h3>
+			<h3><?php echo $lng['I_creditor']?></h3>
 			<div style="height: 328px; overflow: auto">
 				<div class="table-responsive table-bordered">
 					<table class="table" style="margin-bottom: 0px">
 						<?php
-						echo '<tr><th>'.$lng['amount'].'</th><th>'.$lng['currency'].'</th><th>Debtor User ID</th></tr>';
+						echo '<tr><th>'.$lng['amount'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['Debtor_User_ID'].'</th></tr>';
 						if (isset($tpl['I_creditor']))
 						foreach ($tpl['I_creditor'] as $data) {
 							if ($data['from_user_id']==1)
@@ -248,7 +246,7 @@ if (isset($tpl['I_creditor'])) {
 							else
 								echo "<tr>";
 							echo "<td>{$data['amount']}</td>";
-							echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+							echo "<td>d{$tpl['currency_list'][$data['currency_id']]}</td>";
 							if ($data['from_user_id']==1)
 								echo '<td><strong>'.$data['from_user_id'].'</strong></a></td>';
 							else
@@ -267,6 +265,7 @@ if (isset($tpl['I_creditor'])) {
 		<!-- /.col-lg-4 -->
 	</div>
 	<!-- /.row -->
+	<!--
 	<div class="row" style="margin-bottom: 50px">
 		<div style="width:800px; overflow:auto; margin-left: 15px">
 			<h3>CrowdFunding</h3>
@@ -281,7 +280,7 @@ if (isset($tpl['I_creditor'])) {
 					<div class="progress" style="height:5px; margin-top:10px; margin-bottom:10px"><div class="progress-bar progress-bar-success" style="width: <?php echo $data['pct']?>%;"></div></div>
 					<div class="card-bottom">
 						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['pct']?>%</h5>funded</div>
-						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> D<?php echo $tpl['currency_list'][$data['currency_id']]?> </h5>pledged</div>
+						<div style="float:left; overflow:auto; padding-right:10px"><h5><?php echo $data['funding_amount']?> d<?php echo $tpl['currency_list'][$data['currency_id']]?> </h5>pledged</div>
 						<div style="float:left; overflow:auto;"><h5><?php echo $data['days']?></h5>days to go</div>
 					</div>
 				</div>
@@ -292,6 +291,7 @@ if (isset($tpl['I_creditor'])) {
 			<button type="button" class="btn btn-primary" data-toggle="button"  id="new_cf_project"><?php echo $lng['start_your_cf_project']?></button>
 		</div>
 	</div>
+	-->
 
 
 

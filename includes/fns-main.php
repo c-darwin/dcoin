@@ -856,7 +856,7 @@ function get_balances($user_id)
 	while ( $row = $db->fetchArray($res) ) {
 
 		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $user_id, $db, $row['last_update'], time(), 'wallet');
-		$row['amount'] = floor( round( $row['amount'], 3)*100 ) / 100;
+		$row['amount'] = floor( round( $row['amount'], 6)*100000 ) / 100000;
 		$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT sum(`amount`)
 				FROM `".DB_PREFIX."forex_orders`
@@ -907,7 +907,7 @@ function make_currency_name($id)
 	if ($id>=1000)
 		return '';
 	else
-		return 'D';
+		return 'd';
 }
 
 
@@ -1016,6 +1016,16 @@ function get_block_id($db)
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `block_id`
 			FROM `".DB_PREFIX."info_block`
+			", 'fetch_one');
+}
+
+function get_confirmed_block_id()
+{
+	global $db;
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT max(`block_id`)
+			FROM `".DB_PREFIX."confirmations`
+			WHERE `good` >=5
 			", 'fetch_one');
 }
 
@@ -3959,11 +3969,12 @@ function get_my_notice_data()
 	}
 	$tpl['account_status'] = $lng['status_'.$tpl['account_status']];
 
-	// получим время из последнего блока
+	$confirmed_block_id = get_confirmed_block_id();
+	// получим время из последнего подвержденного блока
 	$last_block_bin = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `data`
 			FROM `".DB_PREFIX."block_chain`
-			ORDER BY `id` DESC
+			WHERE `id` = {$confirmed_block_id}
 			LIMIT 1
 			", 'fetch_one');
 	ParseData::string_shift( $last_block_bin, 1 ); // уберем тип

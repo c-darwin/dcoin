@@ -38,6 +38,7 @@ $tpl['data']['project_type_id'] = ParseData::findType($tpl['data']['project_type
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 $tpl['data']['current_block_id'] = get_block_id($db);
+$tpl['data']['confirmed_block_id'] = get_confirmed_block_id();
 
 $names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','from_repaid'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission', 'referral'=>'referral', 'cf_project'=>'Crowd funding', 'cf_project_refund'=>'Crowd funding refund');
 

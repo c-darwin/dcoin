@@ -90,8 +90,8 @@ $('#next, #cf_next').bind('click', function () {
 		$('#blurb_img').attr('src', data.blurb_img);
 		$('#location').text(data.country+', '+data.city);
 		$('#project_id_info').text(data.id);
-		$('#available_dc').text(data.wallet_amount+' D'+data.currency);
-		$('#cf_pledged').text(data.funding_amount+' D'+data.currency);
+		$('#available_dc').text(data.wallet_amount+' d'+data.currency);
+		$('#cf_pledged').text(data.funding_amount+' d'+data.currency);
 		$('#cf_days').text(data.days);
 		$('#cf_progress').width(data.pct+'%');
 		$('#cf_pct').text(data.pct+'%');
@@ -243,8 +243,8 @@ $('#amount, #cf_amount').keyup(function(e) {
 			<ul class="nav nav-tabs" id="myTab">
 				<li class="active"><a href="#send_to_wallet" data-toggle="tab"><?php echo $lng['send_to_wallet']?></a>
 				</li>
-				<li class=""><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
-				</li>
+				<!--<li class=""><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
+				</li>-->
 				<li class=""><a href="#" onclick="fc_navigate('currency_exchange')"><?php echo $lng['currency_exchange1']?></a>
 				</li>
 				<li class=""><a href="#" onclick="fc_navigate('credits')"><?php echo $lng['credits']?></a>
@@ -287,7 +287,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 							if ($data['currency_id']>=1000)
 								echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
 							else
-								echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+								echo "<td>d{$tpl['currency_list'][$data['currency_id']]}</td>";
 
 							echo "<td>{$data['amount']}</td>";
 							//echo "<td>{$data['pct']}</td>";
@@ -345,7 +345,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 								echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div></td>";
 							else
 								echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
-					echo "<td>{$data['status']}</td><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$data['block_id']}})\">{$data['block_id']}</a></td><td>".($tpl['data']['current_block_id'] - $data['block_id'])."</td></tr>";
+					echo "<td>{$data['status']}</td><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$data['block_id']}})\">{$data['block_id']}</a></td><td>".($tpl['data']['confirmed_block_id'] - $data['block_id'])."</td></tr>";
 				}
 				echo '</table>';
 				echo "<p>{$lng['error_in_tx']}</p>";

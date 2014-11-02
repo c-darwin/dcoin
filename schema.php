@@ -4,6 +4,16 @@ defined('DC') or die('');
 
 $queries = array();
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}confirmations`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}confirmations` (
+  `block_id` bigint(20) unsigned NOT NULL,
+  `good` int(10) unsigned NOT NULL,
+  `bad` int(10) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL,
+  PRIMARY KEY (`block_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_key_request`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_key_request` (
   `user_id` bigint(20) unsigned NOT NULL,
@@ -1020,6 +1030,9 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_users` (
   `public_key_2` varbinary(512) NOT NULL,
   `referral` bigint(20) NOT NULL,
   `credit_part` decimal(5,2) NOT NULL,
+  `change_key` tinyint(1) NOT NULL COMMENT '',
+  `change_key_time` int(11) NOT NULL COMMENT '',
+  `change_key_close` tinyint(1) NOT NULL COMMENT '',
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`log_id`)
@@ -1755,6 +1768,9 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}users` (
   `public_key_2` varbinary(512) NOT NULL COMMENT '3-й ключ, если есть',
   `referral` bigint(20) NOT NULL COMMENT 'Тот, кто зарегал данного юзера и теперь получает с него рефские',
   `credit_part` decimal(5,2) NOT NULL COMMENT '% от поступлений, которые юзер осталяет себе. Если есть активные кредиты, то можно только уменьшать',
+  `change_key` tinyint(1) NOT NULL COMMENT '',
+  `change_key_time` int(11) NOT NULL COMMENT '',
+  `change_key_close` tinyint(1) NOT NULL COMMENT '',
   `log_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;

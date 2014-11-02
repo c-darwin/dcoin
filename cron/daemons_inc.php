@@ -21,7 +21,8 @@ $daemons[] = 'clear.php'; // просто чистит таблы от стар�
 $daemons[] = 'cleaning_db.php'; // main_lock используем, лочим, если там висит чужой лок более 10-и минут
 //$daemons[] = '_tmp_fill_data.php'; // просто генерит тр-ии без локов. временное.
 $daemons[] = 'cf_projects.php'; // geo + фундеры в cf_projects
-$daemons[] = 'elections_admin.php'; //
+$daemons[] = 'elections_admin.php'; // выборы админа
+$daemons[] = 'confirmations.php'; // у скольких нодов такой же предпослений блок как и у нас
 
 if (file_exists(ABSPATH.'config_stend.ini')) {
 
