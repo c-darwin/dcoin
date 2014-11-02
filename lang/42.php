@@ -444,6 +444,8 @@ $lng['panel'] = 'Панель';
 $lng['last_operation'] = 'Последние операции';
 $lng['confirms'] = 'Подтв.';
 $lng['start_your_cf_project'] = 'Запустите свой CrowdFunding проект!';
+$lng['conf_text'] = 'С большой вероятностью, 5 подтверждений будет достаточно, чтобы считать операцию совершенной.';
+$lng['credit_link'] = '<a href="http://ru.dcoinwiki.com/Кредитование" target="_blank">Кредит</a>';
 
 $lng['script_version'] = 'v. [ver]';
 $lng['downloading_blocks'] = ' Загрузка цепочки блоков, пожалуйста подождите';
@@ -705,6 +707,7 @@ $lng['transfer'] = 'Передать';
 $lng['pay'] = 'Оплатить';
 $lng['create_credit'] = 'Создать кредит';
 $lng['will_not_be_used'] = 'Какая часть от поступающих на Ваш счет средств <strong>не</strong> будет использована для погашения кредитов';
+$lng['Debtor_User_ID'] = 'User ID должника';
 
 // change_creditor
 $lng['transfer_of_credit'] = 'Передача кредита';

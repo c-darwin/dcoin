@@ -445,6 +445,8 @@ $lng['panel'] = 'Panel';
 $lng['last_operation'] = 'Last operation';
 $lng['confirms'] = 'Confirms';
 $lng['start_your_cf_project'] = 'Start your own crowdfunding project!';
+$lng['conf_text'] = 'There is a good probability that 5 confirmations are enough to think that an operation is completed.';
+$lng['credit_link'] = '<a href="http://en.dcoinwiki.com/Crediting" target="_blank">Credit</a>';
 
 // change_commission
 $lng['change_commission_title'] = 'Commission';
@@ -705,6 +707,7 @@ $lng['creditor_user_id'] = 'User_id who will be your lender.';
 $lng['credit_pct'] = 'Percent';
 $lng['credit_part'] = 'What percentage of your incoming funds will be paid to the creditor.';
 $lng['new_credit_alert'] = 'Be careful! You can not delete the new loan.';
+$lng['Debtor_User_ID'] = 'Debtor User ID';
 
 // reduction
 $lng['reduction'] = 'Reduction';
