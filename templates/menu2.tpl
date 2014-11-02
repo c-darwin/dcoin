@@ -7,7 +7,7 @@
 			<span class="icon-bar"></span>
 		</button>
 
-		<a class="navbar-brand" href="#" style="display: block; padding-left: 0px;  padding-top: 6px; margin-left: 15px; margin-right: 5px" onclick="fc_navigate('home')"><img src="../img/logo3.png" height="40"></a>
+		<a class="navbar-brand" href="#" style="display: block; padding-left: 0px;  padding-top: 6px; margin-left: 15px; margin-right: 5px" onclick="fc_navigate('home')"><img src="img/logo3.png" height="40"></a>
 		<!--<a class="navbar-brand" href="#" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
 	                   background: url(img/logo.png) center left no-repeat;
 	                   text-align: center;
@@ -28,8 +28,8 @@
 				</li>
 				<li><a href="#" onclick="fc_navigate('change_primary_key')"><?php echo $lng['change_master_key']?></a>
 				</li>
-				<li><a href="#" onclick="fc_navigate('restoring_access')"><?php echo $lng['restoring_access']?></a>
-				</li>
+				<!--<li><a href="#" onclick="fc_navigate('restoring_access')"><?php echo $lng['restoring_access']?></a>
+				</li>-->
 				<li><a href="#" onclick="fc_navigate('interface')"><?php echo $lng['interface']?></a>
 				</li>
 				<?php echo (defined('POOL_ADMIN') || !defined('COMMUNITY'))?'<li><a href="#" onclick="fc_navigate(\'node_config\')">'.$lng['config_node'].'</a></li>':''?>
@@ -100,16 +100,16 @@
 							<a href="#" onclick="fc_navigate('reduction')"><?php echo $lng['reduction']?></a>
 						</li>
 						<li>
-							<a href="#" onclick="fc_navigate('information')"><?php echo $lng['information']?></a>
-						</li>
-						<li>
-							<a href="#" onclick="fc_navigate('db_info')"><?php echo $lng['db_info']?></a>
-						</li>
-						<li>
 							<a href="#" onclick="fc_navigate('statistic')"><?php echo $lng['statistic']?></a>
 						</li>
 						<li>
 							<a href="#" onclick="fc_navigate('block_explorer')">Block explorer</a>
+						</li>
+						<li>
+							<a href="#" onclick="fc_navigate('information')"><?php echo $lng['information']?></a>
+						</li>
+						<li>
+							<a href="#" onclick="fc_navigate('db_info')"><?php echo $lng['db_info']?></a>
 						</li>
 
 					</ul>

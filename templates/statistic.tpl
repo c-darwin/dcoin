@@ -108,8 +108,11 @@ if ($tpl['user_info_id']) {
 	if (isset($sum_wallets))
 	foreach ($sum_wallets as $currency_id => $sum_amount) {
 		print "<tr>";
+		if ($sum_amount==0)
+			continue;
 		if ($currency_id>=1000)
-			echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$currency_id]}'})\">{$tpl['currency_list'][$currency_id]}</a></td>";
+			continue;
+			//echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$currency_id]}'})\">{$tpl['currency_list'][$currency_id]}</a></td>";
 		else
 			echo "<td>D{$tpl['currency_list'][$currency_id]}</td>";
 

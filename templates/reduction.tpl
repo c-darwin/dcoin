@@ -7,6 +7,8 @@
 		echo "<thead><tr><th>{$lng['time']}</th><th>{$lng['currency']}</th><th>{$lng['reduction_pct']}</th><th>Block_id</th></tr></thead>";
 		echo '<tbody>';
 		foreach ($tpl['reduction'] as $data) {
+			if (!$data['pct'])
+				continue;
 			echo "
 				<tr>
 					<td>{$data['time']}</td>

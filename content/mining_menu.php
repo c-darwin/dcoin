@@ -11,7 +11,6 @@ if ($status && empty($_SESSION['restricted']))
 	$tpl['account_status'] = $status;
 else
 	$tpl['account_status'] = 'user';
-
 if ($tpl['account_status']=='user') {
 	// Вывдаем только 1-й пункт
 	$tpl['mode'] = 0;

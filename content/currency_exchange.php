@@ -23,7 +23,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		ORDER BY `name`
 		');
 while ($row = $db->fetchArray($res)) {
-	$tpl['currency_list_name'][$row['id']] = $row['name'];
+	$tpl['currency_list_name'][$row['id']] = 'd'.$row['name'];
 }
 
 if (isset($_REQUEST['parameters']['buy_currency_id'])){
