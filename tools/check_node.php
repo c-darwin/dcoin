@@ -18,7 +18,18 @@ $block_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHO
 		FROM `".DB_PREFIX."info_block`
 		", 'fetch_array');
 
-if ( isset($_REQUEST['col'], $_REQUEST['row'], $_REQUEST['table']) ) {
+if ( isset($_REQUEST['block_id']) ) {
+
+	$block_id = intval($_REQUEST['block_id']);
+	$hash = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `hash`
+			FROM `".DB_PREFIX."block_chain`
+			WHERE `id`= {$block_id}
+			", 'fetch_one');
+	print $hash;
+
+} else if ( isset($_REQUEST['col'], $_REQUEST['row'], $_REQUEST['table']) ) {
+
 	$table = filter_var($_REQUEST['table'], FILTER_SANITIZE_STRING);
 	$row = filter_var($_REQUEST['row'], FILTER_SANITIZE_STRING);
 	$col = filter_var($_REQUEST['col'], FILTER_SANITIZE_STRING);
