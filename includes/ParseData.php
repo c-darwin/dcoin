@@ -1186,7 +1186,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				ORDER BY `time`
 				");
 		while ( $row = $this->db->fetchArray( $res ) ) {
-			$sum = round($row['pct']/100 * $amount, 2);
+
+			if ($this->block_data['block_id']>169525)
+				$sum = round($row['pct']/100 * $amount_for_credit_save, 2);
+			else
+				$sum = round($row['pct']/100 * $amount, 2);
+
 			if ($sum < 0.01)
 				$sum = 0.01;
 			if ($sum > $amount_for_credit)
@@ -12656,6 +12661,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return 'category_id';
 		if ( !check_input_data ($this->tx_data['project_currency_name'], 'cf_currency_name') )
 			return 'project_currency_name';
+
+		if ( !isset($this->block_data['block_id']) || $this->block_data['block_id']>=168904 ) {
+			if (!$this->check_miner($this->tx_data['user_id']))
+				return 'not miner';
+		}
 
 		if (isset($this->block_data['time'])) { // тр-ия пришла в блоке
 			$time1 = $this->block_data['time'];

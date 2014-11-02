@@ -87,7 +87,7 @@ define( 'limit_change_key_request_period', 3600*24*7 );
 
 // через какое время админ имеет право изменить ключ юзера, если тот дал на это свое согласие. Это время дается юзеру на то, чтобы отменить запрос.
 //define( 'CHANGE_KEY_PERIOD', 3600*24*30 );
-define( 'CHANGE_KEY_PERIOD', 60 );
+define( 'CHANGE_KEY_PERIOD', 3600 );
 
 
 ?>
