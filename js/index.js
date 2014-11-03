@@ -23,7 +23,7 @@ function map_navigate (page) {
                 $('#page-wrapper').spin(false);
             });
             window.scrollTo(0,0);
-            if ($(".sidebar-collapse").is(":visible")) {
+            if ($(".sidebar-collapse").is(":visible") && $(".navbar-toggle").is(":visible")) {
                 $('.sidebar-collapse').collapse('toggle');
             }
         });

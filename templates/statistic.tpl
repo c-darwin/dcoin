@@ -32,7 +32,7 @@ if ($tpl['user_info_id']) {
 			if ($data['currency_id']>=1000)
 				echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
 			else
-				echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+				echo "<td>d{$tpl['currency_list'][$data['currency_id']]}</td>";
 
 			echo "<td>{$data['amount']}</td>";
 			echo "</tr>";
@@ -47,7 +47,7 @@ if ($tpl['user_info_id']) {
 		echo '<tbody>';
 		foreach($tpl['credits']['debtor'] as $data) {
 			echo "<tr>";
-			echo "<td>D{$tpl['currency_list'][$data['currency_id']]}</td>";
+			echo "<td>d{$tpl['currency_list'][$data['currency_id']]}</td>";
 			echo "<td>{$data['amount']}</td>";
 			echo "</tr>";
 		}
@@ -114,7 +114,7 @@ if ($tpl['user_info_id']) {
 			continue;
 			//echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$currency_id]}'})\">{$tpl['currency_list'][$currency_id]}</a></td>";
 		else
-			echo "<td>D{$tpl['currency_list'][$currency_id]}</td>";
+			echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
 
 		print "<td>{$sum_amount}</td>";
 

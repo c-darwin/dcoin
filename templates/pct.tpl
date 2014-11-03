@@ -11,7 +11,7 @@
 				continue;
 			echo "
 				<tr>
-					<td>{$data['name']}</td>
+					<td>d{$data['name']}</td>
 					<td>{$data['miner']}</td>
 					<td>{$data['user']}</td>
 				</tr>

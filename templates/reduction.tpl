@@ -12,7 +12,7 @@
 			echo "
 				<tr>
 					<td>{$data['time']}</td>
-					<td>D{$tpl['currency_list'][$data['currency_id']]}</td>
+					<td>d{$tpl['currency_list'][$data['currency_id']]}</td>
 					<td>{$data['pct']}</td>
 					<td>{$data['block_id']}</td>
 				</tr>
