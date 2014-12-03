@@ -16,6 +16,7 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_list'][$row['id']] = $row;
 }
 
+$add_sql = '';
 if (empty($_REQUEST['parameters']['all_currencies'])) {
 	// по умолчанию выдаем только те валюты, которые есть хоть у кого-то на кошельках
 	$actual_currencies = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
@@ -23,11 +24,10 @@ if (empty($_REQUEST['parameters']['all_currencies'])) {
 			FROM `'.DB_PREFIX.'wallets`
 			GROUP BY `currency_id`
 			', 'array');
-	$add_sql = " WHERE `id` IN (".implode(',', $actual_currencies).")";
+	if ($actual_currencies)
+		$add_sql = " WHERE `id` IN (".implode(',', $actual_currencies).")";
 }
-else {
-	$add_sql = '';
-}
+
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `id`,
 					 `name`

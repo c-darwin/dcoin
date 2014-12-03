@@ -46,8 +46,9 @@ foreach ($result as $user_id=>$answer) {
 		@$status[1]++;
 }
 
-$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		INSERT INTO `".DB_PREFIX."confirmations` (
+if (isset($status[1])) {
+	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		INSERT INTO `" . DB_PREFIX . "confirmations` (
 			`block_id`,
 			`good`,
 			`bad`,
@@ -57,10 +58,10 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			{$block_id},
 			{$status[1]},
 			{$status[0]},
-			".time()."
+			" . time() . "
 		)
-		ON DUPLICATE KEY UPDATE  `good` = {$status[1]}, `bad` = {$status[0]}, `time` = ".time()."
+		ON DUPLICATE KEY UPDATE  `good` = {$status[1]}, `bad` = {$status[0]}, `time` = " . time() . "
 		");
-
+}
 
 ?>
