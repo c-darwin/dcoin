@@ -206,12 +206,28 @@ if (in_array($tpl_name, $miners_only)) {
 			LIMIT 1
 			", 'fetch_one');
 	if (!$log_id) {
+		// проверим, есть ли запросы на смену в тр-ях
+		$last_tx = get_last_tx($user_id,  types_to_ids(array('change_primary_key')), 1);
+		if (!$last_tx) // юзер еще не начинал смену ключа
+			$text = $lng['alert_change_primary_key'];
+		else if ($last_tx[0]['error'] || (empty($last_tx[0]['queue_tx']) && empty($last_tx[0]['tx'])) || (time()-$last_tx[0]['time_int'])>3600)
+			$text = $lng['please_try_again_change_key'];
+		else
+			$text = $lng['please_wait_changing_key'];
 		echo "
 				  <div class=\"alert alert-danger alert-dismissable\" style='margin-top: 30px'><button type=\"button\" class=\"close\" data-dismiss=\"alert\" aria-hidden=\"true\">×</button>
 				  <h4>{$lng['warning']}</h4>
-				  <div>{$lng['alert_change_primary_key']}</div>
+				  <div>$text</div>
 				  </div>
 				  ";
+	}
+	else {
+		// возможно юзер еще не успел перелогинется после того, как в блок попала тр-ия смены его ключа
+		/*if (!$_SESSION['key_changed']) {
+			unset($_SESSION['user_id']);
+			unset($_SESSION['private_key']);
+			echo '<script language="javascript">window.location.href = "index.php"</script>If you are not redirected automatically, follow the <a href="index.php">index.php</a>';
+		}*/
 	}
 //}
 

@@ -45,6 +45,7 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 				'cur_block_id'=>$my_notice['cur_block_id'],
 				'connections'=>$my_notice['connections'],
 				'time_last_block'=>$my_notice['time_last_block'],
+				'time_last_block_int'=>$my_notice['time_last_block_int'],
 				'inbox'=>$cash_requests
 			)
 	);

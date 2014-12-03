@@ -4,6 +4,29 @@ defined('DC') or die('');
 
 $queries = array();
 
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}referral_stats`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}referral_stats` (
+  `user_id` int(11) NOT NULL,
+  `referral` int(11) NOT NULL,
+  `amount` decimal(15,2) NOT NULL,
+  `currency_id` int(11) NOT NULL,
+  `time` int(11) NOT NULL,
+  `block_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Для вывода статы по рефам';
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}transactions_status`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}transactions_status` (
+  `hash` binary(16) NOT NULL,
+  `time` int(11) NOT NULL,
+  `type` int(11) NOT NULL,
+  `user_id` int(11) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `error` varchar(255) NOT NULL,
+  PRIMARY KEY (`hash`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Для удобства незарегнных юзеров на пуле. Показываем им статус их тр-ий';
+";
+
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}confirmations`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}confirmations` (
   `block_id` bigint(20) unsigned NOT NULL,
@@ -11,7 +34,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}confirmations` (
   `bad` int(10) unsigned NOT NULL,
   `time` int(10) unsigned NOT NULL,
   PRIMARY KEY (`block_id`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Результаты сверки имеющегося у нас блока с блоками у случайных нодов';
 ";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_key_request`;
@@ -309,6 +332,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}cf_funding` (
   `project_id` int(11) NOT NULL,
   `user_id` int(11) NOT NULL,
   `amount` decimal(15,2) NOT NULL,
+  `amount_backup` decimal(15,2) NOT NULL,
   `currency_id` int(11) NOT NULL,
   `time` int(11) NOT NULL COMMENT 'DC растут с юзерским %',
   `block_id` int(11) NOT NULL COMMENT 'Для откатов',
@@ -1348,6 +1372,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_table` (
   `sms_http_get_request` varchar(255) NOT NULL,
   `notification_sms_http_get_request` int(11) NOT NULL,
   `show_sign_data` tinyint(1) NOT NULL COMMENT 'Если 0, тогда не показываем данные для подписи, если у юзера только один праймари ключ',
+  `show_map` tinyint(1) NOT NULL DEFAULT '1',
+  `show_progress_bar` tinyint(1) NOT NULL DEFAULT '1',
   `uniq` set('1') NOT NULL DEFAULT '1',
   UNIQUE KEY `uniq` (`uniq`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -1893,6 +1919,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}forex_orders` (
   `sell_currency_id` int(10) NOT NULL COMMENT  'Что продается',
   `sell_rate` decimal(20,10) NOT NULL COMMENT 'По какому курсу к buy_currency_id',
   `amount` decimal(15,2)  NOT NULL COMMENT 'Сколько осталось на данном ордере',
+  `amount_backup` decimal(15,2)  NOT NULL,
   `buy_currency_id` int(10) NOT NULL COMMENT 'Какая валюта нужна',
   `commission` decimal(15,2)  NOT NULL COMMENT 'Какую отдали комиссию ноду-генератору',
   `empty_block_id` bigint(20) NOT NULL COMMENT 'Если ордер опустошили, то тут будет номер блока. Чтобы потом удалить старые записи',

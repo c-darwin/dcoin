@@ -25,7 +25,7 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		WHERE `miner_id`> 0
 		GROUP BY `host`
 		ORDER BY RAND()
-		LIMIT 10
+		LIMIT ".COUNT_CONFIRMED_NODES."
 		");
 $i=0;
 while ($row = $db->fetchArray($res)) {
@@ -34,11 +34,9 @@ while ($row = $db->fetchArray($res)) {
 	$i++;
 }
 
-print_R($urls);
 $result = m_curl ($urls, '', '', '', 10, true, false);
 debug_print("result=".print_r_hex($result), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
-print_R($result);
 
 $status = array();
 foreach ($result as $user_id=>$answer) {

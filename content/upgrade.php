@@ -1,6 +1,6 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
-
+/*
 $my_miner_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `miner_id`
 					FROM `".DB_PREFIX."miners_data`
@@ -86,12 +86,7 @@ else {
 	$tpl['result'] = 'ok';
 }
 
-// сколько у нас осталось попыток стать майнером.
-$count_attempt = ParseData::count_miner_attempt($db, $user_id, 'user_voting');
-$variables = ParseData::get_variables($db,  array('miner_votes_attempt') );
-
-$tpl['miner_votes_attempt'] = $variables['miner_votes_attempt'] - $count_attempt;
 
 require_once( ABSPATH . 'templates/upgrade.tpl' );
-
+*/
 ?>

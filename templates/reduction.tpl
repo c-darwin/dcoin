@@ -2,7 +2,7 @@
 	<h1 class="page-header"><?php echo $lng['reduction_title']?></h1>
 
 <?php
-	if (isset($tpl['reduction'])) {
+/*	if (isset($tpl['reduction'])) {
 		echo '<table class="table table-bordered" style="width:500px">';
 		echo "<thead><tr><th>{$lng['time']}</th><th>{$lng['currency']}</th><th>{$lng['reduction_pct']}</th><th>Block_id</th></tr></thead>";
 		echo '<tbody>';
@@ -20,6 +20,6 @@
 			}
 			echo '</tbody>';
 			echo '</table>';
-	}
+	}*/
 ?>
 

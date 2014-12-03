@@ -6,6 +6,10 @@ $tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 
+if (empty($tpl['navigate'])) {
+	$tpl['navigate'] = 'promised_amount_list';
+}
+
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT `id`,
 					 `name`,
@@ -48,6 +52,9 @@ while ($row = $db->fetchArray($res))
 $tpl['variables'] = ParseData::get_variables ($db,  array('limit_promised_amount', 'limit_promised_amount_period') );
 
 $tpl['limits_text'] = str_ireplace(array('[limit]', '[period]'), array($tpl['variables']['limit_promised_amount'], $tpl['periods'][$tpl['variables']['limit_promised_amount_period']]), $lng['limits_text']);
+
+// валюта, которая выбрана с селект-боксе
+$tpl['currency_id'] = 72;
 
 require_once( ABSPATH . 'templates/promised_amount_add.tpl' );
 

@@ -267,7 +267,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			die('error');
 		}
 		if ($video_type=='null' || $video_url_id=='null') {
-			if ( !file_exists(ABSPATH.'public/user_video.mp4') || ( !file_exists(ABSPATH.'public/user_video.ogv') && !file_exists(ABSPATH.'public/user_video.webm') ) ) {
+			if ( !file_exists(ABSPATH."public/{$_SESSION['user_id']}_user_video.mp4") ) {
 				die('empty video');
 			}
 		}
@@ -1292,18 +1292,34 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 	}
 
 
-	$hash = md5($data);
-	$data = bin2hex($data);
-	$file = save_tmp_644 ('FSQ', "{$hash}\t{$data}");
-	// т.к. эти данные создали мы сами, то пишем их сразу в таблицу проверенных данных, которые будут отправлены другим нодам
-	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			LOAD DATA LOCAL INFILE  '{$file}' IGNORE INTO TABLE `".DB_PREFIX."queue_tx`
-			FIELDS TERMINATED BY '\t'
-			(@hash, @data)
-			SET `data` = UNHEX(@data),
-				   `hash` = UNHEX(@hash)
-			");
-	unlink($file);
+$hash = md5($data);
+
+if (!in_array($_REQUEST['type'], array('new_pct', 'new_max_promised_amounts', 'new_reduction', 'votes_node_new_miner', 'new_max_other_currencies'))) {
+	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+			INSERT INTO `" . DB_PREFIX . "transactions_status` (
+				`hash`,
+				`time`,
+				`type`,
+				`user_id`
+			)
+			VALUES (
+				0x{$hash},
+				" . time() . ",
+				{$type},
+				{$user_id}
+			)");
+}
+
+$data = bin2hex($data);
+$file = save_tmp_644 ('FSQ', "{$hash}\t{$data}");
+$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		LOAD DATA LOCAL INFILE  '{$file}' IGNORE INTO TABLE `".DB_PREFIX."queue_tx`
+		FIELDS TERMINATED BY '\t'
+		(@hash, @data)
+		SET `data` = UNHEX(@data),
+			   `hash` = UNHEX(@hash)
+		");
+unlink($file);
 
 
 ?>

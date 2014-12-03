@@ -38,9 +38,9 @@ $tpl['data']['project_type_id'] = ParseData::findType($tpl['data']['project_type
 $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 $tpl['data']['current_block_id'] = get_block_id($db);
-$tpl['data']['confirmed_block_id'] = get_confirmed_block_id();
+$tpl['data']['confirmed_block_id'] = get_confirmed_block_id($db);
 
-$names = array('cash_request'=>'Наличные','from_mining_id'=>'С майнинга','from_repaid'=>'С майнинга погашенных','from_user'=>'От пользователя','node_commission'=>'Комиссия нода', 'system_commission'=>'system_commission', 'referral'=>'referral', 'cf_project'=>'Crowd funding', 'cf_project_refund'=>'Crowd funding refund');
+$names = array('cash_request'=>$lng['cash'],'from_mining_id'=>$lng['from_mining'],'from_repaid'=>$lng['from_repaid_mining'],'from_user'=>$lng['from_user'],'node_commission'=>$lng['node_commission'], 'system_commission'=>'system_commission', 'referral'=>'referral', 'cf_project'=>'Crowd funding', 'cf_project_refund'=>'Crowd funding refund');
 
 $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `miner_id`
@@ -53,6 +53,15 @@ $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __
 if (!empty($_REQUEST['parameters']['project_id'])){
 	$tpl['cf_project_id'] = intval($_REQUEST['parameters']['project_id']);
 }
+
+// нужна мин. комиссия на пуле для перевода монет
+$tpl['config'] = get_node_config();
+$tpl['config']['commission'] = json_decode($tpl['config']['commission'], true);
+//print_R($tpl['config']['commission']);
+
+$tpl['last_tx'] = get_last_tx($user_id, $tpl['data']['user_type_id']);
+if (!empty($tpl['last_tx']))
+	$tpl['last_tx_formatted'] = make_last_tx($tpl['last_tx']);
 
 require_once( ABSPATH . 'templates/wallets_list.tpl' );
 

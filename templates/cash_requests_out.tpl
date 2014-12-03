@@ -192,7 +192,7 @@ $("#main_div textarea").width( 170 );
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['cash_request_out_title']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
 	<li class="active"><?php echo $lng['cash_request_out_title'] ?></li>
 </ol>
 
@@ -242,7 +242,7 @@ $("#main_div textarea").width( 170 );
 		<tr><td><?php echo $lng['code']?></td><td><strong><?php echo $tpl['code']?></strong><br>(<?php echo $lng['after_transfer']?>)</td></tr>
 		</table>
 		<div id="message"></div>
-		<button id="next" class="btn btn-primary" type="button"><?php echo $lng['next']?></button><br><br>
+		<button id="next" class="btn btn-primary" type="button"><?php echo $lng['send_to_net']?></button><br><br>
 
 		<!--<div style="padding-top:10px"><p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?> </p></div>
 -->

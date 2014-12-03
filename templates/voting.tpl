@@ -16,8 +16,9 @@ $('#next').bind('click', function () {
 			data=data+'['+$(this).val()+',';
 		if ($(this).attr('name')=='user_pct')
 			data=data+''+$(this).val()+',';
-		if ($(this).attr('name')=='max_promised_amount')
-			data=data+''+$(this).val()+',';
+		if ($(this).attr('name')=='max_promised_amount') {
+			data = data + '' + $(this).val().replace(/ /gi,'') + ',';
+		}
 		if ($(this).attr('name')=='max_other_currencies')
 			data=data+''+$(this).val()+',';
 		if ($(this).attr('name')=='reduction')
@@ -147,7 +148,7 @@ $( "#main_div select").width(100);
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['voting']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
 	<li class="active"><?php echo $lng['voting'] ?></li>
 </ol>
 
@@ -175,6 +176,8 @@ $( "#main_div select").width(100);
 			}
 			print "</select></td><td><select style='width: 150px' name='user_pct'>";
 			foreach($tpl['AllPct'] as $pct_y=>$pct_sec) {
+				if ($pct_y>=500)
+					continue;
 				if ($data['votes_user_pct'] == $pct_sec)
 					$sel = 'selected';
 				else
@@ -187,10 +190,10 @@ $( "#main_div select").width(100);
 					$sel = 'selected';
 					else
 					$sel = '';
-				print "<option {$sel}>{$amount}</option>";
+				print "<option {$sel}>".number_format($amount, 0, '', ' ')."</option>";
 			}
 			print "</select></td><td><select style='width: 150px' name='max_other_currencies'>";
-			for ($i=0; $i<$tpl['max_currency_id']; $i++){
+			for ($i=0; $i<5; $i++){
 					if ($data['votes_max_other_currencies'] == $i)
 					$sel = 'selected';
 					else
@@ -213,30 +216,35 @@ $( "#main_div select").width(100);
 	else
 		print 'empty';
 
-	// голосование за рефские
-	if (empty($tpl['miner_newbie'])) {
+	// пока нет обещанных сумм, по которым можно голосовать, не выдаем голосование за реф. и админа
+	if ($tpl['promised_amount_currency_list']) {
 
-		$refs = array('first', 'second', 'third');
-		echo '<h3>'.$lng['refs'].'</h1><table class="table" style="width: 200px"><tr><th>'.$lng['ref_level'].'</th><th>%</th><th></tr>';
-		for ($i=0; $i<sizeof($refs); $i++) {
-			print "<tr><td>".($i+1)."</td><td><select id='ref_{$refs[$i]}'>";
-			for ($j=0; $j<=30; $j++)
-				print "<option ".($j==$tpl['referral'][$refs[$i]]?"selected":"").">{$j}</option>";
-			print "</select></td></tr>";
+		// голосование за рефские
+		if (empty($tpl['miner_newbie'])) {
+
+			$refs = array('first', 'second', 'third');
+			echo '<h3>' . $lng['refs'] . '</h1><table class="table" style="width: 200px"><tr><th>' . $lng['ref_level'] . '</th><th>%</th><th></tr>';
+			for ($i = 0; $i < sizeof($refs); $i++) {
+				print "<tr><td>" . ($i + 1) . "</td><td><select id='ref_{$refs[$i]}'>";
+				for ($j = 0; $j <= 30; $j = $j + 5)
+					print "<option " . ($j == $tpl['referral'][$refs[$i]] ? "selected" : "") . ">{$j}</option>";
+				print "</select></td></tr>";
+			}
+			echo "</table>";
 		}
-		echo "</table>";
+
+		// выборы админа
+		echo "<h3>{$lng['elections_admin']}</h3>";
+		echo "<div class='form-inline'>Admin user_id: <input type='text' class='form-control' style='width: 70px' id='admin' value='0'> {$lng['elections_admin_text']}</div>";
+
+		if (isset($tpl['promised_amount_currency_list']) || empty($tpl['miner_newbie']))
+			print '<div class="control-group" style="margin-top:20px; margin-bottom:20px"><div class="controls"><button class="btn btn-outline btn-primary" type="button" id="next">' . $lng['next'] . '</button></div></div>';
 	}
-
-	// выборы админа
-	echo "<h3>{$lng['elections_admin']}</h3>";
-	echo "<div class='form-inline'>Admin user_id: <input type='text' class='form-control' style='width: 70px' id='admin' value='0'> {$lng['elections_admin_text']}</div>";
-
-	if ( isset($tpl['promised_amount_currency_list']) || empty($tpl['miner_newbie']) )
-		print '<div class="control-group" style="margin-top:20px; margin-bottom:20px"><div class="controls"><button class="btn btn-outline btn-primary" type="button" id="next">'.$lng['next'].'</button></div></div>';
-
 	?>
 </div>
 
 	<?php require_once( 'signatures.tpl' );?>
 
 </div>
+<?php echo $tpl['last_tx_formatted']?>
+<script src="js/unixtime.js"></script>

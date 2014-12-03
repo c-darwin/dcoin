@@ -108,8 +108,8 @@ $('#show_map').bind('click', function () {
 
 <h1 class="page-header"><?php echo $lng['tasks_title_promised_amount']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
-	<li><a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['tasks_title'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#tasks"><?php echo $lng['tasks_title'] ?></a></li>
 </ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>

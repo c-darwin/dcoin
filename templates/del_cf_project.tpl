@@ -19,7 +19,7 @@ $('#confirm_delete').bind('click', function () {
 <h1 class="page-header"><?php echo $lng['del_cf_project_title'].' '.$tpl['project_currency_name']?></h1>
 <ol class="breadcrumb">
 	<li><a href="#">CrowdFunding</a></li>
-	<li><a href="#"onclick="fc_navigate('my_cf_projects')"><?php echo $lng['my_projects']?></a></li>
+	<li><a href="#my_cf_projects"><?php echo $lng['my_projects']?></a></li>
 	<li class="active"><?php echo $lng['del_cf_project_title'].' '.$tpl['project_currency_name']?></li>
 </ol>
 

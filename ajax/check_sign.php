@@ -69,9 +69,17 @@ if ($community) {
 			$_SESSION['user_id'] = $my_user_id;
 			if (!$_SESSION['user_id'])
 				$_SESSION['user_id'] = 'wait';
+			else
+				$_SESSION['public_key'] = get_user_public_key2($my_user_id);
 
 			if ($my_user_id==get_admin_user_id($db))
 				$_SESSION['ADMIN'] = 1;
+
+			/*// для авто-выбрасывания
+			if (check_change_key($my_user_id) > 0)
+				$_SESSION['key_changed'] = 1;
+			else
+				$_SESSION['key_changed'] = 0;*/
 
 			print json_encode(array('result'=>1));
 			exit;
@@ -80,14 +88,6 @@ if ($community) {
 
 	// если дошли досюда, значит ни один ключ не подошел и даем возможность войти в ограниченном режиме
 
-/*
-	$pool_max_users = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT `pool_max_users`
-			FROM `".DB_PREFIX."config`
-			", 'fetch_one' );
-	if (sizeof($community)>=$pool_max_users)
-		die(json_encode(array('result'=>'not_available')));
-*/
 	$rsa = new Crypt_RSA();
 	$key = array();
 	$key['e'] = new Math_BigInteger($_POST['e'], 16);
@@ -109,19 +109,36 @@ if ($community) {
 				", 'fetch_one' );
 		$error = ParseData::checkSign($PublicKey_bin, $for_sign, $sign, true);
 		if (!$error) {
+
 			// если юзер смог подписать наш хэш, значит у него актуальный праймари ключ
-			// и если у нас еще есть места, то создаем для него таблицы и даем войти в его новый акк
-			/*
-			$mysqli_link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
-			$db_name = DB_NAME;
-			$prefix = DB_PREFIX;
-			include ABSPATH.'schema.php';
-			mysqli_query($mysqli_link, 'SET NAMES "utf8" ');
-			pool_add_users ("{$user_id};{$PublicKey}\n", $my_queries, $mysqli_link, DB_PREFIX, false);
-			*/
 			session_start();
 			$_SESSION['user_id'] = $user_id;
-			$_SESSION['restricted'] = 1;
+			$_SESSION['public_key'] = get_user_public_key2($user_id);
+
+			// возможно в табле my_keys старые данные, но если эта табла есть, то нужно добавить туда ключ
+			if (in_array("{$user_id}_my_keys", $tables_array)) {
+				$cur_block_id = get_block_id($db);
+				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX.$user_id."_my_keys` (
+					`public_key`,
+					`status`,
+					`block_id`
+				)
+				VALUES (
+					0x{$PublicKey},
+					'approved',
+					{$cur_block_id}
+				)");
+				unset($_SESSION['restricted']);
+			}
+			else {
+				$_SESSION['restricted'] = 1;
+			}
+
+			/*if (check_change_key($user_id) > 0)
+				$_SESSION['key_changed'] = 1;
+			else
+				$_SESSION['key_changed'] = 0;*/
 			print json_encode(array('result'=>1));
 			exit;
 		}
@@ -180,9 +197,16 @@ else {
 		$_SESSION['user_id'] = $my_user_id;
 		if (!$_SESSION['user_id'])
 			$_SESSION['user_id'] = 'wait';
+		else
+			$_SESSION['public_key'] = get_user_public_key2($my_user_id);
 
 		if ($my_user_id==get_admin_user_id($db))
 			$_SESSION['ADMIN'] = 1;
+
+		/*if (check_change_key($my_user_id) > 0)
+			$_SESSION['key_changed'] = 1;
+		else
+			$_SESSION['key_changed'] = 0;*/
 
 		print json_encode(array('result'=>1));
 		exit;

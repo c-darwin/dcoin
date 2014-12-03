@@ -56,26 +56,80 @@
 
 
 	$('#buy_amount,#buy_price,#buy_commission').keyup(function(e) {
-
+/*
 		var buy_amount = Number($("#buy_amount").val());
 		var buy_price = Number($("#buy_price").val());
 		var buy_commission = Number($("#buy_commission").val());
 
 		if ( buy_amount && buy_price && buy_commission>=0 ) {
 			$("#buy_total").text( buy_amount * buy_price );
-		}
+		}*/
+		calc_commission ('buy_amount', 'buy_price', 'buy_commission', 'sell_currency_id', 'buy_total');
 	});
 
-	$('#sell_amount,#sell_price,#sell_commission').keyup(function(e) {
+	function calc_commission (amount_id, price_id, commission_id, currency_id, total_id) {
 
+		var amount = $("#"+amount_id).val();
+		var price = $("#"+price_id).val();
+		var commission = $("#"+commission_id).val();
+
+		if (amount > 0) {
+			var currency_id = $("#"+currency_id).val();
+			if (currency_id>=1000)
+				currency_id=1000;
+			var commission_pct = Number(currency_commission[currency_id][0]);
+			var min_commission = Number(currency_commission[currency_id][1]);
+			console.log(commission_pct + '/' + min_commission);
+			var amount_ = '';
+			amount_ = parseFloat(amount.replace(",", "."));
+			amount_ = amount_.toFixed(2);
+
+			if (amount.indexOf(",") != -1) {
+				$("#" + add + "amount").val(amount_);
+			}
+			amount = amount_;
+
+			var commission = amount * (commission_pct / 100);
+			commission = commission.toFixed(2);
+			if (commission < min_commission)
+				commission = min_commission;
+			commission = parseFloat(commission);
+			amount = parseFloat(amount);
+			commission = parseFloat(commission);
+			$("#"+commission_id).val(commission);
+		}
+		if ( amount && price && commission>=0 ) {
+			$("#"+total_id).text( amount * parseFloat(price) );
+		}
+	}
+
+	$('#sell_amount,#sell_price,#sell_commission').keyup(function(e) {
+/*
 		var sell_amount = Number($("#sell_amount").val());
 		var sell_price = Number($("#sell_price").val());
 		var sell_commission = Number($("#sell_commission").val());
-
 		if ( sell_amount && sell_price && sell_commission>=0 ) {
 			$("#sell_total").text( sell_amount * sell_price );
-		}
+		}*/
+
+		calc_commission ('sell_amount', 'sell_price', 'sell_commission', 'buy_currency_id', 'sell_total');
 	});
+
+	var currency_commission = [];
+	<?php
+	foreach($tpl['config']['commission'] as $currency_id=>$data) {
+		echo "currency_commission[{$currency_id}] = [];\n";
+		echo "currency_commission[{$currency_id}][0] = '{$data[0]}';\n";
+		echo "currency_commission[{$currency_id}][1] = '{$data[1]}';\n";
+	}
+	?>
+
+	$('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
+
+		var amount = $("#"+add+"amount").val();
+
+	});
+
 
 	$('#send_to_net').bind('click', function () {
 
@@ -108,17 +162,18 @@
 
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['currency_exchange']?></h1>
-<ol class="breadcrumb">
-	<li><a href="#"onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
-	<li class="active"><?php echo $lng['currency_exchange']?></li>
-</ol>
+	<ul class="nav nav-tabs" id="myTab">
+		<li><a href="#wallets_list"><?php echo $lng['send_to_wallet']?></a></li>
+		<li class="active"><a href="#currency_exchange"><?php echo $lng['currency_exchange1']?></a></li>
+		<li><a href="#credits"><?php echo $lng['credits']?></a></li>
+	</ul>
 
 
-	<div style="width: 700px" id="main">
+	<div id="main" style="padding-top: 10px">
 	<p><?php echo $lng['forex_alert'] ?></p>
-	<div style="text-align: center; width: 100%;">
-	<div class="form-inline" style="padding-bottom: 10px">
-		<select id="buy_currency_id" style="width: 100px" class="form-control" >
+	<div style="text-align: center; max-width: 700px">
+	<div style="padding-bottom: 10px; display: inline-block"><?php echo $lng['order_buy']?>
+		<select id="buy_currency_id" style="width: 100px; display: inline-block" class="form-control" >
 		<?php
 		foreach ($tpl['currency_list_name'] as $id => $name) {
 			if ($id == @$tpl['buy_currency_id'])
@@ -128,8 +183,8 @@
 			echo "<option value='{$id}' {$selected}>{$name}</option>";
 			}
 		?>
-		</select> /
-			<select id="sell_currency_id" style="width: 100px" class="form-control" >
+		</select> <a href="#currency_exchange/buy_currency_id=<?php echo $tpl['sell_currency_id']?>/sell_currency_id=<?php echo $tpl['buy_currency_id']?>"><i class="fa  fa-exchange  fa-fw"></i></a> <?php echo $lng['order_sell']?>
+			<select id="sell_currency_id" style="width: 100px; display: inline-block"" class="form-control" >
 				<?php
 		foreach ($tpl['currency_list_name'] as $id => $name) {
 				if ($id == @$tpl['sell_currency_id'])
@@ -142,14 +197,15 @@
 			</select>
 		<button class="btn" id="currency_ok">OK</button>
 	</div>
+		<div class="clearfix"></div>
+		<a href="#currency_exchange/all_currencies=1"><?php echo $lng['show_all']?></a>
 	</div>
 	<br>
 	<?php
 	//echo $tpl['currency_list_name'][$tpl['currency_id']];
 	?>
 
-	<table>
-		<tr><td>
+	<div style="float: left">
 			<table>
 				<caption><strong><?php echo "{$lng['buy']} {$tpl['buy_currency_name']}"?></strong></caption>
 				<tr><td><?php echo "{$lng['amount_currency']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="buy_amount" class="input-mini form-control"></td></tr>
@@ -161,22 +217,22 @@
 			<button class="btn" id="buy_button"><?php echo "{$lng['buy']} {$tpl['buy_currency_name']}"?></button>
 				<br><br>
 
-			<div style="width: 330px; height: 500px; overflow: auto;">
+			<div style="width: 330px; max-height: 500px; overflow: auto;">
 			<table class="table" style="width: 330px"><caption><?php echo $lng['sell_orders']?></caption>
 				<thead><tr><th><?php echo $lng['price']?></th><th><?php echo $tpl['buy_currency_name']?></th><th><?php echo $tpl['sell_currency_name']?></th></tr></thead>
 				<tbody>
 					<?php
 					if ($tpl['sell_orders'])
 					foreach ($tpl['sell_orders'] as $data) {
-						echo "<tr><td>".($data['sell_rate'])."</td><td>{$data['amount']}</td><td>".($data['amount']*$data['sell_rate'])."</td></tr>";
+						echo "<tr><td>".clear_zero($data['sell_rate'])."</td><td>".clear_zero($data['amount'])."</td><td>".clear_zero($data['amount']*$data['sell_rate'])."</td></tr>";
 					}
 					?>
 				</tbody>
 			</table>
 			</div>
 
-		</td>
-		<td style="vertical-align: top">
+		</div>
+		<div style="float: left">
 			<table>
 				<caption><strong><?php echo "{$lng['sell']} {$tpl['buy_currency_name']}"?></strong></caption>
 				<tr><td><?php echo "{$lng['amount_currency']} {$tpl['buy_currency_name']}"?>: </td><td><input type="text" id="sell_amount" class="input-mini form-control"></td></tr>
@@ -188,30 +244,31 @@
 			<button class="btn" id="sell_button"><?php echo "{$lng['sell']} {$tpl['buy_currency_name']}"?></button>
 			<br><br>
 
-			<div style="width: 330px; height: 500px; overflow: auto;">
+			<div style="width: 330px; max-height: 500px; overflow: auto;">
 			<table class="table" style="width: 330px"><caption><?php echo $lng['buy_orders']?></caption>
 				<thead><tr><th><?php echo $lng['price']?></th><th><?php echo $tpl['buy_currency_name']?></th><th><?php echo $tpl['sell_currency_name']?></th></tr></thead>
 				<tbody>
 				<?php
 				if ($tpl['buy_orders'])
 					foreach ($tpl['buy_orders'] as $data) {
-						echo "<tr><td>".round(1/$data['sell_rate'], 6)."</td><td>".round($data['amount']*$data['sell_rate'], 2)."</td><td>{$data['amount']}</td></tr>";
+						echo "<tr><td>".clear_zero(round(1/$data['sell_rate'], 6))."</td><td>".clear_zero(round($data['amount']*$data['sell_rate'], 2))."</td><td>".clear_zero($data['amount'])."</td></tr>";
 				}
 				?>
 				</tbody>
 			</table>
 			</div>
 
-		</td></tr>
-	</table>
+		</div>
+		<div class="clearfix"></div>
+
 		<h2>My orders</h2>
-		<table class="table">
+		<table class="table" id="my_orders">
 			<thead><tr><th>Order id</th><th>Sell_currency_id</th><th>sell_rate</th><th>amount</th><th>buy_currency_id</th><th>commission</th><th>del</th></tr></thead>
 			<tbody>
 			<?php
 			if ($tpl['my_orders'])
 			foreach ($tpl['my_orders'] as $data) {
-				echo "<tr><td>{$data['id']}</td><td>{$data['sell_currency_id']}</td><td>{$data['sell_rate']}</td><td>{$data['amount']}</td><td>{$data['buy_currency_id']}</td><td>{$data['commission']}</td><td><a href='#' onclick=\"fc_navigate('currency_exchange_delete', {'del_id':'".$data['id']."'})\">Del</a></td></tr>";
+				echo "<tr><td>{$data['id']}</td><td>{$data['sell_currency_id']}</td><td>".clear_zero($data['sell_rate'])."</td><td>".clear_zero($data['amount'])."</td><td>{$data['buy_currency_id']}</td><td>".clear_zero($data['commission'])."</td><td><a href='#' onclick=\"fc_navigate('currency_exchange_delete', {'del_id':'".$data['id']."'})\">Del</a></td></tr>";
 			}
 			?>
 
@@ -225,3 +282,25 @@
 
 	<?php require_once( 'signatures.tpl' );?>
 </div>
+
+<style>
+	.stacktable { width: 100%; }
+	.st-head-row { padding-top: 1em;font-size: 2em; text-align: center }
+	.st-head-row.st-head-row-main { font-size: 1.5em; padding-top: 0; }
+	.st-key { width: 49%; text-align: right; padding-right: 1%; }
+	.st-val { width: 49%; padding-left: 1%; }
+
+	.stacktable.large-only { display: table; }
+	.stacktable.small-only { display: none; }
+
+	@media (max-width: 1000px) {
+		.stacktable.large-only { display: none; }
+		.stacktable.small-only { display: table; }
+	}
+</style>
+<script src="js/stacktable.js"></script>
+<script>
+	$( document ).ready(function() {
+		$('#my_orders').stacktable();
+	});
+</script>

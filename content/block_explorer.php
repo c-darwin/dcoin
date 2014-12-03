@@ -33,7 +33,7 @@ if ($tpl['start'] || (!$tpl['start'] && !$tpl['block_id'])) {
 		$block_data = $parsedata->block_data;
 		$tx_array = $parsedata->tx_array;
 		$block_data['sign'] = bin2hex($block_data['sign']);
-		$tpl['data'].= "<tr><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$block_data['block_id']}})\">{$block_data['block_id']}</a></td><td>{$hash}</td><td><nobr>".date('d-m-Y H:i:s', $block_data['time'])."</nobr></td><td>{$block_data['user_id']}</td><td>{$block_data['level']}</td><td>";
+		$tpl['data'].= "<tr><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$block_data['block_id']}})\">{$block_data['block_id']}</a></td><td>{$hash}</td><td><nobr><span class='unixtime'>{$block_data['time']}</span></nobr></td><td>{$block_data['user_id']}</td><td>{$block_data['level']}</td><td>";
 		if ($tx_array) {
 			$tpl['data'].= sizeof($tx_array);
 		}
@@ -70,7 +70,7 @@ else if ($tpl['block_id']) {
 	$tpl['data'].= "<tr><td><strong>Raw&nbsp;data</strong></td><td><a href='get_block.php?id={$block_data['block_id']}&download=1' target='_blank'>Download</a></td></tr>";
 	$tpl['data'].= "<tr><td><strong>Block_id</strong></td><td>{$block_data['block_id']} (<a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$previous}})\">Previous</a> / <a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$next}})\">Next</a> )</td></tr>";
 	$tpl['data'].= "<tr><td><strong>Hash</strong></td><td>{$hash}</td></tr>";
-	$tpl['data'].= "<tr><td><strong>Time</strong></td><td>".date('d-m-Y H:i:s', $block_data['time'])." / {$block_data['time']}</td></tr>";
+	$tpl['data'].= "<tr><td><strong>Time</strong></td><td><span class='unixtime'>{$block_data['time']}</span> / {$block_data['time']}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>User_id</strong></td><td>{$block_data['user_id']}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>Level</strong></td><td>{$block_data['level']}</td></tr>";
 	$tpl['data'].= "<tr><td><strong>Sign</strong></td><td>".chunk_split($block_data['sign'], 105)."</td></tr>";
@@ -98,6 +98,9 @@ else if ($tpl['block_id']) {
 	//$tpl['data'].= "</tr>";
 	$tpl['data'].= '</table>';
 }
+
+// пока панель тут
+$tpl['my_notice'] = get_my_notice_data();
 
 require_once( ABSPATH . 'templates/block_explorer.tpl' );
 

@@ -27,6 +27,11 @@ get_promised_amounts($user_id);
 
 $tpl['limits_text'] = str_ireplace(array('[limit]', '[period]'), array($tpl['variables']['limit_promised_amount'], $tpl['periods'][$tpl['variables']['limit_promised_amount_period']]), $lng['limits_text']);
 
+
+$tpl['last_tx'] = get_last_tx($user_id, types_to_ids(array('new_promised_amount', 'change_promised_amount', 'del_promised_amount', 'for_repaid_fix', 'actualization_promised_amounts', 'mining')));
+if (!empty($tpl['last_tx']))
+	$tpl['last_tx_formatted'] = make_last_txs($tpl['last_tx']);
+
 require_once( ABSPATH . 'templates/promised_amount_list.tpl' );
 
 ?>

@@ -65,7 +65,7 @@ echo str_ireplace('myModal', 'myModalLogin', $modal);
 
 	$( document ).ready(function() {
 		$('#show_login').css('display', 'block');
-		$('#page-wrapper').spin(false);
+		$('#wrapper').spin(false);
 	});
 
 </script>

@@ -14,29 +14,8 @@
 		} );
 
 	</script>
-	<style>
-		.progress {
-			width:0%;
-			overflow:hidden;
-			height:20px;
-			display:inline-block;
-			vertical-align:middle;
-			color:#FFF;
-			text-align:right;
-			text-shadow:1px 1px 0 #000;
-			background:-o-linear-gradient(top,#888888,#333333);
-			background:-moz-linear-gradient(top,#888888,#333333);
-			background:-webkit-gradient(linear,left top,left bottom,from(#888888),to(#333333));
-			background:-webkit-linear-gradient(top,#888888,#333333);
-			-o-transition-property:width;
-			-o-transition-duration:.5s;
-			-moz-transition-property:width;
-			-moz-transition-duration:.5s;
-			-webkit-transition-property:width;
-			-webkit-transition-duration:.5s;
-		}
 
-	</style>
+	<link rel="stylesheet" href="css/progress.css" type="text/css" />
 	<script type="text/javascript" src="js/uploader.js"></script>
 	<script src="js/js.js"></script>
   <h1 class="page-header">Pool admin</h1>
@@ -75,7 +54,7 @@
 
 
 
-	    <div id="sql_progress" class="progress">0%</div><br>
+	    <div id="sql_progress" class="my_progress">0%</div><br>
 	    <div id="sql_ok" class="alert alert-success" style="display: none"></div>
 	    <div class="form-horizontal">
 		    <fieldset>

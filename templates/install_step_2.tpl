@@ -2,7 +2,7 @@
 <div class="container">
 <script>
 	$('#next').bind('click', function () {
-		$('#page-wrapper').spin();
+		$('#wrapper').spin();
 		$.post( 'content.php', {
 			'tpl_name' : 'install_step_2_1',
 			'mysql_host' : $('#mysql_host').val(),
@@ -13,14 +13,14 @@
 			'mysql_password' : $('#mysql_password').val(),
 			'pool_data' : $('#pool_data').val(),
 			'pool_admin_user_id' : $('#pool_admin_user_id').val()
-		}, function (data) { $('#dc_content').html( data );  $('#page-wrapper').spin(false); }, 'html' );
+		}, function (data) { $('#dc_content').html( data );  $('#wrapper').spin(false); }, 'html' );
 	} );
 </script>
 
 	<ul class="nav nav-tabs">
-		<li><a href="#" onclick="fc_navigate('install_step_0')">Step 0</a></li>
-		<li><a href="#" onclick="fc_navigate('install_step_1')">Step 1</a></li>
-		<li class="active"><a href="#" onclick="fc_navigate('install_step_2')">Step 2</a></li>
+		<li><a href="#install_step_0">Step 0</a></li>
+		<li><a href="#install_step_1">Step 1</a></li>
+		<li class="active"><a href="#install_step_2">Step 2</a></li>
 	</ul>
 
 	<strong><?php echo $lng['install_mysql_setting']?></strong>

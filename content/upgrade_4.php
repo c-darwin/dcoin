@@ -1,16 +1,29 @@
 <?php
+if (!defined('DC')) die("!defined('DC')");
 
-$tpl['geolocation'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
-		SELECT `geolocation`
+
+// есть ли загруженное видео.
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+		SELECT `video_url_id`,
+					 `video_type`
 		FROM `'.DB_PREFIX.MY_PREFIX.'my_table`
-		', 'fetch_one');
-if (!$tpl['geolocation'])
-	$tpl['geolocation'] = '39.94887, -75.15005';
+		');
+$row = $db->fetchArray($res);
+switch ($row['video_type']) {
 
-$x = explode(', ', $tpl['geolocation']);
-$tpl['geolocation_lat'] = $x[0];
-$tpl['geolocation_lon'] = $x[1];
+	case 'youtube' :
+		$tpl['video_url'] = 'http://www.youtube.com/embed/'.$row['video_url_id'];
+		break;
 
+	case 'vimeo' :
+		$tpl['video_url'] = 'http://www.vimeo.com/embed/'.$row['video_url_id'];
+		break;
+
+	case 'youku' :
+		$tpl['video_url'] = 'http://www.youku.com/embed/'.$row['video_url_id'];
+		break;
+
+}
 require_once( ABSPATH . 'templates/upgrade_4.tpl' );
 
 ?>

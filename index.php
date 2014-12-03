@@ -9,7 +9,6 @@ define( 'ABSPATH', dirname(__FILE__) . '/' );
 set_time_limit(0);
 
 require_once( ABSPATH . 'includes/autoload.php' );
-require_once( ABSPATH . 'includes/errors.php' );
 
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
@@ -23,7 +22,7 @@ require_once( ABSPATH . 'lang/'.$lang.'.php' );
 //}else{
 
 
-require_once( ABSPATH . 'templates/index2.tpl' );
+require_once( ABSPATH . 'templates/index.tpl' );
 //}
 
 

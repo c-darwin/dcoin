@@ -27,15 +27,15 @@ $("#main_div textarea").addClass( "form-control" );
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['mining']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
-	<li><a href="#" onclick="fc_navigate('promised_amount_list')"><?php echo $lng['promised_amount_title'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#promised_amount_list"><?php echo $lng['promised_amount_title'] ?></a></li>
 	<li class="active"><?php echo $lng['mining'] ?></li>
 </ol>
 
     <div id="sign_banknote">
 	
 		<label><?php echo $lng['data']?></label>
-		<textarea id="for-signature" style="width:500px;" rows="4"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$_REQUEST['parameters']['promised_amount_id']},{$_REQUEST['parameters']['amount']}"?></textarea>
+		<textarea id="for-signature" style="width:500px;" rows="4"><?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['promised_amount_id']},{$tpl['amount']}"?></textarea>
 	    <?php
 	for ($i=1; $i<=$count_sign; $i++) {
 		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
@@ -46,8 +46,8 @@ $("#main_div textarea").addClass( "form-control" );
 
     </div>
 
-	<input type="hidden" id="amount" value="<?php echo $_REQUEST['parameters']['amount']?>">
-	<input type="hidden" id="promised_amount_id" value="<?php echo $_REQUEST['parameters']['promised_amount_id']?>">
+	<input type="hidden" id="amount" value="<?php echo $tpl['amount']?>">
+	<input type="hidden" id="promised_amount_id" value="<?php echo $tpl['promised_amount_id']?>">
 	<script>
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>

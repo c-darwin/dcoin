@@ -48,164 +48,18 @@
 	<script type="text/javascript" src="js/mcrypt.js"></script>
 
 
-<script src="js/index.js"></script>
+<script src="js/index.js?r=<?php echo rand()?>"></script>
 
 <script language="JavaScript" type="text/javascript">
-
-	var poll_time=0;
-
-	function doSign(type) {
-
-		if(typeof(type)==='undefined') type='sign';
-
-		console.log('type='+type);
-
-		var SIGN_LOGIN = false;
-		var PASS_LOGIN = false;
-
-		jQuery.extend({
-			getValues: function(url) {
-				var result = null;
-				$.ajax({
-					url: url,
-					type: 'get',
-					dataType: 'json',
-					async: false,
-					success: function(data) {
-						result = data;
-					}
-				});
-			return result;
-			}
-			});
-
-		var key = $("#key").text();
-		var pass = $("#password").text();
-
-		if (key.indexOf('RSA PRIVATE KEY')!=-1)
-			pass = '';
-
-		if (pass)
-			text = atob(key.replace(/\n|\r/g,""));
-
-		if (type=='sign') {
-			var forsignature = $("#for-signature").val();
-		}
-		else {
-			if (key) {
-				// авторизация с ключем и паролем
-				var forsignature = $.getValues("ajax/sign_login.php");
-				SIGN_LOGIN = true;
-			}
-			else {
-				PASS_LOGIN = true;
-			}
-		}
-
-		console.log('forsignature='+forsignature);
-
-		if (forsignature) {
-
-			console.log('pass='+pass);
-
-			if (pass)
-				var decrypt_PEM = mcrypt.Decrypt(text, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, hex_md5(pass), 'rijndael-128', 'ecb');
-			else
-				var decrypt_PEM = key;
-			console.log('decrypt_PEM='+decrypt_PEM);
-			if (decrypt_PEM.indexOf('RSA PRIVATE KEY')==-1) {
-				$("#page-wrapper").spin(false);
-				$("#modal_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#incorrect_key_or_password').val()+'</p></div>');
-			}
-			else {
-				var rsa = new RSAKey();
-				rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-				var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-				var modulus = a[1];
-				var exp = a[2];
-
-				//var hash = CryptoJS.SHA256(forsignature);
-				//var hSig = rsa.signString(forsignature, 'sha256');
-
-				console.log('forsignature='+forsignature);
-				console.log('hex_md5(pass)='+hex_md5(pass));
-
-				var hSig = rsa.signString(forsignature, 'sha1');
-
-				console.log('hSig='+hSig);
-
-				delete rsa;
-			}
-
-		}
-		if (SIGN_LOGIN || PASS_LOGIN) {
-
-			console.log('SIGN_LOGIN || PASS_LOGIN');
-
-			//$("#page-wrapper").spin();
-			if (key) {
-				// шлем подпись на сервер на проверку
-				$.post( 'ajax/check_sign.php', {
-							'sign': hSig,
-							'n' : modulus,
-							'e': exp
-						}, function (data) {
-							// залогинились
-							console.log(data.result);
-							login_ok( data.result );
-
-						}, 'JSON'
-				);
-			}
-			else {
-
-				hash_pass = hex_sha256(hex_sha256(pass));
-				// шлем хэш пароля на проверку и получаем приватный ключ
-				$.post( 'ajax/check_pass.php', {
-							'hash_pass': hash_pass
-						}, function (data) {
-							// залогинились
-							login_ok( data.result );
-
-							$("#modal_key").val(data.key);
-							$("#key").text(data.key);
-							//alert(data.key);
-
-						}, 'JSON'
-				);
-
-			}
-
-			//$("#page-wrapper").spin(false);
-
-		}
-		else {
-
-			$("#signature1").val(hSig);
-
-		}
-	}
-
-
-	</script>
-
-<!-- jQuery Version 1.11.0 -->
-<script src="js/jquery-1.11.0.js"></script>
-
-<script src="js/jquery.Jcrop.js"></script>
-<script type="text/javascript">
-  jQuery(function($){
-
-    // How easy is this??
-    $('#target').Jcrop();
-
-  });
-
+function doSign(type){
+	doSign_(type, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>);
+}
 </script>
 
-	<link rel="stylesheet" href="css/jquery.Jcrop.css" type="text/css" />
+	<script src="js/jquery-1.11.0.js"></script>
+	<script src="js/jquery.qtip.min.js"></script>
 
-	<!--<link rel="stylesheet" href="bootstrap-datetimepicker-0.0.11/css/bootstrap-datetimepicker.min.css"/>-->
+	<link type="text/css" rel="stylesheet" href="css/jquery.qtip.min.css" />
 
 	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui.css" />
 	<link rel="stylesheet" media="all" type="text/css" href="css/jquery-ui-timepicker-addon.css" />
@@ -230,18 +84,22 @@
 	.DCava>img{
 		-webkit-border-radius:100em;
 	}
-	.DCava:before{
-		content:'';
-		display:block;
-		position:absolute;
-		left:0;
-		right:0;
-		width:100%;
-		height:100%;
-		margin:-10em;
-		border:10em solid #333;
+	.DCava:before {
+		content: '';
+		display: block;
+		position: absolute;
+		left: 0;
+		right: 0;
+		width: 100%;
+		height: 100%;
+		margin: -10em;
+		border: 10em solid #333;
 		-moz-box-sizing: padding-box;
+	}
 
+	@media screen and (max-width: 768px) {
+		body{background-color: #fff}
+	}
 </style>
 </head>
 
@@ -271,6 +129,8 @@
 	<div style="display: none;">
 		<div id="key">key</div>
 		<div id="password">password</div>
+		<img  id="image_key">
+		<canvas  id="canvas_key"></canvas>
 	</div>
 
 
@@ -348,20 +208,102 @@
 		};
 	})(jQuery);
 
-	//$('#page-wrapper').spin();
+	//$('#wrapper').spin();
 
 
 </script>
 
 <script>
+
 	$( document ).ready(function() {
-		$('#page-wrapper').spin();
+		$('#wrapper').spin();
+		<?php
+		if (!empty($_REQUEST['key']) || !empty($_SESSION['private_key']) ) {
+			$key = !empty($_REQUEST['key'])?$_REQUEST['key']:$_SESSION['private_key'];
+			$_SESSION['private_key'] = $key;
+			$key = str_replace("\r", "\n", $key);
+			$key = str_replace("\n\n", "\n", $key);
+			$key = str_replace("\n", "\\\n", $key);
+			$lang = $_REQUEST['lang']?'"parameters": {"lang":'.$_REQUEST['lang'].'}':'';
+			echo '$( "#dc_content" ).load( "content.php", { '.$lang.' }, function() {'."\n";
+			echo '$("#modal_key").val("'.$key.'");'."\n";
+			echo "save_key(); doSign('login');"."\n";
+			echo '});'."\n";
+			//echo '$( "#dc_content" ).load( "content.php", {\'auto_key\': "'.$key.'"});';
+			// пишем в сессию, что бы ctrl+F5 не сбрасывал ключ (для авто-входа с dcoin.me)
+		}
+		else
+			echo '$( "#dc_content" ).load( "content.php");';
+		?>
 		load_menu();
-		$( "#dc_content" ).load( "content.php");
 	});
+
 </script>
 
+<script type="text/javascript" >
+	//window.location.href += "#mypara";
+	//location.reload();
 
+	var lastLinkEvent;
+	function dcNavHash(e) {
+		console.log('dcNavHash start');
+		if (lastLinkEvent!=location.hash) {
+			console.log(lastLinkEvent);
+			dcNav({'target': {'hash': location.hash}});
+		}
+		console.log('dcNavHash end');
+	}
+
+	function dcNav(e){
+
+		console.log('dcNav start');
+
+		console.log(e.target);
+		//var str = location.hash;
+		if (typeof e.target.hash=='undefined') {
+			window.addEventListener("hashchange", dcNavHash);
+			return false;
+		}
+
+		lastLinkEvent = e.target.hash;
+
+		var str = e.target.hash;
+		var page_match = str.match(/#(\w+)/i);
+		if (page_match && typeof page_match[1]!='undefined' && page_match[1]!='tab1' && page_match[1]!='tab2' && page_match[1]!='tab3'  ) {
+			var page = page_match[1];
+			var param_match = str.match(/\/\w+=\w+/gi);
+			var param_obj = {};
+			if (param_match) {
+				for (var i = 0; i < param_match.length; i++) {
+					var param = param_match[i].match(/(\w+)=(\w+)/i);
+					param_obj[param[1]] = param[2];
+				}
+				console.log(param_obj);
+			}
+			console.log(page);
+			if (page=='upgrade_1'|| page=='upgrade_2')
+				user_photo_navigate(page);
+			else if (page=='upgrade_6')
+				map_navigate(page);
+			else if (page=='upgrade_4')
+				user_webcam_navigate(page);
+			else
+				fc_navigate(page, param_obj);
+			if (param_obj && typeof param_obj['lang']!='undefined') {
+				load_menu();
+			}
+		}
+
+		console.log('dcNav end');
+	}
+
+	window.addEventListener("click", dcNav);
+
+	window.addEventListener("hashchange", dcNavHash);
+
+	//window.onhashchange = function(e) {
+	//}
+</script>
 <!-- Yandex.Metrika counter -->
 <script type="text/javascript">
 	(function (d, w, c) {

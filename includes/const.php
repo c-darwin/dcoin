@@ -86,8 +86,14 @@ define( 'limit_change_key_request', 1 );
 define( 'limit_change_key_request_period', 3600*24*7 );
 
 // через какое время админ имеет право изменить ключ юзера, если тот дал на это свое согласие. Это время дается юзеру на то, чтобы отменить запрос.
-//define( 'CHANGE_KEY_PERIOD', 3600*24*30 );
-define( 'CHANGE_KEY_PERIOD', 3600 );
+define( 'CHANGE_KEY_PERIOD_170770', 3600 );
+define( 'CHANGE_KEY_PERIOD', 3600*24*30 );
+
+// Скольким макс. нодам делаем запрос на сверку нашего предпоследнего блока. используется в cron/confirmations.php
+define( 'COUNT_CONFIRMED_NODES', 10 );
+
+// У скольких нодов должен быть такой же блок как и у нас, чтобы считать, что блок у большей части DC-сети. для get_confirmed_block_id().
+define( 'MIN_CONFIRMED_NODES', 4 );
 
 
 ?>

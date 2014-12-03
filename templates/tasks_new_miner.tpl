@@ -1,8 +1,98 @@
-
-
 <script src="js/spots.js"></script>
 
 <script>
+
+	var photo_hosts = [];
+	var photo_hosts = ['<?php echo implode("','", $tpl['user_info']['photo_hosts']);?>'];
+
+	function get_miner_photos (i) {
+
+		console.log('get_miner_photos');
+		var image = new Image();
+		if (typeof photo_hosts[i] != 'undefined' && photo_hosts[i]!='' && photo_hosts[i]!='0') {
+			image.src = photo_hosts[i]+"public/face_<?php echo $tpl['user_info']['user_id']?>.jpg";
+			image.onload = function(){
+				image = null;
+				console.log('#face_coords_mouse = url('+photo_hosts[i]+'public/profile_<?php echo $tpl['user_info']['user_id']?>.jpg)');
+				$('#face_coords_mouse,#main_face,#step_3_face').css("background", "url('"+photo_hosts[i]+"public/face_<?php echo $tpl['user_info']['user_id']?>.jpg')  no-repeat 50% 50%");
+				$('#face_coords_mouse').css("background-size", "350px Auto");
+				$('#profile_coords_mouse,#main_profile,#step_3_profile').css("background", "url('"+photo_hosts[i]+"public/profile_<?php echo $tpl['user_info']['user_id']?>.jpg') no-repeat 50% 50%");
+				$('#profile_coords_mouse').css("background-size", "350px Auto");
+				$('#main_face,#step_3_face').css("background-size", "150px Auto");
+				$('#main_profile,#step_3_profile').css("background-size", "150px Auto");
+				//$('#clone_photo_profile['+user_id+']').html("<img src='"+photo_hosts[user_id][i]+"' width=150 >");
+			};
+			// handle failure
+			image.onerror = function(){
+				image = null;
+				console.log('error get_miner_photos'+photo_hosts[i]);
+				get_miner_photos (i+1);
+			};
+			setTimeout
+			(
+				function()
+				{
+					if ( image!=null && (!image.complete || !image.naturalWidth) )
+					{
+						image = null;
+						console.log('error get_miner_photos'+photo_hosts[i]);
+						get_miner_photos (i+1);
+					}
+				},
+				3000
+			);
+		}
+		else {
+			console.log('null');
+		}
+	}
+
+	$(function() {
+		get_miner_photos (0);
+	});
+
+
+var clone_hosts = [];
+	<?php
+	foreach($tpl['clone_hosts'] as $clone_user_id=>$hosts) {
+		echo "clone_hosts[{$clone_user_id}] = [];\n";
+		echo "clone_hosts[{$clone_user_id}] = ['".implode("','", $hosts)."'];\n";
+	}
+	?>
+
+	function get_clone_photos (i, user_id) {
+
+		var image = new Image();
+		if (typeof clone_hosts[user_id][i] != 'undefined' && clone_hosts[user_id][i]!='' && clone_hosts[user_id][i]!='0') {
+			image.src = clone_hosts[user_id][i]+"public/face_"+user_id+".jpg";
+			image.onload = function(){
+				image = null;
+				console.log('#clone_photo_face['+user_id+'] = url('+clone_hosts[user_id][i]+'public/profile_'+user_id+'.jpg)');
+				$('#clone_photo_face\\['+user_id+'\\]').css("background", "url('"+clone_hosts[user_id][i]+"public/face_"+user_id+".jpg')  no-repeat 50% 50%");
+				$('#clone_photo_face\\['+user_id+'\\]').css("background-size", "150px Auto");
+				$('#clone_photo_profile\\['+user_id+'\\]').css("background", "url('"+clone_hosts[user_id][i]+"public/profile_"+user_id+".jpg') no-repeat 50% 50%");
+				$('#clone_photo_profile\\['+user_id+'\\]').css("background-size", "150px Auto");
+				//$('#clone_photo_profile['+user_id+']').html("<img src='"+clone_hosts[user_id][i]+"' width=150 >");
+			};
+			// handle failure
+			image.onerror = function(){
+				image = null;
+				console.log('error get_clone_photos'+clone_hosts[user_id][i]);
+				get_clone_photos (i+1, user_id);
+			};
+		}
+		else {
+			console.log('null:'+user_id+'/'+i);
+		}
+	}
+
+	$(function() {
+		<?php
+		foreach($tpl['clone_hosts'] as $clone_user_id=>$hosts) {
+			echo "get_clone_photos (0, {$clone_user_id});\n";
+		}
+		?>
+	});
 
 	var comment = '';
 
@@ -75,7 +165,8 @@ $('#btn-step1-back').bind('click', function () {
 	$('#step_2').css('display', 'none');
 	$('#step_3').css('display', 'none');
 	//$('#title').css('display', 'none');
-
+	$('#task_title_li').text("<?php echo $lng['tasks_new_miner_spots']?>");
+	window.scrollTo(0,0);
 } );
 
 $('#btn-step2,#btn-step2-back').bind('click', function () {
@@ -86,7 +177,9 @@ $('#btn-step2,#btn-step2-back').bind('click', function () {
 	$('#step_1').css('display', 'none');
 	$('#step_2').css('display', 'block');
 	$('#step_3').css('display', 'none');
+	$('#task_title_li').text("<?php echo $lng['tasks_new_miner_clones']?>");
 	//$('#title').css('display', 'none');
+	window.scrollTo(0,0);
 } );
 
 $('#btn-step3,#btn-step3-back').bind('click', function () {
@@ -99,7 +192,8 @@ $('#btn-step3,#btn-step3-back').bind('click', function () {
 	$('#step_3').css('display', 'block');
 	$('#sign').css('display', 'none');
 	//$('#title').css('display', 'block');
-
+	$('#task_title_li').text("<?php echo $lng['tasks_new_miner_video']?>");
+	window.scrollTo(0,0);
 } );
 
 $('#btn-step4').bind('click', function () {
@@ -111,9 +205,9 @@ $('#btn-step4').bind('click', function () {
 	$('#step_3').css('display', 'none');	
 	$('#sign').css('display', 'block');	
 	$('#result').val( '1' );
+	window.scrollTo(0,0);
 
 	write_for_signature(1);
-
 } );
 
 $('#send_to_net').bind('click', function () {
@@ -136,8 +230,9 @@ $('#send_to_net').bind('click', function () {
 </script>
 <h1 class="page-header"><?php echo $lng['tasks_title_new_miner']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
-	<li><a href="#" onclick="fc_navigate('tasks')"><?php echo $lng['tasks_title'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#tasks"><?php echo $lng['tasks_title'] ?></a></li>
+	<li id="task_title_li"><?php echo $lng['tasks_new_miner_spots']?></li>
 </ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
@@ -147,26 +242,22 @@ $('#send_to_net').bind('click', function () {
  	<div id="step_1" style="position: relative;">
 	    <p><?php echo $lng['tasks_new_miner_spots']?></p>
 
-<?php echo $lng['accounted_country']?>: <?php echo $tpl['my_country']?> <?php echo $lng['and_race']?>: <?php echo $tpl['my_race']?> <a href="#" onclick="fc_navigate('change_country_race')"><?php echo $lng['change']?></a><br>
+	<?php echo $lng['accounted_country']?>: <?php echo $tpl['my_country']?> <?php echo $lng['and_race']?>: <?php echo $tpl['my_race']?> <a href="#change_country_race"><?php echo $lng['change']?></a><br>
 	<input type="hidden" id="candidate-id" value="<?php echo $tpl['user_info']['user_id']?>">
-	<button class="btn" id="reload-user-photos"><?php echo $lng['reload']?></button> (<?php echo $lng['if_photo_not_booted']?>)<br><br>
 
-<canvas id="example_face" style="position: absolute; background-image: url('img/face.jpg'); background-size: 350px;" width="350" height="500"></canvas>
-<canvas style="position: relative; top:0px; left:0px;" width="350" height="500"></canvas>
+	<canvas id="example_face" style="position: absolute; background-image: url('img/face.jpg'); background-size: 350px;" width="350" height="500"></canvas>
+	<canvas style="position: relative; top:0px; left:0px;" width="350" height="500"></canvas>
 
-<canvas  id="face_coords_mouse" style="position: absolute; background-image: url('<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>'); background-size: 350px;" width="350" height="500"></canvas>
-<canvas id="face" style="position: relative; top:0px; left:0px; height:500px" width="350" height="500"></canvas>
+	<canvas  id="face_coords_mouse" style="position: absolute;" width="350" height="500"></canvas>
+	<canvas id="face" style="position: relative; top:0px; left:0px; height:500px" width="350" height="500"></canvas>
 
-<br>
+	<br><br>
 
+	<canvas id="example_profile" style="position: absolute; background-image: url('img/profile.jpg'); background-size: 350px;" width="350" height="500"></canvas>
+	<canvas style="position: relative; top:0px; left:0px;" width="350" height="500"></canvas>
 
-<br>
-
-<canvas id="example_profile" style="position: absolute; background-image: url('img/profile.jpg'); background-size: 350px;" width="350" height="500"></canvas>
-<canvas style="position: relative; top:0px; left:0px;" width="350" height="500"></canvas>
-
-<canvas  id="profile_coords_mouse" style="position: absolute; background-image: url('<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>'); background-size: 350px;" width="350" height="500"></canvas>
-<canvas id="profile" style="position: relative; top:0px; left:0px; height:500px" width="350" height="500"></canvas>
+	<canvas  id="profile_coords_mouse" style="position: absolute;" width="350" height="500"></canvas>
+	<canvas id="profile" style="position: relative; top:0px; left:0px; height:500px" width="350" height="500"></canvas>
 
 <br><br>
 
@@ -217,23 +308,22 @@ $('#send_to_net').bind('click', function () {
 	<!-- S T E P   2 -->
 
     <div id="step_2" style="display:none; ">
-	    <p><?php echo $lng['tasks_new_miner_clones']?></p>
-	    <button class="btn" onclick="reload_photo2(<?php echo $tpl['user_info']['user_id']?>, 'main_face', 'main_profile')"><?php echo $lng['reload']?></button>
 		<div id="xx1" style="width:300px; position:fixed;">
-			<div style="float:left;"><img id="main_face" src="<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
-			<div><img id="main_profile" src="<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="float:left; width:150px; height:220px;"></div>
+			<div style="float:left;width:150px; height:220px" id="main_face"></div>
+			<div style="float:left;width:150px; height:220px" id="main_profile"></div>
 		</div>
 
 		<div style="padding-top:220px">
-			<?php
-			if (isset($tpl['search']))
-			for ($i=0; $i<sizeof($tpl['search']); $i++) {
-				print '<div style="float:left;"><img id="face_'.$tpl['search'][$i]['user_id'].'" src="'.$tpl['search'][$i]['host'].'public/face_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
-						<div style="float:left;"><img id="profile_'.$tpl['search'][$i]['user_id'].'" src="'.$tpl['search'][$i]['host'].'public/profile_'.$tpl['search'][$i]['user_id'].'.jpg" style="width:150px; height:220px;"></div>
-						<div style="padding-top: 50px; height: 220px"><button class="btn" onclick="reload_photo2('.$tpl['search'][$i]['user_id'].', \'face_'.$tpl['search'][$i]['user_id'].'\', \'profile_'.$tpl['search'][$i]['user_id'].'\')">'.$lng['reload'].'</button><br>('.$lng['if_photo_not_booted'].')<br></div>';
-			}
-			?>
+		    <?php
+		    foreach($tpl['clone_hosts'] as $clone_user_id=>$urls) {
+			    echo "<div style='width: 300px; height:220px'>";
+			    echo "<div style='width: 150px; height: 220px; float:left' id='clone_photo_face[{$clone_user_id}]'></div>\n";
+			    echo "<div style='width: 150px; height: 220px; float:left' id='clone_photo_profile[{$clone_user_id}]'></div>\n";
+		        echo "</div>\n";
+		    }
+		    ?>
 		</div>
+
 	<div style="margin-top: 15px; ">
 		Comment: <input type="text" id="comment_step_2" value="">English only<br>
 		<button class="btn btn-success" id="btn-step1-back"><?php echo $lng['back']?></button>
@@ -249,10 +339,10 @@ $('#send_to_net').bind('click', function () {
 	<!-- S T E P   3 -->
 	
     <div id="step_3" style="display:none;">
-	    <p><?php echo $lng['tasks_new_miner_video']?><br><button class="btn" onclick="reload_photo2(<?php echo $tpl['user_info']['user_id']?>, 'step_3_face', 'step_3_pofile')"><?php echo $lng['reload']?></button></p>
+	    <p><?php echo $lng['tasks_new_miner_video']?></p>
 		<div style="width:300px;float: left;">
-			<div style="float: left;"><img id="step_3_face" src="<?php echo $tpl['user_info']['miner_host'].'public/face_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
-			<div><img id="step_3_pofile" src="<?php echo $tpl['user_info']['miner_host'].'public/profile_'.$tpl['user_info']['user_id'].'.jpg'; ?>" style="width:150px; height:220px;"></div>
+			<div style="float: left;width:150px; height:220px;" id="step_3_face"></div>
+			<div style="float: left;width:150px; height:220px;" id="step_3_profile"></div>
 		</div>
 		<div>
 			<?php

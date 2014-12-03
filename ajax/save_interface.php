@@ -1,4 +1,5 @@
 <?php
+/*
 session_start();
 
 if ( empty($_SESSION['user_id']) )
@@ -29,5 +30,5 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
 		SET  `show_sign_data` = {$show_sign_data}
 		");
-
+*/
 ?>

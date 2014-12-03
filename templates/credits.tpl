@@ -36,10 +36,11 @@
 </script>
 <div id="main_div">
 	<h1 class="page-header"><?php echo $lng['credits']?></h1>
-	<ol class="breadcrumb">
-		<li><a href="#"onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
-		<li class="active"><?php echo $lng['credits']?></li>
-	</ol>
+	<ul class="nav nav-tabs" id="myTab">
+		<li><a href="#wallets_list"><?php echo $lng['send_to_wallet']?></a></li>
+		<li><a href="#currency_exchange"><?php echo $lng['currency_exchange1']?></a></li>
+		<li class="active"><a href="#credits""><?php echo $lng['credits']?></a></li>
+	</ul>
 
 	<div id="main_data">
 		<?php require_once( ABSPATH . 'templates/alert_success.php' );?>

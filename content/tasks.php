@@ -110,19 +110,16 @@ switch ($task_type) {
 		//print_R($tpl['user_info']);
 		// получим ID майнеров, у которых лежат фото нужного нам юзера
 		$miners_ids = ParseData::get_miners_keepers($tpl['user_info']['photo_block_id'], $tpl['user_info']['photo_max_miner_id'],  $tpl['user_info']['miners_keepers'], true);
-		//print_R($miners_ids);
-
-		// берем 1 случайный из 10-и ID майнеров
-		$r = array_rand($miners_ids, 1);
-		$miner_id = $miners_ids[$r];
-
-		// получаем хост
-		$tpl['user_info']['miner_host'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `host`
-				FROM `".DB_PREFIX."miners_data`
-				WHERE `miner_id` = {$miner_id}
-				", 'fetch_one' );
-
+		if ($miners_ids) {
+			$hosts = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						SELECT `host`
+						FROM `" . DB_PREFIX . "miners_data`
+						WHERE `miner_id` IN  (" . implode(',', $miners_ids) . ")
+						", 'array');
+			for ($i = 0; $i < sizeof($hosts); $i++) {
+				$tpl['user_info']['photo_hosts'][] = "{$hosts[$i]}";
+			}
+		}
 		// отрезки майнера, которого проверяем
 		$tpl['relations'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
@@ -177,21 +174,22 @@ switch ($task_type) {
 				             `".DB_PREFIX."faces`.`status` = 'used' AND
 				             `".DB_PREFIX."miners_data`.`user_id` != {$tpl['user_info']['user_id']}
 				LIMIT 0, 100" );
-		//print  '<pre>'.$db->printsql().'</pre>';
+		$tpl['clone_urls'] = array();
 		while ( $row = $db->fetchArray($res) ) {
+
 			// майнеры, у которых можно получить фото нужного нам юзера
 			$miners_ids = ParseData::get_miners_keepers($row['photo_block_id'], $row['photo_max_miner_id'], $row['miners_keepers'], true);
-			// берем 1 случайный из 10-и ID майнеров
-			$r = array_rand($miners_ids, 1);
-			$miner_id = $miners_ids[$r];
-			// получаем хост, где сможем получить фото юзера
-			$host = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `host`
-					FROM `".DB_PREFIX."miners_data`
-					WHERE `miner_id` = {$miner_id}
-					LIMIT 1
-					", 'fetch_one' );
-			$tpl['search'][] = array('user_id'=>$row['user_id'], 'host'=>$host);
+
+			if ($miners_ids) {
+				$hosts = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						SELECT `host`
+						FROM `" . DB_PREFIX . "miners_data`
+						WHERE `miner_id` IN  (" . implode(',', $miners_ids) . ")
+						", 'array');
+				for ($i = 0; $i < sizeof($hosts); $i++) {
+					$tpl['clone_hosts'][$row['user_id']][] = "{$hosts[$i]}";
+				}
+			}
 		}
 
 		$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '

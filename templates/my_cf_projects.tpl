@@ -32,10 +32,10 @@ $('#send_to_net').bind('click', function () {
 
 $('#new_cf_project').bind('click', function () {
 
-	$('#page-wrapper').spin();
+	$('#wrapper').spin();
 	$( "#dc_content" ).load( "content.php", { tpl_name: "new_cf_project" }, function() {
 		$.getScript("https://maps.googleapis.com/maps/api/js?sensor=false&callback=initialize", function(){
-			$('#page-wrapper').spin(false);
+			$('#wrapper').spin(false);
 		});
 	});
 
@@ -61,14 +61,14 @@ $('#new_cf_project').bind('click', function () {
 		foreach ($tpl['projects'] as $project_id=>$data) {
 			?>
 			<div class="well project-card" style="float:left; margin-right:20px">
-				<a href="#" onclick="fc_navigate('cf_page_preview', {'only_project_id':<?php echo $data['id']?><?php echo $data['lang_id']?", 'lang_id':{$data['lang_id']}":""?>})"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
+				<a href="#cf_page_preview/only_project_id=<?php echo $data['id']?><?php echo $data['lang_id']?", 'lang_id':{$data['lang_id']}":""?>"><img src="<?php echo $data['blurb_img']?>" style="width:200px; height:310px"></a>
 			<ul class="list-inline mlng" style="margin-left:0px; margin-top:5px; padding-left: 0px">
 			<?php
 			foreach ($data['lang'] as $data_id=>$lang_id)
-				echo "<li><a href=\"#\" onclick=\"fc_navigate('add_cf_project_data', {'id':'{$data_id}'})\">{$tpl['cf_lng'][$lang_id]}</a></li> ";
+				echo "<li><a href=\"#add_cf_project_data/id={$data_id}\">{$tpl['cf_lng'][$lang_id]}</a></li> ";
 			?>
 			</ul>
-			<p><a href="#" onclick="fc_navigate('add_cf_project_data', {'project_id':'<?php echo $project_id?>'})"><?php echo $lng['add_description']?></a></p>
+			<p><a href="#add_cf_project_data/project_id=<?php echo $project_id?>"><?php echo $lng['add_description']?></a></p>
 			<p><?php echo $lng['currency']?>: <?php echo $data['project_currency_name']?></p>
 			<p><?php echo $lng['project_id']?>: <?php echo $data['id']?></p>
 			<p><?php echo $lng['category']?>: <?php echo $lng['cf_category'][$data['category_id']]?> <a href="#" onclick="fc_navigate('cf_project_change_category', {'project_id':'<?php echo $project_id?>'})"<i class="fa  fa-pencil fa-fw"></i></a></p>

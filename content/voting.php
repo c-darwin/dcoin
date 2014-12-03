@@ -19,7 +19,7 @@ $reg_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 		        LIMIT 1
 		        ", 'fetch_one');
 if ($reg_time > (time() - $variables['miner_newbie_time']) && $user_id != 1) {
-	$tpl['miner_newbie'] = str_ireplace('[sec]', $variables['miner_newbie_time'] - (time() - $reg_time), $lng['hold_time_wait2']);
+	$tpl['miner_newbie'] = str_ireplace('[sec]', time_left($variables['miner_newbie_time'] - (time() - $reg_time)), $lng['hold_time_wait2']);
 }
 else {
 	// валюты
@@ -47,7 +47,7 @@ else {
 
 		// после добавления обещанной суммы должно пройти не менее min_hold_time_promise_amount сек, чтобы за неё можно было голосовать
 		if ( $row['start_time'] > (time() - $variables['min_hold_time_promise_amount']) ) {
-			$tpl['wait_voting'][$row['currency_id']] = str_ireplace('sec', $variables['min_hold_time_promise_amount'] - (time() - $row['start_time']), $lng['hold_time_wait']);
+			$tpl['wait_voting'][$row['currency_id']] = str_ireplace('[sec]', time_left($variables['min_hold_time_promise_amount'] - (time() - $row['start_time'])), $lng['hold_time_wait']);
 			continue;
 		}
 
@@ -77,7 +77,7 @@ else {
 					LIMIT 1
 					", 'fetch_one' );
 		if ($vote_time) {
-			$tpl['wait_voting'][$row['currency_id']] = str_ireplace('[sec]', $variables['limit_votes_complex_period'] - (time() - $vote_time), $lng['wait_voting']);
+			$tpl['wait_voting'][$row['currency_id']] = str_ireplace('[sec]', time_left($variables['limit_votes_complex_period'] - (time() - $vote_time)), $lng['wait_voting']);
 			continue;
 		}
 
@@ -137,7 +137,8 @@ $tpl['max_currency_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLAS
 		FROM `".DB_PREFIX."currency`
 		", 'fetch_one');
 
-$tpl['AllMaxPromisedAmount'] = ParseData::getAllMaxPromisedAmount();
+/*$tpl['AllMaxPromisedAmount'] = ParseData::getAllMaxPromisedAmount();*/
+$tpl['AllMaxPromisedAmount'] = array("1","2","5","10","20","50","100","200","500","1000","2000","5000","10000","20000","50000","100000","200000","500000","1000000","2000000","5000000","10000000","20000000","50000000","100000000","200000000","500000000","1000000000");
 $tpl['AllPct'] = ParseData::getPctArray();
 $pct_array = ParseData::getPctArray();
 $tpl['js_pct'] = '{';
@@ -146,6 +147,10 @@ foreach($pct_array as $year_pct=>$sec_pct) {
 }
 $tpl['js_pct'] = substr($tpl['js_pct'], 0, -1);
 $tpl['js_pct'] .= '}';
+
+$tpl['last_tx'] = get_last_tx($user_id, types_to_ids(array('votes_complex')));
+if (!empty($tpl['last_tx']))
+	$tpl['last_tx_formatted'] = make_last_tx($tpl['last_tx']);
 
 require_once( ABSPATH . 'templates/voting.tpl' );
 

@@ -1892,7 +1892,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( $this->tx_data['time']  - $pct_time <= $this->variables['new_max_other_currencies'] )
 			return '14 day error';
 
-		$max_promised_amount_votes = array();
+		$max_other_currencies_votes = array();
 		// берем все голоса
 		$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `currency_id`,
@@ -1904,6 +1904,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		while ( $row = $this->db->fetchArray( $res ) )
 			$max_other_currencies_votes[$row['currency_id']][$row['count']] = $row['votes'];
 
+		$new_max_other_currencies = array();
 		foreach ( $max_other_currencies_votes as $currency_id => $count_and_votes ) {
 			$new_max_other_currencies[$currency_id] = get_max_vote($count_and_votes, 0, $total_count_currencies, 10);
 		}
@@ -2392,6 +2393,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		if ($this->tx_data['reduction_type'] == 'manual') {
+
+			$promised_amount = array();
 			// получаем кол-во обещанных сумм у разных юзеров по каждой валюте. start_time есть только у тех, у кого статус mining/repaid
 			$res = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `currency_id`, count(`user_id`) as `count`
@@ -2789,7 +2792,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						{$this->tx_data['vote_id']},
 						'votes_miners'
 					)");
-		
+
 
 		// ID майнеров, у которых сохраняются фотки
 		$miners_ids = $this->get_miners_keepers( $miners_data['photo_block_id'], $miners_data['photo_max_miner_id'], $miners_data['miners_keepers'], true );
@@ -4334,7 +4337,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	function admin_ban_miners_rollback_front() {
-		
+
 	}
 
 	function admin_ban_miners_rollback() {
@@ -4915,10 +4918,16 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// юзер отменил запрос на смену ключа
 		if ($data['change_key_close'] == 1)
 			return  __LINE__.'#'.__METHOD__.'(change_key_close=1)';
-		// прошел ли месяц с момента, когда кто-то запросил смену ключа
-		if ( $time - $data['change_key_time'] < CHANGE_KEY_PERIOD )
-			return  __LINE__.'#'.__METHOD__.'('.($time - $data['change_key_time']).' < '.CHANGE_KEY_PERIOD.')';
 
+		// прошел ли месяц с момента, когда кто-то запросил смену ключа
+		if (!isset($this->block_data['block_id']) || $this->block_data['block_id'] > 170770) {
+			if ($time - $data['change_key_time'] < CHANGE_KEY_PERIOD)
+				return __LINE__ . '#' . __METHOD__ . '(' . ($time - $data['change_key_time']) . ' < ' . CHANGE_KEY_PERIOD . ')';
+		}
+		else {
+			if ($time - $data['change_key_time'] < CHANGE_KEY_PERIOD_170770) // для теста был 1 час
+				return __LINE__ . '#' . __METHOD__ . '(' . ($time - $data['change_key_time']) . ' < ' . CHANGE_KEY_PERIOD_170770 . ')';
+		}
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['for_user_id']},{$this->tx_data['public_key_hex']}";
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
@@ -5837,7 +5846,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							{$this->tx_data['user_id']},
 							{$time}
 						)");
-			
+
 
 		}
 	}
@@ -6352,18 +6361,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		$error = $this -> general_check();
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 
 		if ( !check_input_data ($this->tx_data['promised_amount_id'], 'bigint') )
-			return 'tdc_dc_front promised_amount_id';
+			return  __LINE__.'#'.__METHOD__.' tdc_dc_front promised_amount_id';
 		if ( !check_input_data ($this->tx_data['amount'], 'amount') )
-			return 'tdc_dc_front amount';
+			return  __LINE__.'#'.__METHOD__.' tdc_dc_front amount';
 
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['promised_amount_id']},{$this->tx_data['amount']}";
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 
 		// статус может быть любым кроме pending, т.к. то, что набежало в tdc_amount доступо для перевода на кошелек всегда
 		$num = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -6392,7 +6401,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		// юзер может создавать не более X запросов в день на снятие DC
 		$error = $this -> limit_requests( $this->variables['limit_mining'], 'mining', $this->variables['limit_mining_period'] );
 		if ($error)
-			return $error;
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
 	}
 
 	function get_refs($user_id)
@@ -6512,6 +6521,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($ref_amount > 0) {
 				debug_print( 'refs 1', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this -> update_recipient_wallet( $refs[0], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+				// для вывода статы по рефам. табла чистится по времени
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."referral_stats` (
+								`user_id`,
+								`referral`,
+								`amount`,
+								`currency_id`,
+								`time`,
+								`block_id`
+							)
+							VALUES (
+								{$refs[0]},
+								{$this->tx_data['user_id']},
+								{$ref_amount},
+								{$currency_id},
+								{$this->block_data['time']},
+								{$this->block_data['block_id']}
+							)");
 			}
 		}
 		if (@$refs[1]>0) {
@@ -6519,6 +6546,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($ref_amount > 0) {
 				debug_print( 'refs 2', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this -> update_recipient_wallet( $refs[1], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+				// для вывода статы по рефам. табла чистится по времени
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."referral_stats` (
+								`user_id`,
+								`referral`,
+								`amount`,
+								`currency_id`,
+								`time`,
+								`block_id`
+							)
+							VALUES (
+								{$refs[1]},
+								{$refs[0]},
+								{$ref_amount},
+								{$currency_id},
+								{$this->block_data['time']},
+								{$this->block_data['block_id']}
+							)");
 			}
 		}
 		if (@$refs[2]>0) {
@@ -6526,6 +6571,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			if ($ref_amount > 0) {
 				debug_print( 'refs 3', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 				$this -> update_recipient_wallet( $refs[2], $currency_id, $ref_amount, 'referral', $this->tx_data['promised_amount_id'] );
+				// для вывода статы по рефам. табла чистится по времени
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."referral_stats` (
+								`user_id`,
+								`referral`,
+								`amount`,
+								`currency_id`,
+								`time`,
+								`block_id`
+							)
+							VALUES (
+								{$refs[2]},
+								{$refs[1]},
+								{$ref_amount},
+								{$currency_id},
+								{$this->block_data['time']},
+								{$this->block_data['block_id']}
+							)");
 			}
 		}
 	}
@@ -6550,6 +6613,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		    $this->points_update_rollback_main($refs[1]);
 	    if (@$refs[0]>0)
 		    $this->points_update_rollback_main($refs[0]);
+
+	    // откатываем стату по рефам сразу по всему блоку
+	    $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."referral_stats`
+				WHERE `block_id` = {$this->block_data['block_id']}
+				");
 
 		// возможно нужно обновить таблицу points_status
 		$this->points_update_rollback_main($this->tx_data['user_id']);
@@ -6798,7 +6867,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `id` = {$this->tx_data['vote_id']}
 				LIMIT 1
 				");
-		
+
 
 		// узнаем последствия данного голоса
 		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7124,7 +7193,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `id` = {$this->tx_data['vote_id']}
 					LIMIT 1
 					");
-			
+
 
 			// отметим del_block_id всем, кто голосовал за данного юзера,
 			// чтобы через 1440 блоков по крону удалить бесполезные записи
@@ -9931,7 +10000,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		if ( sizeof($this->transaction_array) != sizeof($array)+4 )
 			return 'bad transaction_array ('.sizeof($this->transaction_array).' != '.(sizeof($array)+4).' ) type='.$this->transaction_array[1].'';
-		
+
 		$this->tx_data = array();
 		$this->tx_data['hash'] = $this->transaction_array[0];
 		$this->tx_data['type'] = $this->transaction_array[1];
@@ -13533,6 +13602,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						WHERE `hash` = 0x".md5($transaction_binary_data)."
 						LIMIT 1
 						");
+
+				// даем юзеру понять, что его тр-ия не в блоке
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."transactions_status`
+						SET `block_id` = 0
+						WHERE `hash` = 0x".md5($transaction_binary_data)."
+						");
+
 				// пишем тр-ию в очередь на проверку, авось пригодится
 				$md5 = md5($transaction_binary_data);
 				$data_hex = bin2hex($transaction_binary_data);
@@ -13911,10 +13988,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					//	$this->RollbackTo ($tx_for_RollbackTo);
 					//else
 						$this->RollbackTo ($tx_for_RollbackTo, true);
-						
+
 					return $error;
 				}
 				$this->$fns_name();
+
+				// даем юзеру понять, что его тр-ия попала в блок
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						UPDATE `".DB_PREFIX."transactions_status`
+						SET `block_id` = {$this->block_data['block_id']}
+						WHERE `hash` = 0x".md5($transaction_binary_data_full)."
+						");
 
 				// Тут было time(). А значит если бы в цепочке блоков были блоки в которых были бы одинаковые хэши тр-ий, то ParseDataFull вернул бы error
 				$this->insert_in_log_tx ($transaction_binary_data_full, $this->tx_data['time']);
@@ -14093,7 +14177,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					WHERE `user_id` = {$this->block_data['user_id']}
 					LIMIT 1
 					", 'fetch_one' );
-		
+
 		if (!$first)
 			if  ( !$this->node_public_key )
 				return 'user_id';
@@ -14121,7 +14205,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				WHERE `hash` = 0x{$tx_md5}
 				LIMIT 1
 				", 'fetch_one' );
-		
+
 		if ($hash) {
 			debug_print('ERROR!! log_transactions $hash='.bin2hex($hash) , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			return 'double log_transactions '.bin2hex($hash);
@@ -14352,7 +14436,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->insert_in_log_tx ($transaction_binary_data_full, $this->tx_data['time']);
 
 		}
-		
+
 
 	}
 
@@ -14480,6 +14564,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								SET `used`=1
 								WHERE `hash` = 0x".md5($transaction_binary_data_full)."
 								");
+
+						// даем юзеру понять, что его тр-ия попала в блок
+						$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+								UPDATE `".DB_PREFIX."transactions_status`
+								SET `block_id` = {$this->block_data['block_id']}
+								WHERE `hash` = 0x".md5($transaction_binary_data_full)."
+								");
+
 					} while ($this->binary_data);
 				}
 

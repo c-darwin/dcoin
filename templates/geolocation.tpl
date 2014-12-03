@@ -26,7 +26,7 @@ $('#send_to_net').bind('click', function () {
 } );
 
 $('#show_map').bind('click', function () {
-	map_init (<?php echo $tpl['geolocation']?>, 'map_canvas', true);
+	map_init (<?php echo $tpl['geolocation']?>, 'map_canvas', true, true);
 	google.maps.event.trigger(map, 'resize');
 });
 
@@ -40,7 +40,7 @@ $("#main_div input[type=text]").width( 200 );
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['geolocation_title']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
 	<li class="active"><?php echo $lng['geolocation_title'] ?></li>
 </ol>
 

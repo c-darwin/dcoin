@@ -195,8 +195,16 @@ function decrypt_comment_0 (id, type) {
 	} );
 
 }
+var currency_commission = [];
+<?php
+foreach($tpl['config']['commission'] as $currency_id=>$data) {
+	echo "currency_commission[{$currency_id}] = [];\n";
+	echo "currency_commission[{$currency_id}][0] = '{$data[0]}';\n";
+	echo "currency_commission[{$currency_id}][1] = '{$data[1]}';\n";
+}
+?>
 
-$('#amount, #cf_amount').keyup(function(e) {
+$('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 
 	if (this.id=='cf_amount')
 		var add='cf_';
@@ -204,28 +212,31 @@ $('#amount, #cf_amount').keyup(function(e) {
 		var add='';
 
 	var amount = $("#"+add+"amount").val();
-	var amount_ = '';
-	amount_ = parseFloat(amount.replace(",", "."));
-	amount_ = amount_.toFixed(2);
+	if (amount > 0) {
+		var currency_id = $("#currency_id").val();
+		if (currency_id>=1000)
+			currency_id=1000;
+		var commission_pct = Number(currency_commission[currency_id][0]);
+		var min_commission = Number(currency_commission[currency_id][1]);
+		console.log(commission_pct + '/' + min_commission);
+		var amount_ = '';
+		amount_ = parseFloat(amount.replace(",", "."));
+		amount_ = amount_.toFixed(2);
 
-	if (amount.indexOf(",")!=-1) {
-		$("#"+add+"amount").val(amount_);
+		if (amount.indexOf(",") != -1) {
+			$("#" + add + "amount").val(amount_);
+		}
+		amount = amount_;
+
+		var commission = amount * (commission_pct / 100);
+		commission = commission.toFixed(2);
+		if (commission < min_commission)
+			commission = min_commission;
+		commission = parseFloat(commission);
+		amount = parseFloat(amount);
+		commission = parseFloat(commission);
+		$("#" + add + "commission").val(commission);
 	}
-	amount = amount_;
-
-	var commission = amount * (0.1 / 100);
-	commission = commission.toFixed(2);
-	if (commission==0)
-		commission = 0.01;
-	commission = parseFloat(commission);
-	//commission = commission + 0.01; // чтобы точно прошло
-	amount = parseFloat(amount);
-	commission = parseFloat(commission);
-	//amount_and_commission = amount + commission;
-///	amount_and_commission = amount_and_commission.toFixed(2);
-//	total = amount_and_commission+'  <?php echo $lng['including_commission']?> '+commission;
-//	$("#total").text(total);
-	$("#"+add+"commission").val(commission);
 });
 
 
@@ -238,16 +249,16 @@ $('#amount, #cf_amount').keyup(function(e) {
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
-		<div class="panel-body">
+		<div class="panel-body" style="padding: 0">
 			<!-- Nav tabs -->
 			<ul class="nav nav-tabs" id="myTab">
 				<li class="active"><a href="#send_to_wallet" data-toggle="tab"><?php echo $lng['send_to_wallet']?></a>
 				</li>
 				<!--<li class=""><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
 				</li>-->
-				<li class=""><a href="#" onclick="fc_navigate('currency_exchange')"><?php echo $lng['currency_exchange1']?></a>
+				<li class=""><a href="#currency_exchange"><?php echo $lng['currency_exchange1']?></a>
 				</li>
-				<li class=""><a href="#" onclick="fc_navigate('credits')"><?php echo $lng['credits']?></a>
+				<li class=""><a href="#credits"><?php echo $lng['credits']?></a>
 				</li>
 			</ul>
 
@@ -255,8 +266,8 @@ $('#amount, #cf_amount').keyup(function(e) {
 			<div class="tab-content">
 				<div class="tab-pane fade active in" id="send_to_wallet">
 					<br>
-					<div style="float: left">
-					<table class="table" style="width: 400px">
+					<div>
+					<table class="table" style="max-width: 400px">
 						<tr><td><?php echo $lng['currency']?></td><td>
 						<select id="currency_id" class="form-control">
 						<?php
@@ -270,7 +281,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 						</select></td></tr>
 						<tr><td><?php echo $lng['to_account']?></td><td><input class="form-control" type="text" id="to_user_id"></td></tr>
 						<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="amount"></td></tr>
-						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission"></td></tr>
+						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission" <?php echo defined('COMMUNITY')?'readonly="1" ':''?> readonly="1"></td></tr>
 						<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="comment"></td></tr>
 					</table>
 					<button id="goto_confirm" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send']?></button>
@@ -278,14 +289,14 @@ $('#amount, #cf_amount').keyup(function(e) {
 					<br><br>
 					<?php
 					if (isset($tpl['wallets'])) {
-						echo '<h3>'.$lng['balances'].'</h3><table class="table" style="width:400px">';
+						echo '<h3>'.$lng['balances'].'</h3><table class="table" style="max-width:400px">';
 						//echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['pct_year'].'</th></tr>';
 						echo '<tr><th>'.$lng['currency'].'</th><th>'.$lng['amount'].'</th></tr>';
 						foreach ($tpl['wallets'] as $id => $data) {
 							echo "<tr>";
 
 							if ($data['currency_id']>=1000)
-								echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
+								echo "<td><a href=\"#cf_page_preview/only_cf_currency_name={$tpl['currency_list'][$data['currency_id']]}\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
 							else
 								echo "<td>d{$tpl['currency_list'][$data['currency_id']]}</td>";
 
@@ -299,7 +310,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 
 					<br><br>
 					</div>
-					<div style="overflow: auto;">
+					<div style="overflow: auto;display: none" >
 						<div class="panel panel-primary" style="margin-left: 40px; max-width: 400px">
 							<div class="panel-heading">
 								<?php echo $lng['your_account_number']?>
@@ -320,37 +331,41 @@ $('#amount, #cf_amount').keyup(function(e) {
 					<div class="clearfix"></div>
 
 					<?php
+					if (isset($tpl['last_tx_formatted'])) {
+						echo $tpl['last_tx_formatted'];
+					}
+					?>
 
-					if (isset($tpl['my_dc_transactions']))
-					if ($tpl['my_dc_transactions']) {
-						echo '<h3>'.$lng['transactions'].'</h3><table class="table" style="width:500px;">';
-						echo '<tr><th></th><th>'.$lng['time'].'</th><th>'.$lng['currency'].'</th><th>'.$lng['type'].'</th><th>'.$lng['recipient'].'</th><th>'.$lng['amount'].'</th><th>'.$lng['commission'].'</th><th>'.$lng['note'].'</th><th>'.$lng['status'].'</th><th>Block_id</th><th>Confirmations</th></tr>';
+					<?php
+					if (isset($tpl['my_dc_transactions'])) {
+						echo '<h3>' . $lng['last_operation'] . '</h3><table class="table" style="width:500px;" id="my_dc_transactions">';
+						echo '<tr><th></th><th>' . $lng['time'] . '</th><th>' . $lng['currency'] . '</th><th>' . $lng['type'] . '</th><th>' . $lng['recipient'] . '</th><th>' . $lng['amount'] . '</th><th>' . $lng['commission'] . '</th><th>' . $lng['note'] . '</th><th>' . $lng['status'] . '</th><th>Block_id</th><th>Confirmations</th></tr>';
 						foreach ($tpl['my_dc_transactions'] as $key => $data) {
-						print "<tr>";
-							if ($data['to_user_id']==$tpl['user_id'])
+							print "<tr>";
+							if ($data['to_user_id'] == $tpl['user_id'])
 								echo "<td>+</td>";
 							else
 								echo "<td>-</td>";
 							if ($data['time'])
-								echo "<td>".date('d-m-Y H:i:s', $data['time'])."</td>";
+								echo "<td>" . date('d-m-Y H:i:s', $data['time']) . "</td>";
 							else
 								echo "<td></td>";
-								echo "<td>".make_currency_name($data['currency_id'])."{$tpl['currency_list'][$data['currency_id']]}</td>";
+							echo "<td>" . make_currency_name($data['currency_id']) . "{$tpl['currency_list'][$data['currency_id']]}</td>";
 
 							echo "<td>{$names[$data['type']]} ({$data['type_id']})";
-							if ($data['type']=='cf_project')
+							if ($data['type'] == 'cf_project')
 								echo "<button class=\"btn\" onclick=\"fc_navigate('del_cf_funding', {'del_id':'{$data['to_user_id']}'})\">Cancel</button>";
-								echo "</td><td>{$data['to_user_id']}</td><td>{$data['amount']}</td><td>".(($data['commission']>0)?$data['commission']:"")."</td>";
-							if ($data['comment_status']=='decrypted')
+							echo "</td><td>{$data['to_user_id']}</td><td>{$data['amount']}</td><td>" . (($data['commission'] > 0) ? $data['commission'] : "") . "</td>";
+							if ($data['comment_status'] == 'decrypted')
 								echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div></td>";
 							else
 								echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
-					echo "<td>{$data['status']}</td><td><a href=\"#\" onclick=\"fc_navigate('block_explorer', {'block_id':{$data['block_id']}})\">{$data['block_id']}</a></td><td>".($tpl['data']['confirmed_block_id'] - $data['block_id'])."</td></tr>";
-				}
-				echo '</table>';
-				echo "<p>{$lng['error_in_tx']}</p>";
-				}
-				?>
+							echo "<td>{$data['status']}</td><td><a href=\"#block_explorer/block_id={$data['block_id']}\">{$data['block_id']}</a></td><td>" . ($tpl['data']['confirmed_block_id'] - $data['block_id']) . "</td></tr>";
+						}
+						echo '</table>';
+						echo "<p>{$lng['error_in_tx']}</p>";
+					}
+					?>
 
 
 
@@ -384,11 +399,11 @@ $('#amount, #cf_amount').keyup(function(e) {
 								</div>
 							</div>
 							<div style="overflow: auto">
-								<table class="table" style="width: 400px">
+								<table class="table"  style="max-width: 400px">
 									<tr><td><?php echo $lng['project_id']?></td><td><span id="project_id_info"></span></td></tr>
 									<tr><td><?php echo $lng['available']?></td><td><span id="available_dc"></span></td></tr>
 									<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="cf_amount"></td></tr>
-									<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="cf_commission"></td></tr>
+									<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="cf_commission"  ></td></tr>
 									<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="cf_comment"></td></tr>
 								</table>
 								<button id="cf_next" class="btn btn-outline btn-primary" type="button"><?php echo $lng['send']?></button>
@@ -415,7 +430,7 @@ $('#amount, #cf_amount').keyup(function(e) {
 
 	</div>
 
-	<div id="wallets_confirm" style="margin: auto; width: 400px; display: none">
+	<div id="wallets_confirm" style="margin: auto; max-width: 400px; display: none">
 		<h3><?php echo $lng['check_data']?></h3>
 		<table class="table" style="width: 300px; margin-top: 20px">
 			<tbody>
@@ -434,7 +449,26 @@ $('#amount, #cf_amount').keyup(function(e) {
     
 	<input type="hidden" id="comment_encrypted" value="">
 
+<style>
+	.stacktable { width: 100%; }
+	.st-head-row { padding-top: 1em;font-size: 2em; text-align: center }
+	.st-head-row.st-head-row-main { font-size: 1.5em; padding-top: 0; }
+	.st-key { width: 49%; text-align: right; padding-right: 1%; }
+	.st-val { width: 49%; padding-left: 1%; }
+
+	.stacktable.large-only { display: table; }
+	.stacktable.small-only { display: none; }
+
+	@media (max-width: 1000px) {
+		.stacktable.large-only { display: none; }
+		.stacktable.small-only { display: table; }
+	}
+
+</style>
+<script src="js/stacktable.js"></script>
 <script>
+
+	$('#my_dc_transactions').stacktable();
 
 		<?php
 		if ($tpl['cf_project_id']) {
@@ -457,3 +491,4 @@ $('#amount, #cf_amount').keyup(function(e) {
 		?>
 
 </script>
+<script src="js/unixtime.js"></script>

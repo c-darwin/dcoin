@@ -30,7 +30,7 @@ if ($tpl['user_info_id']) {
 		foreach ($tp['user_info']['wallets'] as $data) {
 			echo "<tr>";
 			if ($data['currency_id']>=1000)
-				echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$data['currency_id']]}'})\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
+				echo "<td><a href=\"#cf_page_preview/only_cf_currency_name={$tpl['currency_list'][$data['currency_id']]}\">{$tpl['currency_list'][$data['currency_id']]}</a></td>";
 			else
 				echo "<td>d{$tpl['currency_list'][$data['currency_id']]}</td>";
 
@@ -105,25 +105,26 @@ if ($tpl['user_info_id']) {
 	echo '<table class="table table-bordered" style="width:600px">';
 	echo "<thead><tr><th>{$lng['currency']}</th><th>Coins</th><th>{$lng['promised_amounts']}</th><th>miners</th><th>users</th></tr></thead>";
 	echo '<tbody>';
-	if (isset($sum_wallets))
-	foreach ($sum_wallets as $currency_id => $sum_amount) {
-		print "<tr>";
-		if ($sum_amount==0)
-			continue;
-		if ($currency_id>=1000)
-			continue;
+	if (isset($sum_wallets)) {
+		foreach ($sum_wallets as $currency_id => $sum_amount) {
+			print "<tr>";
+			if ($sum_amount == 0)
+				continue;
+			if ($currency_id >= 1000)
+				continue;
 			//echo "<td><a href=\"#\" onclick=\"fc_navigate('cf_page_preview', {'only_cf_currency_name':'{$tpl['currency_list'][$currency_id]}'})\">{$tpl['currency_list'][$currency_id]}</a></td>";
-		else
-			echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
+			else
+				echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
 
-		print "<td>{$sum_amount}</td>";
+			print "<td>{$sum_amount}</td>";
 
-		if ($currency_id>=1000 || $currency_id==1)
-			echo "<td>{$lng['impossible']}</td>";
-		else
-			echo "<td>".intval($sum_promised_amount[$currency_id])."</td>";
+			if ($currency_id >= 1000 || $currency_id == 1)
+				echo "<td>{$lng['impossible']}</td>";
+			else
+				echo "<td>" . intval($sum_promised_amount[$currency_id]) . "</td>";
 
-		print "<td>".intval(@$promised_amount_miners[$currency_id])."</td><td>".intval($wallets_users[$currency_id])."</td></tr>";
+			print "<td>" . intval(@$promised_amount_miners[$currency_id]) . "</td><td>" . intval($wallets_users[$currency_id]) . "</td></tr>";
+		}
 	}
 	echo '</tbody>';
 	echo '</table>';
@@ -135,19 +136,171 @@ if ($tpl['user_info_id']) {
 	echo '<table class="table table-bordered" style="width:600px">';
 	echo "<thead><tr><th>ID</th><th>{$lng['time']}</th><th>from_user_id</th><th>to_user_id</th><th>{$lng['currency']}</th><th>{$lng['amount']}</th><th>{$lng['status']}</th></tr></thead>";
 	echo '<tbody>';
-	if (isset($tpl['cash_requests']))
-	foreach ($tpl['cash_requests'] as $data) {
-		echo "<tr>";
-		echo "<td>{$data['id']}</td>";
-		echo "<td>{$data['time']}</td>";
-		echo "<td><a href='#' onclick='show_profile({$data['from_user_id']});return false'>{$data['from_user_id']}</a></td>";
-		echo "<td><a href='#' onclick='show_profile({$data['to_user_id']});return false'>{$data['to_user_id']}</a></td>";
-		echo "<td>{$tpl['currency_list'][$data['currency_id']]}</td>";
-		echo "<td>{$data['amount']}</td>";
-		echo "<td>{$data['status']}</td>";
-		echo "</tr>";
+	if (isset($tpl['cash_requests'])) {
+		foreach ($tpl['cash_requests'] as $data) {
+			echo "<tr>";
+			echo "<td>{$data['id']}</td>";
+			echo "<td>{$data['time']}</td>";
+			echo "<td><a href='#' onclick='show_profile({$data['from_user_id']});return false'>{$data['from_user_id']}</a></td>";
+			echo "<td><a href='#' onclick='show_profile({$data['to_user_id']});return false'>{$data['to_user_id']}</a></td>";
+			echo "<td>{$tpl['currency_list'][$data['currency_id']]}</td>";
+			echo "<td>{$data['amount']}</td>";
+			echo "<td>{$data['status']}</td>";
+			echo "</tr>";
+		}
 	}
 	echo '</tbody>';
 	echo '</table>';
 	echo $lng['uid_2_7'];
 ?>
+
+<h3><?php echo $lng['pct']?></h3>
+
+<?php
+if (isset($tpl['currency_pct'])) {
+	echo '<table class="table table-bordered" style="width:500px">';
+	echo "<thead><tr><th>{$lng['currency']}</th><th>{$lng['pct_year']} miner</th><th>{$lng['pct_year']} user</th></tr></thead>";
+	echo '<tbody>';
+	foreach ($tpl['currency_pct'] as $currency_id=>$data) {
+		if (!$data['miner'] && !$data['user'])
+			continue;
+		echo "
+				<tr>
+					<td>d{$data['name']}</td>
+					<td>{$data['miner']}</td>
+					<td>{$data['user']}</td>
+				</tr>
+				";
+	}
+	echo '</tbody>';
+	echo '</table>';
+}
+?>
+
+
+<h3><?php echo $lng['reduction_title']?></h3>
+<?php
+if (isset($tpl['reduction'])) {
+	echo '<table class="table table-bordered" style="width:500px">';
+	echo "<thead><tr><th>{$lng['time']}</th><th>{$lng['currency']}</th><th>{$lng['reduction_pct']}</th><th>Block_id</th></tr></thead>";
+	echo '<tbody>';
+	foreach ($tpl['reduction'] as $data) {
+		if (!$data['pct'])
+			continue;
+		echo "
+				<tr>
+					<td>{$data['time']}</td>
+					<td>d{$tpl['currency_list'][$data['currency_id']]}</td>
+					<td>{$data['pct']}</td>
+					<td>{$data['block_id']}</td>
+				</tr>
+				";
+	}
+	echo '</tbody>';
+	echo '</table>';
+}
+?>
+
+
+<?php
+echo '<h3>max_promised_amounts</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<thead><tr><th>currency</th><th>votes</th><th>result</th></tr></thead>";
+if (isset($tpl['max_promised_amount_votes'])) {
+	foreach ($tpl['max_promised_amount_votes'] as $currency_id => $data) {
+		echo "<tr>";
+		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
+		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
+		echo "<td>{$tpl['new_max_promised_amounts'][$currency_id]}</td>";
+		echo "</tr>";
+	}
+}
+echo '</tbody>';
+echo '</table>';
+?>
+
+
+<?php
+echo '<h3>max_other_currencies</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<thead><tr><th>currency</th><th>votes</th><th>result</th></tr></thead>";
+if (isset($tpl['max_other_currencies_votes'])) {
+	foreach ($tpl['max_other_currencies_votes'] as $currency_id => $data) {
+		echo "<tr>";
+		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
+		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
+		echo "<td>{$tpl['new_max_other_currencies'][$currency_id]}</td>";
+		echo "</tr>";
+	}
+}
+echo '</tbody>';
+echo '</table>';
+?>
+
+
+<?php
+echo '<h3>votes_reduction</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<thead><tr><th>currency</th><th>votes</th><th>need</th></tr></thead>";
+if (isset($tpl['votes_reduction'])) {
+	foreach ($tpl['votes_reduction'] as $currency_id => $data) {
+		echo "<tr>";
+		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
+		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
+		echo "<td>".($tpl['promised_amount'][$currency_id]/2)."</td>";
+		echo "</tr>";
+	}
+}
+echo '</tbody>';
+echo '</table>';
+?>
+
+
+<?php
+echo '<h3>votes_referral</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<thead><tr><th>currency</th><th>votes</th><th>result</th></tr></thead>";
+if (isset($tpl['votes_referral'])) {
+	foreach ($tpl['votes_referral'] as $level => $data) {
+		echo "<tr>";
+		echo "<td>{$level}</td>";
+		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
+		echo "<td>{$tpl['new_referral_pct'][$level]}</td>";
+		echo "</tr>";
+	}
+}
+echo '</tbody>';
+echo '</table>';
+?>
+
+
+
+<?php
+echo '<h3>votes_pct</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<thead><tr><th>currency</th><th>miner pct votes</th><th>result</th><th>user pct votes</th><th>result</th></tr></thead>";
+if (isset($tpl['pct_votes'])) {
+	foreach ($tpl['pct_votes'] as $currency_id => $data) {
+		echo "<tr>";
+		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
+		echo "<td><pre style='height:100px'>" . print_r($data['miner_pct'], true) . "</pre></td>";
+		echo "<td>{$tpl['new_pct'][$currency_id]['miner_pct']}</td>";
+		echo "<td><pre style='height:100px'>" . print_r($data['user_pct'], true) . "</pre></td>";
+		echo "<td>{$tpl['new_pct'][$currency_id]['user_pct']}</td>";
+		echo "</tr>";
+	}
+}
+echo '</tbody>';
+echo '</table>';
+?>
+
+
+<?php
+echo '<h3>count_users</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<tr><td>{$tpl['count_users']}</td></tr>";
+echo '</tbody>';
+echo '</table>';
+?>
+
+

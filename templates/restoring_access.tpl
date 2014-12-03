@@ -67,7 +67,7 @@ $('#send_to_net').bind('click', function () {
 		<?php
 		if ($tpl['requests']) {
 			echo "<p>Request: {$tpl['requests']}</p>";
-			echo '<button onclick="fc_navigate(\'change_key_close\')" class="btn btn-primary">'.$lng['cancel_the_requests'].'</button>';
+			echo '<a href="#change_key_close" class="btn btn-primary">'.$lng['cancel_the_requests'].'</button>';
 		}
 		?>
 

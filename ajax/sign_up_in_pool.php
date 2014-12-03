@@ -21,11 +21,11 @@ $email = filter_var($_REQUEST['email'], FILTER_SANITIZE_EMAIL);
 if(!filter_var($_REQUEST['email'], FILTER_VALIDATE_EMAIL))
 	die(json_encode(array('error'=>'incorrect email')));
 
-if(empty($_POST['e']) || empty($_POST['n']))
-	die(json_encode(array('error'=>$lng['pool_error'])));
-
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
+
+if(empty($_POST['e']) || empty($_POST['n']))
+	die(json_encode(array('error'=>$lng['pool_error'])));
 
 $community = get_community_users($db);
 // если мест в пуле нет, то просто запишем юзера в очередь
@@ -88,4 +88,5 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SET `email` = '{$email}'
 		");
 print json_encode(array('success'=>$lng['pool_sign_up_success']));
+unset($_SESSION['restricted']);
 ?>

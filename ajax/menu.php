@@ -3,7 +3,7 @@ session_start();
 
 if ( empty($_SESSION['user_id']) )
 	die('');
-$user_id = $_SESSION['user_id'];
+$user_id = intval($_SESSION['user_id']);
 	
 define( 'DC', TRUE);
 
@@ -41,13 +41,55 @@ if ($user_id>0 && $user_id!='wait') {
 			WHERE `user_id`= {$user_id}
 			", 'fetch_array');
 }
-if (!@$tpl['name'])
-	$tpl['name'] = 'Noname';
-if (!@$tpl['avatar'])
-	$tpl['avatar'] = 'img/noavatar.png';
+if (empty($tpl['name'])) {
+	$miner = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+			SELECT `miner_id`
+			FROM `" . DB_PREFIX . "miners_data`
+			WHERE `user_id` = {$user_id}
+			", 'fetch_one');
+	if ($miner)
+		$tpl['name'] = 'ID '.$user_id.' (miner)';
+	else
+		$tpl['name'] = 'ID '.$user_id;
+}
+
+if (empty($tpl['avatar'])) {
+	$data = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		SELECT `photo_block_id`,
+					 `photo_max_miner_id`,
+					 `miners_keepers`
+		FROM `" . DB_PREFIX . "miners_data`
+		WHERE `user_id` = {$user_id}
+		LIMIT 1
+		", 'fetch_array');
+	if ($data) {
+		// получим ID майнеров, у которых лежат фото нужного нам юзера
+		$miners_ids = ParseData::get_miners_keepers($data['photo_block_id'], $data['photo_max_miner_id'], $data['miners_keepers'], true);
+		if ($miners_ids) {
+			$hosts = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+					SELECT `host`
+					FROM `" . DB_PREFIX . "miners_data`
+					WHERE `miner_id` IN  (" . implode(',', $miners_ids) . ")
+					", 'array');
+			$tpl['face_urls'] = array();
+			for ($i = 0; $i < sizeof($hosts); $i++) {
+				$tpl['face_urls'][] = "{$hosts[$i]}public/face_{$user_id}.jpg";
+			}
+		}
+	}
+}
+
+$tpl['no_avatar'] = 'img/noavatar.png';
 
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
 $tpl['ver'] = file_get_contents(ABSPATH.'version');
-require_once( ABSPATH . 'templates/menu2.tpl' );
+$tpl['lang'] = $lang;
+
+$tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
+		SELECT `miner_id`
+		FROM `".DB_PREFIX."miners_data`
+		WHERE `user_id` = {$user_id}
+		", 'fetch_one' );
+require_once( ABSPATH . 'templates/menu.tpl' );
 
 ?>

@@ -1,6 +1,6 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
-
+/*
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT *
 		FROM `".DB_PREFIX."reduction`
@@ -12,5 +12,5 @@ while ($row = $db->fetchArray($res)) {
 
 $tpl['currency_list'] = get_currency_list($db);
 
-require_once(ABSPATH . 'templates/reduction.tpl');
+require_once(ABSPATH . 'templates/reduction.tpl');*/
 ?>

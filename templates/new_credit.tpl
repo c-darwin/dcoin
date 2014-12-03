@@ -31,8 +31,8 @@
 <div id="main_div">
 	<h1 class="page-header"><?php echo $lng['credit_creation']?></h1>
 	<ol class="breadcrumb">
-		<li><a href="#"onclick="fc_navigate('wallets_list')"><?php echo $lng['wallets']?></a></li>
-		<li><a href="#"onclick="fc_navigate('credits')"><?php echo $lng['credits']?></a></li>
+		<li><a href="#wallets_list"><?php echo $lng['wallets']?></a></li>
+		<li><a href="#credits"><?php echo $lng['credits']?></a></li>
 		<li class="active"><?php echo $lng['credit_creation']?></li>
 	</ol>
 

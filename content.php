@@ -30,11 +30,11 @@ else if ( isset($install_progress) && $install_progress==='complete' )
 else
 	$tpl_name = 'install_step_0';
 
-if (@$_REQUEST['parameters']=='lang=42') {
+if (@$_REQUEST['parameters']['lang']=='42') {
 	$lang = 42;
 	setlang($lang);
 }
-else if (@$_REQUEST['parameters']=='lang=1') {
+else if (@$_REQUEST['parameters']['lang']=='1') {
 	$lang = 1;
 	setlang($lang);
 }
@@ -70,6 +70,15 @@ $countries =  array('Afghanistan','Albania','Algeria','American Samoa','Andorra'
 $races = array(1=>$lng['race_1'], 2=>$lng['race_2'], 3=>$lng['race_3']);
 
 if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') {
+
+	// если ключ юзера изменился, то выбрасываем его
+	$user_public_key = get_user_public_key2($user_id);
+	if ($user_public_key!=$_SESSION['public_key']){
+		unset($_SESSION['user_id']);
+		unset($_SESSION['private_key']);
+		unset($_SESSION['public_key']);
+		die('<script language="javascript">window.location.href = "index.php"</script>If you are not redirected automatically, follow the <a href="index.php">index.php</a>');
+	}
 
 	if ($tpl_name=='login')
 		$tpl_name = 'home';
@@ -107,6 +116,21 @@ if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') 
 	if (isset($db))
 		require_once( ABSPATH . 'content/alert_message.php' );
 
+	$block_id = get_block_id($db);
+	echo '<input type="hidden" id="tpl_name" value="'.$tpl_name.'">';
+	$tpl['my_notice'] = get_my_notice_data();
+	if (!$tpl['my_notice']['main_status_complete'])
+		$block_js = "$('#block_id').html({$block_id});$('#block_id').css('color', '#ff0000');";
+	else
+		$block_js = "$('#block_id').html({$block_id});";
+	echo "<script>
+		$( document ).ready(function() {
+			$('.lng_1').attr('href', '#{$tpl_name}/lang=1');
+			$('.lng_42').attr('href', '#{$tpl_name}/lang=42');
+			{$block_js}
+		});
+	</script>";
+
 	$skip_restricted_users = array('cash_requests_in', 'cash_requests_out', 'upgrade', 'notifications');
 	if ( empty($_SESSION['restricted']) || !in_array($tpl_name, $skip_restricted_users) )
 		require_once( ABSPATH . 'content/'.$tpl_name.'.php' );
@@ -117,6 +141,7 @@ else if ($tpl_name) {
 else {
 	require_once( ABSPATH . 'content/login.php' );
 }
-echo '<input type="hidden" id="tpl_name" value="'.$tpl_name.'">';
+
+
 
 ?>

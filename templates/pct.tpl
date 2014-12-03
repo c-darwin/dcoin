@@ -2,7 +2,7 @@
 	<h1 class="page-header"><?php echo $lng['pct']?></h1>
 
 <?php
-	if (isset($tpl['currency_pct'])) {
+/*	if (isset($tpl['currency_pct'])) {
 		echo '<table class="table table-bordered" style="width:500px">';
 		echo "<thead><tr><th>{$lng['currency']}</th><th>{$lng['pct_year']} miner</th><th>{$lng['pct_year']} user</th></tr></thead>";
 		echo '<tbody>';
@@ -19,6 +19,6 @@
 			}
 			echo '</tbody>';
 			echo '</table>';
-	}
+	}*/
 ?>
 

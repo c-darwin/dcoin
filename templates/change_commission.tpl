@@ -1,3 +1,8 @@
+<script>
+	$(document).ready(function() {
+		$( "#progress_bar" ).load( "ajax/progress_bar.php");
+	});
+</script>
 
 <script>
 
@@ -36,7 +41,7 @@ $('#send_to_net').bind('click', function () {
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
 		}, function (data) {
-				fc_navigate ('change_commission', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
+				fc_navigate ('<?php echo $tpl['navigate']?>', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
 			}
 	);
 
@@ -49,6 +54,12 @@ if ( $('#key').text().length < 256 ) {
 	$('#myModal').modal({ backdrop: 'static' });
 }
 
+$('#show_list').bind('click', function (e) {
+
+	$("#commission_div").css("display", "block");
+	e.preventDefault();
+	e.stopPropagation();
+});
 </script>
 <style>
 	.input-group-addon{width: 100px}
@@ -56,7 +67,7 @@ if ( $('#key').text().length < 256 ) {
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['change_commission_title']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
 	<li class="active"><?php echo $lng['change_commission_title'] ?></li>
 </ol>
 
@@ -64,10 +75,10 @@ if ( $('#key').text().length < 256 ) {
 
 	<div id="change_commission">
 
-		<button type="submit" class="btn" id="save"><?php echo $lng['save']?></button><br><br>
+		<button type="submit" class="btn" id="save"><?php echo $lng['send_to_net']?></button><br><br>
+		<a href="#" id="show_list"><?php echo $lng['change']?></a>
 
-
-		<table class="table" style="width: 500px">
+		<table class="table" style="width: 500px; display: none" id="commission_div">
 			<tr><th><?php echo $lng['currency']?></th><th style="text-align: center">%</th><th style="text-align: center"><?php echo $lng['min']?></th><th style="text-align: center"><?php echo $lng['max']?></th></tr>
 		<?php
 		 foreach($tpl['commission'] as $currency_id=>$data) {
@@ -80,8 +91,6 @@ if ( $('#key').text().length < 256 ) {
 		}
 		 ?>
 		</table>
-
-		<p><span class="label label-important"><?php echo $lng['limits']?></span> <?php echo $tpl['limits_text']?></p>
 
 	</div>
 

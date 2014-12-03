@@ -92,7 +92,7 @@ if (1<0) {
 	});
 
 	$('#comment_send_to_net').find('#send_to_net').bind('click', function () {
-			$('#page-wrapper').spin();
+			$('#wrapper').spin();
 			$.post( 'ajax/save_queue.php', {
 					'type' : '<?php echo $tpl['comment_data']['type']?>',
 					'time' : '<?php echo $tpl['data']['time']?>',
@@ -105,7 +105,7 @@ if (1<0) {
 					'signature3': $('#signature3').val()
 			}, function (data) {
 				$("#main_comment_div").html( '<div class="alert alert-success">Если Ваш комментарий не содержит ошибок и не были превышены лимиты, тогда он отобразится на этой странице через нескольких минут</div>');
-				$('#page-wrapper').spin(false);
+				$('#wrapper').spin(false);
 
 			}
 	);
@@ -129,7 +129,7 @@ if (1<0) {
 
 	$('#contribute_now_step2').bind('click', function () {
 
-			$('#page-wrapper').spin();
+			$('#wrapper').spin();
 			$.post( '<?php echo $tpl['cf_url']?>ajax/available_coins.php', {
 					'dc_currency_id' : '<?php echo $tpl['project']['currency_id']?>',
 					'currency_id' : '1001',
@@ -151,7 +151,7 @@ if (1<0) {
 						}
 
 					}
-					$('#page-wrapper').spin(false);
+					$('#wrapper').spin(false);
 				}, 'JSON'
 			);
 

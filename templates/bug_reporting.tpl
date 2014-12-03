@@ -106,7 +106,7 @@
 			foreach( @$tpl['data']['messages'] as $data ) {
 				// выводим список веток
 				if ( $data['parent_id']==0 && $data['id']!=$tpl['parent_id'] && $data['decrypted']==1 ) {
-					echo "<tr><td>parent: {$data['id']} <a href='#' onclick=\"fc_navigate('bug_reporting', {'parent_id':'{$data['id']}'})\">{$data['subject']}</a></td></tr>";
+					echo "<tr><td>parent: {$data['id']} <a href='#bug_reporting/parent_id={$data['id']}'>{$data['subject']}</a></td></tr>";
 				}
 				else if ( ($data['parent_id']!=0 || $data['id']==$tpl['parent_id']) && $data['decrypted']==1 ) {
 					// выводим сами сообщения из ветки parent_id

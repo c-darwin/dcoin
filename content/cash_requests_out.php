@@ -32,7 +32,11 @@ while ($row = $db->fetchArray($res) )
 
 $tpl['json_currency_wallets'] = '';
 // получаем список кошельков, на которых есть FC
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SELECT * FROM `".DB_PREFIX."wallets` WHERE `user_id` = {$user_id}" );
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT * FROM `".DB_PREFIX."wallets`
+		WHERE `user_id` = {$user_id} AND
+					 `currency_id` < 1000
+		");
 while ( $row = $db->fetchArray($res) ) {
 	if ($row['currency_id']==1)
 		continue;

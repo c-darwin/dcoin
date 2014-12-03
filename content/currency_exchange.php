@@ -16,12 +16,25 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_list'][$row['id']] = $row;
 }
 
-$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+if (empty($_REQUEST['parameters']['all_currencies'])) {
+	// по умолчанию выдаем только те валюты, которые есть хоть у кого-то на кошельках
+	$actual_currencies = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT `currency_id`
+			FROM `'.DB_PREFIX.'wallets`
+			GROUP BY `currency_id`
+			', 'array');
+	$add_sql = " WHERE `id` IN (".implode(',', $actual_currencies).")";
+}
+else {
+	$add_sql = '';
+}
+$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `id`,
 					 `name`
-		FROM `'.DB_PREFIX.'currency`
+		FROM `".DB_PREFIX."currency`
+		{$add_sql}
 		ORDER BY `name`
-		');
+		");
 while ($row = $db->fetchArray($res)) {
 	$tpl['currency_list_name'][$row['id']] = 'd'.$row['name'];
 }
@@ -41,7 +54,7 @@ if (!$tpl['sell_currency_id'])
 	$tpl['sell_currency_id'] = $_SESSION['sell_currency_id'];
 
 if (!$tpl['buy_currency_id'])
-	$tpl['buy_currency_id'] = 23;
+	$tpl['buy_currency_id'] = 1;
 if (!$tpl['sell_currency_id'])
 	$tpl['sell_currency_id'] = 72;
 
@@ -103,6 +116,11 @@ while ( $row = $db->fetchArray($res) ) {
 	$row['amount'] -= $forex_orders_amount;
 	$tpl['wallets_amounts'][$row['currency_id']] = $row['amount'];
 }
+
+
+// нужна мин. комиссия на пуле для перевода монет
+$tpl['config'] = get_node_config();
+$tpl['config']['commission'] = json_decode($tpl['config']['commission'], true);
 
 require_once( ABSPATH . 'templates/currency_exchange.tpl' );
 

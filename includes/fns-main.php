@@ -856,7 +856,7 @@ function get_balances($user_id)
 	while ( $row = $db->fetchArray($res) ) {
 
 		$row['amount']+=calc_profit_($row['currency_id'], $row['amount'], $user_id, $db, $row['last_update'], time(), 'wallet');
-		$row['amount'] = floor( round( $row['amount'], 6)*100000 ) / 100000;
+		$row['amount'] = floor( round( $row['amount'], 8)*1000000000 ) / 1000000000;
 		$forex_orders_amount = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT sum(`amount`)
 				FROM `".DB_PREFIX."forex_orders`
@@ -1019,14 +1019,31 @@ function get_block_id($db)
 			", 'fetch_one');
 }
 
-function get_confirmed_block_id()
+function get_confirmed_block_id($db)
+{
+	// в защищенном режиме нет прямого выхода в интернет, поэтому просто берем get_block_id
+	$config['local_gate_ip'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `local_gate_ip`
+			FROM `".DB_PREFIX."config`
+			", 'fetch_one');
+	if ($config['local_gate_ip'])
+		return get_block_id($db);
+	else
+		return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT max(`block_id`)
+				FROM `".DB_PREFIX."confirmations`
+				WHERE `good` >= ".MIN_CONFIRMED_NODES."
+				", 'fetch_one');
+}
+
+function get_user_public_key2($user_id)
 {
 	global $db;
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-			SELECT max(`block_id`)
-			FROM `".DB_PREFIX."confirmations`
-			WHERE `good` >=5
-			", 'fetch_one');
+			SELECT `public_key_0`
+			FROM `".DB_PREFIX."users`
+			WHERE `user_id` = {$user_id}
+			", 'fetch_one' );
 }
 
 function get_user_public_key($db)
@@ -1089,6 +1106,9 @@ function get_community_users($db)
 // доступ к управлению нодой есть только у админа ноды
 function node_admin_access($db)
 {
+	if ( !empty($_SESSION['restricted']) || empty($_SESSION['user_id']) )
+		return false;
+
 	$community = get_community_users($db);
 	if ($community) {
 		$pool_admin_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3849,6 +3869,11 @@ function tx_parser ($new_tx_data, $my_tx=false) {
 				$text.= "data: {$binary_tx}\n";
 				@file_put_contents($file, $text,  FILE_APPEND);
 			}
+			$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."transactions_status`
+					SET `error` = '".$db->escape($error)."'
+					WHERE `hash` = 0x".md5($binary_tx)."
+					");
 		/*}*/
 		//delete_queue_tx();
 		//main_unlock();
@@ -3969,7 +3994,8 @@ function get_my_notice_data()
 	}
 	$tpl['account_status'] = $lng['status_'.$tpl['account_status']];
 
-	$confirmed_block_id = get_confirmed_block_id();
+	$confirmed_block_id = get_confirmed_block_id($db);
+	$confirmed_block_id = ($confirmed_block_id?$confirmed_block_id:1);
 	// получим время из последнего подвержденного блока
 	$last_block_bin = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `data`
@@ -3981,6 +4007,7 @@ function get_my_notice_data()
 	$block_id = ParseData::binary_dec_string_shift( $last_block_bin, 4 );
 	$block_time = ParseData::binary_dec_string_shift( $last_block_bin, 4 );
 	$tpl['time_last_block'] = date('d-m-Y H:i:s', $block_time);
+	$tpl['time_last_block_int'] = $block_time;
 	$tpl['cur_block_id'] = $block_id;
 
 	$tpl['connections'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -3988,7 +4015,7 @@ function get_my_notice_data()
 			FROM `".DB_PREFIX."nodes_connection`
 			", 'fetch_one');
 
-	if (time() - $block_time > 600) {
+	if (time() - $block_time > 1800) {
 		$tpl['main_status'] = $lng['downloading_blocks'];
 		$tpl['main_status_complete'] = 0;
 	}
@@ -4139,11 +4166,11 @@ function get_promised_amounts($user_id)
 			continue;
 		if ($row['status']=='mining') {
 			$row['tdc']+= calc_profit_($row['currency_id'], $row['amount']+$row['tdc_amount'], $user_id, $db, $row['tdc_amount_update'], time(), 'mining');
-			$row['tdc'] = floor($row['tdc']*100)/100;
+			$row['tdc'] = floor($row['tdc']*100000000)/100000000;
 		}
 		else if ($row['status']=='repaid') {
 			$row['tdc'] = $row['tdc_amount'] + calc_profit_($row['currency_id'], $row['tdc_amount'], $user_id, $db, $row['tdc_amount_update'], time(), 'repaid');
-			$row['tdc'] = floor($row['tdc']*100)/100;
+			$row['tdc'] = floor($row['tdc']*100000000)/100000000;
 		}
 		else
 			$row['tdc'] = $row['tdc_amount'];
@@ -4197,7 +4224,219 @@ function get_promised_amounts($user_id)
 		// тут accepted значит просто попало в блок
 		$tpl['promised_amount_list']['accepted'][] = $row;
 
+		// для вывода на главную общей инфы
+		$tpl['promised_amount_list_gen'][$row['currency_id']]['tdc']+= $row['tdc'];
+		$tpl['promised_amount_list_gen'][$row['currency_id']]['amount']+= $row['amount'];
+		$tpl['promised_amount_list_gen'][$row['currency_id']]['pct_sec']= $row['pct_sec'];
+		$tpl['promised_amount_list_gen'][$row['currency_id']]['currency_id']= $row['currency_id'];
+
 	}
+}
+
+// последние тр-ии от данного юзера
+function get_last_tx($user_id, $types, $limit=1)
+{
+	global $db;
+	if (!is_array($types))
+		$types = array($types);
+	$types = implode(',', $types);
+	$res = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+			SELECT `" . DB_PREFIX . "transactions_status`.*,
+						 `" . DB_PREFIX . "queue_tx`.`hash` as `queue_tx`,
+						 `" . DB_PREFIX . "transactions`.`hash` as `tx`
+			FROM `" . DB_PREFIX . "transactions_status`
+			LEFT JOIN `" . DB_PREFIX . "transactions` ON `" . DB_PREFIX . "transactions`.`hash` = `" . DB_PREFIX . "transactions_status`.`hash`
+			LEFT JOIN `" . DB_PREFIX . "queue_tx` ON `" . DB_PREFIX . "queue_tx`.`hash` = `" . DB_PREFIX . "transactions_status`.`hash`
+			WHERE  `" . DB_PREFIX . "transactions_status`.`user_id` = {$user_id} AND
+						 `" . DB_PREFIX . "transactions_status`.`type` IN ({$types})
+			ORDER BY `time` DESC
+			LIMIT 10
+			");
+	$result = array();
+	while ( $row = $db->fetchArray($res) ) {
+		if ($row['tx'] || $row['queue_tx'])
+			$row['error'] = '';
+		$row['time_int'] =$row['time'];
+		$row['time'] = date('d/m/Y H:i:s', $row['time']);
+		$result[] = $row;
+	}
+	return $result;
+}
+
+function make_last_tx($last_tx) {
+	global $lng;
+	$result='<h3>' . $lng['transactions'] . '</h3><table class="table" style="width:500px;">';
+	$result.='<tr><th>' . $lng['time'] . '</th><th>' . $lng['result'] . '</th></tr>';
+	foreach ($last_tx as $data) {
+		$result.= "<tr>";
+		$result.= "<td class='unixtime'>{$data['time_int']}</td>";
+		if ($data['block_id'])
+			$result.= "<td>{$lng['in_the_block']} {$data['block_id']}</td>";
+		else if ($data['error'])
+			$result.= "<td>Error: {$data['error']}</td>";
+		else if ((empty($data['queue_tx']) && empty($data['tx'])) || time()-$data['time_int']>7200)
+			$result.= "<td>{$lng['lost']}</td>";
+		else
+			$result.= "<td>{$lng['status_pending']}</td>";
+
+		$result.= "</tr>";
+	}
+	$result.= '</table>';
+	return $result;
+}
+
+function make_last_txs($last_tx) {
+	global $lng;
+	$result='<h3>' . $lng['transactions'] . '</h3><table class="table" style="width:500px;">';
+	$result.='<tr><th>' . $lng['type'] . '</th><th>' . $lng['time'] . '</th><th>' . $lng['result'] . '</th></tr>';
+	foreach ($last_tx as $data) {
+		$result.= "<tr>";
+		$result.= "<td>{$lng['tx_type'][$data['type']]}</td>";
+		$result.= "<td class='unixtime'>{$data['time_int']}</td>";
+		if ($data['block_id'])
+			$result.= "<td>{$lng['in_the_block']} {$data['block_id']}</td>";
+		 else if ($data['error'])
+			$result.= "<td>Error: {$data['error']}</td>";
+		else if ((empty($data['queue_tx']) && empty($data['tx'])) || time()-$data['time_int']>7200)
+			$result.= "<td>{$lng['lost']}</td>";
+		else
+			$result.= "<td>{$lng['status_pending']}</td>";
+
+		$result.= "</tr>";
+	}
+	$result.= '</table>';
+	return $result;
+}
+
+function make_upgrade_menu ($cur) {
+	for ($i=0; $i<=7; $i++) {
+		if ($i==$cur)
+			$active = ' class="active"';
+		else
+			$active = '';
+		if (in_array($i, array(1,2)))
+			$nav = 'user_photo_navigate';
+		else if (in_array($i, array(6)))
+			$nav = 'map_navigate';
+		else if (in_array($i, array(4)))
+			$nav = 'user_webcam_navigate';
+		else
+			$nav = 'fc_navigate';
+		echo "<li{$active}><a href=\"#upgrade_{$i}\">Step {$i}</a></li>\n";
+	}
+}
+
+function types_to_ids($array) {
+	$new = array();
+	for ($i=0; $i<sizeof($array); $i++) {
+		$new[] = ParseData::findType($array[$i]);
+	}
+	return $new;
+}
+
+function check_change_key($user_id) {
+	global $db;
+	$user_id = intval($user_id);
+	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `log_id`
+			FROM `".DB_PREFIX."users`
+			WHERE `user_id` = {$user_id}
+			LIMIT 1
+			", 'fetch_one');
+}
+
+function clear_zero($number) {
+	$x = explode('.', $number);
+	if ($x[1])
+		return $x[0];
+	else
+		return $number;
+}
+
+function time_left($sec) {
+	global $lng;
+	$result = '';
+	$days = intval(date('d',$sec));
+	if ($days)
+		$result.="{$days} {$lng['time_days']} ";
+	$hours = date('G',$sec);
+	if ($hours)
+		$result.="{$hours} {$lng['time_hours']} ";
+	$minutes = intval(date('i',$sec));
+	if ($minutes)
+		$result.="{$minutes} {$lng['time_minutes']} ";
+	$seconds = intval(date('s',$sec));
+	if ($seconds)
+		$result.="{$seconds} {$lng['time_seconds']} ";
+	return $result;
+}
+
+function echo_zero($num, $zero) {
+	if (!$num)
+		return $zero;
+	else
+		return $num;
+}
+function key_to_img($key, $param, $user_id) {
+	$private_key = bin2hex(base64_decode($key)) . '00000000';
+
+	// делаем фоновую картинку
+	$k_bg_size = getimagesize($param['bg_path']);
+	$k_bg = imagecreatefrompng($param['bg_path']);
+	$gd = imagecreatetruecolor($k_bg_size[0], $k_bg_size[1]);
+	imagecopyresampled($gd, $k_bg, 0, 0, 0, 0, $k_bg_size[0], $k_bg_size[1], $k_bg_size[0], $k_bg_size[1]);
+
+	$x = $param['x'];
+	$y = $param['y'];
+	$img = array();
+	for ($i = 0; $i < strlen($private_key); $i++) {
+		$img[] = $private_key[$i];
+		if (($i + 1) % 2 == 0) {
+			//print $img[0].$img[1].'=';
+			$bin = str_pad(base_convert($img[0] . $img[1], 16, 2), 8, '0', STR_PAD_LEFT);
+			//print $bin.' ';
+			for ($b = 0; $b < strlen($bin); $b++) {
+				if ($bin[$b] == 0)
+					$color = imagecolorallocate($gd, 0, 0, 0);
+				else
+					$color = imagecolorallocate($gd, 255, 255, 255);
+				//print $bin[$b];
+				imagesetpixel($gd, $x, $y, $color);
+				$x++;
+				if (($x + 1 - $param['x']) % $param['width'] == 0) {
+					$x = $param['x'];
+					$y++;
+				}
+			}
+			//print "<br>";
+			$img = array();
+		}
+	}
+	$param['height'] = $y - $param['y'] + 1;
+	//print_R($param);
+
+	// теперь пишем инфу, где искать квадрат
+	$bin = str_pad(base_convert($param['x'], 10, 2), 16, '0', STR_PAD_LEFT) . str_pad(base_convert($param['y'], 10, 2), 16, '0', STR_PAD_LEFT) . str_pad(base_convert($param['width'], 10, 2), 16, '0', STR_PAD_LEFT) . str_pad(base_convert($param['height'], 10, 2), 16, '0', STR_PAD_LEFT);
+	// в 1 строчку пишем 64 пиксла = 64 бита = 8 байт = 4 числа
+	$x = 0;
+	for ($b = 0; $b < strlen($bin); $b++) {
+		if ($bin[$b] == 0)
+			$color = imagecolorallocate($gd, 0, 0, 0);
+		else
+			$color = imagecolorallocate($gd, 255, 255, 255);
+		//print $bin[$b];
+		imagesetpixel($gd, $x, 0, $color);
+		$x++;
+	}
+
+	// Текст
+	$black = imagecolorallocate($gd, 0, 0, 0);
+	imagettftext($gd, 14, 0, 13, 300, $black, ABSPATH . 'fonts/OpenSans-Regular.ttf', 'User ID: ' . $user_id);
+	imagettftext($gd, 14, 0, 255, 300, $black, ABSPATH . 'fonts/OpenSans-Regular.ttf', date('m/d/Y H:i:s'));
+
+	//imagewbmp($gd, 'k.wbmp');
+	//$im = imagecreatefrompng('test.png');
+	return $gd;
 }
 
 $my_tables = array('my_admin_messages','my_cash_requests','my_comments','my_commission','my_complex_votes','my_dc_transactions','my_holidays','my_keys','my_new_users','my_node_keys','my_notifications','my_promised_amount','my_table','my_tasks', 'my_cf_funding');

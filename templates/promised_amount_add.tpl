@@ -1,30 +1,11 @@
-<style>
-	.progress {
-		width:0%;
-		overflow:hidden;
-		height:20px;
-		display:inline-block;
-		vertical-align:middle;
-		color:#FFF;
-		text-align:right;
-		text-shadow:1px 1px 0 #000;
-		background:-o-linear-gradient(top,#888888,#333333);
-		background:-moz-linear-gradient(top,#888888,#333333);
-		background:-webkit-gradient(linear,left top,left bottom,from(#888888),to(#333333));
-		background:-webkit-linear-gradient(top,#888888,#333333);
-		-o-transition-property:width;
-		-o-transition-duration:.5s;
-		-moz-transition-property:width;
-		-moz-transition-duration:.5s;
-		-webkit-transition-property:width;
-		-webkit-transition-duration:.5s;
-	}
-	.form-control{display: inline}
-</style>
+<script>
+	$(document).ready(function() {
+		$( "#progress_bar" ).load( "ajax/progress_bar.php");
+	});
+</script>
 <script type="text/javascript" src="js/uploader.js"></script>
 <script src="js/js.js"></script>
-
-
+<link rel="stylesheet" href="css/progress.css" type="text/css" />
 <script>
 	var max_promised_amounts = new Array();
 	<?php
@@ -43,37 +24,52 @@ var payment_systems_ids = '';
 
 $('#add_promised_amount').bind('click', function () {
 
-	if ($("#video_url").val()) {
-		var re = /watch\?v=([0-9A-Za-z_-]+)/i;
-		var res;
-		res = re.exec($("#video_url").val());
-		video_url_id = res[1];
-		console.log(video_url_id);
-	}
 	if (!video_url_id) {
-		video_url_id='null';
-		video_type='null';
-	}
-	else
-		video_type='youtube';
-
-	var ps_id;
-	for (i=1; i<6; i++)	{
-		ps_id = $('#ps'+i).val();
-		if ( ps_id > 0 ) {
-			payment_systems_ids = payment_systems_ids+ps_id+',';
+		if ($("#video_url").val()) {
+			var re = /watch\?v=([0-9A-Za-z_-]+)/i;
+			var res = re.exec($("#video_url").val());
+			if (res != null && typeof res[1] != 'undefined')
+				video_url_id = res[1];
+			if (!video_url_id) {
+				var re = /youtu\.be\/([0-9A-Za-z_-]+)/i
+				var res = re.exec($("#video_url").val());
+				if (res != null && typeof res[1] != 'undefined')
+					video_url_id = res[1];
+			}
+			console.log(video_url_id);
 		}
 	}
-	if (payment_systems_ids.length>1)
-		payment_systems_ids = payment_systems_ids.substr(0, payment_systems_ids.length-1);
-	else
-		payment_systems_ids = '0';
 
-	<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#add").css("display", "none");	$("#sign").css("display", "block");' ?>
+	if (!$('#amount').val()) {
+		$('#errors').html('<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><?php echo $lng['invalid_amount']?></div>');
+	}
+	else if (!video_url_id) {
+		$('#errors').html('<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><?php echo $lng['video_not_uploaded']?></div>');
+		//video_url_id='null';
+		//video_type='null';
+	}
+	else {
 
-	$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#currency_id").val()+','+$("#amount").val()+','+video_type+','+video_url_id+','+payment_systems_ids );
-	doSign();
-	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
+		video_type = 'youtube';
+
+		var ps_id;
+		for (i = 1; i < 6; i++) {
+			ps_id = $('#ps' + i).val();
+			if (ps_id > 0) {
+				payment_systems_ids = payment_systems_ids + ps_id + ',';
+			}
+		}
+		if (payment_systems_ids.length > 1)
+			payment_systems_ids = payment_systems_ids.substr(0, payment_systems_ids.length - 1);
+		else
+			payment_systems_ids = '0';
+
+		<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#add").css("display", "none");	$("#sign").css("display", "block");' ?>
+
+		$("#for-signature").val('<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,' + $("#currency_id").val() + ',' + $("#amount").val() + ',' + video_type + ',' + video_url_id + ',' + payment_systems_ids);
+		doSign();
+		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
+	}
 
 });
 
@@ -93,7 +89,7 @@ $('#send_to_net').bind('click', function () {
 				'signature3': $('#signature3').val()
 		}, function(data) {
 			//alert(data);
-			fc_navigate ('promised_amount_list', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
+			fc_navigate ('<?php echo $tpl['navigate']?>', {'alert': '<?php echo $lng['promised_amount_add_wait_24h'] ?>'} );
 		});
 });
 
@@ -125,6 +121,67 @@ $( "#currency_id" ).change(function () {
 		//$("#source_ogg").attr('src', 'public/promised_amount_'+currency_id+'.ogg');
 	})
 
+
+	delete window['YT'];
+	delete window['YTConfig'];
+
+	var YT = {loading: 0,loaded: 0};
+	var YTConfig = {'host': 'http://www.youtube.com'};
+	YT.loading = 1;(function(){var l = [];YT.ready = function(f) {if (YT.loaded) {f();} else {l.push(f);}};window.onYTReady = function() {YT.loaded = 1;for (var i = 0; i < l.length; i++) {try {l[i]();} catch (e) {}}};YT.setConfig = function(c) {for (var k in c) {if (c.hasOwnProperty(k)) {YTConfig[k] = c[k];}}};var a = document.createElement('script');a.id = 'www-widgetapi-script';a.src = 'https:' + '//s.ytimg.com/yts/jsbin/www-widgetapi-vfleeBgRM/www-widgetapi.js';a.async = true;var b = document.getElementsByTagName('script')[0];b.parentNode.insertBefore(a, b);})();
+
+	// 3. Define global variables for the widget and the player.
+	// The function loads the widget after the JavaScript code has
+	// downloaded and defines event handlers for callback notifications
+	// related to the widget.
+	var widget;
+	var player;
+	function onYouTubeIframeAPIReady() {
+		widget = new YT.UploadWidget('widget', {
+			width: 500,
+			events: {
+				'onUploadSuccess': onUploadSuccess,
+				'onProcessingComplete': onProcessingComplete
+			}
+		});
+	}
+
+	// 4. This function is called when a video has been successfully uploaded.
+	function onUploadSuccess(event) {
+		//alert('Video ID ' + event.data.videoId + ' was uploaded and is currently being processed. Please wait.');
+		player = new YT.Player('player', {
+			height: 390,
+			width: 640,
+			videoId: event.data.videoId,
+			events: {}
+		});
+		$("#refresh_youtube_div").css("display", "block");
+
+		video_url_id = event.data.videoId;
+	}
+
+	// 5. This function is called when a video has been successfully processed.
+	function onProcessingComplete(event) {
+
+	}
+	$( "#from_webcam_show" ).click(function() {
+		$("#from_webcam").css("display", "block");
+		$("#from_file").css("display", "none");
+		return false;
+	});
+
+	$( "#from_file_show" ).click(function() {
+		$("#from_file").css("display", "block");
+		$("#from_webcam").css("display", "none");
+		return false;
+	});
+
+	$( "#refresh_youtube" ).click(function() {
+		var iframe = document.getElementById('player');
+		iframe.src = iframe.src;
+		console.log('player');
+		return false;
+	});
+
 	$("#main_div select").addClass( "form-control" );
 	$("#main_div input").addClass( "form-control" );
 	$("#main_div button").addClass( "btn-outline btn-primary" );
@@ -134,14 +191,14 @@ $( "#currency_id" ).change(function () {
 <div id="main_div">
 <h1 class="page-header"><?php echo $lng['promised_amount_add_title']?></h1>
 <ol class="breadcrumb">
-	<li><a href="#" onclick="fc_navigate('mining_menu')"><?php echo $lng['mining'] ?></a></li>
-	<li><a href="#" onclick="fc_navigate('promised_amount_list')"><?php echo $lng['promised_amount_title'] ?></a></li>
+	<li><a href="#mining_menu"><?php echo $lng['mining'] ?></a></li>
+	<li><a href="#promised_amount_list"><?php echo $lng['promised_amount_title'] ?></a></li>
 	<li class="active"><?php echo $lng['promised_amount_add_title'] ?></li>
 </ol>
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
-    <div id="add">
+    <div id="add" class="form-inline">
 	
 		<label><?php echo $lng['currency']?></label>
 		<select id="currency_id" style="width: 150px">
@@ -173,7 +230,14 @@ $( "#currency_id" ).change(function () {
 
 	   <p style="margin-top: 20px"><?php echo $lng['promised_amount_add_video_text']?></p>
 
-	    <div>
+	    <p><a href="#" id="from_webcam_show"><?php echo $lng['from_webcam']?></a> <?php echo $lng['or']?> <a href="#" id="from_file_show"><?php echo $lng['from_file']?></a></p>
+	    <div id="from_webcam">
+		    <div id="widget"></div>
+		    <div id="player"><?php echo (@$tpl['video_url'])?"<iframe width=640 height=480  src='{$tpl['video_url']}' frameborder=0 allowfullscreen></iframe>":""?></div>
+		    <div id="refresh_youtube_div" style="display: none"><a href="#" id="refresh_youtube"><i class="fa fa-refresh fa-fw" style="font-size: 30px"></i></a></div>
+	    </div>
+
+		<div id="from_file" style="display: none">
 		    <table class="table table-bordered">
 			    <tr><td>
 					    <span class="btn btn-file"><input id="video_url" type="text" style="width:500px"></span>
@@ -189,14 +253,14 @@ $( "#currency_id" ).change(function () {
 					    <table><tr><td>
 
 								    mp4:<input type="file" id="video_mp4" name="file" accept="video/mp4" />
-								    <div id="video_mp4_progress" class="progress">0%</div><br>
+								    <div id="video_mp4_progress" class="my_progress">0%</div><br>
 								    <div id="video_mp4_ok" class="alert alert-success" style="display: none"></div>
 								    <button id="del_mp4" style="display: none">Delete</button>
 
 							    </td><td>
 
 								    WebM or Ogg: <input type="file" id="video_webm_ogg" name="file" accept="video/webm, video/ogg"/>
-								    <div id="video_webm_ogg_progress" class="progress" >0%</div>
+								    <div id="video_webm_ogg_progress" class="my_progress" >0%</div>
 								    <div id="video_webm_ogg_ok" class="alert alert-success" style="display: none"></div>
 								    <button id="del_webm_ogg" style="display: none">Delete</button>
 
@@ -216,10 +280,10 @@ $( "#currency_id" ).change(function () {
 	    </div>
 
 
-	    <div class="alert alert-info"><strong><?php echo $lng['limits'] ?></strong>  <?php echo $tpl['limits_text'] ?></div>
+	    <div class="alert alert-info" style="margin-top: 30px"><strong><?php echo $lng['limits'] ?></strong>  <?php echo $tpl['limits_text'] ?></div>
 
-
-		<button class="btn" id="add_promised_amount"><?php echo $lng['next']?></button><br><br>
+		<div id="errors"></div>
+		<button class="btn" id="add_promised_amount"><?php echo $lng['send_to_net']?></button><br><br>
 
     </div>
     
