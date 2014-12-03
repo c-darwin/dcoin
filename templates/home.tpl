@@ -1185,7 +1185,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_promised_text_personal'])?>">USD</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 class="no-margins" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_promised_text_personal'])?>"><?php echo $sum_promised_amount[72]?></h1>
+				<h1 class="no-margins" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_promised_text_personal'])?>"><?php echo echo_zero($sum_promised_amount[72])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][72]['miner']?><?php echo $lng['pct_year']?> </div>
 			</div>
 		</div>
@@ -1196,7 +1196,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_promised_text_personal'])?>">EUR</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_promised_text_personal'])?>"><?php echo $sum_promised_amount[23]?$sum_promised_amount[23]:'0'?></h1>
+				<h1 class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_promised_text_personal'])?>"><?php echo echo_zero($sum_promised_amount[23])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][23]['miner']?><?php echo $lng['pct_year']?> </div>
 			</div>
 		</div>
@@ -1207,7 +1207,7 @@ if ($tpl['show_map']) {
 				<h5   title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_promised_text_personal'])?>">RUB</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 class="no-margins"  title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_promised_text_personal'])?>"><?php echo $sum_promised_amount[58]?></h1>
+				<h1 class="no-margins"  title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_promised_text_personal'])?>"><?php echo echo_zero($sum_promised_amount[58])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][58]['miner']?><?php echo $lng['pct_year']?> </div>
 			</div>
 		</div>
@@ -1223,7 +1223,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_total_coins_personal'])?>">dWOC</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 id="total_currency_1" class="no-margins" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_total_coins_personal'])?>"><?php echo $sum_wallets[1]?></h1>
+				<h1 id="total_currency_1" class="no-margins" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[1])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][1]['user']?><?php echo $lng['pct_year']?> </div>
 				<?php
 				if ($tpl['currency_pct'][1]['user_sec']>0)
@@ -1238,7 +1238,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_total_coins_personal'])?>">dUSD</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 id="total_currency_72"  class="no-margins" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_total_coins_personal'])?>"><?php echo $sum_wallets[72]?></h1>
+				<h1 id="total_currency_72"  class="no-margins" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[72])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][72]['user']?><?php echo $lng['pct_year']?> </div>
 				<?php
 				if ($tpl['currency_pct'][72]['user_sec']>0)
@@ -1253,7 +1253,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>">dEUR</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 id="total_currency_23" class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>"><?php echo $sum_wallets[23]?$sum_wallets[23]:'0'?></h1>
+				<h1 id="total_currency_23" class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets)?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][23]['user']?><?php echo $lng['pct_year']?> </div>
 				<?php
 				if ($tpl['currency_pct'][23]['user_sec']>0)
@@ -1268,7 +1268,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_total_coins_personal'])?>">dRUB</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 id="total_currency_58" class="no-margins" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_coins_pct_y'])?>"><?php echo $sum_wallets[58]?></h1>
+				<h1 id="total_currency_58" class="no-margins" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_coins_pct_y'])?>"><?php echo echo_zero($sum_wallets[58])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo $lng['home_coins_pct_y']?>"><?php echo $tpl['currency_pct'][58]['user']?><?php echo $lng['pct_year']?> </div>
 				<?php
 				if ($tpl['currency_pct'][58]['user_sec']>0)

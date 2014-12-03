@@ -4371,7 +4371,7 @@ function time_left($sec) {
 	return $result;
 }
 
-function echo_zero($num, $zero) {
+function echo_zero($num, $zero='0') {
 	if (!$num)
 		return $zero;
 	else
