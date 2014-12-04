@@ -34,7 +34,7 @@ if (mysqli_connect_errno()) {
 
 if ( !isset($tpl['error']) ) {
 
-	require_once( ABSPATH . 'includes/class-mysql.php' );
+	require_once( ABSPATH . 'includes/MySQLidb.php' );
 
 	$db = new MySQLidb($tpl['mysql_host'], $tpl['mysql_username'], $tpl['mysql_password'], $tpl['mysql_db_name'], $tpl['mysql_port']);
 

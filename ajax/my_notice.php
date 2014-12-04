@@ -1,9 +1,6 @@
 <?php
 session_start();
 
-if ( empty($_SESSION['user_id']) )
-	die(json_encode(array('block_id'=>0, 'alert'=>'')));
-
 define( 'DC', TRUE);
 define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 

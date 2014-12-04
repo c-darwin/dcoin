@@ -499,8 +499,7 @@ $lng['promised'] = 'Promised';
 $lng['on_the_account'] = 'On the account';
 $lng['home_account_text'] = '';
 $lng['home_dwoc_text'] = '';
-$lng['home_dusd_text'] = '';
-$lng['home_deur_text'] = '';
+$lng['home_dc_text'] = '';
 $lng['home_ex_text'] =  '';
 $lng['home_promised_text'] = '';
 $lng['home_promised_text_personal'] = '';
@@ -824,6 +823,17 @@ $lng['your_status'] = 'Your status';
 $lng['progress_user'] = 'User';
 $lng['progress_miner'] = 'Miner';
 $lng['progress_boss'] = 'Boss';
+
+// upgrading_blockchain
+$lng['synchronization_blockchain'] = 'Synchronization blockchain';
+
+// after_install
+$lng['loading_blockchain_please_wait'] = 'Loading blockchain, please wait';
+$lng['is_synchronized_with_the_dc_network'] = 'Is synchronized with the DC-network';
+$lng['i_a_new_user'] = 'I - a new user';
+$lng['i_want_to_enter_the_key_later'] = 'I want to enter the key later';
+$lng['initial_loading_blockchain_from_nodes'] = 'Initial loading blockchain from nodes';
+$lng['initial_loading_blockchain_from_a_file'] = 'Initial loading blockchain from a file';
 
 // new_user
 $lng['key_has_been_changed'] = 'The key has been changed by the user';

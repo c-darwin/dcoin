@@ -3980,10 +3980,11 @@ function get_my_notice_data()
 	else {
 		// user_id уже есть, т.к. мы смогли зайти в урезанном режиме по паблик-кею
 		// проверим, может есть что-то в miners_data
+		$user_id = intval($_SESSION['user_id']);
 		$status = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `status`
 				FROM `".DB_PREFIX."miners_data`
-				WHERE `user_id` = {$_SESSION['user_id']}
+				WHERE `user_id` = {$user_id}
 				LIMIT 1
 				", 'fetch_one');
 		if ($status)

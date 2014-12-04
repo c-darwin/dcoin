@@ -11,9 +11,14 @@ define( 'ABSPATH', dirname(dirname(__FILE__)) . '/' );
 
 set_time_limit(0);
 
-require_once( ABSPATH . 'db_config.php' );
-require_once( ABSPATH . 'includes/autoload.php' );
-$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+if (file_exists(ABSPATH . 'db_config.php')) {
+	require_once( ABSPATH . 'db_config.php' );
+	require_once( ABSPATH . 'includes/autoload.php' );
+	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+}
+else {
+	die ('');
+}
 
 $lang = get_lang();
 require_once( ABSPATH . 'lang/'.$lang.'.php' );

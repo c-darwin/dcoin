@@ -213,29 +213,235 @@ function doSign(type){
 
 </script>
 
+<style>
+	.db_loader {
+		font-size: 90px;
+		text-indent: -9999em;
+		overflow: hidden;
+		width: 1em;
+		height: 1em;
+		border-radius: 50%;
+		margin: 0.8em auto;
+		position: relative;
+		-webkit-animation: load6 1.7s infinite ease;
+		animation: load6 1.7s infinite ease;
+	}
+	@-webkit-keyframes load6 {
+		0% {
+			-webkit-transform: rotate(0deg);
+			transform: rotate(0deg);
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.11em -0.83em 0 -0.42em #cccccc, -0.11em -0.83em 0 -0.44em #cccccc, -0.11em -0.83em 0 -0.46em #cccccc, -0.11em -0.83em 0 -0.477em #cccccc;
+		}
+		5%,
+		95% {
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.11em -0.83em 0 -0.42em #cccccc, -0.11em -0.83em 0 -0.44em #cccccc, -0.11em -0.83em 0 -0.46em #cccccc, -0.11em -0.83em 0 -0.477em #cccccc;
+		}
+		30% {
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.51em -0.66em 0 -0.42em #cccccc, -0.75em -0.36em 0 -0.44em #cccccc, -0.83em -0.03em 0 -0.46em #cccccc, -0.81em 0.21em 0 -0.477em #cccccc;
+		}
+		55% {
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.29em -0.78em 0 -0.42em #cccccc, -0.43em -0.72em 0 -0.44em #cccccc, -0.52em -0.65em 0 -0.46em #cccccc, -0.57em -0.61em 0 -0.477em #cccccc;
+		}
+		100% {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.11em -0.83em 0 -0.42em #cccccc, -0.11em -0.83em 0 -0.44em #cccccc, -0.11em -0.83em 0 -0.46em #cccccc, -0.11em -0.83em 0 -0.477em #cccccc;
+		}
+	}
+	@keyframes load6 {
+		0% {
+			-webkit-transform: rotate(0deg);
+			transform: rotate(0deg);
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.11em -0.83em 0 -0.42em #cccccc, -0.11em -0.83em 0 -0.44em #cccccc, -0.11em -0.83em 0 -0.46em #cccccc, -0.11em -0.83em 0 -0.477em #cccccc;
+		}
+		5%,
+		95% {
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.11em -0.83em 0 -0.42em #cccccc, -0.11em -0.83em 0 -0.44em #cccccc, -0.11em -0.83em 0 -0.46em #cccccc, -0.11em -0.83em 0 -0.477em #cccccc;
+		}
+		30% {
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.51em -0.66em 0 -0.42em #cccccc, -0.75em -0.36em 0 -0.44em #cccccc, -0.83em -0.03em 0 -0.46em #cccccc, -0.81em 0.21em 0 -0.477em #cccccc;
+		}
+		55% {
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.29em -0.78em 0 -0.42em #cccccc, -0.43em -0.72em 0 -0.44em #cccccc, -0.52em -0.65em 0 -0.46em #cccccc, -0.57em -0.61em 0 -0.477em #cccccc;
+		}
+		100% {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+			box-shadow: -0.11em -0.83em 0 -0.4em #cccccc, -0.11em -0.83em 0 -0.42em #cccccc, -0.11em -0.83em 0 -0.44em #cccccc, -0.11em -0.83em 0 -0.46em #cccccc, -0.11em -0.83em 0 -0.477em #cccccc;
+		}
+	}
+
+	.blockchain_loader:before,
+	.blockchain_loader:after,
+	.blockchain_loader {
+		border-radius: 50%;
+		width: 2.5em;
+		height: 2.5em;
+		-webkit-animation-fill-mode: both;
+		animation-fill-mode: both;
+		-webkit-animation: load7 1.8s infinite ease-in-out;
+		animation: load7 1.8s infinite ease-in-out;
+	}
+	.blockchain_loader {
+		margin: 8em auto;
+		font-size: 10px;
+		position: relative;
+		text-indent: -9999em;
+		-webkit-animation-delay: 0.16s;
+		animation-delay: 0.16s;
+	}
+	.blockchain_loader:before {
+		left: -3.5em;
+	}
+	.blockchain_loader:after {
+		left: 3.5em;
+		-webkit-animation-delay: 0.32s;
+		animation-delay: 0.32s;
+	}
+	.blockchain_loader:before,
+	.blockchain_loader:after {
+		content: '';
+		position: absolute;
+		top: 0;
+	}
+	@-webkit-keyframes load7 {
+		0%,
+		80%,
+		100% {
+			box-shadow: 0 2.5em 0 -1.3em #ccc;
+		}
+		40% {
+			box-shadow: 0 2.5em 0 0 #ccc;
+		}
+	}
+	@keyframes load7 {
+		0%,
+		80%,
+		100% {
+			box-shadow: 0 2.5em 0 -1.3em #ccc;
+		}
+		40% {
+			box-shadow: 0 2.5em 0 0 #ccc;
+		}
+	}
+
+	.get_blocks_loader,
+	.get_blocks_loader:before,
+	.get_blocks_loader:after {
+		border-radius: 50%;
+	}
+	.get_blocks_loader:before,
+	.get_blocks_loader:after {
+		position: absolute;
+		content: '';
+	}
+	.get_blocks_loader:before {
+		width: 5.2em;
+		height: 10.2em;
+		background: #fff;
+		border-radius: 10.2em 0 0 10.2em;
+		top: -0.1em;
+		left: -0.1em;
+		-webkit-transform-origin: 5.2em 5.1em;
+		transform-origin: 5.2em 5.1em;
+		-webkit-animation: load2 2s infinite ease 1.5s;
+		animation: load2 2s infinite ease 1.5s;
+	}
+	.get_blocks_loader {
+		font-size: 11px;
+		text-indent: -99999em;
+		margin: 5em auto;
+		position: relative;
+		width: 10em;
+		height: 10em;
+		box-shadow: inset 0 0 0 1em #ccc;
+	}
+	.get_blocks_loader:after {
+		width: 5.2em;
+		height: 10.2em;
+		background: #fff;
+		border-radius: 0 10.2em 10.2em 0;
+		top: -0.1em;
+		left: 5.1em;
+		-webkit-transform-origin: 0px 5.1em;
+		transform-origin: 0px 5.1em;
+		-webkit-animation: load2 2s infinite ease;
+		animation: load2 2s infinite ease;
+	}
+	@-webkit-keyframes load2 {
+		0% {
+			-webkit-transform: rotate(0deg);
+			transform: rotate(0deg);
+		}
+		100% {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+		}
+	}
+	@keyframes load2 {
+		0% {
+			-webkit-transform: rotate(0deg);
+			transform: rotate(0deg);
+		}
+		100% {
+			-webkit-transform: rotate(360deg);
+			transform: rotate(360deg);
+		}
+	}
+
+
+	#loading_db{display: block}
+</style>
+
+<?php
+if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) {
+	echo '<style>
+				#page-wrapper{
+					margin: 0px 10% 0px 10%;
+					border: 1px solid #E7E7E7;
+					min-height: 550px;
+				}
+				#wrapper{height: 100%;}
+				#dc_content{
+					height: 550px;
+					vertical-align: middle;
+				}
+			</style>';
+	echo '  <div style="position:absolute; top:100px; left:50%; width:300px; margin-left:-150px; text-align:center" id="loading_db">
+						<div class="db_loader" >Loading...</div>
+						Идет настройка базы данных, пожалуйста ждите
+						</div>';
+}
+?>
 <script>
 
 	$( document ).ready(function() {
-		$('#wrapper').spin();
+		// Если нет dc_config и это винда, то выдается install_step_0, который может выдаваться пару минут, т.к. ждет пока запустится mysql
 		<?php
-		if (!empty($_REQUEST['key']) || !empty($_SESSION['private_key']) ) {
+		if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) {
+			echo '$( "#dc_content" ).load( "content.php", function() { $("#loading_db").css("display", "none"); console.log("loading_db none") });';
+		}
+		else if (!empty($_REQUEST['key']) || !empty($_SESSION['private_key']) ) {
 			$key = !empty($_REQUEST['key'])?$_REQUEST['key']:$_SESSION['private_key'];
+			// пишем в сессию, что бы ctrl+F5 не сбрасывал ключ (для авто-входа с dcoin.me)
 			$_SESSION['private_key'] = $key;
 			$key = str_replace("\r", "\n", $key);
 			$key = str_replace("\n\n", "\n", $key);
 			$key = str_replace("\n", "\\\n", $key);
 			$lang = $_REQUEST['lang']?'"parameters": {"lang":'.$_REQUEST['lang'].'}':'';
+			echo "$('#wrapper').spin();\n";
 			echo '$( "#dc_content" ).load( "content.php", { '.$lang.' }, function() {'."\n";
 			echo '$("#modal_key").val("'.$key.'");'."\n";
-			echo "save_key(); doSign('login');"."\n";
+			echo "save_key(); doSign('login');$('#wrapper').spin(false);\n";
 			echo '});'."\n";
-			//echo '$( "#dc_content" ).load( "content.php", {\'auto_key\': "'.$key.'"});';
-			// пишем в сессию, что бы ctrl+F5 не сбрасывал ключ (для авто-входа с dcoin.me)
+			echo 'load_menu();';
 		}
-		else
-			echo '$( "#dc_content" ).load( "content.php");';
+		else {
+			echo "$('#wrapper').spin();\n";
+			echo '$( "#dc_content" ).load( "content.php", function() {$("#wrapper").spin(false);});';
+			echo 'load_menu();';
+		}
 		?>
-		load_menu();
 	});
 
 </script>
@@ -281,6 +487,8 @@ function doSign(type){
 				console.log(param_obj);
 			}
 			console.log(page);
+
+
 			if (page=='upgrade_1'|| page=='upgrade_2')
 				user_photo_navigate(page);
 			else if (page=='upgrade_6')
@@ -289,6 +497,7 @@ function doSign(type){
 				user_webcam_navigate(page);
 			else
 				fc_navigate(page, param_obj);
+
 			if (param_obj && typeof param_obj['lang']!='undefined') {
 				load_menu();
 			}
@@ -304,31 +513,4 @@ function doSign(type){
 	//window.onhashchange = function(e) {
 	//}
 </script>
-<!-- Yandex.Metrika counter -->
-<script type="text/javascript">
-	(function (d, w, c) {
-		(w[c] = w[c] || []).push(function() {
-			try {
-				w.yaCounter25998519 = new Ya.Metrika({id:25998519,
-					webvisor:true,
-					clickmap:true,
-					trackLinks:true,
-					accurateTrackBounce:true});
-			} catch(e) { }
-		});
-
-		var n = d.getElementsByTagName("script")[0],
-			s = d.createElement("script"),
-			f = function () { n.parentNode.insertBefore(s, n); };
-		s.type = "text/javascript";
-		s.async = true;
-		s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
-
-		if (w.opera == "[object Opera]") {
-			d.addEventListener("DOMContentLoaded", f, false);
-		} else { f(); }
-	})(document, window, "yandex_metrika_callbacks");
-</script>
-<noscript><div><img src="//mc.yandex.ru/watch/25998519" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
-<!-- /Yandex.Metrika counter -->
 </body></html>

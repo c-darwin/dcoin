@@ -13,6 +13,9 @@ if ($_SESSION['install_progress'] < 4)
 	die('access denied');
 
 
+
+/*
+
 $tpl['error'] = array();
 // получаем паблик-кей на основе e и n
 $rsa = new Crypt_RSA();
@@ -79,5 +82,5 @@ else {
 	$_SESSION['install_progress'] = 4;
 	require_once( ABSPATH . 'templates/install_step_4.tpl' );
 }
-
+*/
 ?>

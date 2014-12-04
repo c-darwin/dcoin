@@ -16,7 +16,7 @@ if (!$user_id) {
 ?>
 <nav class="navbar navbar-default navbar-fixed-top" role="navigation" style="margin-bottom: 0">
 	<div class="navbar-header">
-		<a class="navbar-brand" href="#" style="display: block; padding-left: 0px;  padding-top: 6px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')"><img src="../img/logo3.png" height="40"></a>
+		<a class="navbar-brand" href="#" style="display: block; padding-left: 0px;  padding-top: 6px; margin-left: 15px; margin-right: 50px" onclick="fc_navigate('home')"><img src="img/logo.png" height="40"></a>
 	</div>
 	<!-- /.navbar-header -->
 	<!--

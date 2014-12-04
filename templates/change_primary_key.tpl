@@ -112,7 +112,7 @@ $('#goto_step_3_or_sign').bind('click', function () {
 	$('#password_hash').val(hex_sha256(hex_sha256($('#change_pkey_password').val())));
 
 	if (public_key.length < 512) {
-		$("#change_pkey_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#incorrect_key_or_password').val()+'</p></div>');
+		$("#change_pkey_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p><?php echo $lng['incorrect_key_or_password']?></p></div>');
 	}
 	else if (mode=='simple_protection_mode') {
 
@@ -450,4 +450,5 @@ function simple_protection_mode() {
 	</div>
 
 </div>
+
 <script src="js/unixtime.js"></script>

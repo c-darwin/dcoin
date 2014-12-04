@@ -17,8 +17,13 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	require_once( ABSPATH . 'includes/autoload.php' );
 	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 }
+else {
+	die ('');
+}
 
 $lang = get_lang();
+require_once( ABSPATH . 'lang/'.$lang.'.php' );
+$tpl['lang'] = $lang;
 
 if ( isset($db) && get_community_users($db) )
 	define('COMMUNITY', true);
@@ -81,9 +86,7 @@ if (empty($tpl['avatar'])) {
 
 $tpl['no_avatar'] = 'img/noavatar.png';
 
-require_once( ABSPATH . 'lang/'.$lang.'.php' );
 $tpl['ver'] = file_get_contents(ABSPATH.'version');
-$tpl['lang'] = $lang;
 
 $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 		SELECT `miner_id`

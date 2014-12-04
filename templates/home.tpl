@@ -940,7 +940,7 @@
 	</div>
 
 	<div class="col-lg-3 col-sm-6">
-		<div class="statistic-box bg-info m-bottom-md" title="<?php echo $lng['home_dusd_text']?>">
+		<div class="statistic-box bg-info m-bottom-md" title="<?php echo str_replace('[currency]', 'USD', $lng['home_dc_text'])?>">
 			<div class="statistic-title">
 				dUSD
 			</div>
@@ -962,7 +962,7 @@
 
 
 	<div class="col-lg-3 col-sm-6">
-		<div class="statistic-box bg-euro m-bottom-md" title="<?php echo $lng['home_deur_text']?>">
+		<div class="statistic-box bg-euro m-bottom-md" title="<?php echo str_replace('[currency]', 'EUR', $lng['home_dc_text'])?>">
 			<div class="statistic-title">
 				dEUR
 			</div>
@@ -983,7 +983,7 @@
 
 
 	<div class="col-lg-3 col-sm-6">
-		<div class="statistic-box bg-danger m-bottom-md">
+		<div class="statistic-box bg-danger m-bottom-md" title="<?php echo str_replace('[currency]', 'RUB', $lng['home_dc_text'])?>">
 			<div class="statistic-title">
 				dRUB
 			</div>
@@ -1253,7 +1253,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>">dEUR</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 id="total_currency_23" class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets)?></h1>
+				<h1 id="total_currency_23" class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[23])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][23]['user']?><?php echo $lng['pct_year']?> </div>
 				<?php
 				if ($tpl['currency_pct'][23]['user_sec']>0)
@@ -1268,7 +1268,7 @@ if ($tpl['show_map']) {
 				<h5 title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_total_coins_personal'])?>">dRUB</h5>
 			</div>
 			<div class="ibox-content">
-				<h1 id="total_currency_58" class="no-margins" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_coins_pct_y'])?>"><?php echo echo_zero($sum_wallets[58])?></h1>
+				<h1 id="total_currency_58" class="no-margins" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[58])?></h1>
 				<div class="stat-percent font-bold" title="<?php echo $lng['home_coins_pct_y']?>"><?php echo $tpl['currency_pct'][58]['user']?><?php echo $lng['pct_year']?> </div>
 				<?php
 				if ($tpl['currency_pct'][58]['user_sec']>0)

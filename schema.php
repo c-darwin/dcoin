@@ -2065,7 +2065,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `cf_bottom_html` text CHARACTER SET utf8 NOT NULL COMMENT 'html-код с платежными системами для страницы cf_page_preview',
   `cf_ps` text CHARACTER SET utf8 NOT NULL COMMENT 'Массива с платежными системами, которые будут выводиться на cf_page_preview',
   `auto_reload`  int(11) NOT NULL COMMENT 'Если произойдет сбой и в main_lock будет висеть запись более auto_reload секунд, тогда будет запущен сбор блоков с чистого листа',
-  `commission` text NOT NULL COMMENT 'Максимальная комиссия, которую могут поставить ноды на данном пуле'
+  `commission` text NOT NULL COMMENT 'Максимальная комиссия, которую могут поставить ноды на данном пуле',
+  `first_load_blockchain` enum('nodes','file')
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
 
 ";

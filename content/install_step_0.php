@@ -79,7 +79,7 @@ if (OS=='WIN') {
 			)");
 
 
-	// отметим, то установка завершена
+	// отметим, что установка завершена
 	mysqli_query($mysqli_link,"
 			INSERT INTO
 			`".$tpl['mysql_prefix']."install` (

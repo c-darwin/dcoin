@@ -13,6 +13,12 @@ $progress = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 if ($progress < 3)
 	die('$progress error');
 
+$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		UPDATE `".DB_PREFIX."install`
+		SET`progress` = 'complete'
+		");
+require_once( ABSPATH . 'templates/login.tpl' );
+/*
 
 if (!get_community_users($db)) {
 	$_SESSION['install_progress'] = 4;
@@ -27,4 +33,6 @@ else {
 	$_SESSION['install_progress'] = 6;
 	require_once( ABSPATH . 'templates/install_step_6.tpl' );
 }
+*/
+
 ?>

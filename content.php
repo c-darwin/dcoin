@@ -13,22 +13,53 @@ if (file_exists(ABSPATH . 'db_config.php')) {
 	require_once( ABSPATH . 'includes/autoload.php' );
 	$db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,'SET NAMES utf8');
+
 	// узнаем, на каком шаге остановились
 	$install_progress =  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 			SELECT `progress`
 			FROM `'.DB_PREFIX.'install`
 			', 'fetch_one');
+
+	// выбрали ли вариант первичной загрузки блок-чейна
+	$first_load_blockchain =  $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+			SELECT `first_load_blockchain`
+			FROM `'.DB_PREFIX.'config`
+			', 'fetch_one');
+
+	// нужно узнать время последнего блока
+	$confirmed_block_id = get_confirmed_block_id($db);
+	$confirmed_block_id = ($confirmed_block_id?$confirmed_block_id:1);
+	// получим время из последнего подвержденного блока
+	$last_block_bin = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `data`
+			FROM `".DB_PREFIX."block_chain`
+			WHERE `id` = {$confirmed_block_id}
+			LIMIT 1
+			", 'fetch_one');
+	ParseData::string_shift( $last_block_bin, 5 ); // уберем тип и id блока
+	$block_time = ParseData::binary_dec_string_shift( $last_block_bin, 4 );
 }
 else {
 	require_once( ABSPATH . 'includes/fns-main.php' );
 }
 
-if ( isset($_REQUEST['tpl_name']) && check_input_data($_REQUEST['tpl_name'], 'tpl_name') && ( !empty($_SESSION['user_id']) || preg_match("/^install_step_[0-9]+$/D", $_REQUEST['tpl_name']) ) )
+if ( isset($_REQUEST['tpl_name']) && check_input_data($_REQUEST['tpl_name'], 'tpl_name') && ( !empty($_SESSION['user_id']) || preg_match("/^install_step_[0-9_]+$/D", $_REQUEST['tpl_name']) ) ) {
 	$tpl_name = filter_var($_REQUEST['tpl_name'], FILTER_SANITIZE_STRING);
-else if ( isset($install_progress) && $install_progress==='complete' )
+}
+else if ( isset($db) && isset($install_progress) && $install_progress==='complete' && empty($first_load_blockchain) ) {
+	// первый запуск, еще не загружен блокчейн
+	$tpl_name = 'after_install';
+}
+else if ( isset($db) && (time() - $block_time) > 3600 ) {
+	// идет загрузка блокчейна
+	$tpl_name = 'updating_blockchain';
+}
+else if ( isset($db) &&  isset($install_progress) && $install_progress==='complete' ) {
 	$tpl_name = 'login';
-else
+}
+else {
 	$tpl_name = 'install_step_0';
+}
 
 if (@$_REQUEST['parameters']['lang']=='42') {
 	$lang = 42;
