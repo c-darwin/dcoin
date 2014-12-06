@@ -6798,8 +6798,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['result'], 'vote') )
 			return 'votes_miner_front votes';
 
-		if ( !check_input_data ($this->tx_data['comment'], 'vote_comment') )
-			return 'votes_promised_amount_front comment';
+		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
+		if ( !check_input_data ($this->tx_data['comment'], 'votes_comment') )
+			return 'comment';
 
 		// является ли данный юзер майнером
 		if (!$this->check_miner($this->tx_data['user_id']))
@@ -7091,6 +7092,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 5
 	function votes_miner()
 	{
+		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
+
 		// начисляем баллы
 		$this->points($this->variables['miner_points']);
 
@@ -7622,8 +7625,9 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( !check_input_data ($this->tx_data['result'], 'vote') )
 			return 'votes_promised_amount_front votes';
 
-		if ( !check_input_data ($this->tx_data['comment'], 'vote_comment') )
-			return 'votes_promised_amount_front comment';
+		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
+		if ( !check_input_data ($this->tx_data['comment'], 'votes_comment') )
+			return 'comment';
 
 		// является ли данный юзер майнером
 		if (!$this->check_miner($this->tx_data['user_id']))
@@ -8121,6 +8125,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	// 10
 	function votes_promised_amount()
 	{
+		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
+
 		// начисляем баллы
 		$this->points($this->variables['promised_amount_points']);
 
@@ -12592,7 +12598,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->tx_data['comment'] = $this->db->escape($this->tx_data['comment']);
 		if ( !check_input_data ($this->tx_data['comment'], 'cf_comment') )
 			return 'comment';
-
 
 		if (isset($this->block_data['time'])) { // тр-ия пришла в блоке
 			$time = $this->block_data['time'];

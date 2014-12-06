@@ -43,6 +43,8 @@ function downloadFile ($url, $path) {
 }
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+if (!$db)
+	exit;
 
 $error = false;
 
@@ -61,7 +63,10 @@ do {
 	// если это первый запуск во время инсталяции, то нужно дождаться, пока юзер загрузит свой ключ
 	// т.к. возможно этот ключ уже есть в блоках и нужно обновить внутренние таблицы
 	$collective = get_community_users($db);
-	if (!$collective && !get_user_public_key($db)) {
+	$config = get_node_config();
+	debug_print($config, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	debug_print($collective, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	if (!$collective && !get_user_public_key($db) && $config['first_load_blockchain']!='file' && $config['first_load_blockchain']!='nodes') {
 		sleep(1);
 		continue;
 	}
@@ -72,13 +77,18 @@ do {
 	$current_block_id = get_block_id($db);
 	if (!$current_block_id) {
 
-		if (!file_exists(ABSPATH . 'public/blockchain') && OS=='WIN') {
-			downloadFile ('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain', ABSPATH . 'public/blockchain');
+		if ($config['first_load_blockchain']=='file') {
+
+			debug_print('download blockchain', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			downloadFile ('http://dcoin.me/blockchain', ABSPATH . 'public/blockchain');
 			//file_put_contents(ABSPATH . 'public/blockchain', fopen('http://github.com/c-darwin/dcoin_blocks/raw/master/blockchain-27-08-14', 'r'));
 		}
 
 		$first = true;
 		if (file_exists(ABSPATH . 'public/blockchain')) {
+
+			debug_print('file_exists blockchain', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 			$fp = fopen(ABSPATH . 'public/blockchain', 'r');
 			do {
 				$data_size = binary_dec(fread($fp, 5));

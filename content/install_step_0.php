@@ -89,7 +89,7 @@ if (OS=='WIN') {
 				'complete'
 			)");
 
-	require_once( ABSPATH . 'templates/login.tpl' );
+	require_once( ABSPATH . 'templates/after_install.tpl' );
 
 }
 else {

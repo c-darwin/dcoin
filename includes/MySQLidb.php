@@ -62,14 +62,26 @@ class MySQLidb {
 
 		$this->query = $query;
 
-	    if ((!$this->result = $this->_mysqli->query($this->query))) {
-		    if (substr_count($this->_mysqli->error, 'Deadlock')==0)
-	            trigger_error('Error performing query ' . $query . ' - Error message : ' . $this->_mysqli->error, E_USER_ERROR);
-		    else {
-			     usleep(10);
-			     file_put_contents(ABSPATH . 'log/error_deadlock.log', date('H:i:s')." : ".$query."\n",  FILE_APPEND);
-		    }
-	    }
+		$mysql_error = '';
+		$i1=0;
+		do {
+			if ((!$this->result = $this->_mysqli->query($this->query))) {
+				if (substr_count($this->_mysqli->error, 'Deadlock') == 0) {
+					$mysql_error = $this->_mysqli->error;
+					if (preg_match('/(has gone away)/i', $mysql_error)) {
+						sleep(300);
+						$i1++;
+					}
+					else {
+						trigger_error('Error performing query ' . $query . ' - Error message : ' . $mysql_error, E_USER_ERROR);
+					}
+				}
+				else {
+					usleep(10);
+					file_put_contents(ABSPATH . 'log/error_deadlock.log', date('H:i:s') . " : " . $query . "\n", FILE_APPEND);
+				}
+			}
+		} while (preg_match('/(has gone away)/i', $mysql_error) && $i1<10);
 
 		$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
 

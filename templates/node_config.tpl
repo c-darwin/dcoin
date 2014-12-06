@@ -37,6 +37,7 @@
 			$.post( 'ajax/switch_pool_mode.php', { } ,
 					function () {
 						fc_navigate ('node_config', {'alert': 'complete'} );
+						load_menu();
 						$('#mode').text('Single');
 					});
 		});
@@ -45,6 +46,7 @@
 			$.post( 'ajax/switch_pool_mode.php', { } ,
 					function () {
 						fc_navigate ('node_config', {'alert': 'complete'} );
+						load_menu();
 						$('#mode').text('Pool');
 					});
 		});

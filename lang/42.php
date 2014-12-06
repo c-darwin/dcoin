@@ -42,6 +42,8 @@ $lng['wiki_url'] = 'http://ru.dcoinwiki.com/';
 $lng['from_file'] = 'Из файла';
 $lng['text'] = 'Текстом';
 $lng['my_referrals'] = 'Мои рефералы';
+$lng['daemons_status_off'] = 'Статус: Демоны выключены';
+$lng['daemons_status_on'] = 'Статус: Демоны работают. Перед выключением компьютера, обязательно включите демонов, нажав на эту кнопку, иначе сбор блоков будет запущен с самого начала';
 
 // периоды
 $lng['day'] = 'день';
@@ -461,6 +463,7 @@ $lng['install_compete'] = 'Установка завершена!';
 $lng['login_to_your_account'] = 'Войти в акканут';
 $lng['install_php_path'] = 'Путь к php';
 $lng['if_present'] = 'если есть';
+$lng['db_setup_wait'] = 'Идет настройка базы данных, пожалуйста, ждите';
 
 // home
 $lng['connections'] = 'Соединений';
@@ -852,6 +855,9 @@ $lng['i_a_new_user'] = 'Я - новый пользователь';
 $lng['i_want_to_enter_the_key_later'] = 'Хочу указать ключ позже';
 $lng['initial_loading_blockchain_from_nodes'] = 'Первичная загрузка блоков с нодов';
 $lng['initial_loading_blockchain_from_a_file'] = 'Первичная загрузка блоков из файла';
+$lng['check_time'] = 'Не забудьте синхронизировать часы в Вашей операционной системе с серверами точного времени';
+$lng['check_time_win'] = '(<a href="https://www.google.ru/search?q=%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F+%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%B8+windows" target="_blank">google</a>)';
+$lng['check_time_nix'] = '(<a href="https://www.google.ru/search?q=%D1%81%D0%B8%D0%BD%D1%85%D1%80%D0%BE%D0%BD%D0%B8%D0%B7%D0%B0%D1%86%D0%B8%D1%8F+%D0%B2%D1%80%D0%B5%D0%BC%D0%B5%D0%BD%D0%B8+unix" target="_blank">google</a>)';
 
 // new_user
 $lng['key_has_been_changed'] = 'Ключ был изменен пользователем';

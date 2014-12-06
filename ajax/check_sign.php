@@ -152,23 +152,52 @@ else {
 			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX."my_keys` )
 			", 'fetch_one' );
 
-	// для удобства даем юзерам в винде после авто-установки сразу ввести свой ключ
-	if (OS == 'WIN' && !$public_key) {
-		$rsa = new Crypt_RSA();
-		$key = array();
-		$key['e'] = new Math_BigInteger($_POST['e'], 16);
-		$key['n'] = new Math_BigInteger($_POST['n'], 16);
-		$rsa->setPublicKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
-		$PublicKey = clear_public_key($rsa->getPublicKey());
-		$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		INSERT INTO `".DB_PREFIX."my_keys`(
-			`public_key`,
-			`status`
-		)
-		VALUES (
-			0x{$PublicKey},
-			'approved'
-		)");
+	// Если ключ еще не успели установить
+	if (!$public_key) {
+
+		// пока не собрана цепочка блоков не даем ввести ключ
+		$data = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				SELECT `block_id`,
+							 `time`
+				FROM `" . DB_PREFIX . "info_block`
+				", 'fetch_array');
+		if ( (time()-$data['time']) < 3600*2 ) {
+
+			$rsa = new Crypt_RSA();
+			$key = array();
+			$key['e'] = new Math_BigInteger($_POST['e'], 16);
+			$key['n'] = new Math_BigInteger($_POST['n'], 16);
+			$rsa->setPublicKey($key, CRYPT_RSA_PUBLIC_FORMAT_RAW);
+			$PublicKey = clear_public_key($rsa->getPublicKey());
+			// проверим, есть ли такой ключ
+			$user_id =$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."users`
+				WHERE `public_key_0` = 0x{$PublicKey}
+				", 'fetch_one' );
+			if ($user_id) {
+				$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						INSERT INTO `" . DB_PREFIX . "my_keys`(
+							`public_key`,
+							`status`
+						)
+						VALUES (
+							0x{$PublicKey},
+							'approved'
+						)");
+				$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						UPDATE `" . DB_PREFIX . "my_table`
+						SET `user_id`={$user_id},
+							   `status` = 'user'
+						");
+			}
+			else {
+				$error = 1;
+			}
+		}
+		else {
+			$error = 1;
+		}
 	}
 	else {
 		$ini_array = parse_ini_file(ABSPATH . "config.ini", true);
@@ -184,8 +213,9 @@ else {
 
 		$error = ParseData::checkSign($public_key, $for_sign, $sign, true);
 	}
-	if ($error)
+	if ($error) {
 		$result = 0;
+	}
 	else {
 		session_start();
 

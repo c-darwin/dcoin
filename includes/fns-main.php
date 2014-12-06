@@ -434,6 +434,7 @@ function check_input_data ($data, $type, $info='')
 				return true;
 			break;
 
+		case 'votes_comment':
 		case 'cf_comment':
 
 			if (preg_match('/^[\pL0-9\,\s\.\-\:\=\;\?\!\%\)\(\@\/]{1,140}$/iDu', $data))

@@ -50,15 +50,16 @@ else if ( isset($db) && isset($install_progress) && $install_progress==='complet
 	// первый запуск, еще не загружен блокчейн
 	$tpl_name = 'after_install';
 }
-else if ( isset($db) && (time() - $block_time) > 3600 ) {
-	// идет загрузка блокчейна
-	$tpl_name = 'updating_blockchain';
-}
 else if ( isset($db) &&  isset($install_progress) && $install_progress==='complete' ) {
 	$tpl_name = 'login';
 }
 else {
 	$tpl_name = 'install_step_0';
+}
+
+// идет загрузка блокчейна
+if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600 ) {
+	$tpl_name = 'updating_blockchain';
 }
 
 if (@$_REQUEST['parameters']['lang']=='42') {
@@ -71,6 +72,7 @@ else if (@$_REQUEST['parameters']['lang']=='1') {
 }
 
 $lang = get_lang();
+$tpl['lang'] = $lang;
 require_once( ABSPATH . 'lang/'.$lang.'.php' );
 
 $tpl['periods'] = array(86400=>'1 '.$lng['day'], 604800=>'1 '.$lng['week'], 31536000=>'1 '.$lng['year'], 2592000=>'1 '.$lng['month'], 1209600=>'2 '.$lng['weeks']);
@@ -144,7 +146,7 @@ if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') 
 	}
 	// уведомления
 	$tpl['alert'] = @$_REQUEST['parameters']['alert'];
-	if (isset($db))
+	if (isset($db) && $tpl_name!='updating_blockchain')
 		require_once( ABSPATH . 'content/alert_message.php' );
 
 	$block_id = get_block_id($db);
@@ -153,7 +155,7 @@ if ($tpl_name && !empty($_SESSION['user_id']) && $install_progress=='complete') 
 	if (!$tpl['my_notice']['main_status_complete'])
 		$block_js = "$('#block_id').html({$block_id});$('#block_id').css('color', '#ff0000');";
 	else
-		$block_js = "$('#block_id').html({$block_id});";
+		$block_js = "$('#block_id').html({$block_id});$('#block_id').css('color', '#428BCA');";
 	echo "<script>
 		$( document ).ready(function() {
 			$('.lng_1').attr('href', '#{$tpl_name}/lang=1');

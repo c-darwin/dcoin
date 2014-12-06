@@ -1,7 +1,19 @@
-<!-- container -->
-<div class="container">
+<style>
+	#page-wrapper{
+		margin: 0px 10% 0px 10%;
+		border: 1px solid #E7E7E7;
+		min-height: 550px;
+	}
+	#wrapper{height: 100%;}
+	#dc_content{
+		height: 550px;
+		vertical-align: middle;
+	}
+</style>
+<div style="max-width: 600px; margin: auto; margin-top: 50px">
 
-	<ul class="nav nav-tabs">
+
+	<ul class="nav nav-tabs" style="margin-bottom: 20px">
 		<li><a href="#install_step_0">Step 0</a></li>
 		<li class="active"><a href="#install_step_1">Step 1</a></li>
 	</ul>

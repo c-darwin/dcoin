@@ -43,6 +43,8 @@ $lng['wiki_url'] = 'http://en.dcoinwiki.com/';
 $lng['from_file'] = 'From file';
 $lng['text'] = 'Text';
 $lng['my_referrals'] = 'My referrals';
+$lng['daemons_status_off'] = 'Status: Demons are off';
+$lng['daemons_status_on'] = 'Status: Demons work. Before shutting down your computer, be sure to include daemons by clicking on this button, or the collection of blocks to be launched from the beginning';
 
 // periods
 $lng['day'] = 'day';
@@ -457,6 +459,7 @@ $lng['install_compete'] = 'Installation is complete!';
 $lng['login_to_your_account'] = 'Login to your account';
 $lng['install_php_path'] = 'Path to php';
 $lng['if_present'] = 'if exists';
+$lng['db_setup_wait'] = 'There is a database setup, please wait';
 
 // home
 $lng['connections'] = 'Connections';
@@ -834,6 +837,9 @@ $lng['i_a_new_user'] = 'I - a new user';
 $lng['i_want_to_enter_the_key_later'] = 'I want to enter the key later';
 $lng['initial_loading_blockchain_from_nodes'] = 'Initial loading blockchain from nodes';
 $lng['initial_loading_blockchain_from_a_file'] = 'Initial loading blockchain from a file';
+$lng['check_time'] = 'Do not forget to synchronize the clocks in your operating system from the time server';
+$lng['check_time_win'] = '(<a href="https://www.google.com/search?q=windows%20synchronize%20time" target="_blank">google</a>)';
+$lng['check_time_nix'] = '(<a href="https://www.google.com/search?q=unix%20synchronize%20time" target="_blank">google</a>)';
 
 // new_user
 $lng['key_has_been_changed'] = 'The key has been changed by the user';

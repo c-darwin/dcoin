@@ -148,7 +148,7 @@ $('#show_map').bind('click', function () {
 
 		<?php echo $lng['main_question']?><br>
 
-		Comment: <input type="text" id="comment" value="">(English only)<br>
+		Comment: <input type="text" id="comment" value=""><br>
 		<button class="btn btn-inverse" id="btn-bad"><?php echo $lng['no']?></button>
 		<button class="btn btn-success" id="btn-success"><?php echo $lng['yes']?></button>
 	</div>

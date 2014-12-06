@@ -93,7 +93,7 @@ define( 'CHANGE_KEY_PERIOD', 3600*24*30 );
 define( 'COUNT_CONFIRMED_NODES', 10 );
 
 // У скольких нодов должен быть такой же блок как и у нас, чтобы считать, что блок у большей части DC-сети. для get_confirmed_block_id().
-define( 'MIN_CONFIRMED_NODES', 4 );
+define( 'MIN_CONFIRMED_NODES', 3 );
 
 
 ?>

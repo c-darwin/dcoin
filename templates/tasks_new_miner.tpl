@@ -354,7 +354,7 @@ $('#send_to_net').bind('click', function () {
 
 		</div>
 
-	    Comment: <input type="text" id="comment_step_3" value="">(English only)<br>
+	    Comment: <input type="text" id="comment_step_3" value=""><br>
 		<button class="btn btn-success" id="btn-step2-back"><?php echo $lng['back']?></button>
 		<button class="btn btn-inverse" id="btn-bad3"><?php echo $lng['errors']?></button>
 		<button class="btn btn-success" id="btn-step4"><?php echo $lng['all_right']?></button>

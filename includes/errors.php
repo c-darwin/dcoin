@@ -45,7 +45,7 @@ function error_handler($errno, $errstr, $errfile, $errline)
 	    file_put_contents(ABSPATH . 'log/' . get_script_name().'.log', $out1,  FILE_APPEND);
 	    file_put_contents(ABSPATH . 'log/error_'.get_script_name().'.log', $out1,  FILE_APPEND);
 	    @ob_end_clean();*/
-	    $err_text =  "{$errors[$errno]} [$errno] $errstr in $errfile (".get_script_name().") on line $errline ".date('H:i:s')."\n";
+	    $err_text =  "{$errors[$errno]} [$errno] $errstr in $errfile (".get_script_name().") on line $errline ".date('H:i:s').":".microtime(true)."\n";
 	    ob_save($err_text, 1);
 	    $ini_array = parse_ini_file(ABSPATH . "config.ini", true);
 	    if ($ini_array['main']['error_log']==1)

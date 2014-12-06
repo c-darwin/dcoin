@@ -62,10 +62,10 @@
 
 	<?php
 	echo '<table class="table table-bordered" style="width:600px"><caption>variables</caption>';
-	echo '<thead><tr><th>name</th><th>value</th><th>description</th></thead>';
+	echo '<thead><tr><th>name</th><th>value</th><!--<th>description</th>--></thead>';
 	echo '<tbody>';
 	foreach ( $tpl['variables'] as $name=>$value ) {
-		print "<tr><td>{$name}</td><td>{$value}</td><td>".@$lng['variables_'.$name]."</td></tr>";
+		print "<tr><td>{$name}</td><td>{$value}</td><!--<td>".@$lng['variables_'.$name]."</td>--></tr>";
 	}
 	echo '</tbody>';
 	echo '</table>';

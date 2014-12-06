@@ -17,7 +17,7 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX."install`
 		SET`progress` = 'complete'
 		");
-require_once( ABSPATH . 'templates/login.tpl' );
+require_once( ABSPATH . 'templates/after_install.tpl' );
 /*
 
 if (!get_community_users($db)) {

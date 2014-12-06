@@ -9,8 +9,13 @@
 		height: 550px;
 		vertical-align: middle;
 	}
+	.flag_42{display:inline-block; background-image: url('img/us-ru.png'); background-position: 0px 0px; width: 22px; height: 16px}
+	.flag_1{display:inline-block; background-image: url('img/us-ru.png'); background-position: 0px 16px; width: 22px; height: 16px}
+
 </style>
 <script>
+	var with_key = 0;
+
 	function show_text_key () {
 		$("#modal_key").css("display", "block");
 		$("#key_div").css("display", "none");
@@ -67,12 +72,17 @@
 
 	$('#next').bind('click', function () {
 
-		var e_n_sign = get_e_n_sign($("#modal_key").val(), $("#modal_password").val(), <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, '', 'key_alert');
-		var public_key = make_public_key(e_n_sign['modulus'], e_n_sign['exp']);
-		if (public_key.length < 512) {
-			$("#key_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p><?php echo $lng['incorrect_key_or_password']?></p></div>');
+		if (with_key) {
+			var e_n_sign = get_e_n_sign($("#modal_key").val(), $("#modal_password").val(), <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, '', 'key_alert');
+			var public_key = make_public_key(e_n_sign['modulus'], e_n_sign['exp']);
+			if (public_key.length < 512) {
+				$("#key_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p><?php echo $lng['incorrect_key_or_password']?></p></div>');
+			}
 		}
 		else {
+			public_key = '';
+		}
+		if (with_key && public_key.length >= 512 || !with_key) {
 			$.post('content.php', {
 				'tpl_name': 'after_install',
 				'public_key': public_key,
@@ -113,10 +123,12 @@
 </script>
 <script>
 	function show_key_form(){
+		with_key = 1;
 		$('#new_or_key').css('display', 'none');
 		$('#key_form').css('display', 'block');
 	}
 	function hide_key_form(){
+		with_key = 0;
 		$('#new_or_key').css('display', 'block');
 		$('#key_form').css('display', 'none');
 	}
@@ -132,6 +144,21 @@
 
 </script>
 <div style="max-width: 600px; margin: auto; margin-top: 50px">
+	<div style="margin-bottom: 20px">
+	<div style="display: inline-block">Language: </div> <li class="dropdown" style="list-style: none outside none; display: inline-block">
+		<a class="dropdown-toggle" data-toggle="dropdown" href="#">
+			<div class="flag_<?php echo $tpl['lang']?>"></div>
+		</a>
+		<ul class="dropdown-menu dropdown-user">
+			<li><a href="#after_install/lang=1" class="lng_1">English</a>
+			</li>
+			<li><a href="#after_install/lang=42" class="lng_42">Русский</a>
+			</li>
+		</ul>
+	</li>
+	</div>
+
+
 	<div id="new_or_key" style="display: block;">
 		<?php echo $lng['i_a_new_user']?><br>
 		<a href="#" onclick="show_key_form()"><?php echo $lng['change']?></a>

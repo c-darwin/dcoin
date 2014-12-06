@@ -409,7 +409,7 @@ if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) 
 			</style>';
 	echo '  <div style="position:absolute; top:100px; left:50%; width:300px; margin-left:-150px; text-align:center" id="loading_db">
 						<div class="db_loader" >Loading...</div>
-						Идет настройка базы данных, пожалуйста ждите
+						'.$lng['db_setup_wait'].'
 						</div>';
 }
 ?>
@@ -419,7 +419,11 @@ if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) 
 		// Если нет dc_config и это винда, то выдается install_step_0, который может выдаваться пару минут, т.к. ждет пока запустится mysql
 		<?php
 		if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) {
-			echo '$( "#dc_content" ).load( "content.php", function() { $("#loading_db").css("display", "none"); console.log("loading_db none") });';
+			echo '$( "#dc_content" ).load( "content.php", function(response, status) {
+					if ( status == "error" ) { window.location.href = "index.php"; console.log("load dc_content error/"+response+"/"+status) ;}
+					$("#loading_db").css("display", "none");
+					console.log("loading_db none /"+response+"/"+status) ;
+					});';
 		}
 		else if (!empty($_REQUEST['key']) || !empty($_SESSION['private_key']) ) {
 			$key = !empty($_REQUEST['key'])?$_REQUEST['key']:$_SESSION['private_key'];
@@ -452,19 +456,19 @@ if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) 
 
 	var lastLinkEvent;
 	function dcNavHash(e) {
-		console.log('dcNavHash start');
+		//console.log('dcNavHash start');
 		if (lastLinkEvent!=location.hash) {
 			console.log(lastLinkEvent);
 			dcNav({'target': {'hash': location.hash}});
 		}
-		console.log('dcNavHash end');
+		//console.log('dcNavHash end');
 	}
 
 	function dcNav(e){
 
-		console.log('dcNav start');
+		//console.log('dcNav start');
 
-		console.log(e.target);
+		//console.log(e.target);
 		//var str = location.hash;
 		if (typeof e.target.hash=='undefined') {
 			window.addEventListener("hashchange", dcNavHash);
@@ -484,9 +488,9 @@ if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) 
 					var param = param_match[i].match(/(\w+)=(\w+)/i);
 					param_obj[param[1]] = param[2];
 				}
-				console.log(param_obj);
+				//console.log(param_obj);
 			}
-			console.log(page);
+			//console.log(page);
 
 
 			if (page=='upgrade_1'|| page=='upgrade_2')
@@ -503,7 +507,7 @@ if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) 
 			}
 		}
 
-		console.log('dcNav end');
+		//console.log('dcNav end');
 	}
 
 	window.addEventListener("click", dcNav);

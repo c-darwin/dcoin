@@ -39,20 +39,10 @@ $node_public_key = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __
 if ( !$node_public_key ) {
 
 	//  сгенерим ключ для нода
-	require_once( ABSPATH . 'phpseclib/Math/BigInteger.php');
-	require_once( ABSPATH . 'phpseclib/Crypt/Random.php');
-	require_once( ABSPATH . 'phpseclib/Crypt/Hash.php');
-	require_once( ABSPATH . 'phpseclib/Crypt/RSA.php');
-
 	$rsa = new Crypt_RSA();
-
 	extract($rsa->createKey(1024));
-
 	$publickey = clear_public_key($publickey);
-
 	$tpl['data']['node_public_key'] = $publickey;
-	//print $tpl['data']['node_public_key'];
-	//exit;
 
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			INSERT INTO  `".DB_PREFIX.MY_PREFIX."my_node_keys` (

@@ -1,4 +1,19 @@
+
 <script>
+	$('#start_daemons').bind('click', function () {
+		$.post( 'ajax/start_daemons.php', { } ,
+			function () {
+				load_menu();
+			});
+	});
+
+	$('#stop_daemons').bind('click', function () {
+		$.post( 'ajax/stop_daemons.php', { } ,
+			function () {
+				load_menu();
+			});
+	});
+
 	var urls = ['<?php echo implode("','", $tpl['face_urls']);?>'];
 	function get_img (i) {
 		console.log('get_img');
@@ -69,7 +84,15 @@
 
 
 	<ul class="nav navbar-top-links navbar-right" id="settings_menu">
-		<li id="last_block_id"><a href="#block_explorer" id="block_id">-</a></li>
+		<?php
+		if (!$tpl['my_notice']['main_status_complete']) {
+			echo '<li id="last_block_id"><a href="#block_explorer" id="block_id" style="color:#ff0000">'.$tpl['block_id'].'</a></li>';
+		}
+		else {
+			echo '<li id="last_block_id"><a href="#block_explorer" id="block_id" style="color:#428BCA">'.$tpl['block_id'].'</a></li>';
+		}
+		?>
+		<?php echo !defined('COMMUNITY')?$tpl['daemons_status']:''?>
 		<li class="dropdown">
 			<a class="dropdown-toggle" data-toggle="dropdown" href="#">
 				<i class="fa fa-cog fa-fw" style="font-size: 20px"></i>

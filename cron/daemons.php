@@ -57,6 +57,9 @@ do{
 				FROM `".DB_PREFIX."daemons`
 				WHERE `script` = '{$script_name}'
 				", 'fetch_array');
+		// confirmations.php - не отстукивается, поэтому запускается каждую минуту
+		/*if ($data['script'] == 'confirmations.php' &&  ($data['time'] > time() - 60) )
+			continue;*/
 		if ( ($data['time'] > time() - WAIT_SCRIPT) )
 			continue;
 

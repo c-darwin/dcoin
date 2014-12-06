@@ -21,9 +21,6 @@ else {
 	die ('');
 }
 
-$lang = get_lang();
-require_once( ABSPATH . 'lang/'.$lang.'.php' );
-$tpl['lang'] = $lang;
 
 if ( isset($db) && get_community_users($db) )
 	define('COMMUNITY', true);
@@ -39,12 +36,14 @@ if ( defined('COMMUNITY') ) {
 }
 
 if ($user_id>0 && $user_id!='wait') {
-	$tpl = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+	$data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `name`,
 						 `avatar`
 			FROM `".DB_PREFIX."users`
 			WHERE `user_id`= {$user_id}
 			", 'fetch_array');
+	$tpl['name'] = $data['name'];
+	$tpl['avatar'] = $data['avatar'];
 }
 if (empty($tpl['name'])) {
 	$miner = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
@@ -58,6 +57,11 @@ if (empty($tpl['name'])) {
 		$tpl['name'] = 'ID '.$user_id;
 }
 
+$lang = get_lang();
+require_once( ABSPATH . 'lang/'.$lang.'.php' );
+$tpl['lang'] = $lang;
+
+$tpl['face_urls'] = array();
 if (empty($tpl['avatar'])) {
 	$data = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 		SELECT `photo_block_id`,
@@ -76,7 +80,6 @@ if (empty($tpl['avatar'])) {
 					FROM `" . DB_PREFIX . "miners_data`
 					WHERE `miner_id` IN  (" . implode(',', $miners_ids) . ")
 					", 'array');
-			$tpl['face_urls'] = array();
 			for ($i = 0; $i < sizeof($hosts); $i++) {
 				$tpl['face_urls'][] = "{$hosts[$i]}public/face_{$user_id}.jpg";
 			}
@@ -93,6 +96,25 @@ $tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __
 		FROM `".DB_PREFIX."miners_data`
 		WHERE `user_id` = {$user_id}
 		", 'fetch_one' );
-require_once( ABSPATH . 'templates/menu.tpl' );
 
+// ID блока вверху
+$tpl['block_id'] = get_block_id($db);
+if ($_SESSION['user_id']) {
+	define('MY_PREFIX', get_my_prefix($db));
+	$tpl['my_notice'] = get_my_notice_data();
+}
+
+// для сингл-мода, кнопка включения и выключения демонов
+if ( !defined('COMMUNITY') ) {
+	$script_name = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		SELECT `script_name`
+		FROM `" . DB_PREFIX . "main_lock`
+		", 'fetch_one');
+	if ($script_name == 'my_lock')
+		$tpl['daemons_status'] = '<li title="'.$lng['daemons_status_off'].'"><a href="#" id="start_daemons" style="color:#009804"><i class="fa fa-power-off" style="font-size: 20px"></i></a></li>';
+	else
+		$tpl['daemons_status'] = '<li title="'.$lng['daemons_status_on'].'"><a href="#" id="stop_daemons" style="color:#C90600"><i class="fa fa-power-off" style="font-size: 20px"></i></a></li>';
+}
+
+require_once( ABSPATH . 'templates/menu.tpl' );
 ?>

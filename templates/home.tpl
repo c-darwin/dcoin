@@ -328,7 +328,6 @@
 	.img_face{
 		width: 80px;
 		height: 80px;
-		background:  url(http://pool.democratic-coin.com/public/103_user_face.jpg)  50% 50%;
 		background-size: 80px Auto;
 		border-radius: 50%;
 		margin:auto;
@@ -497,7 +496,7 @@
 
 			console.log('-----------------------------------------------------------------------');
 
-			$.get( 'http://pool.dcoin.me/ajax/get_miners_data_map.php', function (map_markers) {
+			$.get( 'ajax/get_miners_data_map.php', function (map_markers) {
 
 				var markers = [];
 				var mapOptions = {
@@ -524,7 +523,7 @@
 						}
 
 						$('#map_canvas').spin();
-						$.get( 'http://pool.dcoin.me/ajax/get_miner_data.php?user_id='+user_id, function (data) {
+						$.get( 'ajax/get_miner_data.php?user_id='+user_id, function (data) {
 							get_img_home (0, user_id, data.hosts, data.lnglat, data.html,  data.counters, data.pct_sec, 0);
 						}, "json" );
 
@@ -553,7 +552,7 @@
 
 				<?php
 				for ($i=0; $i<sizeof($tpl['rand_miners']); $i++) {
-					echo "$.get( 'http://pool.dcoin.me/ajax/get_miner_data.php?user_id={$tpl['rand_miners'][$i]}', function (data) {\n
+					echo "$.get( 'ajax/get_miner_data.php?user_id={$tpl['rand_miners'][$i]}', function (data) {\n
 									get_img_home (0, {$tpl['rand_miners'][$i]}, data.hosts, data.lnglat, data.html, data.counters, data.pct_sec, 1);\n
 								}, \"json\" );\n";
 				}
