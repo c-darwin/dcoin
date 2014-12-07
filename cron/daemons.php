@@ -28,6 +28,14 @@ define('WAIT_SCRIPT', 300);
 // ****************************************************************************
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
+// в винде запуск данного скрипты означает, что все php процессы были убиты, значит можно обнулить время демонов
+if (OS=='WIN') {
+	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, '
+			UPDATE  `' . DB_PREFIX . 'daemons`
+			SET `time`=0
+			');
+}
+
 do{
 	// если это первый запуск в авто-установке в винде, то таблы могут не успеть создаться.
 	$tables_array = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
