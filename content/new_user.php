@@ -25,11 +25,14 @@ if (empty($_SESSION['restricted'])) {
 		}
 		else {
 			$my_refs_keys[$row['user_id']] = $row;
-			$k_path = ABSPATH . 'public/' . substr(md5($row['private_key']), 0, 16) . '.png';
-			if (!file_exists($k_path)) {
+			$k_path = ABSPATH . 'public/' . substr(md5($row['private_key']), 0, 16);
+			$k_path_png = $k_path . '.png';
+			$k_path_txt = $k_path . '.txt';
+			if (!file_exists($k_path_png)) {
 				$private_key = str_replace(array('-----BEGIN RSA PRIVATE KEY-----', '-----END RSA PRIVATE KEY-----'), '', $row['private_key']);
 				$gd = key_to_img($private_key, $param, $row['user_id']);
-				imagepng($gd, $k_path);
+				imagepng($gd, $k_path_png);
+				file_put_contents($k_path_txt, trim($private_key));
 			}
 		}
 	}
