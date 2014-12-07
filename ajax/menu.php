@@ -111,9 +111,9 @@ if ( !defined('COMMUNITY') ) {
 		FROM `" . DB_PREFIX . "main_lock`
 		", 'fetch_one');
 	if ($script_name == 'my_lock')
-		$tpl['daemons_status'] = '<li title="'.$lng['daemons_status_off'].'"><a href="#" id="start_daemons" style="color:#009804"><i class="fa fa-power-off" style="font-size: 20px"></i></a></li>';
+		$tpl['daemons_status'] = '<li title="'.$lng['daemons_status_off'].'"><a href="#" id="start_daemons" style="color:#C90600"><i class="fa fa-power-off" style="font-size: 20px"></i></a></li>';
 	else
-		$tpl['daemons_status'] = '<li title="'.$lng['daemons_status_on'].'"><a href="#" id="stop_daemons" style="color:#C90600"><i class="fa fa-power-off" style="font-size: 20px"></i></a></li>';
+		$tpl['daemons_status'] = '<li title="'.$lng['daemons_status_on'].'"><a href="#" id="stop_daemons" style="color:#009804"><i class="fa fa-power-off" style="font-size: 20px"></i></a></li>';
 }
 
 require_once( ABSPATH . 'templates/menu.tpl' );
