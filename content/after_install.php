@@ -1,7 +1,7 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
-if (isset($_REQUEST['first_load_blockchain'])) {
+if (isset($_REQUEST['first_load_blockchain']) && !isset($_REQUEST['parameters']['lang'])) {
 
 	if ($_REQUEST['first_load_blockchain']=='nodes')
 		$type = 'nodes';
@@ -13,7 +13,7 @@ if (isset($_REQUEST['first_load_blockchain'])) {
 			SET`first_load_blockchain` = '{$type}'
 			");
 }
-if (isset($_REQUEST['public_key'])) {
+if (isset($_REQUEST['public_key']) && !isset($_REQUEST['parameters']['lang'])) {
 
 	$public_key = $_REQUEST['public_key'];
 	if ( !check_input_data ($public_key, 'hex' ) )
