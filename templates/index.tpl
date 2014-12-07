@@ -325,69 +325,6 @@ function doSign(type){
 		}
 	}
 
-	.get_blocks_loader,
-	.get_blocks_loader:before,
-	.get_blocks_loader:after {
-		border-radius: 50%;
-	}
-	.get_blocks_loader:before,
-	.get_blocks_loader:after {
-		position: absolute;
-		content: '';
-	}
-	.get_blocks_loader:before {
-		width: 5.2em;
-		height: 10.2em;
-		background: #fff;
-		border-radius: 10.2em 0 0 10.2em;
-		top: -0.1em;
-		left: -0.1em;
-		-webkit-transform-origin: 5.2em 5.1em;
-		transform-origin: 5.2em 5.1em;
-		-webkit-animation: load2 2s infinite ease 1.5s;
-		animation: load2 2s infinite ease 1.5s;
-	}
-	.get_blocks_loader {
-		font-size: 11px;
-		text-indent: -99999em;
-		margin: 5em auto;
-		position: relative;
-		width: 10em;
-		height: 10em;
-		box-shadow: inset 0 0 0 1em #ccc;
-	}
-	.get_blocks_loader:after {
-		width: 5.2em;
-		height: 10.2em;
-		background: #fff;
-		border-radius: 0 10.2em 10.2em 0;
-		top: -0.1em;
-		left: 5.1em;
-		-webkit-transform-origin: 0px 5.1em;
-		transform-origin: 0px 5.1em;
-		-webkit-animation: load2 2s infinite ease;
-		animation: load2 2s infinite ease;
-	}
-	@-webkit-keyframes load2 {
-		0% {
-			-webkit-transform: rotate(0deg);
-			transform: rotate(0deg);
-		}
-		100% {
-			-webkit-transform: rotate(360deg);
-			transform: rotate(360deg);
-		}
-	}
-	@keyframes load2 {
-		0% {
-			-webkit-transform: rotate(0deg);
-			transform: rotate(0deg);
-		}
-		100% {
-			-webkit-transform: rotate(360deg);
-			transform: rotate(360deg);
-		}
-	}
 
 
 	#loading_db{display: block}
@@ -517,4 +454,33 @@ if ( substr(PHP_OS, 0, 3) == "WIN" && !file_exists(ABSPATH . 'db_config.php') ) 
 	//window.onhashchange = function(e) {
 	//}
 </script>
+
+<!-- Yandex.Metrika counter -->
+<script type="text/javascript">
+	(function (d, w, c) {
+		(w[c] = w[c] || []).push(function() {
+			try {
+				w.yaCounter25998519 = new Ya.Metrika({id:25998519,
+					webvisor:true,
+					clickmap:true,
+					trackLinks:true,
+					accurateTrackBounce:true});
+			} catch(e) { }
+		});
+
+		var n = d.getElementsByTagName("script")[0],
+			s = d.createElement("script"),
+			f = function () { n.parentNode.insertBefore(s, n); };
+		s.type = "text/javascript";
+		s.async = true;
+		s.src = (d.location.protocol == "https:" ? "https:" : "http:") + "//mc.yandex.ru/metrika/watch.js";
+
+		if (w.opera == "[object Opera]") {
+			d.addEventListener("DOMContentLoaded", f, false);
+		} else { f(); }
+	})(document, window, "yandex_metrika_callbacks");
+</script>
+<noscript><div><img src="//mc.yandex.ru/watch/25998519" style="position:absolute; left:-9999px;" alt="" /></div></noscript>
+<!-- /Yandex.Metrika counter -->
+
 </body></html>
