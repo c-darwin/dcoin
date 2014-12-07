@@ -6,7 +6,7 @@ define( 'DC', TRUE);
 define( 'ABSPATH', dirname(__FILE__) . '/' );
 
 set_time_limit(0);
-
+$first_load_blockchain = false;
 $install_progress = 0;
 if (file_exists(ABSPATH . 'db_config.php')) {
 	require_once( ABSPATH . 'db_config.php' );
@@ -58,7 +58,7 @@ else {
 }
 
 // идет загрузка блокчейна
-if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600 ) {
+if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600 && !empty($first_load_blockchain) ) {
 	$tpl_name = 'updating_blockchain';
 }
 
