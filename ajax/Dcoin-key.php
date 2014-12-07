@@ -46,11 +46,22 @@ else {
 	$param = $param['nopass'];
 }
 
+$iPod    = stripos($_SERVER['HTTP_USER_AGENT'],"iPod");
+$iPhone  = stripos($_SERVER['HTTP_USER_AGENT'],"iPhone");
+$iPad    = stripos($_SERVER['HTTP_USER_AGENT'],"iPad");
 
-$gd = key_to_img($private_key, $param, $_SESSION['user_id']);
-header('Content-Disposition: attachment; filename="Dcoin-private-key.png');
-header('Content-type: image/png');
-imagepng($gd);
+if( $iPod || $iPhone || $iPad ) {
+	$gd = key_to_img($private_key, $param, $_SESSION['user_id']);
+	header('Content-Disposition: attachment; filename="Dcoin-private-key-'.$_SESSION['user_id'].'.png');
+	header('Content-type: image/png');
+	imagepng($gd);
+}
+else {
+	header('Content-Disposition: attachment; filename="Dcoin-private-key-'.$_SESSION['user_id'].'.txt');
+	header('Content-type: text/plain');
+	echo trim($private_key);
+}
+
 /*
 echo json_encode(
 		array(
