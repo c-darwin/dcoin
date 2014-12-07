@@ -46,6 +46,19 @@ $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 if (!$db)
 	exit;
 
+if  (substr(PHP_OS, 0, 3) == "WIN") {
+	// для win, когда идет сбор блоков делаем очистку main_lock
+	$block_time = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, '
+			SELECT `time`
+			FROM `' . DB_PREFIX . 'info_block`
+			', 'fetch_one');
+	if (time() - $block_time > 3600 * 24 * 7) {
+		$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, '
+				TRUNCATE TABLE `' . DB_PREFIX . 'main_lock`
+				');
+	}
+}
+
 $error = false;
 
 do {
@@ -85,7 +98,7 @@ do {
 		}
 
 		$first = true;
-		if (file_exists(ABSPATH . 'public/blockchain')) {
+		if ( file_exists(ABSPATH . 'public/blockchain') && filesize(ABSPATH . 'public/blockchain')>52000000 ) {
 
 			debug_print('file_exists blockchain', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
@@ -434,7 +447,7 @@ do {
 	main_unlock();
 
 	// спим 1 минуту
-	sleep(10);
+	sleep(60);
 	unset($binary_block_full, $binary_block, $transactions, $mrkl_root, $for_sign, $block_data);
 
 } while (true);
