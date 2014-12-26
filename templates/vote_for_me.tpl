@@ -8,7 +8,7 @@
 	echo '<thead><tr><th>type</th><th>vote_id</th><th>comment</th></tr></thead>';
 	echo '<tbody>';
 	foreach ( $tpl['my_comments'] as $data ) {
-		print "<tr><td>{$data['type']}</td><td>{$data['vote_id']}</td><td>{$data['comment']}</td></tr>";
+		print "<tr><td>{$data['type']}</td><td>{$data['id']}</td><td>{$data['comment']}</td></tr>";
 	}
 	echo '</tbody>';
 	echo '</table>';

@@ -33,7 +33,7 @@ $my_user_id = $testBlock->user_id;
 if (!$my_miner_id) {
 	main_unlock();
 	unset($testBlock);
-	exit;
+	die('!$my_miner_id');
 }
 
 $variables = ParseData::get_all_variables($db);
@@ -79,16 +79,16 @@ while ( $row = $db->fetchArray( $res ) ) {
 	if (!isset($promised_amount[$row['currency_id']]))
 		continue;
 	// если голосов за урезание > 50% от числа всех держателей данной валюты
-	if ($row['votes'] > $promised_amount[$row['currency_id']] / 2) {
+	if ($row['votes'] >= $promised_amount[$row['currency_id']] / 2) {
 		// проверим, прошло ли 2 недели с последнего урезания
-		$pct_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		$reduction_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT max(`time`)
 					FROM `".DB_PREFIX."reduction`
-					WHERE `currency_id` = {$row['currency_id']}
+					WHERE `currency_id` = {$row['currency_id']} AND
+								 `type` = 'manual'
 					", 'fetch_one' );
-		$pct_time = intval($pct_time);
-		// для тестов = 1 минута
-		if ( $time - $pct_time > $variables['reduction_period'] ) {
+		$reduction_time = intval($reduction_time);
+		if ( $time - $reduction_time > $variables['reduction_period'] ) {
 			$reduction_currency_id = $row['currency_id'];
 			$reduction_pct = $row['pct'];
 			$reduction_type = 'manual';
@@ -97,7 +97,6 @@ while ( $row = $db->fetchArray( $res ) ) {
 		}
 	}
 }
-
 /*
 // ======= авто-урезание денежной массы из-за малого кол-ва удовлетворенных запросов на наличные
 
@@ -198,6 +197,16 @@ foreach ($sum_wallets as $currency_id => $sum_amount) {
 	if ($currency_id == 1)
 		continue;
 
+	$reduction_time = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT max(`time`)
+			FROM `".DB_PREFIX."reduction`
+			WHERE `currency_id` = {$currency_id} AND
+						 `type` = 'auto'
+			", 'fetch_one' );
+	// прошло ли 48 часов
+	if ( time() - $reduction_time <= AUTO_REDUCTION_PERIOD )
+		continue;
+
 	// если обещанных сумм менее чем 100% от объема DC на кошельках, то запускаем урезание
 	if ( @$sum_promised_amount[$currency_id] < $sum_amount * AUTO_REDUCTION_PROMISED_AMOUNT_PCT ) {
 
@@ -216,13 +225,19 @@ foreach ($sum_wallets as $currency_id => $sum_amount) {
 	}
 }
 
-if ($reduction_currency_id) {
+//print $reduction_pct."\n";
+//print $reduction_type."\n";
+//print $reduction_currency_id."\n";
+
+if (isset($reduction_currency_id) && isset($reduction_pct)) {
 
 	if (get_community_users($db))
 		$my_prefix = $testBlock->user_id.'_';
 	else
 		$my_prefix = '';
 	$node_private_key = get_node_private_key($db, $my_prefix);
+
+	print $my_prefix."\n";
 
 	// подписываем нашим нод-ключем данные транзакции
 	$data_for_sign = ParseData::findType('new_reduction').",{$time},{$my_user_id},{$reduction_currency_id},{$reduction_pct},{$reduction_type}";
@@ -231,6 +246,8 @@ if ($reduction_currency_id) {
 	$rsa->setSignatureMode(CRYPT_RSA_SIGNATURE_PKCS1);
 	$signature = $rsa->sign($data_for_sign);
 	debug_print( '$data_for_sign='.$data_for_sign."\n", __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+	print $data_for_sign;
+	print $node_private_key;
 
 	// создаем тр-ию. пишем $block_id, на момент которого были актуальны голоса и статусы банкнот
 	$reduction_tx_data = dec_binary (ParseData::findType('new_reduction'), 1) .

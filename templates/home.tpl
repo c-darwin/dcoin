@@ -56,7 +56,7 @@
 				if(typeof data.total_buy[58] != "undefined")
 					$('#drub_ex_buy_sum').html('$'+Math.round(data.total_buy[58]*100)/100);
 				if(typeof data.max_buy_rate[58] != "undefined")
-					$('#drub_ex_buy_rate').html('1 dRUB = $'+Math.round(data.max_buy_rate[58]*100)/100);
+					$('#drub_ex_buy_rate').html('1 dRUB = $'+Math.round(data.max_buy_rate[58]*1000)/1000);
 			}
 		});
 
@@ -1174,7 +1174,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 class="no-margins">0</h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][1]['miner']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][1]['miner_block']?><?php echo $lng['pct_block']?> </div>-->
 			</div>
 		</div>
 	</div>
@@ -1185,7 +1185,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 class="no-margins" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_promised_text_personal'])?>"><?php echo echo_zero($sum_promised_amount[72])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][72]['miner']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][72]['miner_block']?><?php echo $lng['pct_block']?> </div>-->
 			</div>
 		</div>
 	</div>
@@ -1196,7 +1196,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_promised_text_personal'])?>"><?php echo echo_zero($sum_promised_amount[23])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][23]['miner']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][23]['miner_block']?><?php echo $lng['pct_block']?> </div>-->
 			</div>
 		</div>
 	</div>
@@ -1207,7 +1207,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 class="no-margins"  title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_promised_text_personal'])?>"><?php echo echo_zero($sum_promised_amount[58])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][58]['miner']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_pct_y_promised_text'])?>"><?php echo $tpl['currency_pct'][58]['miner_block']?><?php echo $lng['pct_block']?> </div>-->
 			</div>
 		</div>
 	</div>
@@ -1223,7 +1223,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 id="total_currency_1" class="no-margins" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[1])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][1]['user']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dWOC', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][1]['user_block']?><?php echo $lng['pct_block']?> </div>-->
 				<?php
 				if ($tpl['currency_pct'][1]['user_sec']>0)
 					echo "<script>dc_counter({$sum_wallets[1]}, {$tpl['currency_pct'][1]['user_sec']}, 'total_currency_1', 8);\n</script>";
@@ -1238,7 +1238,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 id="total_currency_72"  class="no-margins" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[72])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][72]['user']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dUSD', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][72]['user_block']?><?php echo $lng['pct_block']?> </div>-->
 				<?php
 				if ($tpl['currency_pct'][72]['user_sec']>0)
 					echo "<script>dc_counter({$sum_wallets[72]}, {$tpl['currency_pct'][72]['user_sec']}, 'total_currency_72', 8);\n</script>";
@@ -1253,7 +1253,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 id="total_currency_23" class="no-margins" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[23])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][23]['user']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo str_replace('[currency]', 'dEUR', $lng['home_coins_pct_y'])?>"><?php echo $tpl['currency_pct'][23]['user_block']?><?php echo $lng['pct_block']?> </div>-->
 				<?php
 				if ($tpl['currency_pct'][23]['user_sec']>0)
 					echo "<script>dc_counter({$sum_wallets[23]}, {$tpl['currency_pct'][23]['user_sec']}, 'total_currency_23', 8);\n</script>";
@@ -1268,7 +1268,7 @@ if ($tpl['show_map']) {
 			</div>
 			<div class="ibox-content">
 				<h1 id="total_currency_58" class="no-margins" title="<?php echo str_replace('[currency]', 'dRUB', $lng['home_total_coins_personal'])?>"><?php echo echo_zero($sum_wallets[58])?></h1>
-				<div class="stat-percent font-bold" title="<?php echo $lng['home_coins_pct_y']?>"><?php echo $tpl['currency_pct'][58]['user']?><?php echo $lng['pct_year']?> </div>
+				<!--<div class="stat-percent font-bold" title="<?php echo $lng['home_coins_pct_y']?>"><?php echo $tpl['currency_pct'][58]['user_block']?><?php echo $lng['pct_block']?> </div>-->
 				<?php
 				if ($tpl['currency_pct'][58]['user_sec']>0)
 					echo "<script>dc_counter({$sum_wallets[58]}, {$tpl['currency_pct'][58]['user_sec']}, 'total_currency_58', 8);\n</script>";
@@ -1276,6 +1276,74 @@ if ($tpl['show_map']) {
 			</div>
 		</div>
 	</div>
+</div>
+
+<script>
+	var currency_list = [];
+	<?php
+	foreach ($tpl['currency_pct'] as $id => $data) {
+		if ($data['miner']) {
+			echo "currency_list[{$id}] = []\n";
+			echo "currency_list[{$id}]['miner'] = {$data['miner_sec']}\n";
+			echo "currency_list[{$id}]['user'] = {$data['user_sec']}\n";
+			echo "currency_list[{$id}]['name'] = '{$data['name']}'\n";
+		}
+	}
+	?>
+
+	$('#calc_amount, #calc_currency_id, #calc_status, #calc_period').bind("keyup change", function(e) {
+		var amount = $('#calc_amount').val();
+		var pct_sec = currency_list[$('#calc_currency_id').val()][$('#calc_status').val()];
+		var sec =  $('#calc_period').val();
+		var new_amount =  Math.pow(1+pct_sec, sec) * amount - amount;
+
+		var number = Math.pow(10, 2);
+		if (new_amount<number) {
+			if (parseFloat(new_amount)<1)
+				var s = 2;
+			else
+				var s = 1;
+			new_amount = new_amount.toString();
+			new_amount = new_amount.substr(0, 3+s);
+		}
+		else {
+			new_amount = new_amount.toFixed();
+		}
+		new_amount = new_amount.replace(/(\d)(?=(\d\d\d)+([^\d]|$))/g, '$1 ');
+		$('#calc_total').text('+'+new_amount+' d'+currency_list[$('#calc_currency_id').val()]['name']);
+	});
+</script>
+<div style="clear: both;"></div>
+<h3 class="page-header" style="margin-top: 0px" title="<?php echo $lng['home_total_coins']?>"><?php echo $lng['forecast_number_coins']?></h3>
+<div class="form-inline">
+	<?php echo $lng['my_balance']?>: <input id="calc_amount" type="text" class="form-control" value="1000"  style="width: 80px; display: inline-block">
+	<select id="calc_currency_id" style="width: 100px; display: inline-block" class="form-control" >
+		<?php
+		foreach ($tpl['currency_pct'] as $id => $data) {
+			if ($id==72)
+				$selected = 'selected';
+			else
+				$selected = '';
+			if ($data['miner'])
+				echo "<option value='{$id}' {$selected}>d{$data['name']}</option>";
+		}
+		?>
+	</select><br><br>
+	<?php echo $lng['my_status']?>:  <select id="calc_status" style="width: 100px; display: inline-block" class="form-control" >
+		<option value='miner' selected><?php echo $lng['status_miner']?></option>
+		<option value='user'><?php echo $lng['status_user']?></option>
+	</select>
+	<br><br>
+	<?php echo $lng['after']?> <select id="calc_period" style="width: 100px; display: inline-block" class="form-control" >
+		<option value='86400'><?php echo $lng['day']?></option>
+		<option value='604800'><?php echo $lng['week']?></option>
+		<option value='2592000' selected><?php echo $lng['month']?></option>
+		<option value='15768000'><?php echo $lng['half_year']?></option>
+		<option value='31536000'><?php echo $lng['year']?></option>
+		<option value='63072000'><?php echo $lng['2_years']?></option>
+		<option value='94608000'><?php echo $lng['3_years']?></option>
+		<option value='157680000'><?php echo $lng['5_years']?></option>
+	</select> <?php echo $lng['i_will']?> <span title="<?php echo $lng['unless_reduction']?>"><?php echo $lng['probably']?></span> <?php echo $lng['be']?> <span id="calc_total">+<?php echo round(1000*pow(1+$tpl['currency_pct'][72]['miner_sec'], 3600*24*30)-1000) ?> dUSD</span>
 </div>
 
 <div style="clear: both; margin-bottom: 55px"></div>

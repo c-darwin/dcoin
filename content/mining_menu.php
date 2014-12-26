@@ -1,12 +1,25 @@
 <?php
 if (!defined('DC')) die("!defined('DC')");
 
+if (isset($_REQUEST['parameters']['skip_promised_amount'])) {
+	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+			UPDATE `" . DB_PREFIX . MY_PREFIX . "my_table`
+			SET `hide_first_promised_amount` = 1
+			");
+}
+
+if (isset($_REQUEST['parameters']['skip_commission'])) {
+	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+			UPDATE `" . DB_PREFIX . MY_PREFIX . "my_table`
+			SET `hide_first_commission` = 1
+			");
+}
+
 // чтобы при добавлений общенных сумм, смены комиссий редиректило сюда
 $tpl['navigate'] = 'mining_menu';
 
 if (!empty($_SESSION['restricted'])) {
 	$tpl['result'] = 'need_email';
-	print '<!--'.$_SESSION['restricted'].'-->';
 }
 else {
 	$my_miner_id = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
@@ -14,6 +27,7 @@ else {
 					FROM `" . DB_PREFIX . "miners_data`
 					WHERE `user_id` = {$user_id}
 					", 'fetch_one');
+
 	if (!$my_miner_id) {
 		// проверим, послали ли мы запрос в FC-сеть
 		$data = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
@@ -102,7 +116,16 @@ else {
 				check_commission();
 			}
 			else {
-				$tpl['result'] = 'need_promised_amount';
+				// возможно юзер нажал кнопку "пропустить"
+				$hide_first_promised_amount = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						SELECT `hide_first_promised_amount`
+						FROM `" . DB_PREFIX . MY_PREFIX . "my_table`
+						LIMIT 1
+						", 'fetch_one');
+				if (!$hide_first_promised_amount)
+					$tpl['result'] = 'need_promised_amount';
+				else
+					check_commission();
 			}
 		}
 		else {
@@ -131,7 +154,16 @@ function check_commission () {
 			$tpl['result'] = 'full_mining_menu';
 		}
 		else {
-			$tpl['result'] = 'need_commission';
+			// возможно юзер нажал кнопку "пропустить"
+			$hide_first_commission = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+					SELECT `hide_first_commission`
+					FROM `" . DB_PREFIX . MY_PREFIX . "my_table`
+					LIMIT 1
+					", 'fetch_one');
+			if ($hide_first_commission)
+				$tpl['result'] = 'full_mining_menu';
+			else
+				$tpl['result'] = 'need_commission';
 		}
 	}
 	else {
@@ -176,7 +208,8 @@ else {
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT *
 		FROM `'.DB_PREFIX.MY_PREFIX.'my_comments`
-		WHERE `comment` != "null"
+		WHERE `comment` != "null" AND
+					 `type` NOT IN ("arbitrator","seller")
 		');
 	while ($row = $db->fetchArray($res)) {
 		$tpl['my_comments'][] = $row;

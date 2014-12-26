@@ -4,7 +4,8 @@ if (!defined('DC')) die("!defined('DC')");
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT *
 		FROM `'.DB_PREFIX.MY_PREFIX.'my_comments`
-		WHERE `comment` != "null"
+		WHERE `comment` != "null" AND
+					 `type` NOT IN ("arbitrator","seller")
 		');
 while ($row = $db->fetchArray($res)) {
 	$tpl['my_comments'][] = $row;

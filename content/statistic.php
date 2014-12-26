@@ -80,11 +80,11 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		LIMIT 20
 		");
 while ( $row = $db->fetchArray( $res ) ) {
-	$row['time'] = date('d/m/Y H:i:s', $row['time']);
 	if ($row['del_block_id'])
 		$row['status'] = 'reduction closed';
 	else if (time()-$row['time'] > $variables['cash_request_time'] && $row['status']!='approved')
 		$row['status'] = 'rejected';
+	$row['time'] = date('d/m/Y H:i:s', $row['time']);
 	$tpl['cash_requests'][] = $row;
 }
 
@@ -299,7 +299,11 @@ $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		ORDER BY `time` DESC
 		");
 while ($row = $db->fetchArray($res)) {
-	$tpl['reduction'][] = array('time'=>date('d/m/Y H:i:s', $row['time']), 'currency_id'=>$row['currency_id'], 'pct'=>$row['pct'], 'block_id'=>$row['block_id']);
+	if ($row['type']=='auto')
+		$row['type'] = 'auto';
+	else
+		$row['type'] = 'voting';
+	$tpl['reduction'][] = array('time'=>date('d/m/Y H:i:s', $row['time']), 'currency_id'=>$row['currency_id'], 'pct'=>$row['pct'], 'block_id'=>$row['block_id'], 'type'=>$row['type']);
 }
 
 

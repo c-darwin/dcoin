@@ -13,6 +13,12 @@
 
 var type = '';
 var to_id = '';
+var global_arbitrator_id = '0';
+var global_arbitrator_commission = '0';
+var global_arbitrator_commission_pct = '0';
+var global_arbitrators_array = [];
+var global_arbitrators_commissions_array = [];
+var global_arbitrators_commissions_array2 = [];
 
 var currency_list = new Array()
 <?php
@@ -21,11 +27,106 @@ foreach ($tpl['wallets'] as $id => $data)
 
 ?>
 
+var arbitration_trust_list = [];
+<?php
+foreach ($tpl['arbitration_trust_list'] as $arbitrator_user_id=>$all_conditions) {
+	echo "arbitration_trust_list[{$arbitrator_user_id}]=[];\n";
+	$all_conditions = json_decode($all_conditions);
+	foreach ($all_conditions as $a_currency_id=>$conditions) {
+		echo "arbitration_trust_list[{$arbitrator_user_id}][{$a_currency_id}]=[];\n";
+		echo "arbitration_trust_list[{$arbitrator_user_id}][{$a_currency_id}]['min_amount']='{$conditions[0]}';\n";
+		echo "arbitration_trust_list[{$arbitrator_user_id}][{$a_currency_id}]['max_amount']='{$conditions[1]}';\n";
+		echo "arbitration_trust_list[{$arbitrator_user_id}][{$a_currency_id}]['min_commission']='{$conditions[2]}';\n";
+		echo "arbitration_trust_list[{$arbitrator_user_id}][{$a_currency_id}]['max_commission']='{$conditions[3]}';\n";
+		echo "arbitration_trust_list[{$arbitrator_user_id}][{$a_currency_id}]['commission_pct']='{$conditions[4]}';\n";
+	}
+}
+?>
+
+var arbitration_trust_list_agreed = '';
 $('#goto_confirm').bind('click', function () {
 
-	check_key_and_show_modal();
+	console.log('goto_confirm');
 
-	$("#confirm_currency").text(currency_list[$("#currency_id").val()]);
+	//check_key_and_show_modal();
+
+	var to_user_id = $("#to_user_id").val();
+
+	console.log('to_user_id='+to_user_id);
+	// возможно юзер поставил галочку возле арбитража
+	if ( $("#arbitration").is(':checked') && to_user_id ) {
+
+		console.log('arbitration');
+		$("#arbitrator_link_add").css("display", "");
+
+		// шлем запрос, чтобы получить список арбитров, с кем работает магазин
+		$.post( 'ajax/get_arbitration_trust_list.php', {
+			'user_id' : to_user_id
+		}, function (data) {
+
+			// ищем общих арбитров и у юзера и у магазина
+			console.log(data.trust_list.length);
+			if (data.trust_list.length==0) {
+				$("#arbitrator_link_add").css("display", "none");
+				$("#arbitration_imposible").css("display", "");
+			}
+			else {
+				var arbitrator = '';
+				var amount = $("#amount").val();
+				for (var arbitrator_id in arbitration_trust_list) {
+					console.log(arbitration_trust_list[arbitrator_id]);
+					for (var i=0; i<data.trust_list.length; i++) {
+						if (arbitrator_id == data.trust_list[i]) {
+							var min_amount = arbitration_trust_list[arbitrator_id][$("#currency_id").val()]['min_amount'];
+							var max_amount = arbitration_trust_list[arbitrator_id][$("#currency_id").val()]['max_amount'];
+							if ((amount<min_amount && min_amount>0) || (amount>max_amount && max_amount>0))
+								continue;
+							if (!arbitration_trust_list_agreed)
+								arbitration_trust_list_agreed = '<select  id="arbitrator_id" class="form-control arbitrator_id" style="max-width: 80px; display: inline-block">';
+							if (i==0) {
+								var selected = 'selected';
+								arbitrator = arbitrator_id;
+							}
+							else
+								var selected = '';
+							arbitration_trust_list_agreed = arbitration_trust_list_agreed+'<option id="'+arbitrator_id+'" '+selected+'>'+arbitrator_id+'</option>';
+						}
+					}
+				}
+
+				if (arbitration_trust_list_agreed) {
+					console.log('arbitration_trust_list_agreed='+arbitration_trust_list_agreed);
+					arbitration_trust_list_agreed = arbitration_trust_list_agreed+'</select>';
+					$("#arbitration_trust_list_html").html(arbitration_trust_list_agreed);
+					var min_commission = arbitration_trust_list[arbitrator][$("#currency_id").val()]['min_commission'];
+					var max_commission = arbitration_trust_list[arbitrator][$("#currency_id").val()]['max_commission'];
+					var commission_pct = arbitration_trust_list[arbitrator][$("#currency_id").val()]['commission_pct'];
+					var commission = amount*(commission_pct/100);
+					if (commission < min_commission && min_commission>0)
+						commission = min_commission;
+					if (commission > max_commission && max_commission>0 )
+						commission = max_commission;
+
+					global_arbitrator_id = arbitrator;
+					global_arbitrator_commission = commission;
+					global_arbitrator_commission_pct = commission_pct;
+					global_arbitrators_commissions_array[arbitrator] = commission;
+
+					$("#arbitrator_commission_html").html(commission+' ('+commission_pct+'%)');
+					$(".arbitration_tr").css("display", "");
+					$("#arbitrator_tr_commission").css("display", "");
+					$("#arbitrator_link_add").css("display", "");
+				}
+				else {
+					console.log('arbitration_imposible');
+					$("#arbitration_imposible").css("display", "");
+					$("#arbitrator_link_add").css("display", "none");
+				}
+			}
+		}, 'JSON');
+	}
+
+	$("#confirm_currency").text('d'+currency_list[$("#currency_id").val()]);
 	$("#confirm_to_user_id").text($("#to_user_id").val());
 	$("#confirm_amount").text($("#amount").val());
 	$("#confirm_commission").text($("#commission").val());
@@ -34,6 +135,7 @@ $('#goto_confirm').bind('click', function () {
 	$("#wallets").css("display", "none");
 
 });
+
 
 $('#next, #cf_next').bind('click', function () {
 
@@ -75,7 +177,47 @@ $('#next, #cf_next').bind('click', function () {
 
 				<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#sign").css("display", "block"); $("#wallets").css("display", "none");' ?>
 
-				$("#for-signature").val( tx_type_id+',<?php echo "{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,'+to_id+','+$('#'+cf+'amount').val()+','+$('#'+cf+'commission').val()+','+data+currency_id);
+				if (cf) {
+					$("#for-signature").val(tx_type_id + ',<?php echo "{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,' + to_id + ',' + $('#' + cf + 'amount').val() + ',' + $('#' + cf + 'commission').val() + ',' + data + currency_id);
+				}
+				else {
+					var arbitrators = '';
+					var arbitrators_array = [];
+					var arbitrators_commissions = '';
+					$(".arbitrator_id option:selected").each(function() {
+						arbitrators_array[$(this).val()] = 1;
+					});
+					var count_arbitrators = arbitrators_array.filter(function(value) { return value !== undefined }).length;
+					var null_arbitrators = '';
+					if (count_arbitrators < 5) {
+						for (var i=count_arbitrators; i<5; i++)
+							null_arbitrators=null_arbitrators+'0,';
+						null_arbitrators = null_arbitrators.substr(0, null_arbitrators.length-1);
+					}
+					console.log('null_arbitrators='+null_arbitrators);
+					for (var id in arbitrators_array) {
+						arbitrators = id+','+arbitrators;
+						arbitrators_commissions = global_arbitrators_commissions_array[id]+','+arbitrators_commissions;
+						global_arbitrators_commissions_array2.push(global_arbitrators_commissions_array[id]);
+						global_arbitrators_array.push(id);
+					}
+					arbitrators = arbitrators.substr(0, arbitrators.length-1);
+					arbitrators_commissions = arbitrators_commissions.substr(0, arbitrators_commissions.length-1);
+					if (null_arbitrators) {
+						if (arbitrators)
+							arbitrators = arbitrators+','+null_arbitrators;
+						else
+							arbitrators = null_arbitrators;
+						if (arbitrators_commissions)
+							arbitrators_commissions = arbitrators_commissions+','+null_arbitrators;
+						else
+							arbitrators_commissions = null_arbitrators;
+					}
+					console.log('arbitrators='+arbitrators);
+					console.log('arbitrators_commissions='+arbitrators_commissions);
+					console.log(global_arbitrators_commissions_array);
+					$("#for-signature").val(tx_type_id + ',<?php echo "{$tpl['data']['time']},{$tpl['data']['user_id']}"?>,' + to_id + ',' + $('#' + cf + 'amount').val() + ',' + $('#' + cf + 'commission').val() + ',' + arbitrators + ',' + arbitrators_commissions + ',' + data + currency_id);
+				}
 				doSign();
 				<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 
@@ -134,6 +276,8 @@ $('#send_to_net').bind('click', function () {
 			'currency_id' : $('#currency_id').val(),
 			'amount' : amount,
 			'commission' : commission,
+			'arbitrators' : global_arbitrators_array,
+			'arbitrators_commissions' : global_arbitrators_commissions_array2,
 			'comment' : $('#comment_encrypted').val(),
 			'comment_text' : comment,
 			'signature1': $('#signature1').val(),
@@ -239,6 +383,50 @@ $('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 	}
 });
 
+$("table.confirm").on("click", ".btn_del", function (event) {
+	$(this).closest("tr").next().remove();
+	$(this).closest(".arbitration_tr").remove();
+	event.preventDefault();
+	count_arbitrators = count_arbitrators-1;
+	if (count_arbitrators<5) {
+		$("#arbitrator_link_add").css("display", "");
+	}
+});
+
+var count_arbitrators = 1;
+$('table.confirm').on('change', '.arbitrator_id', function(e) {
+	console.log($(this).val());
+	console.log($(this).closest("tr").next().children('.arbitrator_commission').html());
+	//console.log($(this).closest("#arbitrator_commission").html());
+	var amount = $("#amount").val();
+	var arbitrator = $(this).val();
+	var min_commission = arbitration_trust_list[arbitrator][$("#currency_id").val()]['min_commission'];
+	var max_commission = arbitration_trust_list[arbitrator][$("#currency_id").val()]['max_commission'];
+	var commission_pct = arbitration_trust_list[arbitrator][$("#currency_id").val()]['commission_pct'];
+	console.log(min_commission);
+	console.log(commission_pct);
+	var commission = amount*(commission_pct/100);
+	if (commission < min_commission && min_commission>0)
+		commission = min_commission;
+	if (commission > max_commission && max_commission>0 )
+		commission = max_commission;
+	global_arbitrators_commissions_array[arbitrator] = commission;
+	$(this).closest("tr").next().children('.arbitrator_commission').html(commission+' ('+commission_pct+'%)');
+	//$("#arbitrator_commission_html").html(commission+' ('+commission_pct+'%)');
+	$(".arbitration_tr").css("display", "");
+	$("#arbitrator_tr_commission").css("display", "");
+});
+
+$("#add_arbitrator").on("click", function (event) {
+	$('.confirm > tbody:last').append('<tr class="arbitration_tr"><td><?php echo $lng['arbitrator']?></td><td>'+$("#arbitration_trust_list_html").html()+'<button class="btn btn-default  btn_del">del</button></td></tr><tr><td><?php echo $lng['arbitrator_commission']?></td><td class="arbitrator_commission">'+global_arbitrator_commission+' ('+global_arbitrator_commission_pct+'%)</td></tr>');
+	event.preventDefault();
+	count_arbitrators = count_arbitrators+1;
+	if (count_arbitrators==5) {
+		$("#arbitrator_link_add").css("display", "none");
+	}
+
+});
+
 
 </script>
 <script src="js/js.js"></script>
@@ -252,13 +440,15 @@ $('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 		<div class="panel-body" style="padding: 0">
 			<!-- Nav tabs -->
 			<ul class="nav nav-tabs" id="myTab">
-				<li class="active"><a href="#send_to_wallet" data-toggle="tab"><?php echo $lng['send_to_wallet']?></a>
+				<li class="active"><a href="#wallets_list" data-toggle="tab"><?php echo $lng['send_to_wallet']?></a>
 				</li>
 				<!--<li class=""><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
 				</li>-->
 				<li class=""><a href="#currency_exchange"><?php echo $lng['currency_exchange1']?></a>
 				</li>
 				<li class=""><a href="#credits"><?php echo $lng['credits']?></a>
+				</li>
+				<li class=""><a href="#arbitration"><?php echo $lng['arbitration']?></a>
 				</li>
 			</ul>
 
@@ -281,10 +471,11 @@ $('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 						</select></td></tr>
 						<tr><td><?php echo $lng['to_account']?></td><td><input class="form-control" type="text" id="to_user_id"></td></tr>
 						<tr><td><?php echo $lng['amount']?></td><td><input class="form-control" type="text" id="amount"></td></tr>
-						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission" <?php echo defined('COMMUNITY')?'readonly="1" ':''?> readonly="1"></td></tr>
+						<tr><td><?php echo $lng['commission']?></td><td><input class="form-control" type="text" id="commission" <?php echo defined('COMMUNITY')?'readonly="1" ':''?>></td></tr>
 						<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="comment"></td></tr>
+						<tr><td><?php echo $lng['arbitration']?></td><td><?php echo $tpl['arbitration_trust_list']?'<input type="checkbox" id="arbitration">':'<a href="#arbitration">'.$lng['add_arbitrators'].'</a>' ?></td></tr>
 					</table>
-					<button id="goto_confirm" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send']?></button>
+					<button id="goto_confirm" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['next']?></button>
 
 					<br><br>
 					<?php
@@ -360,7 +551,9 @@ $('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 								echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div></td>";
 							else
 								echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
-							echo "<td>{$data['status']}</td><td><a href=\"#block_explorer/block_id={$data['block_id']}\">{$data['block_id']}</a></td><td>" . ($tpl['data']['confirmed_block_id'] - $data['block_id']) . "</td></tr>";
+							$num_blocks = $data['block_id']?($tpl['data']['confirmed_block_id'] - $data['block_id']):0;
+							$num_blocks = ($num_blocks>0)?$num_blocks:0;
+							echo "<td>{$data['status']}</td><td><a href=\"#block_explorer/block_id={$data['block_id']}\">{$data['block_id']}</a></td><td>" . $num_blocks . "</td></tr>";
 						}
 						echo '</table>';
 						echo "<p>{$lng['error_in_tx']}</p>";
@@ -432,15 +625,19 @@ $('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 
 	<div id="wallets_confirm" style="margin: auto; max-width: 400px; display: none">
 		<h3><?php echo $lng['check_data']?></h3>
-		<table class="table" style="width: 300px; margin-top: 20px">
+		<table class="table confirm" style="width: 300px; margin-top: 20px">
 			<tbody>
 			<tr><td><?php echo $lng['currency']?></td><td id="confirm_currency"></td></tr>
 			<tr><td><?php echo $lng['to_account']?></td><td id="confirm_to_user_id"></td></tr>
 			<tr><td><?php echo $lng['amount']?></td><td id="confirm_amount"></td></tr>
 			<tr><td><?php echo $lng['commission']?></td><td id="confirm_commission"></td></tr>
 			<tr><td><?php echo $lng['note']?></td><td id="confirm_comment"></td></tr>
+			<tr class="arbitration_tr" style="display: none"><td style="vert-align: middle"><?php echo $lng['arbitrator']?></td><td id="arbitration_trust_list_html"></td></tr>
+			<tr id="arbitrator_tr_commission" style="display: none"><td><?php echo $lng['arbitrator_commission']?></td><td id="arbitrator_commission_html" class="arbitrator_commission"></td></tr>
+			<tr id="arbitration_imposible" style="display: none"><td colspan="2"><?php echo $lng['arbitration_imposible']?></td></tr>
 			</tbody>
 		</table>
+		<p id="arbitrator_link_add" style="display: none"><a href="#" id="add_arbitrator"><?php echo $lng['add_arbitrator']?></a></p>
 		<button type="button" class="btn btn-link" onclick="fc_navigate('wallets_list')"><?php echo $lng['back']?></button> <button id="next" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send_to_net']?></button>
 
 	</div>

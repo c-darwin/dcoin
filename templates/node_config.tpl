@@ -8,6 +8,10 @@
 					'auto_reload' : $('#auto_reload').val(),
 					'cf_url' : $('#cf_url').val(),
 					'pool_url' : $('#pool_url').val(),
+					'pool_admin_user_id' : $('#pool_admin_user_id').val(),
+					'shop_callback_url' : $('#shop_callback_url').val(),
+					'shop_secret_key' : $('#shop_secret_key').val(),
+					'exchange_api_url' : $('#exchange_api_url').val(),
 					'config_ini' : $('#config_ini').val()
 				},
 				function () {
@@ -69,10 +73,16 @@
 
 		$('#clear_daemons_time').bind('click', function () {
 			$.post( 'ajax/clear_daemons_time.php', { } ,
-					function () {
-						fc_navigate ('db_info', {'alert': 'Complete!'} );
-					});
+				function () {
+					fc_navigate ('db_info', {'alert': 'Complete!'} );
+				});
 		});
+
+		$('#generate_token').bind('click', function (e) {
+			$('#shop_secret_key').val(Math.random().toString(36).slice(-10));
+			e.preventDefault();
+		});
+
 
 		$("#main_div select").addClass( "form-control" );
 		$("#main_div input").addClass( "form-control" );
@@ -93,8 +103,16 @@
 	    <input id="out_connections" class="input" type="text" value="<?php echo $tpl['data']['out_connections']?>">
 	    <label>cf_url</label>
 	    <input id="cf_url" class="input" type="text" value="<?php echo $tpl['data']['cf_url']?>">
+	    <label>pool_admin_user_id</label>
+	    <input id="pool_admin_user_id" class="input" type="text" value="<?php echo $tpl['data']['pool_admin_user_id']?>">
 	    <label>pool_url</label>
 	    <input id="pool_url" class="input" type="text" value="<?php echo $tpl['data']['pool_url']?>">
+	    <label>shop_callback_url</label>
+	    <input id="shop_callback_url" class="input" type="text" value="<?php echo $tpl['data']['shop_callback_url']?>">
+	    <label>shop_secret_key [<a href="#" id="generate_token">generate</a>]</label>
+	    <input id="shop_secret_key" class="input" type="text" value="<?php echo $tpl['data']['shop_secret_key']?>">
+	    <label>exchange_api_url</label>
+	    <input id="exchange_api_url" class="input" type="text" value="<?php echo $tpl['data']['exchange_api_url']?>">
 	    <label><?php echo $lng['auto_reload']?></label>
 	    <input id="auto_reload" class="input" type="text" value="<?php echo $tpl['data']['auto_reload']?>">
 		<br>

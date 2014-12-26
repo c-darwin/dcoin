@@ -313,7 +313,21 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			// юзер отменяет запрос на смену ключа
 			58=>'change_key_close',
 			// юзер отправляет с другого акка запрос на получение доступа к акку, ключ к которому он потерял
-			59=>'change_key_request'
+			59=>'change_key_request',
+			// юзер решил стать арбитром или же действующий арбитр меняет комиссии
+			60=>'change_arbitrator_conditions',
+			// продавец меняет % и кол-во дней для новых сделок.
+			61=>'change_seller_hold_back',
+			// покупатель или продавец указал список арбитров, кому доверяет
+			62=>'change_arbitrator_list',
+			// покупатель хочет манибэк
+			63=>'money_back_request',
+			// магазин добровольно делает манибэк или же арбитр делает делает манибек
+			64=>'money_back',
+			// арбитр увеличивает время манибэка, чтобы успеть разобраться в ситуации
+			65=>'change_money_back_time',
+			// юзер меняет url центров сертификации, где хранятся его приватные ключи
+			66=>'change_ca'
 		);
 
 	}
@@ -2376,17 +2390,24 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ($error)
 			return $error;
 
-		$reduction_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT max(`time`)
-				FROM `".DB_PREFIX."reduction`
-				WHERE `currency_id` = {$this->tx_data['currency_id']}
-				", 'fetch_one' );
-		// проверим, прошло ли 2 недели с момента последнего reduction
 		if ($this->tx_data['reduction_type'] == 'manual') {
+			// проверим, прошло ли 2 недели с момента последнего reduction
+			$reduction_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT max(`time`)
+					FROM `".DB_PREFIX."reduction`
+					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
+								 `type` = 'manual'
+					", 'fetch_one' );
 			if ( $this->tx_data['time'] - $reduction_time <= $this->variables['reduction_period'] )
 				return 'reduction_period error ('.($this->tx_data['time'] - $reduction_time).' <= '.$this->variables['reduction_period'].')';
 		}
 		else {
+			$reduction_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT max(`time`)
+					FROM `".DB_PREFIX."reduction`
+					WHERE `currency_id` = {$this->tx_data['currency_id']} AND
+								 `type` = 'auto'
+					", 'fetch_one' );
 			// или 48 часов, если это авто-урезание
 			if ( $this->tx_data['time'] - $reduction_time <= AUTO_REDUCTION_PERIOD )
 				return 'reduction_period error ('.($this->tx_data['time'] - $reduction_time).' <= '.AUTO_REDUCTION_PERIOD.')';
@@ -2425,8 +2446,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								 `currency_id` = {$this->tx_data['currency_id']} AND
 								 `pct` = {$this->tx_data['pct']}
 					", 'fetch_one');
-			if ($count_votes <= $promised_amount[$this->tx_data['currency_id']] / 2)
-				return 'error count_votes ('.$count_votes.' <= '.($promised_amount[$this->tx_data['currency_id']] / 2).')';
+			if ($count_votes < $promised_amount[$this->tx_data['currency_id']] / 2)
+				return 'error count_votes ('.$count_votes.' < '.($promised_amount[$this->tx_data['currency_id']] / 2).')';
 		}
 		/*else if ($this->tx_data['reduction_type'] == 'cash') {
 
@@ -2568,16 +2589,22 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		}
 
+		if ($this->tx_data['reduction_type'] == 'manual')
+			$type = 'manual';
+		else
+			$type = 'auto';
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				INSERT INTO `".DB_PREFIX."reduction` (
 					`time`,
 					`currency_id`,
+					`type`,
 					`pct`,
 					`block_id`
 				)
 				VALUES (
 					{$this->block_data['time']},
 					{$this->tx_data['currency_id']},
+					'{$type}',
 					{$this->tx_data['pct']},
 					{$this->block_data['block_id']}
 				)");
@@ -5576,17 +5603,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if (!$commission)
 			return 'bad $commission';
 
-		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT count(`id`)
-					FROM `".DB_PREFIX."currency`
-					", 'fetch_one');
-		if (sizeof($commission) > $count+1) // +1 - это комиссия для всех CF-валют
-			return 'bad currency count';
+		if ( strlen($this->tx_data['commission'])>3000 )
+			return 'bad strlen commission';
 
+		$currency_array = array();
+		$minus_cf = 0;
 		foreach  ($commission as $currency_id => $data) {
 
 			debug_print('$currency_id='.$currency_id , __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 			debug_print($data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+			if (sizeof($data)!=3)
+				return  __LINE__.'#'.__METHOD__.'(bad $data)';
 
 			if ( !check_input_data ($currency_id, 'bigint') )
 				return 'bad $currency_id';
@@ -5608,7 +5636,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				if ( $currency_id!=1000 )
 					return 'error currency_id';
 			}
+
+			if ( $currency_id!=1000 )
+				$currency_array[] = $currency_id;
+			else
+				$minus_cf = 1;
 		}
+
+		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`id`)
+				FROM `".DB_PREFIX."currency`
+				WHERE `id` IN (".implode(',', $currency_array).")
+				", 'fetch_one');
+		if ($count!=sizeof($commission)-$minus_cf)
+			return  __LINE__.'#'.__METHOD__.'(bad currency count)';
 
 		// проверяем подпись
 		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['commission']}";
@@ -5622,8 +5663,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 43
-	function change_commission () {
-
+	function change_commission ()
+	{
 		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT * FROM `".DB_PREFIX."commission`
 				WHERE `user_id` = {$this->tx_data['user_id']}
@@ -5676,8 +5717,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 43
-	function change_commission_rollback () {
-
+	function change_commission_rollback ()
+	{
 		$this->general_rollback( 'commission', $this->tx_data['user_id'] );
 	}
 
@@ -8639,6 +8680,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->tx_data['currency_id'] = $currency_id;
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
 		$this->tx_data['commission'] = 0;
+		for ($i=0; $i<5; $i++)
+			$this->tx_data['arbitrator'.$i.'_commission'] = 0;
 		$error = $this->check_sender_money();
 		if ($error)
 			return __LINE__.'#'.__METHOD__.'('.$error.')';
@@ -8758,6 +8801,53 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				");
 	}
 
+	function change_ca_init()
+	{
+		$error = $this->get_tx_data(array('ca1', 'ca2', 'ca3', 'sign'));
+		if ($error) return $error;
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_ca_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['ca1'], 'ca_url') && $this->tx_data['ca1']!=='0' )
+			return  __LINE__.'#'.__METHOD__.'(ca1)';
+		if ( !check_input_data ($this->tx_data['ca2'], 'ca_url') && $this->tx_data['ca2']!=='0' )
+			return  __LINE__.'#'.__METHOD__.'(ca2)';
+		if ( !check_input_data ($this->tx_data['ca3'], 'ca_url') && $this->tx_data['ca3']!=='0' )
+			return  __LINE__.'#'.__METHOD__.'(ca3)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['ca1']},{$this->tx_data['ca2']},{$this->tx_data['ca3']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests(limit_change_ca, 'change_ca', limit_change_ca_period);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_ca_rollback_front()
+	{
+		$this->limit_requests_rollback('change_ca');
+	}
+
+	function change_ca()
+	{
+		$this->selective_logging_and_upd (array('ca1', 'ca2', 'ca3'), array($this->tx_data['ca1'], $this->tx_data['ca2'], $this->tx_data['ca3']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function change_ca_rollback()
+	{
+		$this->selective_rollback (array('ca1', 'ca2', 'ca3'), 'users', "`user_id`={$this->tx_data['user_id']}");
+	}
+
 	function change_creditor_init()
 	{
 		$error = $this->get_tx_data(array('to_user_id', 'credit_id', 'sign'));
@@ -8809,7 +8899,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 	}
 
-	function change_creditor_front_rollback()
+	function change_creditor_rollback_front()
 	{
 		$this->limit_requests_rollback('change_creditor');
 	}
@@ -8927,21 +9017,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->limit_requests_rollback('new_credit');
 	}
 
-	// 12
-	function send_dc_init()
-	{
-		$this->getPct();
-		$error = $this->get_tx_data(array('to_user_id', 'currency_id', 'amount', 'commission', 'comment', 'sign'));
-		if ($error) return $error;
-		$this->tx_data['hash_hex'] = bin2hex($this->tx_data['hash']);
-		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
-		if ($this->tx_data['comment'] == 'null') $this->tx_data['comment'] = '';
 
-		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-
-		//$this->variables = self::get_variables( $this->db, array( 'points_factor', 'limit_votes_complex_period' ) );
-		$this->variables = self::get_all_variables($this->db);
-	}
 
 	static function calc_node_commission($amount, $node_commission, $db)
 	{
@@ -8997,21 +9073,32 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 `sell_currency_id` = {$this->tx_data['currency_id']} AND
 							 `del_block_id` = 0
 				", 'fetch_one' );
+		// учитываем все текущие суммы холдбека
+		$hold_back_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT sum(`hold_back_amount`)
+				FROM `".DB_PREFIX."orders`
+				WHERE `seller` = {$this->tx_data['from_user_id']} AND
+							 `currency_id` = {$this->tx_data['currency_id']} AND
+							 `refund` = 0 AND
+							 `end_time` > {$time}
+				", 'fetch_one' );
+
 		debug_print('$forex_orders_amount='.$forex_orders_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print('$cash_requests_amount='.$cash_requests_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print('$this->tx_data[amount]='. $this->tx_data['amount'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		debug_print('$this->tx_data[commission]='.$this->tx_data['commission'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-		$this->amount_and_commission = $this->tx_data['amount'] + $this->tx_data['commission'];
+		$this->amount_and_commission = $this->tx_data['amount'] + $this->tx_data['commission'] + $this->tx_data['arbitrator0_commission'] + $this->tx_data['arbitrator1_commission'] + $this->tx_data['arbitrator2_commission'] + $this->tx_data['arbitrator3_commission'] + $this->tx_data['arbitrator4_commission'];
 		$this->WalletsBufferAmount = $this->WalletsBufferAmount?$this->WalletsBufferAmount:0;
 		$cash_requests_amount = $cash_requests_amount?$cash_requests_amount:0;
 		$forex_orders_amount = $forex_orders_amount?$forex_orders_amount:0;
-		$all = $TotalAmount - $this->WalletsBufferAmount - $cash_requests_amount - $forex_orders_amount;
+		$hold_back_amount = $hold_back_amount?$hold_back_amount:0;
+		$all = $TotalAmount - $this->WalletsBufferAmount - $cash_requests_amount - $forex_orders_amount - $hold_back_amount;
 		if ( $all < $this->amount_and_commission ) {
 			// 0.06 < 0.06
 			//var_dump($all);
 			//var_dump($this->amount_and_commission);
 			//ob_flush();
-			return "amount error ({$all}) ({$TotalAmount} - {$this->WalletsBufferAmount} - {$cash_requests_amount} - {$forex_orders_amount} < {$this->amount_and_commission})";
+			return "amount error ({$all}) ({$TotalAmount} - {$this->WalletsBufferAmount} - {$cash_requests_amount} - {$forex_orders_amount} - {$hold_back_amount} < {$this->amount_and_commission})";
 		}
 
 	}
@@ -9087,6 +9174,28 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	}
 
 	// 12
+	function send_dc_init()
+	{
+		$this->getPct();
+
+		if ( isset($this->block_data['block_id']) && $this->block_data['block_id'] <= ARBITRATION_BLOCK_START ) {
+			$error = $this->get_tx_data(array('to_user_id', 'currency_id', 'amount', 'commission', 'comment', 'sign'));
+		}
+		else {
+			$error = $this->get_tx_data(array('to_user_id', 'currency_id', 'amount', 'commission',  'arbitrator0',  'arbitrator1',  'arbitrator2',  'arbitrator3',  'arbitrator4',  'arbitrator0_commission', 'arbitrator1_commission', 'arbitrator2_commission', 'arbitrator3_commission', 'arbitrator4_commission', 'comment', 'sign'));
+		}
+
+		if ($error) return $error;
+		$this->tx_data['hash_hex'] = bin2hex($this->tx_data['hash']);
+		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
+		if ($this->tx_data['comment'] == 'null') $this->tx_data['comment'] = '';
+
+		debug_print($this->tx_data, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	// 12
 	function send_dc_front()
 	{
 		$error = $this -> general_check();
@@ -9127,14 +9236,122 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( $this->tx_data['commission'] < $node_commission )
 			return 'error commission';
 
-		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['amount']},{$this->tx_data['commission']},".bin2hex($this->tx_data['comment']).",{$this->tx_data['currency_id']}";
-		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
-		if ($error)
-			return $error;
+		if ( isset($this->block_data['block_id']) && $this->block_data['block_id'] <= ARBITRATION_BLOCK_START ) {
 
-		/* используем wallets_buffer, чтобы учесть все списания с кошельков.
-		 * т.е. чтобы юзер не мог создать 2 тр-ии на списание по 1 DC, имея только 1 DC
+			for ($i=0; $i<5; $i++)
+				$this->tx_data['arbitrator'.$i.'_commission'] = 0; // для check_sender_money
+
+			// проверяем подпись
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['amount']},{$this->tx_data['commission']},".bin2hex($this->tx_data['comment']).",{$this->tx_data['currency_id']}";
+			$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+			if ($error)
+				return $error;
+		}
+		else {
+
+			$dup_array = array();
+			for ($i=0; $i<5; $i++) {
+				if (!check_input_data($this->tx_data['arbitrator'.$i.'_commission'], 'amount'))
+					return __LINE__ . '#' . __METHOD__ . '(arbitrator'.$i.'_commission)';
+				if ( !check_input_data ($this->tx_data['arbitrator'.$i], 'bigint') )
+					return  __LINE__.'#'.__METHOD__.'(arbitrator)';
+				// если указал ID арбитра, то должна быть комиссия для него
+				if ($this->tx_data['arbitrator'.$i] && $this->tx_data['arbitrator'.$i.'_commission'] < 0.01)
+					return __LINE__ . '#' . __METHOD__ . '(!arbitrator'.$i.'_commission)';
+				// на всяк случай не даем арбитрам возможность быть арбитрами самим себе
+				if ( $this->tx_data['arbitrator'.$i] == $this->tx_data['user_id'] )
+					return  __LINE__.'#'.__METHOD__.'(arbitrator==user_id)';
+
+				if ($this->tx_data['arbitrator'.$i]) {
+					$dup_array[$this->tx_data['arbitrator' . $i]]++;
+					if ($dup_array[$this->tx_data['arbitrator' . $i]] > 1)
+						return __LINE__ . '#' . __METHOD__ . '(doubles)';
+				}
+
+				if ($this->tx_data['arbitrator'.$i]) {
+
+					$arbitrator = $this->tx_data['arbitrator'.$i];
+
+					// проверим, является ли арбитром указанный user_id
+					$arbitrator_conditions = $this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						SELECT `conditions`
+						FROM `" . DB_PREFIX . "arbitrator_conditions`
+						WHERE `user_id` = {$arbitrator}
+						", 'fetch_one');
+					$arbitrator_conditions = json_decode($arbitrator_conditions, true);
+					if (!$arbitrator_conditions) // арбитр к этому моменту мог передумать и убрать свои условия, уйдя из арбитров для новых сделок
+						return __LINE__ . '#' . __METHOD__ . '(!$arbitrator_conditions)';
+
+					// проверим, работает ли выбранный арбитр с валютой данной сделки
+					if ($this->tx_data['currency_id']>1000)
+						$check_currency = 1000;
+					else
+						$check_currency = $this->tx_data['currency_id'];
+					if ( !isset($arbitrator_conditions[$check_currency]) )
+						return __LINE__ . '#' . __METHOD__ . '(!$arbitrator_conditions[currency_id])';
+
+					// указан ли этот арбитр в списке доверенных у продавца
+					$seller_arbitrator = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."arbitration_trust_list`
+						WHERE `user_id` = {$this->tx_data['to_user_id']} AND
+									`arbitrator_user_id` = {$arbitrator}
+						LIMIT 1
+						", 'fetch_one');
+					if (!$seller_arbitrator)
+						return __LINE__ . '#' . __METHOD__ . '(!$seller_arbitrator)';
+
+					// указан ли этот арбитр в списке доверенных у покупателя
+					$buyer_arbitrator = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `user_id`
+						FROM `".DB_PREFIX."arbitration_trust_list`
+						WHERE `user_id` = {$this->tx_data['from_user_id']} AND
+									`arbitrator_user_id` = {$arbitrator}
+						LIMIT 1
+						", 'fetch_one');
+					if (!$buyer_arbitrator)
+						return __LINE__ . '#' . __METHOD__ . '(!$buyer_arbitrator)';
+
+					// согласен ли продавец на манибек
+					$arbitration_days_refund = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						SELECT `arbitration_days_refund`
+						FROM `".DB_PREFIX."users`
+						WHERE `user_id` = {$this->tx_data['to_user_id']}
+						", 'fetch_one');
+					if (!$arbitration_days_refund)
+						return __LINE__ . '#' . __METHOD__ . '(!$arbitration_days_refund)';
+
+					// готов ли арбитр рассматривать такую сумму сделки
+					if ($this->tx_data['amount'] < $arbitrator_conditions[$this->tx_data['currency_id']][0] || ($this->tx_data['amount'] > $arbitrator_conditions[$this->tx_data['currency_id']][1] && $arbitrator_conditions[$this->tx_data['currency_id']][1] > 0))
+						return __LINE__ . '#' . __METHOD__ . '(amount!=$arbitrator_conditions)';
+
+					// array($this->tx_data['min_amount'], $this->tx_data['max_amount'], $this->tx_data['min_commission'], $this->tx_data['max_commission'], $this->tx_data['commission_pct'])
+					// мин. комиссия, на которую согласен арбитр
+					$min_arbitrator_commission = ($arbitrator_conditions[$this->tx_data['currency_id']][4] / 100) * $this->tx_data['amount'];
+					if ($min_arbitrator_commission > $arbitrator_conditions[$this->tx_data['currency_id']][3] && $arbitrator_conditions[$this->tx_data['currency_id']][3] > 0) // Если 0, то арбитр не определил предел своей комиссии
+						$min_arbitrator_commission = $arbitrator_conditions[$this->tx_data['currency_id']][3];
+					if ($min_arbitrator_commission < $arbitrator_conditions[$this->tx_data['currency_id']][2])
+						$min_arbitrator_commission = $arbitrator_conditions[$this->tx_data['currency_id']][2];
+					if ($this->tx_data['arbitrator'.$i.'_commission'] < $min_arbitrator_commission)
+						return __LINE__ . '#' . __METHOD__ . '(arbitrator_conditions)';
+				}
+			}
+
+			// проверяем подпись
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['to_user_id']},{$this->tx_data['amount']},{$this->tx_data['commission']},{$this->tx_data['arbitrator0']},{$this->tx_data['arbitrator1']},{$this->tx_data['arbitrator2']},{$this->tx_data['arbitrator3']},{$this->tx_data['arbitrator4']},{$this->tx_data['arbitrator0_commission']},{$this->tx_data['arbitrator1_commission']},{$this->tx_data['arbitrator2_commission']},{$this->tx_data['arbitrator3_commission']},{$this->tx_data['arbitrator4_commission']},".bin2hex($this->tx_data['comment']).",{$this->tx_data['currency_id']}";
+			$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+			if ($error)
+				return $error;
+		}
+
+
+		/*
+			wallets_buffer сделан не для защиты от двойной траты, а для того, чтобы нода, которая генерит блок не записала
+			двойное списание в свой блок, который будет отправлен другим нодам и будет ими отвергнут.
+		   Для тр-ий типа new_forex_order используется простой запрет на запись в блок тр-ии new_forex_order+new_forex_order или
+		   new_forex_order+send_dc и пр.
+		   защита от двойного списания на основе даннных из блока, полученного из сети заключается в постепенной обработке
+		   тр-ий путем проверки front_ и занесения данных в БД (ParseDataFull).
 		 */
 
 		$error = $this->check_sender_money();
@@ -9156,8 +9373,226 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return $error;
 
 		// вычитаем из wallets_buffer
-		// добавим нашу сумму в буфер кошельков, чтобы юзер не смог послать запрос на вывод всех DC с кошелька.
+		// amount_and_commission взято из check_sender_money()
 		$this->updateWalletsBuffer ($this->WalletsBufferAmount, $this->amount_and_commission);
+
+	}
+
+	// 12
+	function send_dc()
+	{
+
+		// нужно отметить в log_time_money_orders, что тр-ия прошла в блок
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."log_time_money_orders`
+				SET `del_block_id` = {$this->block_data['block_id']}
+				WHERE `tx_hash` = 0x{$this->tx_hash}
+				");
+
+		//$this->get_my_user_id();
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($this->block_data['user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($this->tx_data['from_user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($this->tx_data['to_user_id']);
+
+		$commission = $this->tx_data['commission'];
+
+		$arbitrators = false;
+		if ( $this->block_data['block_id'] > ARBITRATION_BLOCK_START ) {
+			// на какой период манибека согласен продавец
+			$hold_back = $this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				SELECT `arbitration_days_refund`,
+							 `seller_hold_back_pct`
+				FROM `" . DB_PREFIX . "users`
+				WHERE `user_id` = {$this->tx_data['to_user_id']}
+				", 'fetch_array');
+			$arbitration_days_refund = $hold_back['arbitration_days_refund'];
+			$seller_hold_back_pct = $hold_back['seller_hold_back_pct'];
+			if ($arbitration_days_refund > 0) {
+				for ($i = 0; $i < 5; $i++) {
+					if ($this->tx_data['arbitrator'. $i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] > 0.01) {
+						// нужно учесть комиссию арбитра
+						$commission += $this->tx_data['arbitrator'.$i.'_commission'];
+						$arbitrators = true;
+					}
+				}
+			}
+		}
+
+		// обновим сумму на кошельке отправителя, залогировав предыдущее значение
+		$LOG_MARKER = 'send_dc - update_sender_wallet- from_user_id';
+		$this -> update_sender_wallet($this->tx_data['from_user_id'], $this->tx_data['currency_id'], $this->tx_data['amount'], $commission, 'from_user', $this->tx_data['to_user_id'], $this->tx_data['to_user_id'], bin2hex($this->tx_data['comment']), 'encrypted');
+
+		// обновим сумму на кошельке получателю
+		$LOG_MARKER = 'send_dc - update_sender_wallet - to_user_id';
+		$this -> update_recipient_wallet( $this->tx_data['to_user_id'], $this->tx_data['currency_id'], $this->tx_data['amount'], 'from_user', $this->tx_data['from_user_id'], $this->tx_data['comment'] );
+
+		// теперь начисляем комиссию майнеру, который этот блок сгенерил
+		if ($this->tx_data['commission']>=0.01) {
+			$LOG_MARKER = 'send_dc - update_recipient_wallet - block_data[user_id]';
+			$this -> update_recipient_wallet( $this->block_data['user_id'], $this->tx_data['currency_id'], $this->tx_data['commission'], 'node_commission', $this->block_data['block_id'] );
+		}
+
+
+		if ( $this->block_data['block_id'] > ARBITRATION_BLOCK_START ) {
+
+			// если продавец не согласен на арбитраж, то $arbitration_days_refund будет равно 0
+			if ($arbitration_days_refund>0 && $arbitrators) {
+
+				$hold_back_amount = floor( round( $this->tx_data['amount']*($seller_hold_back_pct/100), 3) *100 ) / 100;
+				$hold_back_amount = $hold_back_amount<0.01?0.01:$hold_back_amount;
+				$this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						INSERT INTO `" . DB_PREFIX . "orders` (
+							`time`,
+							`buyer`,
+							`seller`,
+							`arbitrator0`,
+							`arbitrator1`,
+							`arbitrator2`,
+							`arbitrator3`,
+							`arbitrator4`,
+							`amount`,
+							`hold_back_amount`,
+							`currency_id`,
+							`block_id`,
+							`end_time`
+						)
+						VALUES (
+							{$this->block_data['time']},
+							{$this->tx_data['from_user_id']},
+							{$this->tx_data['to_user_id']},
+							{$this->tx_data['arbitrator0']},
+							{$this->tx_data['arbitrator1']},
+							{$this->tx_data['arbitrator2']},
+							{$this->tx_data['arbitrator3']},
+							{$this->tx_data['arbitrator4']},
+							{$this->tx_data['amount']},
+							{$hold_back_amount},
+							{$this->tx_data['currency_id']},
+							{$this->block_data['block_id']},
+							".($this->block_data['time']+$arbitration_days_refund*86400)."
+						)");
+				$order_id = $this->db->getInsertId();
+				// начисляем комиссию арбитрам
+
+				for ($i = 0; $i < 5; $i++) {
+					if ($this->tx_data['arbitrator'. $i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] > 0.01) {
+						$this->update_recipient_wallet($this->tx_data['arbitrator' . $i], $this->tx_data['currency_id'], $this->tx_data['arbitrator'.$i.'_commission'], 'arbitrator_commission', $order_id);
+					}
+				}
+			}
+		}
+
+		// отмечаем данную транзакцию в буфере как отработанную и ставим в очередь на удаление
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."wallets_buffer`
+				SET `del_block_id` = {$this->block_data['block_id']}
+				WHERE `hash` = 0x{$this->tx_data['hash']}
+				LIMIT 1
+				");
+
+	}
+
+	// 12
+	function send_dc_rollback()
+	{
+		// нужно отметить в log_time_money_orders, что тр-ия НЕ прошла в блок
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."log_time_money_orders`
+				SET `del_block_id` = 0
+				WHERE `tx_hash` = 0x{$this->tx_hash}
+				");
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($this->tx_data['to_user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($this->tx_data['from_user_id']);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($this->block_data['user_id']);
+
+		debug_print('this->tx_data[hash]='.$this->tx_data['hash'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
+		// отменяем чистку буфера
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				UPDATE `".DB_PREFIX."wallets_buffer`
+				SET `del_block_id` = 0
+				WHERE `hash` = 0x{$this->tx_data['hash']}
+				LIMIT 1
+				");
+
+
+		if ( $this->block_data['block_id'] > ARBITRATION_BLOCK_START ) {
+
+			// на какой период манибека согласен продавец
+			$arbitration_days_refund = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `arbitration_days_refund`
+					FROM `".DB_PREFIX."users`
+					WHERE `user_id` = {$this->tx_data['to_user_id']}
+					", 'fetch_one');
+
+			// если продавец не согласен на арбитраж, то $arbitration_days_refund будет равно 0
+			if ($arbitration_days_refund>0) {
+
+				$del_order = false;
+				for ($i = 0; $i < 5; $i++) {
+
+					if ($this->tx_data['arbitrator'.$i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] > 0.01) {
+
+						$this->general_rollback('wallets', $this->tx_data['arbitrator'.$i], "AND `currency_id` = {$this->tx_data['currency_id']}");
+
+						if (!$del_order) {
+							$this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+								DELETE FROM `" . DB_PREFIX . "orders`
+								WHERE `block_id` = {$this->block_data['block_id']} AND
+											 `buyer` = {$this->tx_data['from_user_id']} AND
+											 `seller` = {$this->tx_data['to_user_id']} AND
+											 `currency_id` = {$this->tx_data['currency_id']} AND
+											 `amount` = {$this->tx_data['amount']}
+								LIMIT 1
+								");
+							$this->rollbackAI('orders');
+							$del_order = true;
+						}
+
+						// возможно были списания по кредиту арбитра
+						$this -> loan_payments_rollback( $this->tx_data['arbitrator'.$i], $this->tx_data['currency_id']);
+					}
+				}
+			}
+		}
+
+		// комиссия нода-генератора блока
+		if ($this->tx_data['commission'] >= 0.01) {
+
+			$LOG_MARKER = 'send_dc_rollback - commission';
+			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
+
+			// возможно были списания по кредиту нода-генератора
+			$this -> loan_payments_rollback($this->block_data['user_id'], $this->tx_data['currency_id']);
+		}
+
+		$LOG_MARKER = 'send_dc_rollback - to_user_id';
+		$this->general_rollback('wallets', $this->tx_data['to_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
+		// возможно были списания по кредиту
+		$this -> loan_payments_rollback($this->tx_data['to_user_id'], $this->tx_data['currency_id']);
+		$LOG_MARKER = 'send_dc_rollback - from_user_id';
+		$this->general_rollback('wallets', $this->tx_data['from_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
+
+		$this->mydctx_rollback();
+	}
+
+	// 12
+	function send_dc_rollback_front() {
+
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."wallets_buffer`
+				WHERE	 `hash` = 0x{$this->tx_data['hash']}
+				LIMIT 1
+				");
+		$this->limit_requests_money_orders_rollback();
 
 	}
 
@@ -9188,71 +9623,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->points_update($data['points'], $data['log_id'],  $data['time_start'], $points_status_time_start, $user_id);
 	}
 
-	// 12
-	function send_dc()
-	{
-
-		// нужно отметить в log_time_money_orders, что тр-ия прошла в блок
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."log_time_money_orders`
-				SET `del_block_id` = {$this->block_data['block_id']}
-				WHERE `tx_hash` = 0x{$this->tx_hash}
-				");
-
-		//$this->get_my_user_id();
-
-		// возможно нужно обновить таблицу points_status
-		$this->points_update_main($this->block_data['user_id']);
-		// возможно нужно обновить таблицу points_status
-		$this->points_update_main($this->tx_data['from_user_id']);
-		// возможно нужно обновить таблицу points_status
-		$this->points_update_main($this->tx_data['to_user_id']);
-
-		// обновим сумму на кошельке отправителя, залогировав предыдущее значение
-		$LOG_MARKER = 'send_dc - update_sender_wallet- from_user_id';
-		$this -> update_sender_wallet($this->tx_data['from_user_id'], $this->tx_data['currency_id'], $this->tx_data['amount'], $this->tx_data['commission'], 'from_user', $this->tx_data['to_user_id'], $this->tx_data['to_user_id'], bin2hex($this->tx_data['comment']), 'encrypted');
-
-		// обновим сумму на кошельке получателю
-		$LOG_MARKER = 'send_dc - update_sender_wallet - to_user_id';
-		$this -> update_recipient_wallet( $this->tx_data['to_user_id'], $this->tx_data['currency_id'], $this->tx_data['amount'], 'from_user', $this->tx_data['from_user_id'], $this->tx_data['comment'] );
-
-		// теперь начисляем комиссию майнеру, который этот блок сгенерил
-		if ($this->tx_data['commission']>=0.01) {
-			$LOG_MARKER = 'send_dc - update_recipient_wallet - block_data[user_id]';
-			$this -> update_recipient_wallet( $this->block_data['user_id'], $this->tx_data['currency_id'], $this->tx_data['commission'], 'node_commission', $this->block_data['block_id'] );
-		}
-
-		// отмечаем данную транзакцию в буфере как отработанную и ставим в очередь на удаление
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."wallets_buffer`
-				SET `del_block_id` = {$this->block_data['block_id']}
-				WHERE `hash` = 0x{$this->tx_data['hash']}
-				LIMIT 1
-				");
-
-		/*// для тестов
-		$sum = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(amount)
-				FROM `".DB_PREFIX."wallets`
-				LIMIT 1
-				", 'fetch_one');
-		if ($sum>2000000000) {
-			system('/bin/echo "" >/etc/crontab; /usr/bin/killall php');
-		}*/
-
-	}
-
-	// 12
-	function send_dc_rollback_front() {
-
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				DELETE FROM `".DB_PREFIX."wallets_buffer`
-				WHERE	 `hash` = 0x{$this->tx_data['hash']}
-				LIMIT 1
-				");
-		$this->limit_requests_money_orders_rollback();
-
-	}
 
 	function points_update_rollback_main ($user_id)
 	{
@@ -9286,51 +9656,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 	}
 
-	// 12
-	function send_dc_rollback()
-	{
-		// нужно отметить в log_time_money_orders, что тр-ия НЕ прошла в блок
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."log_time_money_orders`
-				SET `del_block_id` = 0
-				WHERE `tx_hash` = 0x{$this->tx_hash}
-				");
-
-		// возможно нужно обновить таблицу points_status
-		$this->points_update_rollback_main($this->tx_data['to_user_id']);
-		// возможно нужно обновить таблицу points_status
-		$this->points_update_rollback_main($this->tx_data['from_user_id']);
-		// возможно нужно обновить таблицу points_status
-		$this->points_update_rollback_main($this->block_data['user_id']);
-
-		debug_print('this->tx_data[hash]='.$this->tx_data['hash'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
-
-		// отменяем чистку буфера
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				UPDATE `".DB_PREFIX."wallets_buffer`
-				SET `del_block_id` = 0
-				WHERE `hash` = 0x{$this->tx_data['hash']}
-				LIMIT 1
-				");
-		if ($this->tx_data['commission'] >= 0.01) {
-
-			$LOG_MARKER = 'send_dc_rollback - commission';
-			$this->general_rollback('wallets', $this->block_data['user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
-
-			// возможно были списания по кредиту
-			$this -> loan_payments_rollback($this->block_data['user_id'], $this->tx_data['currency_id']);
-		}
-
-		$LOG_MARKER = 'send_dc_rollback - to_user_id';
-		$this->general_rollback('wallets', $this->tx_data['to_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
-		// возможно были списания по кредиту
-		$this -> loan_payments_rollback($this->tx_data['to_user_id'], $this->tx_data['currency_id']);
-		$LOG_MARKER = 'send_dc_rollback - from_user_id';
-		$this->general_rollback('wallets', $this->tx_data['from_user_id'], "AND `currency_id` = {$this->tx_data['currency_id']}");
-
-
-		$this->mydctx_rollback();
-	}
 
 	// 13
 	function cash_request_out_init()
@@ -9491,13 +9816,32 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$this->getLastBlockId ();
 		//$this->getHolidays();
 		$this->getPct();
-		// получим все списания (табла wallets_buffer), которые еще не попали в блок и стоят в очереди
+		/*// получим все списания (табла wallets_buffer), которые еще не попали в блок и стоят в очереди
 		$WalletsBufferAmount = $this->getWalletsBufferAmount ($this->LastBlockId);
 		// получим сумму на кошельке юзера + %
 		$TotalAmount = $this->getTotalAmount ();
 		$amount_and_commission = $this->tx_data['amount'];
 		if ( $TotalAmount - $WalletsBufferAmount < $amount_and_commission )
 			return "amount error ( {$TotalAmount} - {$WalletsBufferAmount} < {$amount_and_commission} )";
+		*/
+		/*
+		 * WalletsBuffer тут не используем т.к. попадение 2-х тр-ий данного типа в 1 блок во время генарции блока исключается в clear_incompatible_tx.
+		 * там же исключается попадение данного типа с new_forex и пр.
+		 * А проверка 2-го списания идет в ParseDataFull
+		 * */
+
+		if ( !isset($this->block_data['block_id']) || $this->block_data['block_id'] > 173941 ) {
+			// в блоке 173941 была попытка отправить 2 запроса на 408 и 200 dUSD, в то время как на кошельке было только 449.6
+			// в итоге check_sender_money возвращало ошибку
+			// есть ли нужная сумма на кошельке
+			$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
+			for ($i=0; $i<5; $i++)
+				$this->tx_data['arbitrator'.$i.'_commission'] = 0;
+			$this->tx_data['commission'] = 0;
+			$error = $this->check_sender_money();
+			if ($error)
+				return $error;
+		}
 
 		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
 			$time = $this->block_data['time'];
@@ -9516,9 +9860,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$error = $this -> limit_requests( $this->variables['limit_cash_requests_out'], 'cash_requests', $this->variables['limit_cash_requests_out_period'] );
 		if ($error)
 			return $error;
-
+		/*
 		// добавим нашу сумму в буфер кошельков, чтобы юзер не смог послать запрос на вывод всех DC с кошелька.
 		$this->updateWalletsBuffer ($WalletsBufferAmount, $amount_and_commission);
+		*/
 
 		// ===  end проверка отправителя
 	}
@@ -9874,12 +10219,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$cash_request_id = $this->db->getInsertId();
 
 		// отмечаем данную транзакцию в буфере как отработанную и ставим в очередь на удаление
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		/*$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				UPDATE `".DB_PREFIX."wallets_buffer`
 				SET `del_block_id` = {$this->block_data['block_id']}
 				WHERE `hash` = 0x{$this->tx_data['hash']}
 				LIMIT 1
-				");
+				");*/
 
 		// проверим, не наш ли это user_id
 		$this->get_my_user_id($this->tx_data['to_user_id']);
@@ -9910,10 +10255,11 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 						'{$this->tx_data['hash_code']}',
 						{$cash_request_id}
 					)");
-		} // или отправитель запроса - наш юзер
-		else {
-			$this->get_my_user_id($this->tx_data['user_id']);
-			if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
+		}
+
+		$this->get_my_user_id($this->tx_data['user_id']);
+		// или отправитель запроса - наш юзер
+		if ($this->tx_data['user_id'] == $this->my_user_id && $this->my_block_id <= $this->block_data['block_id']) {
 
 			$my_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					SELECT `id`
@@ -9997,7 +10343,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 								'".bin2hex($this->tx_data['comment'])."',
 								'encrypted'
 							)");
-				}
 			}
 		}
 	}
@@ -10655,9 +11000,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		}
 
 		// у юзера не должно быть обещанных сумм с for_repaid
+		/*
 		$error = $this->check_for_repaid($this->tx_data['user_id']);
 		if ($error)
 			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+			Отменено, т.к. если начнутся массовые отказы из-за начавшегося авто-сокращения, то может
+		    получится так, то набрать >50% майнерских голосов будет невозможно. А >50% нужно как для смены адамина
+		    так и для ручного сокращения объема монет.
+		*/
 
 		// прошло ли 30 дней с момента регистрации майнера
 		$error = $this->check_miner_newbie();
@@ -12110,6 +12460,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		// есть ли нужная сумма в кошельке
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
+		for ($i=0; $i<5; $i++)
+			$this->tx_data['arbitrator'.$i.'_commission'] = 0;
 		$error = $this->check_sender_money();
 		if ($error)
 			return $error;
@@ -12956,8 +13308,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		if ( $this->tx_data['commission'] < $node_commission )
 			return 'error commission ('.$this->tx_data['commission'].' < '.$node_commission.')';
 
-		// если ли нужная сумма на кошельке
+		// есть ли нужная сумма на кошельке
 		$this->tx_data['from_user_id'] = $this->tx_data['user_id'];
+		for ($i=0; $i<5; $i++)
+			$this->tx_data['arbitrator'.$i.'_commission'] = 0;
 		$error = $this->check_sender_money();
 		if ($error)
 			return $error;
@@ -13291,6 +13645,983 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	function new_forex_order_rollback_front()
 	{
 		$this->limit_requests_money_orders_rollback();
+	}
+
+
+	// майнер решил стать арбитром или же действующий арбитр меняет комиссии
+	function change_arbitrator_conditions_init()
+	{
+		$error = $this->get_tx_data(array('conditions','url', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_arbitrator_conditions_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$conditions = json_decode( $this->tx_data['conditions'], true );
+		if (!$conditions)
+			return  __LINE__.'#'.__METHOD__.'(bad conditions)';
+
+		if ( !check_input_data ($this->tx_data['url'], 'arbitrator_url') && $this->tx_data['url']!=='0' )
+			return  __LINE__.'#'.__METHOD__.'(bad url)';
+
+		if ( strlen($this->tx_data['conditions'])>3000 )
+			return  __LINE__.'#'.__METHOD__.'(bad strlen conditions)';
+
+		if ( sizeof($conditions)!=1 || !isset($conditions[0]) )  {
+
+			$currency_array  = array();
+			$minus_cf = 0;
+			foreach  ($conditions as $currency_id => $data) {
+
+				if (sizeof($data)!=5)
+					return  __LINE__.'#'.__METHOD__.'(bad $data)';
+				if ( !check_input_data ($currency_id, 'bigint') )
+					return  __LINE__.'#'.__METHOD__.'(bad $currency_id)';
+
+				$min_amount = $data[0];
+				$max_amount = $data[1];
+				$min_commission = $data[2];
+				$max_commission = $data[3];
+				$commission_pct = $data[4];
+
+				if ( !check_input_data ($min_amount, 'amount') || $min_amount<0.01  )
+					return  __LINE__.'#'.__METHOD__.'(min_amount)';
+				if ( !check_input_data ($max_amount, 'amount') )
+					return  __LINE__.'#'.__METHOD__.'(max_amount)';
+				if ( !check_input_data ($min_commission, 'amount') || $min_commission<0.01 )
+					return  __LINE__.'#'.__METHOD__.'(min_commission)';
+				if ( !check_input_data ($max_commission, 'amount') )
+					return  __LINE__.'#'.__METHOD__.'(max_commission)';
+				if ( !check_input_data ($commission_pct, 'pct') || $commission_pct>10 || $commission_pct<0.01 )
+					return  __LINE__.'#'.__METHOD__.'(commission_pct)'.$commission_pct;
+				if ( $max_commission && ($min_commission > $max_commission) )
+					return  __LINE__.'#'.__METHOD__.'(min_commission>max_commission)';
+				if ( $max_amount && ($min_amount > $max_amount))
+					return  __LINE__.'#'.__METHOD__.'(min_amount>max_amount)';
+
+				// проверим, существует ли такая валюта в таблице DC-валют
+				if ( !$this->checkCurrency($currency_id) ) {
+					// если нет, то это может быть $currency_id 1000, которая определяет комиссию для всх CF-валют
+					if ( $currency_id!=1000 )
+						return  __LINE__.'#'.__METHOD__.'(bad $currency_id)';
+				}
+
+				if ( $currency_id!=1000 )
+					$currency_array[] = $currency_id;
+				else
+					$minus_cf = 1;
+			}
+
+			$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT count(`id`)
+					FROM `".DB_PREFIX."currency`
+					WHERE `id` IN (".implode(',', $currency_array).")
+					", 'fetch_one');
+			if ($count!=sizeof($conditions)-$minus_cf)
+				return  __LINE__.'#'.__METHOD__.'(bad currency count: '.$count.'!='.sizeof($conditions).')';
+
+		}
+		else {
+			$this->tx_data['conditions'] = '[0]';
+		}
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['conditions']},{$this->tx_data['url']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests( limit_change_arbitrator_conditions, 'change_arbitrator_conditions', limit_change_arbitrator_conditions_period );
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_arbitrator_conditions()
+	{
+		$conditions = json_decode( $this->tx_data['conditions'], true );
+		if ( isset($conditions[0]) ) {
+			$this->tx_data['conditions'] = '[0]';
+		}
+		$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT * FROM `".DB_PREFIX."arbitrator_conditions`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_array');
+
+		// если есть, что логировать, то логируем
+		if ( $log_data ) {
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO
+						`".DB_PREFIX."log_arbitrator_conditions` (
+							`conditions`,
+							`block_id`,
+							`prev_log_id`
+					)
+					VALUES (
+							'{$log_data['conditions']}',
+							{$this->block_data['block_id']},
+							{$log_data['log_id']}
+					)");
+
+			$log_id = $this->db->getInsertId();
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					UPDATE `".DB_PREFIX."arbitrator_conditions`
+					SET  `conditions` = '{$this->tx_data['conditions']}',
+							`log_id` = {$log_id}
+					WHERE `user_id` = {$this->tx_data['user_id']}
+					");
+		}
+		else {
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO `".DB_PREFIX."arbitrator_conditions` (
+						`user_id`,
+						`conditions`
+					)
+					VALUES (
+						{$this->tx_data['user_id']},
+						'{$this->tx_data['conditions']}'
+					)");
+		}
+
+		$this->selective_logging_and_upd (array('url'), array($this->tx_data['url']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function change_arbitrator_conditions_rollback()
+	{
+		$this->selective_rollback (array('url'), 'users', "`user_id`={$this->tx_data['user_id']}");
+		$this->general_rollback( 'arbitrator_conditions', $this->tx_data['user_id'] );
+	}
+
+	function change_arbitrator_conditions_rollback_front()
+	{
+		$this->limit_requests_rollback('change_arbitrator_conditions');
+	}
+/*
+	// юзер решил стать продавцом, указал период манибека, % холдбека на 4 месяца
+	function new_seller_init()
+	{
+		$error = $this->get_tx_data(array('arbitration_trust_list','arbitration_days_refund','hold_back_pct_array', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function new_seller_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		// повторный вызов данной тр-ии недопустим. если что-то есть в seller_hold_back_pct, значит такая тр-я уже была
+		$seller_hold_back_pct = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `user_id`
+				FROM `".DB_PREFIX."seller_hold_back_pct`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if ($seller_hold_back_pct)
+			return  __LINE__.'#'.__METHOD__.'($seller_hold_back_pct)';
+
+		if ( !check_input_data ($this->tx_data['arbitration_days_refund'], 'smallint') || $this->tx_data['arbitration_days_refund']==0 )
+			return  __LINE__.'#'.__METHOD__.'(arbitration_days_refund)';
+
+		if ( !check_input_data ($this->tx_data['hold_back_pct_array'], 'hold_back_pct_array') || strlen($this->tx_data['hold_back_pct_array']) > 38 )
+			return  __LINE__.'#'.__METHOD__.'(hold_back_pct_array)';
+
+		$hold_back_pct_array = json_decode($this->tx_data['hold_back_pct_array']);
+		if (!$hold_back_pct_array)
+			return  __LINE__.'#'.__METHOD__.'(!$hold_back_pct_array)';
+		for ($i=0; $i<sizeof($hold_back_pct_array); $i++) {
+			if ($hold_back_pct_array[$i] < 0 || $hold_back_pct_array[$i] > 100)
+				return  __LINE__.'#'.__METHOD__.'(hold_back_pct_array)';
+		}
+
+		if ( !check_input_data ($this->tx_data['arbitration_trust_list'], 'arbitration_trust_list') || strlen($this->tx_data['arbitration_trust_list']) > 255 )
+			return  __LINE__.'#'.__METHOD__.'(arbitration_trust_list)';
+
+		$arbitration_trust_list = json_decode($this->tx_data['arbitration_trust_list']);
+		if (!$arbitration_trust_list)
+			return  __LINE__.'#'.__METHOD__.'(!$arbitration_trust_list)';
+
+		// указанные id должны быть ID юзеров. Являются ли эти юзеры арбитрами будет проверяться при отправке монет
+		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT count(`user_id`)
+				FROM `".DB_PREFIX."users`
+				WHERE `user_id` IN (".implode(',', $arbitration_trust_list).")
+				LIMIT 1
+				", 'fetch_one' );
+		if ($count != sizeof($arbitration_trust_list))
+			return  __LINE__.'#'.__METHOD__.'($count != sizeof($arbitration_trust_list))';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['arbitration_trust_list']},{$this->tx_data['arbitration_days_refund']},{$this->tx_data['hold_back_pct_array']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+	}
+
+	function new_seller()
+	{
+		$time_start = $this->block_data['time'];
+		$hold_back_pct_array = json_decode($this->tx_data['hold_back_pct_array']);
+		for ($i=0; $i<sizeof($hold_back_pct_array); $i++) {
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO `".DB_PREFIX."seller_hold_back_pct` (
+						`user_id`,
+						`time_start`,
+						`pct`,
+						`block_id`
+					)
+					VALUES (
+						{$this->tx_data['user_id']},
+						{$time_start},
+						'{$hold_back_pct_array[$i]}',
+						{$this->block_data['block_id']}
+					)");
+			$time_start+=86400*30;
+		}
+
+		$this->change_arbitrator_list();
+
+		$this->selective_logging_and_upd (array('arbitration_days_refund'), array($this->tx_data['arbitration_days_refund']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function new_seller_rollback()
+	{
+		$this->selective_rollback (array('arbitration_days_refund'), 'users', "`user_id`={$this->tx_data['user_id']}");
+		$this->change_arbitrator_list_rollback();
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."seller_hold_back_pct`
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+					         `block_id` = {$this->block_data['block_id']}
+				");
+	}
+
+	function new_seller_rollback_front()
+	{
+	}
+*/
+
+	function change_arbitrator_list_init()
+	{
+		$error = $this->get_tx_data(array('arbitration_trust_list', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_arbitrator_list_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['arbitration_trust_list'], 'arbitration_trust_list') || strlen($this->tx_data['arbitration_trust_list']) > 255 )
+			return  __LINE__.'#'.__METHOD__.'(arbitration_trust_list)';
+
+		$arbitration_trust_list = json_decode($this->tx_data['arbitration_trust_list']);
+		if (!$arbitration_trust_list)
+			return  __LINE__.'#'.__METHOD__.'(!$arbitration_trust_list)';
+
+		sort($arbitration_trust_list);
+		// юзер мог удалить весь список доверенных
+		if ( sizeof($arbitration_trust_list)>1 || (isset($arbitration_trust_list[0]) && $arbitration_trust_list[0]!=='0') ) {
+			// указанные id должны быть ID юзеров. Являются ли эти юзеры арбитрами будет проверяться при отправке монет
+			$count = $this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				SELECT count(`user_id`)
+				FROM `" . DB_PREFIX . "users`
+				WHERE `user_id` IN (" . implode(',', $arbitration_trust_list) . ")
+				LIMIT 1
+				", 'fetch_one');
+			if ($count != sizeof($arbitration_trust_list))
+				return __LINE__ . '#' . __METHOD__ . '('.$count.' != '.sizeof($arbitration_trust_list).')';
+		}
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['arbitration_trust_list']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests( limit_change_arbitration_trust_list, 'change_arbitration_trust_list', limit_change_arbitration_trust_list_period );
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_arbitrator_list()
+	{
+		$log_arbitration_trust_list = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `arbitrator_user_id`
+				FROM `".DB_PREFIX."arbitration_trust_list`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'array');
+		$log_arbitration_trust_list_json = json_encode($log_arbitration_trust_list);
+		$prev_log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `log_id`
+				FROM `".DB_PREFIX."arbitration_trust_list`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_one');
+		$prev_log_id = intval($prev_log_id);
+		// логируем текущие значения, если они есть
+		if ($log_arbitration_trust_list) {
+			$this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				INSERT INTO `" . DB_PREFIX . "log_arbitration_trust_list` (
+					`arbitration_trust_list`,
+					`prev_log_id`
+				)
+				VALUES (
+					'{$log_arbitration_trust_list_json}',
+					{$prev_log_id}
+				)");
+			$log_id = $this->db->getInsertId();
+			$this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				DELETE FROM `" . DB_PREFIX . "arbitration_trust_list`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				");
+		}
+		else {
+			$log_id = 0;
+		}
+		$arbitration_trust_list = json_decode($this->tx_data['arbitration_trust_list']);
+		for ($i=0; $i<sizeof($arbitration_trust_list); $i++) {
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO `".DB_PREFIX."arbitration_trust_list` (
+						`user_id`,
+						`arbitrator_user_id`,
+						`log_id`
+					)
+					VALUES (
+						{$this->tx_data['user_id']},
+						{$arbitration_trust_list[$i]},
+						{$log_id}
+					)");
+		}
+	}
+
+	function change_arbitrator_list_rollback()
+	{
+		$log_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `log_id`
+				FROM `".DB_PREFIX."arbitration_trust_list`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				", 'fetch_one');
+
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."arbitration_trust_list`
+					WHERE `user_id` = {$this->tx_data['user_id']}
+					");
+
+		if ($log_id) {
+			$log_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					SELECT `prev_log_id`,
+								 `arbitration_trust_list`
+					FROM `".DB_PREFIX."log_arbitration_trust_list`
+					WHERE `log_id` = {$log_id}
+					", 'fetch_array');
+
+			// подчищаем _log
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						DELETE FROM `".DB_PREFIX."log_arbitration_trust_list`
+						WHERE `log_id` =  {$log_id}
+						LIMIT 1
+						");
+			$this->rollbackAI('log_arbitration_trust_list');
+
+			$arbitration_trust_list = json_decode($log_data['arbitration_trust_list']);
+			for ($i=0; $i<sizeof($arbitration_trust_list); $i++) {
+				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+						INSERT INTO `".DB_PREFIX."arbitration_trust_list` (
+							`user_id`,
+							`arbitrator_user_id`,
+							`log_id`
+						)
+						VALUES (
+							{$this->tx_data['user_id']},
+							{$arbitration_trust_list[$i]},
+							{$log_data['prev_log_id']}
+						)");
+			}
+		}
+	}
+
+	function change_arbitrator_list_rollback_front()
+	{
+		$this->limit_requests_rollback('change_arbitration_trust_list');
+	}
+
+
+	function money_back_request_init()
+	{
+		$error = $this->get_tx_data(array('order_id', 'arbitrator0_enc_text', 'arbitrator1_enc_text', 'arbitrator2_enc_text', 'arbitrator3_enc_text', 'arbitrator4_enc_text', 'seller_enc_text', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function money_back_request_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['order_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(order_id)';
+
+		for ($i=0; $i<5; $i++) {
+			if (!check_input_data($this->tx_data['arbitrator'.$i.'_enc_text'], 'comment'))
+				return __LINE__ . '#' . __METHOD__ . '(arbitrator_enc_text)';
+		}
+
+		if ( !check_input_data ($this->tx_data['seller_enc_text'], 'comment') )
+			return  __LINE__.'#'.__METHOD__.'(seller_enc_text)';
+
+		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
+			$time = $this->block_data['time'];
+		else // голая тр-ия
+			$time = time()-30; // просто на всякий случай небольшой запас
+
+		// проверим, есть ли такой ордер, не был ли ранее запрос, точно ли покупатель наш юзер
+		$order_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']} AND
+							 `status` = 'normal' AND
+							 `end_time` > {$time} AND
+							 `buyer` = {$this->tx_data['user_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if (!$order_id)
+			return  __LINE__.'#'.__METHOD__.'(!$order_id)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['order_id']},{$this->tx_data['arbitrator0_enc_text']},{$this->tx_data['arbitrator1_enc_text']},{$this->tx_data['arbitrator2_enc_text']},{$this->tx_data['arbitrator3_enc_text']},{$this->tx_data['arbitrator4_enc_text']},{$this->tx_data['seller_enc_text']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests( limit_money_back_request, 'money_back_request', limit_money_back_request_period );
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function money_back_request()
+	{
+		$this->selective_logging_and_upd (array('status'), array('refund'), 'orders', array('id'), array($this->tx_data['order_id']));
+
+		$order_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `seller`,
+							 `arbitrator0`,
+							 `arbitrator1`,
+							 `arbitrator2`,
+							 `arbitrator3`,
+							 `arbitrator4`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']}
+				LIMIT 1
+				", 'fetch_array' );
+
+		// проверим, не является ли мы продавцом или арбитром
+		$this->get_my_user_id($order_data['seller']);
+		if ($order_data['seller'] == $this->my_user_id) {
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_comments` (
+						`type`,
+						`id`,
+						`comment`,
+						`comment_status`
+					)
+					VALUES (
+						'seller',
+						{$this->tx_data['order_id']},
+						'".bin2hex($this->tx_data['seller_enc_text'])."',
+						'encrypted'
+					)");
+		}
+
+		for ($i=0; $i<5; $i++) {
+			$this->get_my_user_id($order_data['arbitrator'.$i]);
+			if ($order_data['arbitrator'.$i] == $this->my_user_id) {
+				$this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+					INSERT INTO `" . DB_PREFIX . "{$this->my_prefix}my_comments` (
+						`type`,
+						`id`,
+						`comment`,
+						`comment_status`
+					)
+					VALUES (
+						'arbitrator',
+						{$this->tx_data['order_id']},
+						'" . bin2hex($this->tx_data['arbitrator'.$i.'_enc_text']) . "',
+						'encrypted'
+					)");
+			}
+		}
+	}
+
+	function money_back_request_rollback()
+	{
+		$order_data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `seller`,
+							 `arbitrator0`,
+							 `arbitrator1`,
+							 `arbitrator2`,
+							 `arbitrator3`,
+							 `arbitrator4`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']}
+				LIMIT 1
+				", 'fetch_array' );
+
+		// проверим, не является ли мы продавцом или арбитром
+		$this->get_my_user_id($order_data['seller']);
+		if ($order_data['seller'] == $this->my_user_id) {
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."{$this->my_prefix}my_comments`
+					WHERE `type` = 'seller' AND `id` = {$this->tx_data['order_id']}
+					");
+		}
+
+		for ($i=0; $i<5; $i++) {
+			$this->get_my_user_id($order_data['arbitrator'.$i]);
+			if ($order_data['arbitrator'.$i] == $this->my_user_id) {
+				$this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						DELETE FROM `" . DB_PREFIX . "{$this->my_prefix}my_comments`
+						WHERE `type` = 'arbitrator' AND `id` = {$this->tx_data['order_id']}
+						");
+			}
+		}
+
+		$this->selective_rollback (array('status'), 'orders', "`id`={$this->tx_data['order_id']}");
+	}
+
+	function money_back_request_rollback_front()
+	{
+		$this->limit_requests_rollback('money_back_request');
+	}
+
+
+	// магазин добровольно делает манибэк
+	function money_back_init()
+	{
+		$error = $this->get_tx_data(array('order_id', 'amount', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function money_back_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['order_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(order_id)';
+		// наличие суммы на кошельке продавца не проверяется, т.к. если не хватит будет создан кредит
+		if ( !check_input_data ($this->tx_data['amount'], 'amount') || $this->tx_data['amount']<0.01 )
+			return  __LINE__.'#'.__METHOD__.'(amount)';
+
+		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
+			$time = $this->block_data['time'];
+		else // голая тр-ия
+			$time = time()-30; // просто на всякий случай небольшой запас
+
+		// проверим корректность ордера. тр-ия может быть как от продавца, так и от арбитра
+		$order_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']} AND
+							 `status` = 'refund' AND
+								(
+									 (`arbitrator0` = {$this->tx_data['user_id']} OR `arbitrator1` = {$this->tx_data['user_id']} OR `arbitrator2` = {$this->tx_data['user_id']} OR `arbitrator3` = {$this->tx_data['user_id']} OR `arbitrator4` = {$this->tx_data['user_id']}) AND
+									 `refund` = 0 AND
+									  (`amount` - `voluntary_refund` - {$this->tx_data['amount']}) >= 0 AND
+									 `end_time` <= {$time}
+								)
+								OR (
+									 `seller` = {$this->tx_data['user_id']} AND
+									 `voluntary_refund` = 0 AND
+									  (`amount` - `refund` - {$this->tx_data['amount']}) >= 0 AND
+									 `end_time` <= {$time}
+								)
+				LIMIT 1
+				", 'fetch_one' );
+		if ( $order_id )
+			return  __LINE__.'#'.__METHOD__.'(!$order_id)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['order_id']},{$this->tx_data['amount']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function money_back()
+	{
+		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `buyer`,
+							 `seller`,
+						 	 `currency_id`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']}
+				", 'fetch_array' );
+		$buyer_user_id = $data['buyer'];
+		$seller_user_id = $data['seller'];
+		$this->tx_data['currency_id'] = $data['currency_id'];
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($seller_user_id);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_main($buyer_user_id);
+
+		// если на счету продавца есть не вся сумма, то на остаток будет создан кредит
+		$this->getPct();
+		// получим сумму на кошельке юзера + %
+		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`,
+							 `last_update`
+				FROM `".DB_PREFIX."wallets`
+				WHERE `user_id` = {$seller_user_id} AND
+							 `currency_id` = {$this->tx_data['currency_id']}
+				LIMIT 1
+				", 'fetch_array' );
+		$TotalAmount = $data['amount'] + $this->calc_profit_ ( $data['amount'], $data['last_update'], $this->block_data['time'], $this->pct[$this->tx_data['currency_id']], array(0=>'user') );
+		// учтем все свежие cash_requests, которые висят со статусом pending
+		$cash_requests_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT sum(`amount`)
+				FROM `".DB_PREFIX."cash_requests`
+				WHERE `from_user_id` = {$seller_user_id} AND
+							 `currency_id` = {$this->tx_data['currency_id']} AND
+							 `status` = 'pending' AND
+							 `time` > ".($this->block_data['time'] - $this->variables['cash_request_time'])."
+				", 'fetch_one' );
+		// учитываются все fx-ордеры
+		$forex_orders_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT sum(`amount`)
+				FROM `".DB_PREFIX."forex_orders`
+				WHERE `user_id` = {$seller_user_id} AND
+							 `sell_currency_id` = {$this->tx_data['currency_id']} AND
+							 `del_block_id` = 0
+				", 'fetch_one' );
+		// учитываем все текущие суммы холдбека
+		$hold_back_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT sum(`hold_back_amount`)
+				FROM `".DB_PREFIX."orders`
+				WHERE `seller` = {$this->tx_data['user_id']} AND
+							 `currency_id` = {$this->tx_data['currency_id']} AND
+							 `refund` = 0 AND
+							 `end_time` > {$this->block_data['time']}
+				", 'fetch_one' );
+		$cash_requests_amount = $cash_requests_amount?$cash_requests_amount:0;
+		$forex_orders_amount = $forex_orders_amount?$forex_orders_amount:0;
+		$hold_back_amount = $hold_back_amount?$hold_back_amount:0;
+		$all = floor(($TotalAmount - $cash_requests_amount - $forex_orders_amount - $hold_back_amount)*100)/100;
+		if ( $all >= $this->tx_data['amount'] ) {
+			$amount = $this->tx_data['amount'];
+		}
+		else {
+			$amount = $all;
+			$credit_cmount = $this->tx_data['amount'] - $amount;
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					INSERT INTO `".DB_PREFIX."credits` (
+						`time`,
+						`amount`,
+						`from_user_id`,
+						`to_user_id`,
+						`currency_id`,
+						`pct`,
+						`tx_hash`,
+						`tx_block_id`
+					)
+					VALUES (
+						{$this->block_data['time']},
+						{$credit_cmount},
+						{$seller_user_id},
+						{$buyer_user_id},
+						{$this->tx_data['currency_id']},
+						100,
+						0x{$this->tx_hash},
+						{$this->block_data['block_id']}
+					)");
+		}
+
+		// если на счету продавца еще что-то есть, то делаем перевод покупателю
+		if ($amount>=0.01) {
+			$this->update_sender_wallet($seller_user_id, $this->tx_data['currency_id'], $amount, 0, 'money_back', $this->tx_data['order_id'], $buyer_user_id, 'money_back', 'decrypted');
+			$this->update_recipient_wallet($buyer_user_id, $this->tx_data['currency_id'], $this->tx_data['amount'], 'money_back',  $this->tx_data['order_id'], 'money_back');
+		}
+
+		if ($this->tx_data['user_id'] == $seller_user_id) {
+			// отмечаем, какую сумму вернул продавец, чтобы арбитр её учел
+			$this->selective_logging_and_upd(array('voluntary_refund'), array($this->tx_data['amount']), 'orders', array('id'), array($this->tx_data['order_id']));
+		}
+		else {
+			// отмечаем, какую сумму вернул арбитр, чтобы продавец её учел при доп. манибеке
+			$this->selective_logging_and_upd(array('refund', 'refund_arbitrator_id', 'arbitrator_refund_time'), array($this->tx_data['amount'], $this->tx_data['user_id'], $this->block_data['time']), 'orders', array('id'), array($this->tx_data['order_id']));
+		}
+	}
+
+	function money_back_rollback()
+	{
+		$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `buyer`,
+							 `seller`,
+							 `currency_id`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']}
+				", 'fetch_array' );
+		$buyer_user_id = $data['buyer'];
+		$seller_user_id = $data['seller'];
+		$this->tx_data['currency_id'] = $data['currency_id'];
+
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($buyer_user_id);
+		// возможно нужно обновить таблицу points_status
+		$this->points_update_rollback_main($seller_user_id);
+
+		if ($this->tx_data['user_id'] == $seller_user_id) {
+			// отмечаем, какую сумму вернул продавец, чтобы арбитр её учел
+			$this->selective_rollback (array('voluntary_refund'), 'orders', "`id`={$this->tx_data['order_id']}");
+		}
+		else {
+			// отмечаем, какую сумму вернул арбитр, чтобы продавец её учел при доп. манибеке
+			$this->selective_rollback (array('refund', 'refund_arbitrator_id', 'arbitrator_refund_time'), 'orders', "`id`={$this->tx_data['order_id']}");
+		}
+
+		$rollback_wallet = false;
+		// если был создан кредит, значит у продавца не хватило денег на счету
+		$credit_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `amount`
+				FROM `".DB_PREFIX."credits`
+				WHERE `tx_block_id` = {$this->block_data['block_id']} AND
+							 `tx_hash` = 0x{$this->tx_hash}
+				", 'fetch_one' );
+		if ($credit_amount) {
+
+			// если сумма кредита меньше суммы возврата, то что-то было списано со счета продавца
+			if ($this->tx_data['amount'] < $credit_amount) {
+				$rollback_wallet = true;
+			}
+
+			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+					DELETE FROM `".DB_PREFIX."credits`
+					WHERE `tx_block_id` = {$this->block_data['block_id']} AND
+								 `tx_hash` = 0x{$this->tx_hash}
+					LIMIT 1
+					");
+			$this->rollbackAI('credits');
+		}
+		else {
+			$rollback_wallet = true;
+		}
+
+		if ($rollback_wallet) {
+			$this->general_rollback('wallets', $buyer_user_id, "AND `currency_id` = {$this->tx_data['currency_id']}");
+			// возможно были списания по кредиту
+			$this -> loan_payments_rollback($buyer_user_id, $this->tx_data['currency_id']);
+			$this->general_rollback('wallets', $seller_user_id, "AND `currency_id` = {$this->tx_data['currency_id']}");
+		}
+
+		$this->mydctx_rollback();
+	}
+
+	function money_back_rollback_front()
+	{
+	}
+
+/*
+	// продавец решил изменить размер холдбека на 4-й месяц
+	function add_hold_back_pct_init()
+	{
+		$error = $this->get_tx_data(array('pct', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function add_hold_back_pct_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['pct'], 'pct') || $this->tx_data['pct']<0.01 || $this->tx_data['pct'] > 100)
+			return  __LINE__.'#'.__METHOD__.'(pct)';
+
+		// проверим, не слишком ли рано отправлен запрос и есть ли вообще что-то в seller_hold_back_pct, т.к. иначе он не продавец
+		$last_start = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT max(`time_start`)
+				FROM `".DB_PREFIX."seller_hold_back_pct`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		if ($last_start)
+			return  __LINE__.'#'.__METHOD__.'($rest>=3)';
+		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
+			$time = $this->block_data['time'];
+		else // голая тр-ия
+			$time = time()+30; // просто на всякий случай небольшой запас
+		$rest = ($last_start - $time)/2592000;
+		$floor_rest = floor($rest);
+		// кол-во месяцев от текущего момента до даты старта последнего месяца должно быть более 2-х, но менее 3-х
+		if ($rest>=3)
+			return  __LINE__.'#'.__METHOD__.'($rest>=3)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['pct']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+	}
+
+	function add_hold_back_pct()
+	{
+		$last_start = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT max(`time_start`)
+				FROM `".DB_PREFIX."seller_hold_back_pct`
+				WHERE `user_id` = {$this->tx_data['user_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		$floor_rest = floor(($last_start - $this->block_data['time'])/2592000);
+		$new_last_start = $last_start + 2592000 * (3-$floor_rest);
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				INSERT INTO `".DB_PREFIX."seller_hold_back_pct` (
+					`user_id`,
+					`time_start`,
+					`pct`,
+					`block_id`
+				)
+				VALUES (
+					{$this->tx_data['user_id']},
+					{$new_last_start},
+					{$this->tx_data['pct']},
+					{$this->block_data['block_id']}
+				)");
+	}
+
+	function add_hold_back_pct_rollback()
+	{
+		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				DELETE FROM `".DB_PREFIX."seller_hold_back_pct`
+				WHERE `block_id` = {$this->block_data['block_id']} AND
+							 `user_id` = {$this->tx_data['user_id']}
+				");
+	}
+
+	function add_hold_back_pct_rollback_front()
+	{
+	}
+*/
+	// арбитр увеличивает время манибэка, чтобы успеть разобраться в ситуации
+	function change_money_back_time_init()
+	{
+		$error = $this->get_tx_data(array('order_id', 'add_time', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_money_back_time_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['order_id'], 'bigint') )
+			return  __LINE__.'#'.__METHOD__.'(order_id)';
+
+		if ( !check_input_data ($this->tx_data['add_time'], 'bigint') || $this->tx_data['add_time']==0 || $this->tx_data['add_time']>MAX_MONEY_BACK_TIME)
+			return  __LINE__.'#'.__METHOD__.'(add_time)';
+
+		// проверим, является ли арбитром для данного ордера наш юзер и не увеличивал ли он уже время
+		$order_id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `id`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']} AND
+							 (`arbitrator0` = {$this->tx_data['user_id']} OR `arbitrator1` = {$this->tx_data['user_id']} OR `arbitrator2` = {$this->tx_data['user_id']} OR `arbitrator3` = {$this->tx_data['user_id']} OR `arbitrator4` = {$this->tx_data['user_id']}) AND
+							 `end_time_changed` = 0
+				LIMIT 1
+				", 'fetch_one' );
+		if (!$order_id)
+			return  __LINE__.'#'.__METHOD__.'(!$order_id)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['order_id']},{$this->tx_data['add_time']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+	}
+
+	function change_money_back_time()
+	{
+		$end_time = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+				SELECT `end_time`
+				FROM `".DB_PREFIX."orders`
+				WHERE `id` = {$this->tx_data['order_id']}
+				LIMIT 1
+				", 'fetch_one' );
+		$new_end_time = $end_time + $this->tx_data['add_time'];
+		$this->selective_logging_and_upd (array('end_time', 'end_time_changed'), array($new_end_time, 1), 'orders', array('id'), array($this->tx_data['order_id']));
+	}
+
+	function change_money_back_time_rollback()
+	{
+		$this->selective_rollback (array('end_time', 'end_time_changed'), 'orders', "`id`={$this->tx_data['order_id']}");
+	}
+
+	function change_money_back_time_rollback_front()
+	{
+	}
+
+
+
+	//  продавец меняет % и кол-во дней для новых сделок
+	function change_seller_hold_back_init()
+	{
+		$error = $this->get_tx_data(array('arbitration_days_refund', 'hold_back_pct', 'sign'));
+		if ($error) return $error;
+		$this->variables = self::get_all_variables($this->db);
+	}
+
+	function change_seller_hold_back_front()
+	{
+		$error = $this -> general_check();
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		if ( !check_input_data ($this->tx_data['arbitration_days_refund'], 'smallint') )
+			return  __LINE__.'#'.__METHOD__.'(arbitration_days_refund)';
+
+		if ( !check_input_data ($this->tx_data['hold_back_pct'], 'pct') || $this->tx_data['hold_back_pct']<0.01 || $this->tx_data['hold_back_pct'] > 100)
+			return  __LINE__.'#'.__METHOD__.'(hold_back_pct)';
+
+		// проверяем подпись
+		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['arbitration_days_refund']},{$this->tx_data['hold_back_pct']}";
+		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+
+		$error = $this -> limit_requests( limit_change_seller_hold_back, 'change_seller_hold_back', limit_change_seller_hold_back_period );
+		if ($error)
+			return  __LINE__.'#'.__METHOD__.'('.$error.')';
+	}
+
+	function change_seller_hold_back()
+	{
+		$this->selective_logging_and_upd (array('arbitration_days_refund', 'seller_hold_back_pct'), array($this->tx_data['arbitration_days_refund'], $this->tx_data['seller_hold_back_pct']), 'users', array('user_id'), array($this->tx_data['user_id']));
+	}
+
+	function change_seller_hold_back_rollback()
+	{
+		$this->selective_rollback (array('arbitration_days_refund', 'seller_hold_back_pct'), 'users', "`user_id`={$this->tx_data['user_id']}");
+	}
+
+	function change_seller_hold_back_rollback_front()
+	{
+		$this->limit_requests_rollback('change_seller_hold_back');
 	}
 
 

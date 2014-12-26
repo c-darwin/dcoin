@@ -58,7 +58,7 @@ else {
 }
 
 // идет загрузка блокчейна
-if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600 && !empty($first_load_blockchain) ) {
+if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600*1000 && !empty($first_load_blockchain) ) {
 	$tpl_name = 'updating_blockchain';
 }
 

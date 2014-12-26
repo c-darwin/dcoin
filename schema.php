@@ -1,8 +1,127 @@
 <?php
-
+/*
+ * Таблицы log_* содержат слово log т.к. изначально была другая архитектура.
+ * Вместо log  должно быть backup, но везде исправлять пока некогда
+ * */
 defined('DC') or die('');
 
 $queries = array();
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_arbitrator_conditions`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_arbitrator_conditions` (
+  `log_id` bigint(20) unsigned NOT NULL AUTO_INCREMENT,
+  `conditions` text NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` int(11) unsigned NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1 ;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}arbitrator_conditions`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}arbitrator_conditions` (
+  `user_id` int(11) NOT NULL,
+  `conditions` text NOT NULL,
+  `log_id` int(11) NOT NULL,
+  PRIMARY KEY (`user_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_ca`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_ca` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_seller_hold_back`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_seller_hold_back` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_arbitrator_conditions`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_arbitrator_conditions` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_change_arbitration_trust_list`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_change_arbitration_trust_list` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_time_money_back_request`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_time_money_back_request` (
+  `user_id` bigint(20) unsigned NOT NULL,
+  `time` int(10) unsigned NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}arbitration_trust_list`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}arbitration_trust_list` (
+  `user_id` int(11) NOT NULL,
+  `arbitrator_user_id` int(11) NOT NULL,
+  `log_id` int(11) NOT NULL
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Список арбитров, кому доверяют юзеры';
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_arbitration_trust_list`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_arbitration_trust_list` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `arbitration_trust_list` varchar(512) NOT NULL,
+  `prev_log_id` int(11) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1;
+";
+
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}orders`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}orders` (
+  `id` int(11) NOT NULL AUTO_INCREMENT COMMENT 'Этот ID указывается в тр-ии при запросе манибека',
+  `time` int(11) NOT NULL COMMENT 'Время блока, в котором запечатана данная сделка',
+  `buyer` int(11) NOT NULL COMMENT 'user_id покупателя',
+  `seller` int(11) NOT NULL COMMENT 'user_id продавца',
+  `arbitrator0` int(11) NOT NULL COMMENT 'user_id арбитра 0',
+  `arbitrator1` int(11) NOT NULL COMMENT 'user_id арбитра 1',
+  `arbitrator2` int(11) NOT NULL COMMENT 'user_id арбитра 2',
+  `arbitrator3` int(11) NOT NULL COMMENT 'user_id арбитра 3',
+  `arbitrator4` int(11) NOT NULL COMMENT 'user_id арбитра 4',
+  `amount` decimal(15,2) NOT NULL COMMENT 'Сумма сделки',
+  `hold_back_amount` decimal(15,2) NOT NULL COMMENT 'Сумма, которая замораживается на счету продавца. % для новых сделок задается в users.hold_back_pct',
+  `currency_id` int(11) NOT NULL,
+  `end_time` int(11) NOT NULL COMMENT 'Время окончения возможности сделать манибек через арбитра. Может быть однократно увеличино арбитром. Используется для подсчета, сколько на данный момент времени есть активных сделок, чтобы посчитать от них 10% и не дать их списать со счета продавца',
+  `end_time_changed` tinyint(1) NOT NULL COMMENT 'Если арбитр изменил время окончания, то тут будет 1, чтобы нельзя было изменить повторно',
+  `status` enum('normal','refund') NOT NULL DEFAULT 'normal' COMMENT 'Чтобы арбитр мог понять, что покупатель сделал запрос манибека. Когда юзер шлет тр-ию с запросом манибека, тут меняется статус на refund',
+  `refund` decimal(15,2) NOT NULL COMMENT 'Сумма к возврату, которую определил арбитр. Она не может быть больше, чем сумма сделки.  Повторно отправить транзакцию с  манибеком  не даем, дабы не захламлять тр-ми сеть',
+  `refund_arbitrator_id` int(11) NOT NULL COMMENT 'Для статы. ID арбитра, который сделал манибек юзеру',
+  `arbitrator_refund_time` int(11) NOT NULL COMMENT 'Для статы. Время, когда арбитр сделал манибек',
+  `voluntary_refund` decimal(15,2) NOT NULL COMMENT 'Сумма, которую продавец добровольно вернул покупателю.  Повторно отправить транзакцию с добровольным манибеком  не даем, дабы не захламлять тр-ми сеть. Если сумма не вся, то арбитр может довести процесс до конца, если посчитает нужным',
+   `block_id` int(11) NOT NULL,
+   `log_id` int(11) NOT NULL,
+  PRIMARY KEY (`id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+";
+
+$queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}log_orders`;
+CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_orders` (
+  `log_id` int(11) NOT NULL AUTO_INCREMENT,
+  `end_time` int(11) NOT NULL,
+  `status` enum('normal','refund') NOT NULL DEFAULT 'normal',
+  `end_time_changed` tinyint(1) NOT NULL,
+  `refund` decimal(15,2) NOT NULL,
+  `arbitrator_refund_time` int(11) NOT NULL,
+  `refund_arbitrator_id` int(11) NOT NULL,
+  `voluntary_refund` decimal(15,2) NOT NULL,
+  `remaining_refund` decimal(15,2) NOT NULL,
+  `block_id` int(11) NOT NULL,
+  `prev_log_id` int(11) NOT NULL,
+  PRIMARY KEY (`log_id`)
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 AUTO_INCREMENT=1;
+";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}referral_stats`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}referral_stats` (
@@ -24,7 +143,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}transactions_status` (
   `block_id` int(11) NOT NULL,
   `error` varchar(255) NOT NULL,
   PRIMARY KEY (`hash`)
-) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Для удобства незарегнных юзеров на пуле. Показываем им статус их тр-ий';
+) ENGINE=MyISAM DEFAULT CHARSET=latin1 COMMENT='Для удобства незарегенных юзеров на пуле. Показываем им статус их тр-ий';
 ";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}confirmations`;
@@ -1052,11 +1171,17 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}log_users` (
   `public_key_0` varbinary(512) NOT NULL,
   `public_key_1` varbinary(512) NOT NULL,
   `public_key_2` varbinary(512) NOT NULL,
+  `ca1` varchar(30) NOT NULL,
+  `ca2` varchar(30) NOT NULL,
+  `ca3` varchar(30) NOT NULL,
   `referral` bigint(20) NOT NULL,
   `credit_part` decimal(5,2) NOT NULL,
-  `change_key` tinyint(1) NOT NULL COMMENT '',
-  `change_key_time` int(11) NOT NULL COMMENT '',
-  `change_key_close` tinyint(1) NOT NULL COMMENT '',
+  `change_key` tinyint(1) NOT NULL,
+  `change_key_time` int(11) NOT NULL,
+  `change_key_close` tinyint(1) NOT NULL,
+  `seller_hold_back_pct` decimal(5,2) NOT NULL,
+  `arbitration_days_refund` int(11) NOT NULL,
+  `url` varchar(50) NOT NULL,
   `block_id` int(11) NOT NULL COMMENT 'В каком блоке было занесено. Нужно для удаления старых данных',
   `prev_log_id` bigint(20) NOT NULL,
   PRIMARY KEY (`log_id`)
@@ -1219,7 +1344,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_dc_transactions`
   `id` bigint(20) NOT NULL AUTO_INCREMENT,
   `status` enum('pending','approved') NOT NULL DEFAULT 'approved' COMMENT 'pending - только при отправки DC с нашего кошелька, т.к. нужно показать юзеру, что запрос принят',
   `notification` tinyint(1) NOT NULL COMMENT 'Уведомления по sms и email',
-  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral','cf_project','cf_project_refund','loan_payment') NOT NULL,
+  `type` enum('cash_request','from_mining_id','from_repaid','from_user','node_commission','system_commission','referral','cf_project','cf_project_refund','loan_payment','arbitrator_commission', 'money_back') NOT NULL,
   `type_id` bigint(20) NOT NULL,
   `to_user_id` bigint(20) NOT NULL COMMENT 'Тут не всегда user_id, может быть ID проекта или cash_request',
   `amount` decimal(15,2) NOT NULL,
@@ -1374,6 +1499,8 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_table` (
   `show_sign_data` tinyint(1) NOT NULL COMMENT 'Если 0, тогда не показываем данные для подписи, если у юзера только один праймари ключ',
   `show_map` tinyint(1) NOT NULL DEFAULT '1',
   `show_progress_bar` tinyint(1) NOT NULL DEFAULT '1',
+  `hide_first_promised_amount` tinyint(1) NOT NULL,
+  `hide_first_commission` tinyint(1) NOT NULL,
   `uniq` set('1') NOT NULL DEFAULT '1',
   UNIQUE KEY `uniq` (`uniq`)
 ) ENGINE=MyISAM DEFAULT CHARSET=latin1;
@@ -1468,6 +1595,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}reduction` (
   `time` int(10) unsigned NOT NULL COMMENT 'Время блока, в котором было произведено уполовинивание',
   `notification` tinyint(1) NOT NULL,
   `currency_id` tinyint(3) unsigned NOT NULL,
+  `type` enum('manual','auto') NOT NULL DEFAULT 'auto',
   `pct` tinyint(2) unsigned NOT NULL,
   `block_id` int(10) unsigned NOT NULL COMMENT 'Нужно для откатов',
   PRIMARY KEY (`id`)
@@ -1792,11 +1920,17 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}users` (
   `public_key_0` varbinary(512) NOT NULL COMMENT 'Открытый ключ которым проверяются все транзакции от юзера',
   `public_key_1` varbinary(512) NOT NULL COMMENT '2-й ключ, если есть',
   `public_key_2` varbinary(512) NOT NULL COMMENT '3-й ключ, если есть',
+  `ca1` varchar(30) NOT NULL,
+  `ca2` varchar(30) NOT NULL,
+  `ca3` varchar(30) NOT NULL,
   `referral` bigint(20) NOT NULL COMMENT 'Тот, кто зарегал данного юзера и теперь получает с него рефские',
   `credit_part` decimal(5,2) NOT NULL COMMENT '% от поступлений, которые юзер осталяет себе. Если есть активные кредиты, то можно только уменьшать',
   `change_key` tinyint(1) NOT NULL COMMENT '',
   `change_key_time` int(11) NOT NULL COMMENT '',
   `change_key_close` tinyint(1) NOT NULL COMMENT '',
+  `seller_hold_back_pct` decimal(5,2) NOT NULL COMMENT '% холдбека для новых сделок',
+  `arbitration_days_refund` int(11) NOT NULL COMMENT 'Продавец тут указывает кол-во дней для новых сделок, в течение которых он готов сделать манибек. Если стоит 0, значит продавец больше не работает с манибеком',
+  `url` varchar(50) NOT NULL,
   `log_id` bigint(20) unsigned NOT NULL,
   PRIMARY KEY (`user_id`)
 ) ENGINE=MyISAM  DEFAULT CHARSET=latin1;
@@ -1989,10 +2123,11 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}_my_admin_messages` (
 
 $my_queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_comments`;
 CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}[my_prefix]my_comments` (
-  `type` enum('miner','promised_amount') NOT NULL,
-  `vote_id` int(11) NOT NULL,
-  `comment` varchar(255) CHARACTER SET utf8 NOT NULL
-) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Чтобы было проще понять причину отказов';
+  `type` enum('miner','promised_amount','arbitrator','seller') NOT NULL,
+  `id` int(11) NOT NULL,
+  `comment` text CHARACTER SET utf8 NOT NULL,
+  `comment_status` enum('encrypted','decrypted') NOT NULL DEFAULT 'decrypted'
+) ENGINE=MyISAM  DEFAULT CHARSET=latin1 COMMENT='Чтобы было проще понять причину отказов при апгрейде акка или добавлении обещанной суммы. Также сюда пишутся комменты арбитрам и продавцам, когда покупатели запрашивают манибек';
 ";
 
 $queries[] = "DROP TABLE IF EXISTS `{$db_name}`.`{$prefix}authorization`;
@@ -2048,7 +2183,7 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `php_path` varchar(255) NOT NULL COMMENT 'Нужно для запуска демонов',
   `my_block_id` int(11) NOT NULL COMMENT 'Параллельно с info_block пишем и сюда. Нужно при обнулении рабочих таблиц, чтобы знать до какого блока не трогаем таблы my_',
   `local_gate_ip` varchar(255) NOT NULL COMMENT 'Если тут не пусто, то connector.php будет не активным, а ip для disseminator.php будет браться тут. Нужно для защищенного режима',
-  `static_node_user_id` int(11) NOT NULL COMMENT 'Все исходящие тр-ии будут подписаны публичным ключем этой ноды. Нужно для защищенного режима',
+  `static_node_user_id` int(11) NOT NULL COMMENT 'Все исходящие тр-ии будут подписаны публичным ключом этой ноды. Нужно для защищенного режима',
   `in_connections_ip_limit` int(11) NOT NULL COMMENT 'Кол-во запросов от 1 ip за минуту',
   `in_connections` int(11) NOT NULL COMMENT 'Кол-во нодов и просто юзеров, от кого принимаем данные. Считаем кол-во ip за 1 минуту',
   `out_connections` int(11) NOT NULL COMMENT 'Кол-во нодов, кому шлем данные',
@@ -2056,7 +2191,10 @@ CREATE TABLE IF NOT EXISTS `{$db_name}`.`{$prefix}config` (
   `pool_max_users` int(11) NOT NULL DEFAULT '100',
   `pool_admin_user_id`  int(11) NOT NULL,
   `pool_tech_works`  tinyint(1) NOT NULL,
-  `cf_url`  varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
+  `shop_secret_key` varchar(255) NOT NULL COMMENT 'Секреный ключ, который используется в cron/shop.php в хэше для проверки данных на callback-е ',
+  `shop_callback_url` varchar(255) NOT NULL COMMENT 'Куда скрипт cron/shop.php будет отстукивать',
+  `exchange_api_url` varchar(255) NOT NULL COMMENT 'На home далается ajax-запрос к api биржи и выдается инфа о курсе и пр.',
+  `cf_url` varchar(255) NOT NULL COMMENT 'URL, который отображается в соц. кнопках и с которого подгружаются css/js/img/fonts при прямом заходе в CF-каталог',
   `pool_url`  varchar(255) NOT NULL COMMENT 'URL, на который ссылается кнопка Contribute now из внешнего CF-каталога ',
   `pool_email` varchar(255) NOT NULL COMMENT 'В режиме пула используется как адрес отправителя при рассылке уведомлений',
   `cf_available_coins_url` varchar(255) NOT NULL COMMENT 'URL биржи, где можно узнать, сколько там осталось монет в продаже по курсу 1',

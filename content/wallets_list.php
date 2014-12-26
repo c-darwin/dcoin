@@ -63,6 +63,15 @@ $tpl['last_tx'] = get_last_tx($user_id, $tpl['data']['user_type_id']);
 if (!empty($tpl['last_tx']))
 	$tpl['last_tx_formatted'] = make_last_tx($tpl['last_tx']);
 
+$tpl['arbitration_trust_list'] = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		SELECT `arbitrator_user_id`,
+		              `conditions`
+		FROM `" . DB_PREFIX . "arbitration_trust_list`
+		LEFT JOIN `" . DB_PREFIX . "arbitrator_conditions` ON `" . DB_PREFIX . "arbitrator_conditions`.`user_id` = `" . DB_PREFIX . "arbitration_trust_list`.`arbitrator_user_id`
+		WHERE `" . DB_PREFIX . "arbitration_trust_list`.`user_id` = {$user_id}
+		", 'list', array('arbitrator_user_id', 'conditions'));
+$tpl['arbitration_trust_list'] = $tpl['arbitration_trust_list']?$tpl['arbitration_trust_list']:'0';
+
 require_once( ABSPATH . 'templates/wallets_list.tpl' );
 
 ?>

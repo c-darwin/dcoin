@@ -80,6 +80,7 @@ do {
 	debug_print($config, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	debug_print($collective, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 	if (!$collective && !get_user_public_key($db) && $config['first_load_blockchain']!='file' && $config['first_load_blockchain']!='nodes') {
+		debug_print('continue', __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		sleep(1);
 		continue;
 	}
@@ -122,7 +123,10 @@ do {
 						break;
 					}
 					$parsedata->insert_into_blockchain();
+					// отметимся в БД, что мы живы.
 					upd_deamon_time($db);
+					// отметимся, чтобы не спровоцировать очистку таблиц
+					upd_main_lock($db);
 					if (check_deamon_restart($db)) {
 						main_unlock();
 						exit;

@@ -4,7 +4,6 @@ if (!defined('DC')) die("!defined('DC')");
 //Нельзя завершить голосование юзеров раньше чем через сутки, даже если набрано нужное кол-во голосов.
 //В голосовании нодов ждать сутки не требуется, т.к. там нельзя поставить поддельных нодов
 
-define('TASK_TIME', 3600*24); // чтобы не выдавать одно и тоже голосование
 	
 $rand_array = array();
 
@@ -106,8 +105,7 @@ switch ($task_type) {
 		}
 
 		$tpl['user_info']['example_points'] = get_points($db);
-		//print_R($tpl['user_info']['example_points']);
-		//print_R($tpl['user_info']);
+
 		// получим ID майнеров, у которых лежат фото нужного нам юзера
 		$miners_ids = ParseData::get_miners_keepers($tpl['user_info']['photo_block_id'], $tpl['user_info']['photo_max_miner_id'],  $tpl['user_info']['miners_keepers'], true);
 		if ($miners_ids) {
@@ -120,6 +118,7 @@ switch ($task_type) {
 				$tpl['user_info']['photo_hosts'][] = "{$hosts[$i]}";
 			}
 		}
+
 		// отрезки майнера, которого проверяем
 		$tpl['relations'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT *
@@ -269,7 +268,7 @@ switch ($task_type) {
 				", 'fetch_array');
 		debug_print($tpl['data']['user_info'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		// получим ID майнеров, у которых лежат фото нужного нам юзера
-		$miners_ids = ParseData::get_miners_keepers($tpl['data']['user_info']['photo_block_id'], $tpl['data']['user_info']['photo_max_miner_id'],  $tpl['data']['user_info']['miners_keepers'], true);
+		/*$miners_ids = ParseData::get_miners_keepers($tpl['data']['user_info']['photo_block_id'], $tpl['data']['user_info']['photo_max_miner_id'],  $tpl['data']['user_info']['miners_keepers'], true);
 		debug_print($miners_ids, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		// берем 1 случайный из 10-и ID майнеров
 		$r = array_rand($miners_ids, 1);
@@ -279,7 +278,19 @@ switch ($task_type) {
 				SELECT `host`
 				FROM `".DB_PREFIX."miners_data`
 				WHERE `miner_id` = {$miner_id}
-				", 'fetch_one' );
+				", 'fetch_one' );*/
+		// получим ID майнеров, у которых лежат фото нужного нам юзера
+		$miners_ids = ParseData::get_miners_keepers($tpl['data']['user_info']['photo_block_id'], $tpl['data']['user_info']['photo_max_miner_id'],  $tpl['data']['user_info']['miners_keepers'], true);
+		if ($miners_ids) {
+			$hosts = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+						SELECT `host`
+						FROM `" . DB_PREFIX . "miners_data`
+						WHERE `miner_id` IN  (" . implode(',', $miners_ids) . ")
+						", 'array');
+			for ($i = 0; $i < sizeof($hosts); $i++) {
+				$tpl['data']['photo_hosts'][] = "{$hosts[$i]}";
+			}
+		}
 
 		$tpl['data']['type'] = 'votes_promised_amount';
 		$tpl['data']['type_id'] = ParseData::findType($tpl['data']['type']);

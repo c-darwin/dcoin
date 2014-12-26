@@ -1,9 +1,9 @@
 <script>
 	$('#new_user').bind('click', function () {
-		console.log('new user');
+
 		$.post( 'ajax/generate_new_primary_key.php', function (data) {
 			$("#div_new_user_0").css("display", "none");
-			$("#div_new_user_1").css("display", "block");
+			<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#div_new_user_1").css("display", "block");' ?>
 			$("#public_key").val( data.public_key );
 			$("#private_key").val( data.private_key );
 			$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$("#public_key").val());
@@ -106,8 +106,9 @@
 				if ($data['hosts']) // чтобы вывести фотки
 					$ref_photos[$ref_user_id] = json_encode($data['hosts']);
 
-				if ($data['key'])
-					$key_url = $tpl['pool_url']."public/".substr(md5($data['key']), 0, 16).".png";
+				if ($data['key']) {
+					$key_url = $tpl['pool_url']."public/".substr(md5($data['key']), 0, 16);
+				}
 				echo "<tr>";
 				if ($data['hosts']) // фото только у майнеров
 					echo "<td style='text-align:center;vertical-align:middle'><div class='img_{$ref_user_id}' style='width:60px;height:60px; border-radius:50%;margin:auto'></div>user_id: {$ref_user_id}</td>";
@@ -126,7 +127,7 @@
 				if (empty($data['key']))
 					echo "<td>{$lng['key_has_been_changed']}</td>";
 				else
-					echo "<td style='font-size: 25px' class='ref'><a href='{$key_url}' target='_blank'><i class='fa fa-download'></i></a> <a href='https://www.facebook.com/sharer/sharer.php?u={$key_url}' target='_blank'><i class='fa fa-facebook-square'></i></a> <a href='https://twitter.com/home?status={$key_url}' target='_blank'><i class='fa fa-twitter-square'></i></a> <a href='http://vkontakte.ru/share.php?url={$key_url}' target='_blank'><i class='fa fa-vk'></i></a> <a href='mailto:?subject=Dcoin&amp;body={$key_url}' target='_blank'><i class='fa fa-envelope-o'></i></a></td></tr>";
+					echo "<td style='font-size: 25px' class='ref'><a href='{$key_url}.png' target='_blank'><i class='fa fa-download'></i></a> <a href='{$key_url}.txt' target='_blank'><i class='fa fa-file-text-o'></i></a> <a href='https://www.facebook.com/sharer/sharer.php?u={$key_url}' target='_blank'><i class='fa fa-facebook-square'></i></a> <a href='https://twitter.com/home?status={$key_url}' target='_blank'><i class='fa fa-twitter-square'></i></a> <a href='http://vkontakte.ru/share.php?url={$key_url}' target='_blank'><i class='fa fa-vk'></i></a> <a href='mailto:?subject=Dcoin&amp;body={$key_url}' target='_blank'><i class='fa fa-envelope-o'></i></a></td></tr>";
 			}
 			echo '</tbody>';
 			echo '</table>';

@@ -166,6 +166,7 @@
 		<li><a href="#wallets_list"><?php echo $lng['send_to_wallet']?></a></li>
 		<li class="active"><a href="#currency_exchange"><?php echo $lng['currency_exchange1']?></a></li>
 		<li><a href="#credits"><?php echo $lng['credits']?></a></li>
+		<li><a href="#arbitration"><?php echo $lng['arbitration']?></a></li>
 	</ul>
 
 

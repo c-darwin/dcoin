@@ -84,6 +84,16 @@ define( 'limit_change_key_active', 3 );
 define( 'limit_change_key_active_period', 3600*24*7 );
 define( 'limit_change_key_request', 1 );
 define( 'limit_change_key_request_period', 3600*24*7 );
+define( 'limit_change_arbitration_trust_list', 3 );
+define( 'limit_change_arbitration_trust_list_period', 3600*24 );
+define( 'limit_change_arbitrator_conditions', 3 );
+define( 'limit_change_arbitrator_conditions_period', 3600*24 );
+define( 'limit_money_back_request', 3 );
+define( 'limit_money_back_request_period', 3600*24 );
+define( 'limit_change_seller_hold_back', 3 );
+define( 'limit_change_seller_hold_back_period', 3600*24 );
+define( 'limit_change_ca', 3 );
+define( 'limit_change_ca_period', 3600*24 );
 
 // через какое время админ имеет право изменить ключ юзера, если тот дал на это свое согласие. Это время дается юзеру на то, чтобы отменить запрос.
 define( 'CHANGE_KEY_PERIOD_170770', 3600 );
@@ -94,6 +104,15 @@ define( 'COUNT_CONFIRMED_NODES', 10 );
 
 // У скольких нодов должен быть такой же блок как и у нас, чтобы считать, что блок у большей части DC-сети. для get_confirmed_block_id().
 define( 'MIN_CONFIRMED_NODES', 3 );
+
+// чтобы не выдавать одно и тоже голосование
+define('TASK_TIME', 3600*24);
+
+// на сколько арбитр может продлить время рассмотрения манибека
+define( 'MAX_MONEY_BACK_TIME', 3600*24*180 );
+
+define( 'ARBITRATION_BLOCK_START', 189300 );
+
 
 
 ?>

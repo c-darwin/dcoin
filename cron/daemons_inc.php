@@ -23,6 +23,7 @@ $daemons[] = 'cleaning_db.php'; // main_lock используем, лочим, �
 $daemons[] = 'cf_projects.php'; // geo + фундеры в cf_projects
 $daemons[] = 'elections_admin.php'; // выборы админа
 $daemons[] = 'confirmations.php'; // у скольких нодов такой же предпослений блок как и у нас
+$daemons[] = 'shop.php'; // если пусто в config.shop_callback_url, то будет сразу выходить
 
 if (file_exists(ABSPATH.'config_stend.ini')) {
 

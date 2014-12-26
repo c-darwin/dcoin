@@ -488,6 +488,24 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 			$currency_id = intval($_REQUEST['currency_id']);
 			$amount = $db->escape($_REQUEST['amount']);
 			$commission = $db->escape($_REQUEST['commission']);
+
+			$arbitrators_commissions=0;
+			for ($i=0; $i<5; $i++) {
+				if (!empty($_REQUEST['arbitrators'][$i])) {
+					$arbitrator[$i] = intval($_REQUEST['arbitrators'][$i]);
+					$arbitrator_commission[$i] = $db->escape($_REQUEST['arbitrators_commissions'][$i]);
+					if ( !check_input_data ($arbitrator[$i], 'int' ) )
+						die('error $arbitrator_id');
+					if ( !check_input_data ($arbitrator_commission[$i], 'amount' ) )
+						die('error $arbitrator_commission');
+				}
+				else {
+					$arbitrator[$i] = 0;
+					$arbitrator_commission[$i] = 0;
+				}
+				$arbitrators_commissions+=$arbitrator_commission[$i];
+			}
+
 			$comment = $_REQUEST['comment'];
 			$comment_text = $_REQUEST['comment_text'];
 
@@ -502,6 +520,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 
 			$comment_text = clear_comment($comment_text, $db);
 
+			$total_commission = $commission+$arbitrators_commissions;
 			if (empty($_SESSION['restricted'])) {
 				// пишем транзакцкцию к сбе в таблу
 				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "SET NAMES UTF8");
@@ -524,7 +543,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 								{$user_id},
 								{$to_user_id},
 								{$amount},
-								{$commission},
+								{$total_commission},
 								{$currency_id},
 								'{$comment_text}',
 								'decrypted'
@@ -544,6 +563,16 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				encode_length(strlen($currency_id)) . $currency_id .
 				encode_length(strlen($amount)) . $amount .
 				encode_length(strlen($commission)) . $commission .
+				encode_length(strlen($arbitrator[0])) . $arbitrator[0] .
+				encode_length(strlen($arbitrator[1])) . $arbitrator[1] .
+				encode_length(strlen($arbitrator[2])) . $arbitrator[2] .
+				encode_length(strlen($arbitrator[3])) . $arbitrator[3] .
+				encode_length(strlen($arbitrator[4])) . $arbitrator[4] .
+				encode_length(strlen($arbitrator_commission[0])) . $arbitrator_commission[0] .
+				encode_length(strlen($arbitrator_commission[1])) . $arbitrator_commission[1] .
+				encode_length(strlen($arbitrator_commission[2])) . $arbitrator_commission[2] .
+				encode_length(strlen($arbitrator_commission[3])) . $arbitrator_commission[3] .
+				encode_length(strlen($arbitrator_commission[4])) . $arbitrator_commission[4] .
 				encode_length(strlen($comment)) . $comment .
 				$bin_signatures;
 
@@ -1286,6 +1315,76 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				ParseData::encode_length_plus_data($user_id) .
 				ParseData::encode_length_plus_data($for_user_id) .
 				ParseData::encode_length_plus_data($new_public_key) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_arbitrator_list' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitration_trust_list']) .
+				$bin_signatures;
+
+			break;
+
+		case 'money_back_request' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['order_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitrator0_enc_text']) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitrator1_enc_text']) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitrator2_enc_text']) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitrator3_enc_text']) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitrator4_enc_text']) .
+				ParseData::encode_length_plus_data($_REQUEST['seller_enc_text']) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_seller_hold_back' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['arbitration_days_refund']) .
+				ParseData::encode_length_plus_data($_REQUEST['hold_back_pct']) .
+				$bin_signatures;
+
+			break;
+
+		case 'money_back' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['order_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['amount']) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_arbitrator_conditions' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['conditions']) .
+				ParseData::encode_length_plus_data($_REQUEST['url']) .
+				$bin_signatures;
+
+			break;
+
+		case 'change_money_back_time' :
+
+			$data = dec_binary ($type, 1) .
+				dec_binary ($time, 4) .
+				ParseData::encode_length_plus_data($user_id) .
+				ParseData::encode_length_plus_data($_REQUEST['order_id']) .
+				ParseData::encode_length_plus_data($_REQUEST['amount']) .
 				$bin_signatures;
 
 			break;

@@ -1,4 +1,3 @@
-
 <script>
 
 function write_for_signature (result) {
@@ -9,26 +8,6 @@ function write_for_signature (result) {
 	doSign();
 	<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 }
-
-function reload_photo(user_id, face_id, profile_id) {
-
-	$.post( 'ajax/new_photo.php', {
-		'user_id' : user_id
-	}, function (data) {
-
-		alert(data.face+"\n"+data.profile+"\n"+face_id+"\n"+profile_id);
-		$('#'+face_id).attr('src', ''+data.face+'');
-		$('#'+profile_id).attr('src', ''+data.profile+'');
-
-	}, "json" );
-
-}
-
-$('#reload-user-photos').bind('click', function () {
-
-	reload_photo($('#candidate-id').val(), 'face_img', 'profile_img')
-
-} );
 
 $('#btn-bad').bind('click', function () {
 
@@ -104,6 +83,56 @@ $('#show_map').bind('click', function () {
 	google.maps.event.trigger(map, 'resize');
 });
 
+
+
+
+var photo_hosts = [];
+var photo_hosts = ['<?php echo implode("','", $tpl['data']['photo_hosts']);?>'];
+
+function get_miner_photos (i) {
+
+	console.log('get_miner_photos');
+	var image = new Image();
+	var photo_url = photo_hosts[i]+"public/face_<?php echo $tpl['data']['user_info']['user_id']?>.jpg";
+	if (typeof photo_hosts[i] != 'undefined' && photo_hosts[i]!='' && photo_hosts[i]!='0') {
+		image.src = photo_url;
+		image.onload = function(){
+			image = null;
+			console.log('#face_coords_mouse = url('+photo_hosts[i]+'public/profile_<?php echo $tpl['data']['user_info']['user_id']?>.jpg)');
+			$('#face_img').css("background", "url('"+photo_hosts[i]+"public/face_<?php echo $tpl['data']['user_info']['user_id']?>.jpg')  no-repeat 50% 50%");
+			$('#face_img').css("background-size", "300px Auto");
+			$('#profile_img').css("background", "url('"+photo_hosts[i]+"public/profile_<?php echo $tpl['data']['user_info']['user_id']?>.jpg') no-repeat 50% 50%");
+			$('#profile_img').css("background-size", "300px Auto");
+		};
+		// handle failure
+		image.onerror = function(){
+			image = null;
+			console.log('error get_miner_photos '+photo_url);
+			get_miner_photos (i+1);
+		};
+		setTimeout
+		(
+			function()
+			{
+				if ( image!=null && (!image.complete || !image.naturalWidth) )
+				{
+					image = null;
+					console.log('timeout error get_miner_photos '+photo_url);
+					get_miner_photos (i+1);
+				}
+			},
+			3000
+		);
+	}
+	else {
+		console.log('null');
+	}
+}
+
+$(function() {
+	get_miner_photos (0);
+});
+
 </script>
 
 <h1 class="page-header"><?php echo $lng['tasks_title_promised_amount']?></h1>
@@ -117,15 +146,10 @@ $('#show_map').bind('click', function () {
 	<div id="step_1">
 
 		<?php echo $lng['new_promise_amount']?>
-		<table>
-			<tr>
-				<!-- выдаем слева фото юзера -->
-				<td>
-					<button class="btn" id="reload-user-photos"><?php echo $lng['reload']?></button> (<?php echo $lng['if_photo_not_booted']?>)<br>
-					<img id="face_img" width="300"  src="<?php echo "{$tpl['data']['miner_host']}public/profile_{$tpl['data']['user_info']['user_id']}.jpg"?>"><img id="profile_img" width="300"  src="<?php echo "{$tpl['data']['miner_host']}public/face_{$tpl['data']['user_info']['user_id']}.jpg"?>">
-				</td>
-				<!-- а справа - видео юзера -->
-				<td>
+		<div class="clearfix"></div>
+				<div style="float:left;width:300px; height:440px" id="face_img"></div>
+				<div style="float:left;width:300px; height:440px" id="profile_img"></div>
+				<div style="float:left;width:320px; margin-left: 5px">
 					<?php
 					echo $lng['check_video'].'<br>';
 					if ( $tpl['data']['video_url_id']!='null' )
@@ -133,10 +157,9 @@ $('#show_map').bind('click', function () {
 					else
 					echo '<video class="video-js vjs-default-skin" controls preload="none" width="320" height="240" data-setup="{}"><source src="'.$tpl['data']['host'].'public/promised_amount_'.$tpl['data']['currency_id'].'.mp4" type="video/mp4" /><source src="'.$tpl['data']['host'].'public/promised_amount_'.$tpl['data']['currency_id'].'.webm" type="video/webm" /><source src="'.$tpl['data']['host'].'public/promised_amount_'.$tpl['data']['currency_id'].'.ogv" type="video/ogg" /></video>';
 					?>
-				</td>
-			</tr>
-		</table>
+				</div>
 		<input type="hidden" id="candidate-id" value="<?php echo $tpl['data']['user_info']['user_id']?>">
+		<div class="clearfix"></div>
 		<!-- снизу - юзер на  карте -->
 		<?php echo $lng['location_on_map']?>
 		<br>
@@ -148,7 +171,7 @@ $('#show_map').bind('click', function () {
 
 		<?php echo $lng['main_question']?><br>
 
-		Comment: <input type="text" id="comment" value=""><br>
+		Comment: <input type="text" id="comment" value="" class="form-control"><br>
 		<button class="btn btn-inverse" id="btn-bad"><?php echo $lng['no']?></button>
 		<button class="btn btn-success" id="btn-success"><?php echo $lng['yes']?></button>
 	</div>

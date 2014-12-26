@@ -344,8 +344,13 @@ function get_e_n_sign(key, pass, mcrypt_iv, forsignature, alert_div) {
     // ключ может быть незашифрованным, но без BEGIN RSA PRIVATE KEY
     if (key.substr(0,4) == 'MIIE')
         var decrypt_PEM = '-----BEGIN RSA PRIVATE KEY-----'+key+'-----END RSA PRIVATE KEY-----';
-    else if (pass && key.indexOf('RSA PRIVATE KEY')==-1)
-        var decrypt_PEM = mcrypt.Decrypt(atob(key.replace(/\n|\r/g,"")), mcrypt_iv, hex_md5(pass), 'rijndael-128', 'ecb');
+    else if (pass && key.indexOf('RSA PRIVATE KEY')==-1) {
+        try{
+            var decrypt_PEM = mcrypt.Decrypt(atob(key.replace(/\n|\r/g, "")), mcrypt_iv, hex_md5(pass), 'rijndael-128', 'ecb');
+        } catch(e) {
+            var decrypt_PEM = 'invalid base64 code';
+        }
+    }
     else
         var decrypt_PEM = key;
     console.log('decrypt_PEM='+decrypt_PEM);

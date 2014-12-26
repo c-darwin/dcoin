@@ -35,9 +35,13 @@ $_POST['smtp_username'] = $db->escape($_POST['smtp_username']);
 $_POST['smtp_password'] = $db->escape($_POST['smtp_password']);
 $_POST['sms_http_get_request'] = $db->escape($_POST['sms_http_get_request']);
 
+$email = filter_var($_REQUEST['email'], FILTER_SANITIZE_EMAIL);
+if(!filter_var($_REQUEST['email'], FILTER_VALIDATE_EMAIL))
+	die(json_encode(array('error'=>'incorrect email')));
+
 $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		UPDATE `".DB_PREFIX.MY_PREFIX."my_table`
-		SET  `email` = '{$_POST['email']}',
+		SET  `email` = '{$email}',
 				`smtp_server` =  '{$_POST['smtp_server']}',
 				`use_smtp` =  '{$_POST['use_smtp']}',
 				`smtp_port` =  '{$_POST['smtp_port']}',

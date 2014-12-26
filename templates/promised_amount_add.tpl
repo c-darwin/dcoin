@@ -93,6 +93,10 @@ $('#send_to_net').bind('click', function () {
 		});
 });
 
+$('#skip').bind('click', function () {
+	fc_navigate ('<?php echo $tpl['navigate']?>', {'skip_promised_amount': 1} );
+});
+
 var currency_id;
 $( "#currency_id" ).change(function () {
 			$( "#currency_id option:selected" ).each(function() {
@@ -221,7 +225,9 @@ $( "#currency_id" ).change(function () {
 		    echo '<select id="ps'.$i.'" style="width:100px">';
 	        echo '<option value="0">----</option>';
 			foreach ($tpl['payment_systems'] as $id => $name)
-			    echo "<option value='{$id}'>{$name}</option>";
+				if ($id!=57 && $id!=44) {
+					echo "<option value='{$id}'>{$name}</option>";
+				}
 	        echo ' </select>';
 	     }
 		 ?>
@@ -283,7 +289,7 @@ $( "#currency_id" ).change(function () {
 	    <div class="alert alert-info" style="margin-top: 30px"><strong><?php echo $lng['limits'] ?></strong>  <?php echo $tpl['limits_text'] ?></div>
 
 		<div id="errors"></div>
-		<button class="btn" id="add_promised_amount"><?php echo $lng['send_to_net']?></button><br><br>
+		<button class="btn" id="add_promised_amount"><?php echo $lng['send_to_net']?></button>  <button  class="btn" id="skip"><?php echo $lng['skip']?></button><br><br>
 
     </div>
     

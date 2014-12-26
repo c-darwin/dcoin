@@ -61,6 +61,21 @@ function check_input_data ($data, $type, $info='')
 {
 	switch ($type) {
 
+		case 'currency_json_list':
+			if ( preg_match ("/^\[[0-9]{1,3}(,[0-9]{1,3})?\]$/D", $data))
+				return true;
+			break;
+
+		case 'hold_back_pct_array':
+			if ( preg_match ("/^\[\"[0-9]{1,3}(\.[0-9]{2})?\"(,\"[0-9]{1,3}(\.[0-9]{2}\")?){3}\]$/D", $data))
+				return true;
+			break;
+
+		case 'arbitration_trust_list':
+			if ( preg_match ("/^\[[0-9]{1,10}(,[0-9]{1,10}){0,100}\]$/D", $data))
+				return true;
+			break;
+
 		case 'commission':
 
 			$dec = "[0-9]{1,5}(\.[0-9]{1,2})?";
@@ -69,6 +84,7 @@ function check_input_data ($data, $type, $info='')
 				return true;
 			break;
 
+		case 'pct':
 		case 'credit_pct':
 			if ( preg_match ("/^[0-9]{1,3}(\.[0-9]{2})?$/D", $data))
 				return true;
@@ -289,7 +305,7 @@ function check_input_data ($data, $type, $info='')
 
 		case 'amount':
 
-			if (preg_match('/^[0-9]{0,10}(\.[0-9]{0,2})?$/D', $data))
+			if ( preg_match('/^[0-9]{0,10}(\.[0-9]{0,2})?$/D', $data) )
 				return true;
 			break;
 
@@ -356,6 +372,17 @@ function check_input_data ($data, $type, $info='')
 			$r = "/^\[({$xy}\,){{$info}}{$xy}\]$/i";
 			// print "$r \n $data";
 			if (preg_match ($r, $data))
+				return true;
+			break;
+
+		case 'arbitrator_url':
+		case 'ca_url':
+
+			$regex = "https?\:\/\/"; // SCHEME
+			$regex .= "[a-z0-9-.]*\.[a-z]{2,4}"; // Host or IP
+			$regex .= "(\:[0-9]{2,5})?"; // Port
+			$regex .= "(\/[a-z0-9_-]+)*\/?"; // Path
+			if (preg_match('/^'.$regex.'$/iD', $data) && strlen($data) <= 30)
 				return true;
 			break;
 
@@ -4252,7 +4279,7 @@ function get_last_tx($user_id, $types, $limit=1)
 			WHERE  `" . DB_PREFIX . "transactions_status`.`user_id` = {$user_id} AND
 						 `" . DB_PREFIX . "transactions_status`.`type` IN ({$types})
 			ORDER BY `time` DESC
-			LIMIT 10
+			LIMIT {$limit}
 			");
 	$result = array();
 	while ( $row = $db->fetchArray($res) ) {
@@ -4288,8 +4315,8 @@ function make_last_tx($last_tx) {
 }
 
 function make_last_txs($last_tx) {
-	global $lng;
-	$result='<h3>' . $lng['transactions'] . '</h3><table class="table" style="width:500px;">';
+	global $lng, $pending_tx;
+	$result='<h3>' . $lng['transactions'] . '</h3><table class="table" style="max-width:700px;">';
 	$result.='<tr><th>' . $lng['type'] . '</th><th>' . $lng['time'] . '</th><th>' . $lng['result'] . '</th></tr>';
 	foreach ($last_tx as $data) {
 		$result.= "<tr>";
@@ -4301,8 +4328,10 @@ function make_last_txs($last_tx) {
 			$result.= "<td>Error: {$data['error']}</td>";
 		else if ((empty($data['queue_tx']) && empty($data['tx'])) || time()-$data['time_int']>7200)
 			$result.= "<td>{$lng['lost']}</td>";
-		else
-			$result.= "<td>{$lng['status_pending']}</td>";
+		else {
+			$result .= "<td>{$lng['status_pending']}</td>";
+			$pending_tx[$data['type']] = 1;
+		}
 
 		$result.= "</tr>";
 	}

@@ -145,7 +145,10 @@ if ($tpl['user_info_id']) {
 			echo "<td><a href='#' onclick='show_profile({$data['to_user_id']});return false'>{$data['to_user_id']}</a></td>";
 			echo "<td>{$tpl['currency_list'][$data['currency_id']]}</td>";
 			echo "<td>{$data['amount']}</td>";
-			echo "<td>{$data['status']}</td>";
+			if ($data['del_block_id'])
+				echo "<td title='{$lng['reduction_closed']}'>{$data['status']}</td>";
+			else
+				echo "<td>{$data['status']}</td>";
 			echo "</tr>";
 		}
 	}
@@ -182,7 +185,7 @@ if (isset($tpl['currency_pct'])) {
 <?php
 if (isset($tpl['reduction'])) {
 	echo '<table class="table table-bordered" style="width:500px">';
-	echo "<thead><tr><th>{$lng['time']}</th><th>{$lng['currency']}</th><th>{$lng['reduction_pct']}</th><th>Block_id</th></tr></thead>";
+	echo "<thead><tr><th>{$lng['time']}</th><th>{$lng['currency']}</th><th>{$lng['reduction_pct']}</th><th>Block_id</th><th>type</th></tr></thead>";
 	echo '<tbody>';
 	foreach ($tpl['reduction'] as $data) {
 		if (!$data['pct'])
@@ -193,6 +196,7 @@ if (isset($tpl['reduction'])) {
 					<td>d{$tpl['currency_list'][$data['currency_id']]}</td>
 					<td>{$data['pct']}</td>
 					<td>{$data['block_id']}</td>
+					<td>{$data['type']}</td>
 				</tr>
 				";
 	}

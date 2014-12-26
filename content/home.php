@@ -147,6 +147,15 @@ if ($currency_ids || $user_id == 1) {
 			", 'fetch_one');
 }
 
+if (empty($_SESSION['restricted'])) {
+	$repeated_tasks = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		SELECT count(`id`)
+		FROM `" . DB_PREFIX . MY_PREFIX . "my_tasks`
+		WHERE  `time` > " . (time() - TASK_TIME) . "
+		", 'fetch_one');
+	$tpl['tasks_count'] -= $repeated_tasks;
+	$tpl['tasks_count'] = $tpl['tasks_count'] > 0 ? $tpl['tasks_count'] : 0;
+}
 // баллы
 $tpl['points'] = (int) $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `points`
@@ -170,6 +179,8 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['currency_pct'][$row['id']]['name'] = $row['name'];
 	$tpl['currency_pct'][$row['id']]['miner'] = round((pow(1+$pct['miner'], 3600*24*365)-1)*100, 2);
 	$tpl['currency_pct'][$row['id']]['user'] = round((pow(1+$pct['user'], 3600*24*365)-1)*100, 2);
+	$tpl['currency_pct'][$row['id']]['miner_block'] = round((pow(1+$pct['miner'], 120)-1)*100, 4);
+	$tpl['currency_pct'][$row['id']]['user_block'] = round((pow(1+$pct['user'], 120)-1)*100, 4);
 	$tpl['currency_pct'][$row['id']]['miner_sec'] = $pct['miner'];
 	$tpl['currency_pct'][$row['id']]['user_sec'] = $pct['user'];
 }
@@ -230,7 +241,6 @@ while ( $row = $db->fetchArray( $res ) ) {
 get_promised_amounts($user_id);
 
 // показываем ли карту
-
 if (empty($_SESSION['restricted'])) {
 	$tpl['show_map'] = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 				SELECT `show_map`
