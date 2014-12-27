@@ -3594,6 +3594,18 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 		if ($type == ParseData::findType('change_commission'))
 			clear_incompatible_tx_sql_set( $db, array('cf_send_dc', 'send_dc', 'new_forex_order'), 0, $wait_error );
 
+		// Если есть смена коммиссий арбитров, то нельзя делать перевод монет, т.к. там может быть указана комиссия арбитра
+		if (in_array($type, array(ParseData::findType('send_dc') )))
+			rollback_incompatible_tx( array('change_arbitrator_conditions') );
+		if ($type == ParseData::findType('change_arbitrator_conditions'))
+			clear_incompatible_tx_sql_set( $db, array('send_dc'), 0, $wait_error );
+
+		// если идет смена списка арбитров, то у отправителя и у получателя может получиться нестыковка
+		if (in_array($type, array(ParseData::findType('send_dc') )))
+			rollback_incompatible_tx( array('change_arbitrator_list') );
+		if ($type == ParseData::findType('change_arbitrator_list'))
+			clear_incompatible_tx_sql_set( $db, array('send_dc'), 0, $wait_error );
+
 		// на всякий случай не даем попасть в один блок тр-ии отправки в CF-проект монет и другим тр-ям связанным с этим CF-проектом. Т.к. проект может завершиться и 2-я тр-я вызовет ошибку
 		if ($type == ParseData::findType('cf_send_dc'))
 			clear_incompatible_tx_sql_set( $db, array('cf_send_dc','cf_comment','del_cf_project','cf_project_change_category','cf_project_data'), 0, $wait_error, $third_var);
