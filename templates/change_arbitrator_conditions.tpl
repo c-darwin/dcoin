@@ -9,12 +9,18 @@ $('#save').bind('click', function () {
 		var id = $(this).attr('id');
 		if (typeof id != "undefined") {
 			if ( $('#check_'+id).is(":checked") ) {
+
+				var pct = $('#pct_'+id).val();
+				var pct0 = pct.split(".");
+				if (pct0[1].length < 2)
+					var pct = $('#pct_'+id).val()+'0';
+
 				data=data+'"'+id+'":';
 				data=data+'["'+$('#min_amount_'+id).val()+'",';
 				data=data+'"'+$('#max_amount_'+id).val()+'",';
 				data=data+'"'+$('#min_commission_'+id).val()+'",';
 				data=data+'"'+$('#max_commission_'+id).val()+'",';
-				data=data+'"'+$('#pct_'+id).val()+'"],';
+				data=data+'"'+pct+'"],';
 			}
 		}
 	} );
