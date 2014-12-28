@@ -13701,7 +13701,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				if ( !check_input_data ($max_commission, 'amount') )
 					return  __LINE__.'#'.__METHOD__.'(max_commission)';
 				if ( !check_input_data ($commission_pct, 'pct') || $commission_pct>10 || $commission_pct<0.01 )
-					return  __LINE__.'#'.__METHOD__.'(commission_pct)'.$commission_pct;
+					return  __LINE__.'#'.__METHOD__.'(commission_pct)';
 				if ( $max_commission && ($min_commission > $max_commission) )
 					return  __LINE__.'#'.__METHOD__.'(min_commission>max_commission)';
 				if ( $max_amount && ($min_amount > $max_amount))
@@ -13933,7 +13933,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		sort($arbitration_trust_list);
 		// юзер мог удалить весь список доверенных
-		if ( sizeof($arbitration_trust_list)>1 || (isset($arbitration_trust_list[0]) && $arbitration_trust_list[0]!=='0') ) {
+		if ( sizeof($arbitration_trust_list)>1 || (isset($arbitration_trust_list[0]) && $arbitration_trust_list[0]!==0) ) {
 			// указанные id должны быть ID юзеров. Являются ли эти юзеры арбитрами будет проверяться при отправке монет
 			$count = $this->db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 				SELECT count(`user_id`)
