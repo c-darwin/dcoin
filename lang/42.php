@@ -190,7 +190,7 @@ $lng['cash_request_in_title'] = 'Входящие запросы';
 $lng['invalid_code'] = 'Неверный код';
 $lng['invalid_amount'] = 'Неверная сумма';
 $lng['enter_code'] = 'Введите код, полученный от майнера, которому Вы отдали наличные';
-$lng['list_of_requests'] = 'Список запросов';
+$lng['list_of_requests'] = 'Архив запросов';
 $lng['no_requests'] = 'Запросов нет';
 
 // cash_request_out

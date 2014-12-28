@@ -193,7 +193,7 @@ $lng['cash_request_in_title'] = 'Incoming requests';
 $lng['invalid_code'] = 'Invalid code';
 $lng['invalid_amount'] = 'Invalid amount';
 $lng['enter_code'] = 'Enter code received from miner';
-$lng['list_of_requests'] = 'list_of_requests';
+$lng['list_of_requests'] = 'Archive of requests';
 $lng['no_requests'] = 'No requests';
 
 // cash_request_out
