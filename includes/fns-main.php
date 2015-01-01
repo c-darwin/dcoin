@@ -4237,6 +4237,11 @@ function get_promised_amounts($user_id)
 		if ($row['currency_id'] == 1) {
 			$row['amount'] = $row['max_amount'];
 		}
+		// обещанная не может быть больше max_promised_amounts
+		if ($row['amount'] > $row['max_amount']) {
+			$row['amount'] = $row['max_amount'];
+		}
+
 		if ($row['status'] == 'repaid') {
 			$row['amount'] = 0;
 		}
