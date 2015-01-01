@@ -894,12 +894,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 		case 'change_node_key' :
 
 			$public_key = $db->escape($_REQUEST['public_key']);
-			$private_key = $db->escape($_REQUEST['private_key']);
+			$private_key = $_REQUEST['private_key'];
 
 			if ( !check_input_data ($public_key, 'public_key' ) )
 				die('error public_key');
 			if ( !check_input_data ($private_key, 'private_key' ) )
-				die('error private_key');
+				die('error private_key '.$private_key);
 
 			if (empty($_SESSION['restricted'])) {
 				$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
