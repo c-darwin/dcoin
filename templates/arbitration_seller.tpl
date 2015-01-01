@@ -34,6 +34,21 @@
 		fc_navigate('money_back', {'id': id, 'amount': $('#money_back_amount_'+id).val()})
 	}
 
+	$('#generate_token').bind('click', function (e) {
+		$('#shop_secret_key').val(Math.random().toString(36).slice(-10));
+		e.preventDefault();
+	});
+
+	$('#save_shop_data').bind('click', function () {
+		$.post( 'ajax/save_shop_data.php', {
+				'shop_callback_url' : $('#shop_callback_url').val(),
+				'shop_secret_key' : $('#shop_secret_key').val()
+			},
+			function () {
+				fc_navigate ('arbitration_seller', {'alert': '<?php echo $lng['saved']?>'} );
+			});
+	});
+
 </script>
 <div id="main_div">
 	<h1 class="page-header"><?php echo $lng['arbitration']?></h1>
@@ -77,7 +92,25 @@
 		<strong><?php echo $lng['hold_back_pct']?></strong><br>
 		<div class="form-inline"><input type="text" class="form-control" id="hold_back_pct" style="width: 100px; display: inline-block" value="<?php echo  $tpl['hold_back']['seller_hold_back_pct']>0?$tpl['hold_back']['seller_hold_back_pct']:'0.01'?>"></div>
 		<button type="button" class="btn btn-outline btn-primary" id="next" style="margin-top: 15px"><?php echo $lng['send_to_net']?></button>
-		<br>
+		<br><br>
+
+		<?php
+		if (empty($_SESSION['restricted'])) {
+			?>
+			<strong>shop_callback_url</strong><br>
+			<div class="form-inline"><input type="text" class="form-control" id="shop_callback_url"
+			                                style="width: 200px; margin-right: 10px"
+			                                value="<?php echo $tpl['shop_data']['shop_callback_url'] ?>"></div><br>
+			<strong>shop_secret_key [<a href="#" id="generate_token">generate</a>]</strong><br>
+			<div class="form-inline"><input type="text" class="form-control" id="shop_secret_key"
+			                                style="width: 200px; display: inline-block"
+			                                value="<?php echo $tpl['shop_data']['shop_secret_key'] ?>"></div>
+			<button type="button" class="btn btn-outline btn-primary" id="save_shop_data"
+			        style="margin-top: 15px"><?php echo $lng['save'] ?></button>
+			<br>
+		<?php
+		}
+		?>
 
 		<div style=" max-width: 600px;" id="tx_history">
 
