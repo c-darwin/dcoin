@@ -9,8 +9,6 @@
 					'cf_url' : $('#cf_url').val(),
 					'pool_url' : $('#pool_url').val(),
 					'pool_admin_user_id' : $('#pool_admin_user_id').val(),
-					'shop_callback_url' : $('#shop_callback_url').val(),
-					'shop_secret_key' : $('#shop_secret_key').val(),
 					'exchange_api_url' : $('#exchange_api_url').val(),
 					'config_ini' : $('#config_ini').val()
 				},

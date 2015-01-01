@@ -38,6 +38,14 @@ while ($row = $db->fetchArray($res)) {
 	$tpl['my_orders'][] = $row;
 }
 
+if (empty($_SESSION['restricted'])) {
+	$tpl['shop_data'] = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		SELECT `shop_secret_key`,
+					 `shop_callback_url`
+		FROM  `" . DB_PREFIX . MY_PREFIX . "my_table`
+		", 'fetch_array');
+}
+
 $tpl['currency_list'] = get_currency_list($db);
 
 $tpl['last_tx'] = get_last_tx($user_id, types_to_ids(array('change_seller_hold_back', 'money_back')), 3);
