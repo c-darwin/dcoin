@@ -41,8 +41,6 @@ $pool_admin_user_id = intval($_REQUEST['pool_admin_user_id']);
 
 $cf_url = $db->escape($_REQUEST['cf_url']);
 $pool_url = $db->escape($_REQUEST['pool_url']);
-$shop_callback_url = $db->escape($_REQUEST['shop_callback_url']);
-$shop_secret_key = $db->escape($_REQUEST['shop_secret_key']);
 $exchange_api_url = $db->escape($_REQUEST['exchange_api_url']);
 
 define('MY_PREFIX', get_my_prefix($db));
@@ -55,8 +53,6 @@ $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				`cf_url` = '{$cf_url}',
 				`pool_url` = '{$pool_url}',
 				`pool_admin_user_id` = {$pool_admin_user_id},
-				`shop_callback_url` = '{$shop_callback_url}',
-				`shop_secret_key` = '{$shop_secret_key}',
 				`exchange_api_url` = '{$exchange_api_url}',
 				`auto_reload` = {$auto_reload}
 		");
