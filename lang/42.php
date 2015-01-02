@@ -435,6 +435,14 @@ $lng['node_commission'] = 'Комиссия нода';
 $lng['arbitration'] = 'Арбитраж';
 $lng['arbitrator'] = 'Арбитр';
 $lng['arbitrator_commission'] = 'Комиссия арбитра';
+$lng['seller_info'] = 'Информация о продавце';
+$lng['turnover'] = 'Оборот';
+$lng['entire'] = 'всего';
+$lng['anonim'] = 'Аноним.';
+$lng['pers'] = 'Перс.';
+$lng['number_of_customers'] = 'Кол-во покупателей';
+$lng['hold_for_money_back'] = 'Заморожено для манибека';
+$lng['hold_back'] = 'Холдбек';
 
 // banknote_delete
 $lng['banknote_delete_title'] = 'Удаление обещанной суммы';
@@ -790,6 +798,8 @@ $lng['pool_sign_up_success'] = 'Поздравляем, теперь Вы зар
 $lng['general'] = 'Основное';
 $lng['assignments'] = 'Задания';
 $lng['additionally'] = 'Дополнительно';
+$lng['days'] = 'дней';
+$lng['for'] = 'на';
 
 // pool_tech_works
 $lng['pool_tech_works'] = 'На пуле идут технические работы. Пожалуйста, зайдите позже.';

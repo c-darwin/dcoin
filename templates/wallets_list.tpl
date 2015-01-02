@@ -8,7 +8,8 @@
 	}
 </style>
 
-<link href="css/cf.css?2" rel="stylesheet">
+<link href="css/cf.css" rel="stylesheet">
+
 <script>
 
 var type = '';
@@ -60,9 +61,29 @@ $('#goto_confirm').bind('click', function () {
 		$("#arbitrator_link_add").css("display", "");
 
 		// шлем запрос, чтобы получить список арбитров, с кем работает магазин
-		$.post( 'ajax/get_arbitration_trust_list.php', {
-			'user_id' : to_user_id
+		$.post( 'ajax/get_seller_data.php', {
+			'user_id' : to_user_id,
+			'currency_id' : $("#currency_id").val()
 		}, function (data) {
+
+			if (data.arbitration_days_refund>0)
+				$("#seller_info_div").css('display', '');
+			else
+				$("#wallets_confirm").css('maxWidth', '300px');
+
+
+			// статистика по продавцу
+			$("#seller_hold_back_pct").text(data.seller_hold_back_pct);
+			$("#arbitration_days_refund").text(data.arbitration_days_refund);
+			$("#buyers_miners_count_m").text(data.buyers_miners_count_m);
+			$("#buyers_miners_count").text(data.buyers_miners_count);
+			$("#buyers_count").text(data.buyers_count);
+			$("#buyers_count_m").text(data.buyers_count_m);
+			$("#seller_turnover_m").text(data.seller_turnover_m);
+			$("#seller_turnover").text(data.seller_turnover);
+			$("#hold_amount").text(data.hold_amount);
+			$(".currency_name").text('d'+currency_list[$("#currency_id").val()]);
+
 
 			// ищем общих арбитров и у юзера и у магазина
 			console.log(data.trust_list.length);
@@ -623,23 +644,62 @@ $("#add_arbitrator").on("click", function (event) {
 
 	</div>
 
-	<div id="wallets_confirm" style="margin: auto; max-width: 400px; display: none">
+	<div id="wallets_confirm" style="margin: auto; max-width: 600px; display: none">
 		<h3><?php echo $lng['check_data']?></h3>
-		<table class="table confirm" style="width: 300px; margin-top: 20px">
-			<tbody>
-			<tr><td><?php echo $lng['currency']?></td><td id="confirm_currency"></td></tr>
-			<tr><td><?php echo $lng['to_account']?></td><td id="confirm_to_user_id"></td></tr>
-			<tr><td><?php echo $lng['amount']?></td><td id="confirm_amount"></td></tr>
-			<tr><td><?php echo $lng['commission']?></td><td id="confirm_commission"></td></tr>
-			<tr><td><?php echo $lng['note']?></td><td id="confirm_comment"></td></tr>
-			<tr class="arbitration_tr" style="display: none"><td style="vert-align: middle"><?php echo $lng['arbitrator']?></td><td id="arbitration_trust_list_html"></td></tr>
-			<tr id="arbitrator_tr_commission" style="display: none"><td><?php echo $lng['arbitrator_commission']?></td><td id="arbitrator_commission_html" class="arbitrator_commission"></td></tr>
-			<tr id="arbitration_imposible" style="display: none"><td colspan="2"><?php echo $lng['arbitration_imposible']?></td></tr>
-			</tbody>
-		</table>
-		<p id="arbitrator_link_add" style="display: none"><a href="#" id="add_arbitrator"><?php echo $lng['add_arbitrator']?></a></p>
-		<button type="button" class="btn btn-link" onclick="fc_navigate('wallets_list')"><?php echo $lng['back']?></button> <button id="next" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send_to_net']?></button>
+		<div style="float: left">
+			<table class="table confirm" style="width: 300px; margin-top: 20px">
+				<tbody>
+				<tr><td><?php echo $lng['currency']?></td><td id="confirm_currency"></td></tr>
+				<tr><td><?php echo $lng['to_account']?></td><td id="confirm_to_user_id"></td></tr>
+				<tr><td><?php echo $lng['amount']?></td><td id="confirm_amount"></td></tr>
+				<tr><td><?php echo $lng['commission']?></td><td id="confirm_commission"></td></tr>
+				<tr><td><?php echo $lng['note']?></td><td id="confirm_comment"></td></tr>
+				<tr class="arbitration_tr" style="display: none"><td style="vert-align: middle"><?php echo $lng['arbitrator']?></td><td id="arbitration_trust_list_html"></td></tr>
+				<tr id="arbitrator_tr_commission" style="display: none"><td><?php echo $lng['arbitrator_commission']?></td><td id="arbitrator_commission_html" class="arbitrator_commission"></td></tr>
+				<tr id="arbitration_imposible" style="display: none"><td colspan="2"><?php echo $lng['arbitration_imposible']?></td></tr>
+				</tbody>
+			</table>
 
+			<p id="arbitrator_link_add" style="display: none"><a href="#" id="add_arbitrator" style="margin-left: 8px"><?php echo $lng['add_arbitrator']?></a></p>
+
+		</div>
+		<div style="float: left; margin-left: 10px; display: none" id="seller_info_div">
+		<style>
+			.seller_info td {text-align: center}
+			.seller_info {margin:auto}
+			#seller_turnover, #seller_turnover_m, #buyers_count_m, #buyers_miners_count_m, #buyers_count, #buyers_miners_count{font-size: 30px}
+			.table_line_height{line-height: 20px}
+			.table_margin{display: block; margin-top:15px}
+		</style>
+			<h4 style="text-align: center"><?php echo $lng['seller_info']?></h4>
+			<table class="seller_info">
+
+				<tr><td colspan="2" style="font-weight: bold"><?php echo $lng['turnover']?></td></tr>
+				<tr><td><?php echo $lng['month']?><br><span id="seller_turnover"></span></td><td><?php echo $lng['entire']?><br><span id="seller_turnover_m"></span></td></tr>
+
+				<tr><td colspan="2" style="font-weight: bold; padding-top:10px"><?php echo $lng['number_of_customers']?></td></tr>
+				<tr>
+					<td>
+						<?php echo $lng['month']?><br>
+						<span class="table_line_height"><span id="buyers_count_m" class="table_margin"></span><?php echo $lng['anonim']?></span><br>
+						<span class="table_line_height"><span id="buyers_miners_count_m" class="table_margin"></span><?php echo $lng['pers']?></span>
+					</td>
+					<td>
+						<?php echo $lng['entire']?><br>
+						<span class="table_line_height"><span id="buyers_count" class="table_margin"></span><?php echo $lng['anonim']?></span><br>
+						<span class="table_line_height"><span id="buyers_miners_count" class="table_margin"></span><?php echo $lng['pers']?></span>
+					</td>
+				</tr>
+
+			</table>
+			<p style="margin-top: 10px">
+			<?php echo $lng['hold_for_money_back']?>: <span id="hold_amount"></span> <span class="currency_name"></span><br>
+				<?php echo $lng['hold_back']?>: <span id="seller_hold_back_pct"></span>% <?php echo $lng['for']?> <span id="arbitration_days_refund"></span> <?php echo $lng['days']?><br>
+			</p>
+		</div>
+		<div class="clearfix"></div>
+		<div style="text-align: center; max-width: 550px; margin-top: 20px"><button type="button" class="btn btn-link" onclick="fc_navigate('wallets_list')"><?php echo $lng['back']?></button> <button id="next" class="btn btn-outline btn-primary" type="button" style="margin-left: 7px"><?php echo $lng['send_to_net']?></button></div>
+		<div class="clearfix"></div>
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>

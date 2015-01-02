@@ -433,6 +433,16 @@ $lng['node_commission'] = 'Node commission';
 $lng['arbitration'] = 'Arbitration';
 $lng['arbitrator'] = 'Arbitrator';
 $lng['arbitrator_commission'] = 'Arbitrator commission';
+$lng['seller_info'] = 'Vendor Information';
+$lng['turnover'] = 'Turnover';
+$lng['entire'] = 'entire';
+$lng['anonim'] = 'anonymous';
+$lng['pers'] = 'personalized';
+$lng['number_of_customers'] = 'Number of customers';
+$lng['hold_for_money_back'] = 'Hold for moneyback';
+$lng['hold_back'] = 'Holdback';
+$lng['days'] = 'days';
+$lng['for'] = 'for';
 
 // banknote_delete
 $lng['banknote_delete_title'] = 'Deleting promised amount';

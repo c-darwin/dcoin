@@ -72,6 +72,7 @@ $tpl['arbitration_trust_list'] = $db->query(__FILE__, __LINE__, __FUNCTION__, __
 		", 'list', array('arbitrator_user_id', 'conditions'));
 $tpl['arbitration_trust_list'] = $tpl['arbitration_trust_list']?$tpl['arbitration_trust_list']:'0';
 
+
 require_once( ABSPATH . 'templates/wallets_list.tpl' );
 
 ?>
