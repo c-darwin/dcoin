@@ -286,8 +286,8 @@ while ($row = $db->fetchArray($res)) {
 			LIMIT 1
 			", 'fetch_array');
 	$tpl['currency_pct'][$row['id']]['name'] = $row['name'];
-	$tpl['currency_pct'][$row['id']]['miner'] = round((pow(1+$pct['miner'], 3600*24*365)-1)*100, 2);
-	$tpl['currency_pct'][$row['id']]['user'] = round((pow(1+$pct['user'], 3600*24*365)-1)*100, 2);
+	$tpl['currency_pct'][$row['id']]['miner'] =  round((pow(1+$pct['miner'], 120)-1)*100, 6);
+	$tpl['currency_pct'][$row['id']]['user'] = round((pow(1+$pct['user'], 120)-1)*100, 6);
 }
 
 /*

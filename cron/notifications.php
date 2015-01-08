@@ -36,6 +36,9 @@ if (!$my_users_ids) {
 else
 	$community = true;
 
+if (get_my_block_id($db) > get_block_id($db))
+	exit;
+
 if ($my_users_ids) {
 
 	for ($i=0; $i<sizeof($my_users_ids); $i++) {

@@ -1335,12 +1335,12 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				dec_binary ($time, 4) .
 				ParseData::encode_length_plus_data($user_id) .
 				ParseData::encode_length_plus_data($_REQUEST['order_id']) .
-				ParseData::encode_length_plus_data($_REQUEST['arbitrator0_enc_text']) .
-				ParseData::encode_length_plus_data($_REQUEST['arbitrator1_enc_text']) .
-				ParseData::encode_length_plus_data($_REQUEST['arbitrator2_enc_text']) .
-				ParseData::encode_length_plus_data($_REQUEST['arbitrator3_enc_text']) .
-				ParseData::encode_length_plus_data($_REQUEST['arbitrator4_enc_text']) .
-				ParseData::encode_length_plus_data($_REQUEST['seller_enc_text']) .
+				ParseData::encode_length_plus_data(hex2bin($_REQUEST['arbitrator_enc_text'][0])) .
+				ParseData::encode_length_plus_data(hex2bin($_REQUEST['arbitrator_enc_text'][1])) .
+				ParseData::encode_length_plus_data(hex2bin($_REQUEST['arbitrator_enc_text'][2])) .
+				ParseData::encode_length_plus_data(hex2bin($_REQUEST['arbitrator_enc_text'][3])) .
+				ParseData::encode_length_plus_data(hex2bin($_REQUEST['arbitrator_enc_text'][4])) .
+				ParseData::encode_length_plus_data(hex2bin($_REQUEST['seller_enc_text'])) .
 				$bin_signatures;
 
 			break;
@@ -1384,7 +1384,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 				dec_binary ($time, 4) .
 				ParseData::encode_length_plus_data($user_id) .
 				ParseData::encode_length_plus_data($_REQUEST['order_id']) .
-				ParseData::encode_length_plus_data($_REQUEST['amount']) .
+				ParseData::encode_length_plus_data($_REQUEST['days']) .
 				$bin_signatures;
 
 			break;

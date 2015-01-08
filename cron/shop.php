@@ -43,13 +43,13 @@ for ($k=0; $k<sizeof($community); $k++) {
 	$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 			SELECT `shop_secret_key`,
 						 `shop_callback_url`
-			FROM `".DB_PREFIX."my_table`
+			FROM `".DB_PREFIX.MY_PREFIX."my_table`
 			", 'fetch_array' );
 
 	// Получаем инфу о входящих переводах и начисляем их на счета юзеров
 	$res = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 			SELECT *
-			FROM `" . DB_PREFIX . "my_dc_transactions`
+			FROM `" . DB_PREFIX . MY_PREFIX . "my_dc_transactions`
 			WHERE `type` = 'from_user' AND
 						 `block_id` < " . ($block_id - $confirmations) . " AND
 						 `merchant_checked` = 0 AND
@@ -99,7 +99,7 @@ for ($k=0; $k<sizeof($community); $k++) {
 					$decrypted_comment = str_replace(array('\'', '"'), '', $decrypted_comment);
 					$decrypted_comment = $db->escape($decrypted_comment);
 					$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-						UPDATE `" . DB_PREFIX . "my_dc_transactions`
+						UPDATE `" . DB_PREFIX . MY_PREFIX . "my_dc_transactions`
 						SET  `comment` = '{$decrypted_comment}',
 								`comment_status` = 'decrypted'
 						WHERE `id` = {$row['id']}
@@ -119,8 +119,8 @@ for ($k=0; $k<sizeof($community); $k++) {
 						", 'fetch_array');
 				if ($row['block_id'] <= $last_reduction['block_id']) {
 					// сумму с учетом reduction
-					$k = (100 - $last_reduction['pct']) / 100;
-					$row['amount'] = $row['amount'] * $k;
+					$k0 = (100 - $last_reduction['pct']) / 100;
+					$row['amount'] = $row['amount'] * $k0;
 				}
 
 				// делаем запрос к callback скрипту
@@ -148,7 +148,7 @@ for ($k=0; $k<sizeof($community); $k++) {
 					if ($http_code == 200) {
 						// отметим merchant_checked=1, чтобы больше не брать эту тр-ию
 						$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-								UPDATE `" . DB_PREFIX . "my_dc_transactions`
+								UPDATE `" . DB_PREFIX . MY_PREFIX . "my_dc_transactions`
 								SET `merchant_checked` = 1
 								WHERE `id` = {$row['id']}
 								");

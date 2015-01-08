@@ -4,7 +4,7 @@
 
 		<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
 
-		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['order_id']},{$tpl['amount']}"; ?>');
+		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['order_id']},{$tpl['days']}"; ?>');
 		doSign();
 		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 
@@ -17,7 +17,7 @@
 				'time' : '<?php echo $tpl['data']['time']?>',
 				'user_id' : '<?php echo $tpl['data']['user_id']?>',
 				'order_id' : '<?php echo $tpl['order_id']?>',
-				'amount' : '<?php echo $tpl['amount']?>',
+				'days' : '<?php echo $tpl['days']?>',
 				'signature1': $('#signature1').val(),
 				'signature2': $('#signature2').val(),
 				'signature3': $('#signature3').val()
@@ -43,7 +43,7 @@
 			<h3>Money back</h3>
 			<table class="table" style="max-width: 600px">
 				<tr><td>ID</td><td><?php echo $tpl['order_id']?></td></tr>
-				<tr><td><?php echo $lng['amount']?></td><td><?php echo $tpl['amount']?></td></tr>
+				<tr><td><?php echo $lng['days']?></td><td><?php echo $tpl['days']?></td></tr>
 			</table>
 			<button type="button" class="btn btn-outline btn-primary" id="next"><?php echo $lng['send_to_net']?></button>
 	</div>

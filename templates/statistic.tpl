@@ -162,7 +162,7 @@ if ($tpl['user_info_id']) {
 <?php
 if (isset($tpl['currency_pct'])) {
 	echo '<table class="table table-bordered" style="width:500px">';
-	echo "<thead><tr><th>{$lng['currency']}</th><th>{$lng['pct_year']} miner</th><th>{$lng['pct_year']} user</th></tr></thead>";
+	echo "<thead><tr><th>{$lng['currency']}</th><th>{$lng['pct_block']} miner</th><th>{$lng['pct_block']} user</th></tr></thead>";
 	echo '<tbody>';
 	foreach ($tpl['currency_pct'] as $currency_id=>$data) {
 		if (!$data['miner'] && !$data['user'])
@@ -181,7 +181,7 @@ if (isset($tpl['currency_pct'])) {
 ?>
 
 
-<h3><?php echo $lng['reduction_title']?></h3>
+<h3><?php echo $lng['reduction_title']?> <span style="font-size:15px">(<a href="<?php echo $lng['reduction_wiki_link']?>" target="_blank">wki</a>)</span></h3>
 <?php
 if (isset($tpl['reduction'])) {
 	echo '<table class="table table-bordered" style="width:500px">';

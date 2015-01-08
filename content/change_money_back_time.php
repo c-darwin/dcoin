@@ -7,7 +7,7 @@ $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 
 $tpl['order_id'] = intval($_REQUEST['parameters']['order_id']);
-$tpl['amount'] = filter_var($_REQUEST['parameters']['amount'], FILTER_SANITIZE_NUMBER_FLOAT);
+$tpl['days'] = intval($_REQUEST['parameters']['days']);
 
 $tpl['currency_list'] = get_currency_list($db);
 

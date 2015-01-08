@@ -7256,7 +7256,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_comments` (
 						`type`,
-						`vote_id`,
+						`id`,
 						`comment`
 					)
 					VALUES (
@@ -8309,7 +8309,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 					INSERT INTO `".DB_PREFIX."{$this->my_prefix}my_comments` (
 						`type`,
-						`vote_id`,
+						`id`,
 						`comment`
 					)
 					VALUES (
@@ -9413,7 +9413,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			$seller_hold_back_pct = $hold_back['seller_hold_back_pct'];
 			if ($arbitration_days_refund > 0) {
 				for ($i = 0; $i < 5; $i++) {
-					if ($this->tx_data['arbitrator'. $i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] > 0.01) {
+					if ($this->tx_data['arbitrator'. $i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] >= 0.01) {
 						// нужно учесть комиссию арбитра
 						$commission += $this->tx_data['arbitrator'.$i.'_commission'];
 						$arbitrators = true;
@@ -9479,7 +9479,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				// начисляем комиссию арбитрам
 
 				for ($i = 0; $i < 5; $i++) {
-					if ($this->tx_data['arbitrator'. $i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] > 0.01) {
+					if ($this->tx_data['arbitrator'. $i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] >= 0.01) {
 						$this->update_recipient_wallet($this->tx_data['arbitrator' . $i], $this->tx_data['currency_id'], $this->tx_data['arbitrator'.$i.'_commission'], 'arbitrator_commission', $order_id);
 					}
 				}
@@ -9539,7 +9539,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				$del_order = false;
 				for ($i = 0; $i < 5; $i++) {
 
-					if ($this->tx_data['arbitrator'.$i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] > 0.01) {
+					if ($this->tx_data['arbitrator'.$i] > 0 && $this->tx_data['arbitrator'.$i.'_commission'] >= 0.01) {
 
 						$this->general_rollback('wallets', $this->tx_data['arbitrator'.$i], "AND `currency_id` = {$this->tx_data['currency_id']}");
 
@@ -13805,111 +13805,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		$this->limit_requests_rollback('change_arbitrator_conditions');
 	}
-/*
-	// юзер решил стать продавцом, указал период манибека, % холдбека на 4 месяца
-	function new_seller_init()
-	{
-		$error = $this->get_tx_data(array('arbitration_trust_list','arbitration_days_refund','hold_back_pct_array', 'sign'));
-		if ($error) return $error;
-		$this->variables = self::get_all_variables($this->db);
-	}
-
-	function new_seller_front()
-	{
-		$error = $this -> general_check();
-		if ($error)
-			return  __LINE__.'#'.__METHOD__.'('.$error.')';
-
-		// повторный вызов данной тр-ии недопустим. если что-то есть в seller_hold_back_pct, значит такая тр-я уже была
-		$seller_hold_back_pct = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT `user_id`
-				FROM `".DB_PREFIX."seller_hold_back_pct`
-				WHERE `user_id` = {$this->tx_data['user_id']}
-				LIMIT 1
-				", 'fetch_one' );
-		if ($seller_hold_back_pct)
-			return  __LINE__.'#'.__METHOD__.'($seller_hold_back_pct)';
-
-		if ( !check_input_data ($this->tx_data['arbitration_days_refund'], 'smallint') || $this->tx_data['arbitration_days_refund']==0 )
-			return  __LINE__.'#'.__METHOD__.'(arbitration_days_refund)';
-
-		if ( !check_input_data ($this->tx_data['hold_back_pct_array'], 'hold_back_pct_array') || strlen($this->tx_data['hold_back_pct_array']) > 38 )
-			return  __LINE__.'#'.__METHOD__.'(hold_back_pct_array)';
-
-		$hold_back_pct_array = json_decode($this->tx_data['hold_back_pct_array']);
-		if (!$hold_back_pct_array)
-			return  __LINE__.'#'.__METHOD__.'(!$hold_back_pct_array)';
-		for ($i=0; $i<sizeof($hold_back_pct_array); $i++) {
-			if ($hold_back_pct_array[$i] < 0 || $hold_back_pct_array[$i] > 100)
-				return  __LINE__.'#'.__METHOD__.'(hold_back_pct_array)';
-		}
-
-		if ( !check_input_data ($this->tx_data['arbitration_trust_list'], 'arbitration_trust_list') || strlen($this->tx_data['arbitration_trust_list']) > 255 )
-			return  __LINE__.'#'.__METHOD__.'(arbitration_trust_list)';
-
-		$arbitration_trust_list = json_decode($this->tx_data['arbitration_trust_list']);
-		if (!$arbitration_trust_list)
-			return  __LINE__.'#'.__METHOD__.'(!$arbitration_trust_list)';
-
-		// указанные id должны быть ID юзеров. Являются ли эти юзеры арбитрами будет проверяться при отправке монет
-		$count = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT count(`user_id`)
-				FROM `".DB_PREFIX."users`
-				WHERE `user_id` IN (".implode(',', $arbitration_trust_list).")
-				LIMIT 1
-				", 'fetch_one' );
-		if ($count != sizeof($arbitration_trust_list))
-			return  __LINE__.'#'.__METHOD__.'($count != sizeof($arbitration_trust_list))';
-
-		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['arbitration_trust_list']},{$this->tx_data['arbitration_days_refund']},{$this->tx_data['hold_back_pct_array']}";
-		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
-		if ($error)
-			return  __LINE__.'#'.__METHOD__.'('.$error.')';
-
-	}
-
-	function new_seller()
-	{
-		$time_start = $this->block_data['time'];
-		$hold_back_pct_array = json_decode($this->tx_data['hold_back_pct_array']);
-		for ($i=0; $i<sizeof($hold_back_pct_array); $i++) {
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					INSERT INTO `".DB_PREFIX."seller_hold_back_pct` (
-						`user_id`,
-						`time_start`,
-						`pct`,
-						`block_id`
-					)
-					VALUES (
-						{$this->tx_data['user_id']},
-						{$time_start},
-						'{$hold_back_pct_array[$i]}',
-						{$this->block_data['block_id']}
-					)");
-			$time_start+=86400*30;
-		}
-
-		$this->change_arbitrator_list();
-
-		$this->selective_logging_and_upd (array('arbitration_days_refund'), array($this->tx_data['arbitration_days_refund']), 'users', array('user_id'), array($this->tx_data['user_id']));
-	}
-
-	function new_seller_rollback()
-	{
-		$this->selective_rollback (array('arbitration_days_refund'), 'users', "`user_id`={$this->tx_data['user_id']}");
-		$this->change_arbitrator_list_rollback();
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				DELETE FROM `".DB_PREFIX."seller_hold_back_pct`
-				WHERE `user_id` = {$this->tx_data['user_id']} AND
-					         `block_id` = {$this->block_data['block_id']}
-				");
-	}
-
-	function new_seller_rollback_front()
-	{
-	}
-*/
 
 	function change_arbitrator_list_init()
 	{
@@ -13932,6 +13827,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return  __LINE__.'#'.__METHOD__.'(!$arbitration_trust_list)';
 
 		sort($arbitration_trust_list);
+		debug_print('$arbitration_trust_list:'.print_r_hex($arbitration_trust_list), __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		// юзер мог удалить весь список доверенных
 		if ( sizeof($arbitration_trust_list)>1 || (isset($arbitration_trust_list[0]) && $arbitration_trust_list[0]!==0) ) {
 			// указанные id должны быть ID юзеров. Являются ли эти юзеры арбитрами будет проверяться при отправке монет
@@ -14242,17 +14138,17 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 									 (`arbitrator0` = {$this->tx_data['user_id']} OR `arbitrator1` = {$this->tx_data['user_id']} OR `arbitrator2` = {$this->tx_data['user_id']} OR `arbitrator3` = {$this->tx_data['user_id']} OR `arbitrator4` = {$this->tx_data['user_id']}) AND
 									 `refund` = 0 AND
 									  (`amount` - `voluntary_refund` - {$this->tx_data['amount']}) >= 0 AND
-									 `end_time` <= {$time}
+									 `end_time` >= {$time}
 								)
 								OR (
 									 `seller` = {$this->tx_data['user_id']} AND
 									 `voluntary_refund` = 0 AND
 									  (`amount` - `refund` - {$this->tx_data['amount']}) >= 0 AND
-									 `end_time` <= {$time}
+									 `end_time` >= {$time}
 								)
 				LIMIT 1
 				", 'fetch_one' );
-		if ( $order_id )
+		if ( !$order_id )
 			return  __LINE__.'#'.__METHOD__.'(!$order_id)';
 
 		// проверяем подпись
@@ -14435,89 +14331,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 	}
 
-/*
-	// продавец решил изменить размер холдбека на 4-й месяц
-	function add_hold_back_pct_init()
-	{
-		$error = $this->get_tx_data(array('pct', 'sign'));
-		if ($error) return $error;
-		$this->variables = self::get_all_variables($this->db);
-	}
 
-	function add_hold_back_pct_front()
-	{
-		$error = $this -> general_check();
-		if ($error)
-			return  __LINE__.'#'.__METHOD__.'('.$error.')';
-
-		if ( !check_input_data ($this->tx_data['pct'], 'pct') || $this->tx_data['pct']<0.01 || $this->tx_data['pct'] > 100)
-			return  __LINE__.'#'.__METHOD__.'(pct)';
-
-		// проверим, не слишком ли рано отправлен запрос и есть ли вообще что-то в seller_hold_back_pct, т.к. иначе он не продавец
-		$last_start = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT max(`time_start`)
-				FROM `".DB_PREFIX."seller_hold_back_pct`
-				WHERE `user_id` = {$this->tx_data['user_id']}
-				LIMIT 1
-				", 'fetch_one' );
-		if ($last_start)
-			return  __LINE__.'#'.__METHOD__.'($rest>=3)';
-		if (isset($this->block_data['time'])) // тр-ия пришла в блоке
-			$time = $this->block_data['time'];
-		else // голая тр-ия
-			$time = time()+30; // просто на всякий случай небольшой запас
-		$rest = ($last_start - $time)/2592000;
-		$floor_rest = floor($rest);
-		// кол-во месяцев от текущего момента до даты старта последнего месяца должно быть более 2-х, но менее 3-х
-		if ($rest>=3)
-			return  __LINE__.'#'.__METHOD__.'($rest>=3)';
-
-		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['pct']}";
-		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
-		if ($error)
-			return  __LINE__.'#'.__METHOD__.'('.$error.')';
-
-	}
-
-	function add_hold_back_pct()
-	{
-		$last_start = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT max(`time_start`)
-				FROM `".DB_PREFIX."seller_hold_back_pct`
-				WHERE `user_id` = {$this->tx_data['user_id']}
-				LIMIT 1
-				", 'fetch_one' );
-		$floor_rest = floor(($last_start - $this->block_data['time'])/2592000);
-		$new_last_start = $last_start + 2592000 * (3-$floor_rest);
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				INSERT INTO `".DB_PREFIX."seller_hold_back_pct` (
-					`user_id`,
-					`time_start`,
-					`pct`,
-					`block_id`
-				)
-				VALUES (
-					{$this->tx_data['user_id']},
-					{$new_last_start},
-					{$this->tx_data['pct']},
-					{$this->block_data['block_id']}
-				)");
-	}
-
-	function add_hold_back_pct_rollback()
-	{
-		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				DELETE FROM `".DB_PREFIX."seller_hold_back_pct`
-				WHERE `block_id` = {$this->block_data['block_id']} AND
-							 `user_id` = {$this->tx_data['user_id']}
-				");
-	}
-
-	function add_hold_back_pct_rollback_front()
-	{
-	}
-*/
 	// арбитр увеличивает время манибэка, чтобы успеть разобраться в ситуации
 	function change_money_back_time_init()
 	{
@@ -14614,7 +14428,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 	function change_seller_hold_back()
 	{
-		$this->selective_logging_and_upd (array('arbitration_days_refund', 'seller_hold_back_pct'), array($this->tx_data['arbitration_days_refund'], $this->tx_data['seller_hold_back_pct']), 'users', array('user_id'), array($this->tx_data['user_id']));
+		$this->selective_logging_and_upd (array('arbitration_days_refund', 'seller_hold_back_pct'), array($this->tx_data['arbitration_days_refund'], $this->tx_data['hold_back_pct']), 'users', array('user_id'), array($this->tx_data['user_id']));
 	}
 
 	function change_seller_hold_back_rollback()
@@ -14626,115 +14440,6 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 	{
 		$this->limit_requests_rollback('change_seller_hold_back');
 	}
-
-
-	/*
-	 * отложим на потом, т.к. некогда думать, что делать с пересчетом TDC по обещанным суммам и входящим запросам, которые не шлются тем, у кого каникулы
-		// 27
-		function holidays_del_init() {
-
-			$this->tx_data['hash'] = $this->transaction_array[0];
-			$this->tx_data['type'] = $this->transaction_array[1];
-			$this->tx_data['time'] = $this->transaction_array[2];
-			$this->tx_data['user_id'] = $this->transaction_array[3];
-			$this->tx_data['holidays_id'] = $this->transaction_array[4];
-			$this->tx_data['sign'] = $this->transaction_array[5];
-
-			$this->variables =  self::get_variables($this->db, array('limit_holidays', 'limit_holidays_period'));
-
-		}
-
-		// 27
-		function holidays_del_front() {
-
-			$error = $this -> general_check();
-			if ($error)
-				return $error;
-
-			if ( !check_input_data ($this->tx_data['holidays_id'], 'bigint') )
-				return 'holidays_del_front holidays_id';
-
-			// проверяем подпись
-			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['holidays_id']}";
-			$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
-			if ($error)
-				return $error;
-
-			// проверим, есть ли такой id у юзера
-			$data = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					SELECT `id`, `start_time`, `end_time`
-					FROM `".DB_PREFIX."holidays`
-					WHERE `id` = {$this->tx_data['holidays_id']} AND
-								 `user_id` =  {$this->tx_data['user_id']}
-					LIMIT 1
-					", 'fetch_array' );
-			if (!$data['id'])
-				return 'error holidays_id';
-
-			// нельзя удалять каникулы, которые уже прошли
-			//...
-
-
-			// добавлять можно не более X запросов на добавление и удаление holidays за неделю
-			$error = $this -> limit_requests( $this->variables['limit_holidays'], 'holidays', $this->variables['limit_holidays_period'] );
-			if ($error)
-				return $error;
-		}
-
-		// 27
-		function holidays_del_rollback_front() {
-
-			$this -> limit_requests_rollback('holidays');
-
-		}
-
-		// 27
-		function holidays_del_rollback() {
-
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE `".DB_PREFIX."holidays`
-					SET `delete` = 0
-					WHERE `id` = {$this->tx_data['holidays_id']}
-					LIMIT 1
-					");
-
-			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
-			if ($this->tx_data['user_id'] == $this->my_user_id) {
-
-				// обновим статус в нашей локальной табле.
-				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-						UPDATE `".DB_PREFIX."{$this->my_prefix}my_holidays`
-						SET `status` = 'deleted'
-						WHERE `holidays_id` = {$this->tx_data['holidays_id']}
-						");
-			}
-
-		}
-
-		// 27
-		function holidays_del() {
-
-			$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-					UPDATE`".DB_PREFIX."holidays`
-					SET `delete` = 1
-					WHERE `id` = {$this->tx_data['holidays_id']}
-					LIMIT 1
-					");
-			// проверим, не наш ли это user_id
-			$this->get_my_user_id();
-			if ($this->tx_data['user_id'] == $this->my_user_id) {
-
-				// обновим статус в нашей локальной табле.
-				$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-							UPDATE `".DB_PREFIX."{$this->my_prefix}my_holidays`
-							SET `status` = 'deleted',
-								   `holidays_id` = 0
-							WHERE `holidays_id` = {$this->tx_data['holidays_id']}
-							");
-			}
-		}
-	*/
 
 	static function delete_header($binary_data)
 	{

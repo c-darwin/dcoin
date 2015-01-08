@@ -117,15 +117,17 @@
 				<td><?php echo $lng['resolution_in_favor_of_the_seller']?></td>
 			</tr>
 			<?php
-			foreach ($tpl['arbitrators'] as $data) {
-				echo "<tr>
-						<td>{$data['arbitrator_user_id']}</td>";
-				echo $data['url']?"<td><a href='{$data['url']}' target='_blank'><i class='fa fa-external-link'></i></a></td>":"<td></td>";
-				echo "<td>".intval($data['count'])."</td>
-						<td>".intval($data['refund_data']['count'])."</td>
-						<td>".round($data['refund_data']['sum']/$data['refund_data']['count'], 2)."</td>
-						<td>".intval($data['count_rejected_refunds'])."</td>
-					</tr>";
+			if (!empty($tpl['arbitrators'])) {
+				foreach ($tpl['arbitrators'] as $data) {
+					echo "<tr>
+							<td>{$data['arbitrator_user_id']}</td>";
+					echo $data['url'] ? "<td><a href='{$data['url']}' target='_blank'><i class='fa fa-external-link'></i></a></td>" : "<td></td>";
+					echo "<td>" . intval($data['count']) . "</td>
+							<td>" . intval($data['refund_data']['count']) . "</td>
+							<td>" . round(@($data['refund_data']['sum'] / $data['refund_data']['count']), 2) . "</td>
+							<td>" . intval($data['count_rejected_refunds']) . "</td>
+						</tr>";
+				}
 			}
 			?>
 		</table>

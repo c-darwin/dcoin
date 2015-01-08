@@ -21,9 +21,14 @@
 							<td>{$data['id']}</td>
 							<td class='unixtime'>{$data['time']}</td>
 							<td>{$data['amount']}</td>
-							<td>{$data['seller']}</td>
-							<td><a class=\"btn btn-danger\" href=\"#\" onclick=\"fc_navigate('money_back_request', {'order_id':'{$data['id']}'}); return false;\">Moneyback</a></td>
-						</tr>";
+							<td>{$data['seller']}</td>";
+					if ($data['status']=='normal') {
+						echo "<td><a class=\"btn btn-danger\" href=\"#\" onclick=\"fc_navigate('money_back_request', {'order_id':'{$data['id']}'}); return false;\">Moneyback</a></td>";
+					}
+					else {
+						echo "<td>{$lng['request_was_sent']}</td>";
+					}
+					echo "</tr>";
 				}
 				?>
 			</table>

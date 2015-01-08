@@ -1,6 +1,6 @@
 <script>
 
-	var arbitrator_enc_text = '';
+	var arbitrator_enc_text = [];
 	var seller_enc_text = '';
 
 	$('#next').bind('click', function () {
@@ -9,13 +9,17 @@
 			'to_id' : {<?php echo "'0':{$tpl['order']['arbitrator0']},'1':{$tpl['order']['arbitrator1']},'2':{$tpl['order']['arbitrator2']},'3':{$tpl['order']['arbitrator3']},'4':{$tpl['order']['arbitrator4']}"?>},
 			'type' : 'arbitration_arbitrators',
 			'comment' :  $("#comment").val()
-		}, function (arbitrator_enc_text) {
+		}, function (arbitrator_enc_text_) {
+
+			arbitrator_enc_text = arbitrator_enc_text_;
 
 				$.post( 'ajax/encrypt_comment.php', {
 					'to_id' : <?php echo $tpl['order']['seller']?>,
 					'type' : 'arbitration_seller',
 					'comment' :  $("#comment").val()
-				}, function (seller_enc_text) {
+				}, function (seller_enc_text_) {
+
+					seller_enc_text = seller_enc_text_;
 
 					<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
 

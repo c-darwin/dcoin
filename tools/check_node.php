@@ -11,6 +11,10 @@ require_once( ABSPATH . 'includes/autoload.php' );
 
 $db = new MySQLidb(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
 
+header("Access-Control-Allow-Origin: *");
+header("Access-Control-Allow-Headers: host_");
+header("Access-Control-Allow-Methods: POST, GET, OPTIONS");
+
 $variables = ParseData::get_all_variables($db);
 
 $block_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -27,6 +31,18 @@ if ( isset($_REQUEST['block_id']) ) {
 			WHERE `id`= {$block_id}
 			", 'fetch_one');
 	print $hash;
+
+} else if ( isset($_REQUEST['nodes']) ) {
+
+	$nodes = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SELECT `host`,
+						 count(`user_id`) as count
+			FROM `".DB_PREFIX."miners_data`
+			WHERE `status`= 'miner'
+			GROUP BY `host`
+			LIMIT 100
+			", 'all_data');
+	echo json_encode($nodes);
 
 } else if ( isset($_REQUEST['col'], $_REQUEST['row'], $_REQUEST['table']) ) {
 
@@ -126,7 +142,13 @@ else {
 		}
 		else if (preg_match('/^(wallets_buffer)$/i', $table) ) {
 			$sql_where = " WHERE `del_block_id` > ".($block_data['block_id'] - $variables['rollback_blocks_2']);
-			$order_by = "`user_id`";
+			$order_by = "`user_id`, `del_block_id`";
+		}
+		else if (preg_match('/^(arbitration_trust_list)$/i', $table) ) {
+			$order_by = "`user_id`, `arbitrator_user_id`";
+		}
+		else if (preg_match('/^(points_status)$/i', $table) ) {
+			$order_by = "`block_id`, `time_start`";
 		}
 
 		$count = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "

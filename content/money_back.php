@@ -7,7 +7,7 @@ $tpl['data']['time'] = time();
 $tpl['data']['user_id'] = $user_id;
 
 $tpl['order_id'] = intval($_REQUEST['parameters']['order_id']);
-$tpl['amount'] = filter_var($_REQUEST['parameters']['amount'], FILTER_SANITIZE_NUMBER_FLOAT);
+$tpl['amount'] = (float) ($_REQUEST['parameters']['amount']);
 if (isset($_REQUEST['parameters']['arbitrator'])) {
 	$tpl['li'] = '<li><a href="#arbitration_arbitrator">'.$lng['i_arbitrator'].'</a></li>';
 	$tpl['redirect'] = 'arbitration_arbitrator';

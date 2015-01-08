@@ -109,7 +109,7 @@ define( 'MIN_CONFIRMED_NODES', 3 );
 define('TASK_TIME', 3600*24);
 
 // на сколько арбитр может продлить время рассмотрения манибека
-define( 'MAX_MONEY_BACK_TIME', 3600*24*180 );
+define( 'MAX_MONEY_BACK_TIME', 180 );
 
 define( 'ARBITRATION_BLOCK_START', 189300 );
 

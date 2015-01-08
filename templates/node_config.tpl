@@ -76,10 +76,6 @@
 				});
 		});
 
-		$('#generate_token').bind('click', function (e) {
-			$('#shop_secret_key').val(Math.random().toString(36).slice(-10));
-			e.preventDefault();
-		});
 
 
 		$("#main_div select").addClass( "form-control" );
@@ -105,10 +101,6 @@
 	    <input id="pool_admin_user_id" class="input" type="text" value="<?php echo $tpl['data']['pool_admin_user_id']?>">
 	    <label>pool_url</label>
 	    <input id="pool_url" class="input" type="text" value="<?php echo $tpl['data']['pool_url']?>">
-	    <label>shop_callback_url</label>
-	    <input id="shop_callback_url" class="input" type="text" value="<?php echo $tpl['data']['shop_callback_url']?>">
-	    <label>shop_secret_key [<a href="#" id="generate_token">generate</a>]</label>
-	    <input id="shop_secret_key" class="input" type="text" value="<?php echo $tpl['data']['shop_secret_key']?>">
 	    <label>exchange_api_url</label>
 	    <input id="exchange_api_url" class="input" type="text" value="<?php echo $tpl['data']['exchange_api_url']?>">
 	    <label><?php echo $lng['auto_reload']?></label>

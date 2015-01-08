@@ -1343,7 +1343,7 @@ if ($tpl['show_map']) {
 		<option value='63072000'><?php echo $lng['2_years']?></option>
 		<option value='94608000'><?php echo $lng['3_years']?></option>
 		<option value='157680000'><?php echo $lng['5_years']?></option>
-	</select> <?php echo $lng['i_will']?> <span title="<?php echo $lng['unless_reduction']?>"><?php echo $lng['probably']?></span> <?php echo $lng['be']?> <span id="calc_total">+<?php echo round(1000*pow(1+$tpl['currency_pct'][72]['miner_sec'], 3600*24*30)-1000) ?> dUSD</span>
+	</select> <?php echo $lng['i_will']?> <span title="<?php echo $lng['unless_reduction']?>" style="border-bottom: 1px dotted black;"><?php echo $lng['probably']?></span> <?php echo $lng['be']?> <span id="calc_total">+<?php echo round(1000*pow(1+$tpl['currency_pct'][72]['miner_sec'], 3600*24*30)-1000) ?> dUSD</span>
 </div>
 
 <div style="clear: both; margin-bottom: 55px"></div>

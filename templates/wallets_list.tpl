@@ -128,6 +128,8 @@ $('#goto_confirm').bind('click', function () {
 					if (commission > max_commission && max_commission>0 )
 						commission = max_commission;
 
+					commission = foattoupper(commission);
+
 					global_arbitrator_id = arbitrator;
 					global_arbitrator_commission = commission;
 					global_arbitrator_commission_pct = commission_pct;
@@ -216,14 +218,22 @@ $('#next, #cf_next').bind('click', function () {
 						null_arbitrators = null_arbitrators.substr(0, null_arbitrators.length-1);
 					}
 					console.log('null_arbitrators='+null_arbitrators);
+					console.log('arbitrators_array:');
+					console.log(arbitrators_array);
 					for (var id in arbitrators_array) {
-						arbitrators = id+','+arbitrators;
-						arbitrators_commissions = global_arbitrators_commissions_array[id]+','+arbitrators_commissions;
+						if (arbitrators!='')
+							arbitrators = arbitrators + ',' + id;
+						else
+							arbitrators = id;
+						if (arbitrators_commissions!='')
+							arbitrators_commissions = arbitrators_commissions+','+global_arbitrators_commissions_array[id];
+						else
+							arbitrators_commissions = global_arbitrators_commissions_array[id];
 						global_arbitrators_commissions_array2.push(global_arbitrators_commissions_array[id]);
 						global_arbitrators_array.push(id);
 					}
-					arbitrators = arbitrators.substr(0, arbitrators.length-1);
-					arbitrators_commissions = arbitrators_commissions.substr(0, arbitrators_commissions.length-1);
+					console.log('global_arbitrators_array:');
+					console.log(global_arbitrators_array);
 					if (null_arbitrators) {
 						if (arbitrators)
 							arbitrators = arbitrators+','+null_arbitrators;
@@ -356,12 +366,14 @@ function decrypt_comment_0 (id, type) {
 		'comment' : comment,
 		'type' : type
 	}, function (data) {
+		console.log(data);
 		$("#comment_"+id).html(data);
 	} );
 
 }
 var currency_commission = [];
 <?php
+if (!empty($tpl['config']['commission']))
 foreach($tpl['config']['commission'] as $currency_id=>$data) {
 	echo "currency_commission[{$currency_id}] = [];\n";
 	echo "currency_commission[{$currency_id}][0] = '{$data[0]}';\n";
@@ -394,7 +406,7 @@ $('#amount, #cf_amount, #currency_id').bind("keyup change", function(e) {
 		amount = amount_;
 
 		var commission = amount * (commission_pct / 100);
-		commission = commission.toFixed(2);
+		commission = foattoupper(commission);
 		if (commission < min_commission)
 			commission = min_commission;
 		commission = parseFloat(commission);
@@ -431,6 +443,9 @@ $('table.confirm').on('change', '.arbitrator_id', function(e) {
 		commission = min_commission;
 	if (commission > max_commission && max_commission>0 )
 		commission = max_commission;
+
+
+	commission = foattoupper(commission);
 	global_arbitrators_commissions_array[arbitrator] = commission;
 	$(this).closest("tr").next().children('.arbitrator_commission').html(commission+' ('+commission_pct+'%)');
 	//$("#arbitrator_commission_html").html(commission+' ('+commission_pct+'%)');
@@ -448,6 +463,10 @@ $("#add_arbitrator").on("click", function (event) {
 
 });
 
+function foattoupper(x) {
+	x = parseFloat(x);
+	return (Math.ceil(x*100)/100);
+}
 
 </script>
 <script src="js/js.js"></script>
@@ -665,7 +684,7 @@ $("#add_arbitrator").on("click", function (event) {
 		</div>
 		<div style="float: left; margin-left: 10px; display: none" id="seller_info_div">
 		<style>
-			.seller_info td {text-align: center}
+			.seller_info td {text-align: center; padding-left:5px; padding-right:5px}
 			.seller_info {margin:auto}
 			#seller_turnover, #seller_turnover_m, #buyers_count_m, #buyers_miners_count_m, #buyers_count, #buyers_miners_count{font-size: 30px}
 			.table_line_height{line-height: 20px}
@@ -675,7 +694,7 @@ $("#add_arbitrator").on("click", function (event) {
 			<table class="seller_info">
 
 				<tr><td colspan="2" style="font-weight: bold"><?php echo $lng['turnover']?></td></tr>
-				<tr><td><?php echo $lng['month']?><br><span id="seller_turnover"></span></td><td><?php echo $lng['entire']?><br><span id="seller_turnover_m"></span></td></tr>
+				<tr><td><?php echo $lng['month']?><br><span id="seller_turnover_m"></span></td><td><?php echo $lng['entire']?><br><span id="seller_turnover"></span></td></tr>
 
 				<tr><td colspan="2" style="font-weight: bold; padding-top:10px"><?php echo $lng['number_of_customers']?></td></tr>
 				<tr>

@@ -9,21 +9,20 @@ $tpl['data']['user_id'] = $user_id;
 $tpl['my_trust_list'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT arbitrator_user_id, url, count(arbitration_trust_list.user_id) as count
 		FROM `".DB_PREFIX."arbitration_trust_list`
-		LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."arbitration_trust_list`.`user_id`
 		LEFT JOIN `".DB_PREFIX."users` ON `".DB_PREFIX."users`.`user_id` = `".DB_PREFIX."arbitration_trust_list`.`arbitrator_user_id`
-		WHERE `".DB_PREFIX."miners_data`.`status`='miner' AND
-					 `".DB_PREFIX."arbitration_trust_list`.`user_id`= {$user_id}
+		WHERE `".DB_PREFIX."arbitration_trust_list`.`user_id`= {$user_id} AND
+					 `".DB_PREFIX."arbitration_trust_list`.`arbitrator_user_id`> 0
 		GROUP BY arbitrator_user_id
 		ORDER BY count(`".DB_PREFIX."arbitration_trust_list`.`user_id`)  DESC
 		", 'all_data');
-
 // top 10 арбитров
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT arbitrator_user_id, url, count(arbitration_trust_list.user_id) as count
 		FROM `".DB_PREFIX."arbitration_trust_list`
 		LEFT JOIN `".DB_PREFIX."miners_data` ON `".DB_PREFIX."miners_data`.`user_id` = `".DB_PREFIX."arbitration_trust_list`.`user_id`
 		LEFT JOIN `".DB_PREFIX."users` ON `".DB_PREFIX."users`.`user_id` = `".DB_PREFIX."arbitration_trust_list`.`arbitrator_user_id`
-		WHERE `".DB_PREFIX."miners_data`.`status`='miner'
+		WHERE `".DB_PREFIX."miners_data`.`status`='miner' AND
+					 `".DB_PREFIX."arbitration_trust_list`.`arbitrator_user_id`> 0
 		GROUP BY `arbitrator_user_id`
 		ORDER BY count(`".DB_PREFIX."arbitration_trust_list`.`user_id`)  DESC
 		LIMIT 10
@@ -59,6 +58,22 @@ while ( $row = $db->fetchArray( $res ) ) {
 	$tpl['arbitrators'][] = $row;
 
 }
+/*
+$tpl['arbitrators'] = array();
+$tpl['arbitrators'][] = array('arbitrator_user_id'=>1967, 'url'=>'11111', 'count' => 1264, 'refund_data' =>array('count'=>687, 'sum'=>10250), 'count_rejected_refunds' =>12 );
+$tpl['arbitrators'][] = array('arbitrator_user_id'=>2695, 'url'=>'11111', 'count' => 598, 'refund_data' =>array('count'=>212, 'sum'=>4691), 'count_rejected_refunds' =>3 );
+$tpl['arbitrators'][] = array('arbitrator_user_id'=>1687, 'url'=>'11111', 'count' => 469, 'refund_data' =>array('count'=>316, 'sum'=>4269), 'count_rejected_refunds' =>26 );
+$tpl['arbitrators'][] = array('arbitrator_user_id'=>256, 'url'=>'11111', 'count' => 369, 'refund_data' =>array('count'=>244, 'sum'=>2897), 'count_rejected_refunds' =>2 );
+$tpl['arbitrators'][] = array('arbitrator_user_id'=>9753, 'url'=>'11111', 'count' => 122, 'refund_data' =>array('count'=>155, 'sum'=>1717), 'count_rejected_refunds' =>15 );
+//print_R($tpl['arbitrators']);
+//print_R($tpl['my_trust_list']);
+$tpl['my_trust_list'] = array();
+$tpl['my_trust_list'][] = array('arbitrator_user_id' => 1967, 'url' =>'111', 'count' => 1264);
+$tpl['my_trust_list'][] = array('arbitrator_user_id' => 2695, 'url' =>'111', 'count' => 598);
+$tpl['my_trust_list'][] = array('arbitrator_user_id' => 1687, 'url' =>'111', 'count' => 469);
+$tpl['my_trust_list'][] = array('arbitrator_user_id' => 256, 'url' =>'111', 'count' => 369);
+$tpl['my_trust_list'][] = array('arbitrator_user_id' => 9753, 'url' =>'111', 'count' => 122);
+*/
 
 $tpl['currency_list'] = get_currency_list($db);
 

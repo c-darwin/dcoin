@@ -41,7 +41,7 @@
 	}
 
 	function change_money_back_time(id) {
-		fc_navigate('change_money_back_time', {'order_id': id, 'amount': $('#change_money_back_time_'+id).val()})
+		fc_navigate('change_money_back_time', {'order_id': id, 'days': $('#change_money_back_time_'+id).val()})
 	}
 
 </script>
