@@ -667,6 +667,7 @@ $lng['id_of_the_new_arbitrator'] = 'ID нового арбитра';
 $lng['add_arbitrator'] = 'Добавить арбитра';
 $lng['add_arbitrators'] = 'Добавить арбитров';
 $lng['arbitration_imposible'] = 'Арбитраж невозможен';
+$lng['requests'] = 'Запросы';
 // tx_types
 $lng['tx_type'][1] = 'Регистрация пользователя';
 $lng['tx_type'][2] = 'Новый майнер';

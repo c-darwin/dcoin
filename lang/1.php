@@ -324,7 +324,7 @@ $lng['install_chmod_nix'] = 'Set 777 permissions on this directory [dir] with al
 $lng['install_db_config_error'] = 'Can not create file [dir] db_config.php <br> You need to either set permissions for file 777 [dir] db_config.php, or create it manually with the following contents:';
 $lng['install_chmod_win'] = '';
 $lng['install_chmod_wait'] = 'After adding jobs in cron can take up to 1 minute, before demons "no" is changed to "ok"';
-$lng['primary_key'] = 'Primary-key';
+$lng['primary_key'] = 'Private-key';
 $lng['your_primary_key'] = 'Your private key';
 $lng['install_compete'] = 'Installation is complete!';
 $lng['login_to_your_account'] = 'Login to your account';
@@ -667,6 +667,7 @@ $lng['id_of_the_new_arbitrator'] = 'ID of the new arbitrator';
 $lng['add_arbitrator'] = 'Add arbitrator';
 $lng['add_arbitrators'] = 'Add arbitrators';
 $lng['arbitration_imposible'] = 'Arbitration imposible';
+$lng['requests'] = 'Requests';
 // tx_types
 $lng['tx_type'][1] = 'new_user';
 $lng['tx_type'][2] = 'new_miner';
