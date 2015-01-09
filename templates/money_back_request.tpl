@@ -24,6 +24,7 @@
 					<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
 
 					$("#for-signature").val( '<?php echo "{$tpl['data']['credit_part_type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']},{$tpl['order']['id']}"; ?>,'+arbitrator_enc_text[0]+','+arbitrator_enc_text[1]+','+arbitrator_enc_text[2]+','+arbitrator_enc_text[3]+','+arbitrator_enc_text[4]+','+seller_enc_text);
+					console.log($("#for-signature").val());
 					doSign();
 					<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
 

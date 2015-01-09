@@ -366,10 +366,10 @@ $('#send_to_net').bind('click', function () {
     <div id="sign" style="display:none">
 
 		<label><?php echo $lng['data']?></label>
-		<textarea id="for-signature" style="width:500px;" rows="4"></textarea><br>
+		<textarea id="for-signature" style="width:500px;" rows="4" class="form-control"></textarea><br>
 	    <?php
 	for ($i=1; $i<=$count_sign; $i++) {
-		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\"></textarea>";
+		echo "<label>{$lng['sign']} ".(($i>1)?$i:'')."</label><textarea id=\"signature{$i}\" style=\"width:500px;\" rows=\"4\" class=\"form-control\"></textarea>";
 	    }
 	    ?>
 		<br>

@@ -115,5 +115,6 @@ $buyers_count = $buyers_count - $buyers_miners_count;
 $buyers_count_m = $buyers_count_m - $buyers_miners_count_m;
 
 print json_encode(array('trust_list'=>$arbitration_trust_list, 'seller_hold_back_pct'=>$seller_data['seller_hold_back_pct'],  'arbitration_days_refund'=>intval($seller_data['arbitration_days_refund']), 'buyers_miners_count_m'=>intval($buyers_miners_count_m), 'buyers_miners_count'=>intval($buyers_miners_count), 'buyers_count'=>intval($buyers_count) ,'buyers_count_m'=>intval($buyers_count_m) ,'seller_turnover_m'=>intval($seller_turnover_m), 'seller_turnover'=>intval($seller_turnover), 'hold_amount'=>intval($hold_amount) ));
+//print json_encode(array('trust_list'=>$arbitration_trust_list, 'seller_hold_back_pct'=>5,  'arbitration_days_refund'=>intval($seller_data['arbitration_days_refund']), 'buyers_miners_count_m'=>186, 'buyers_miners_count'=>2687, 'buyers_count'=>5314 ,'buyers_count_m'=>379 ,'seller_turnover_m'=>18640, 'seller_turnover'=>368701, 'hold_amount'=>939 ));
 
 ?>

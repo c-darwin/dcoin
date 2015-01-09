@@ -49,6 +49,10 @@
 			});
 	});
 
+	function decrypt_comment_0 (id) {
+		decrypt_comment_01 (id, 'seller', <?php echo $tpl['miner_id']?>, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>);
+	}
+
 </script>
 <div id="main_div">
 	<h1 class="page-header"><?php echo $lng['arbitration']?></h1>
@@ -77,9 +81,12 @@
 							echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div>";
 						}
 						else {
-							echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment({$data['id']}, 'comments')\">{$lng['decrypt']}</button></div>";
+							echo "<td><div class=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']})\">{$lng['decrypt']}</button></div>";
 						}
 						echo "<input type='text' class='form-control' style='width:100px; margin: 5px 0px' id='money_back_amount_{$data['id']}'><button type='button' class='btn btn-outline btn-primary' onclick='money_back({$data['id']})'>Money back</button></td>";
+					}
+					else {
+						echo "<td></td>";
 					}
 
 					echo "</tr>";

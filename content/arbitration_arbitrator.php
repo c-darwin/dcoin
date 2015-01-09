@@ -32,6 +32,13 @@ while ($row = $db->fetchArray($res)) {
 
 $tpl['currency_list'] = get_currency_list($db);
 
+$tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `miner_id`
+		FROM `".DB_PREFIX."miners_data`
+		WHERE `user_id` = {$user_id}
+		LIMIT 1
+		", 'fetch_one' );
+
 $tpl['last_tx'] = get_last_tx($user_id, types_to_ids(array('change_arbitrator_conditions', 'money_back')), 3);
 if (!empty($tpl['last_tx']))
 	$tpl['last_tx_formatted'] = make_last_txs($tpl['last_tx']);

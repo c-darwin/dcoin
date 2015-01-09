@@ -116,12 +116,7 @@ $tpl['tasks_count']+= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__,
 		WHERE  `votes_end` = 0 AND
 					 `type` = 'user_voting'
 		", 'fetch_one');
-$tpl['tasks_count']+= $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-		SELECT count(`id`)
-		FROM `".DB_PREFIX."votes_miners`
-		WHERE  `votes_end` = 0 AND
-					 `type` = 'user_voting'
-		", 'fetch_one');
+
 // вначале получим ID валют, которые мы можем проверять.
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `currency_id`

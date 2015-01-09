@@ -334,43 +334,10 @@ String.prototype.hex2bin = function ()
 
 }
 
-function decrypt_comment_0 (id, type) {
-
-	var key = $("#key").text();
-	var pass = $("#password").text();
-	if (key.indexOf('RSA PRIVATE KEY')!=-1)
-		pass = '';
-	var e_text = $("#encrypt_comment_"+id).val();
-	<?php
-	if ($tpl['miner_id'] > 0) // если майнер, то коммент зашифрован нодовским ключем и тут его не расшифровать
-		echo "var comment = e_text;\n";
-	else {
-	?>
-	if (pass) {
-		text = atob(key.replace(/\n|\r/g,""));
-		var decrypt_PEM = mcrypt.Decrypt(text, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, hex_md5(pass), 'rijndael-128', 'ecb');
-	}
-	else {
-		decrypt_PEM = key;
-	}
-	var rsa2 = new RSAKey();
-	rsa2.readPrivateKeyFromPEMString(decrypt_PEM); // N,E,D,P,Q,DP,DQ,C
-
-	var comment = rsa2.decrypt(e_text);
-	<?php
-	}
-	?>
-	// decrypt_comment может содержать зловред
-	$.post( 'ajax/save_decrypt_comment.php', {
-		'id' : id,
-		'comment' : comment,
-		'type' : type
-	}, function (data) {
-		console.log(data);
-		$("#comment_"+id).html(data);
-	} );
-
+function decrypt_comment_0 (id) {
+	decrypt_comment_01 (id, 'dc_transactions', <?php echo $tpl['miner_id']?>, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>);
 }
+
 var currency_commission = [];
 <?php
 if (!empty($tpl['config']['commission']))
@@ -590,7 +557,7 @@ function foattoupper(x) {
 							if ($data['comment_status'] == 'decrypted')
 								echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div></td>";
 							else
-								echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']}, 'dc_transactions')\">{$lng['decrypt']}</button></div></td>";
+								echo "<td><div class=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']})\">{$lng['decrypt']}</button></div></td>";
 							$num_blocks = $data['block_id']?($tpl['data']['confirmed_block_id'] - $data['block_id']):0;
 							$num_blocks = ($num_blocks>0)?$num_blocks:0;
 							echo "<td>{$data['status']}</td><td><a href=\"#block_explorer/block_id={$data['block_id']}\">{$data['block_id']}</a></td><td>" . $num_blocks . "</td></tr>";

@@ -117,6 +117,44 @@ function decrypt_comment(id, type) {
     } );
 }
 
+
+function decrypt_comment_01 (id, type, miner_id, mcrypt_iv) {
+
+    var key = $("#key").text();
+    var pass = $("#password").text();
+    if (key.indexOf('RSA PRIVATE KEY')!=-1)
+        pass = '';
+    var e_text = $("#encrypt_comment_"+id).val();
+
+    if (miner_id > 0) { // если майнер, то коммент зашифрован нодовским ключем и тут его не расшифровать
+        var comment = e_text;
+    }
+    else {
+        if (pass) {
+            text = atob(key.replace(/\n|\r/g, ""));
+            var decrypt_PEM = mcrypt.Decrypt(text, mcrypt_iv, hex_md5(pass), 'rijndael-128', 'ecb');
+        }
+        else {
+            decrypt_PEM = key;
+        }
+        var rsa2 = new RSAKey();
+        rsa2.readPrivateKeyFromPEMString(decrypt_PEM); // N,E,D,P,Q,DP,DQ,C
+
+        var comment = rsa2.decrypt(e_text);
+    }
+    // decrypt_comment может содержать зловред
+    $.post( 'ajax/save_decrypt_comment.php', {
+        'id' : id,
+        'comment' : comment,
+        'type' : type
+    }, function (data) {
+        console.log(data);
+        $(".comment_"+id).html(data);
+        console.log(".comment_"+id);
+    }, 'HTML' );
+
+}
+
 function decrypt_message(id, type) {
     var key = $("#key").text();
     text = atob(key.replace(/\n|\r/g,""));

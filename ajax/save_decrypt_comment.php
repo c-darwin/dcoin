@@ -23,7 +23,7 @@ if ( !check_input_data ($_REQUEST['id'] , 'int') )
 if ( !empty($data['parent_id']) && !check_input_data ($data['parent_id'] , 'int') )
 	die('error parent_id');
 
-if ( $_REQUEST['type']!=='dc_transactions' && $_REQUEST['type']!=='cash_requests'  && $_REQUEST['type']!=='comments' )
+if ( $_REQUEST['type']!=='dc_transactions' && $_REQUEST['type']!=='arbitrator' && $_REQUEST['type']!=='seller' && $_REQUEST['type']!=='cash_requests'  && $_REQUEST['type']!=='comments' )
 	die('error type');
 
 define('MY_PREFIX', get_my_prefix($db));
@@ -35,7 +35,7 @@ $miner_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD_
 		WHERE `user_id` = {$_SESSION['user_id']}
 		LIMIT 1
 		", 'fetch_one' );
-if ($miner_id>0 && $_REQUEST['type']=='dc_transactions' ) {
+if ($miner_id>0 && ($_REQUEST['type']=='dc_transactions' || $_REQUEST['type']=='arbitrator' || $_REQUEST['type']=='seller') ) {
 	$node_private_key = get_node_private_key($db, MY_PREFIX);
 	// расшифруем коммент
 	$rsa = new Crypt_RSA();
@@ -55,12 +55,24 @@ if ($comment) {
 	$id = intval($_REQUEST['id']);
 	$type = filter_var($_REQUEST['type'], FILTER_SANITIZE_STRING);
 	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "SET NAMES UTF8");
-	$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-		UPDATE `" . DB_PREFIX . MY_PREFIX . "my_{$type}`
-		SET `comment`='{$comment}',
-			   `comment_status` = 'decrypted'
-		WHERE `id` = {$id}
-		");
+	if ($type=='arbitrator' || $type=='seller' ) {
+		$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				UPDATE `" . DB_PREFIX . MY_PREFIX . "my_comments`
+				SET `comment`='{$comment}',
+					   `comment_status` = 'decrypted'
+				WHERE `id` = {$id} AND
+							`type` = '{$type}'
+				");
+	}
+	else {
+		$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+				UPDATE `" . DB_PREFIX . MY_PREFIX . "my_{$type}`
+				SET `comment`='{$comment}',
+					   `comment_status` = 'decrypted'
+				WHERE `id` = {$id}
+				");
+	}
+
 }
 print htmlentities($comment);
 

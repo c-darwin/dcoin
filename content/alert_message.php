@@ -176,7 +176,7 @@ if ( (!node_admin_access($db) && in_array($tpl_name, $skip_community)) ||  (!emp
 }
 
 // информируем, что у юзера нет прав и нужно стать майнером
-$miners_only = array('cash_requests_in', 'cash_requests_out', 'change_node_key', 'voting', 'geolocation', 'promised_amount_list', 'promised_amount_add', 'holidays_list', 'new_holidays', 'points', 'tasks', 'change_host', 'new_user', 'change_commission');
+$miners_only = array('my_cf_projects', 'new_cf_project','cash_requests_in', 'cash_requests_out', 'change_node_key', 'voting', 'geolocation', 'promised_amount_list', 'promised_amount_add', 'holidays_list', 'new_holidays', 'points', 'tasks', 'change_host', 'new_user', 'change_commission');
 if (in_array($tpl_name, $miners_only)) {
 	$miner_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `miner_id`

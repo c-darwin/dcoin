@@ -13997,7 +13997,18 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 			return  __LINE__.'#'.__METHOD__.'(!$order_id)';
 
 		// проверяем подпись
-		$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['order_id']},{$this->tx_data['arbitrator0_enc_text']},{$this->tx_data['arbitrator1_enc_text']},{$this->tx_data['arbitrator2_enc_text']},{$this->tx_data['arbitrator3_enc_text']},{$this->tx_data['arbitrator4_enc_text']},{$this->tx_data['seller_enc_text']}";
+		if ( isset($this->block_data['block_id']) && $this->block_data['block_id'] < 197115 )
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['order_id']},".($this->tx_data['arbitrator0_enc_text']).",".($this->tx_data['arbitrator1_enc_text']).",".($this->tx_data['arbitrator2_enc_text']).",".($this->tx_data['arbitrator3_enc_text']).",".($this->tx_data['arbitrator4_enc_text']).",".($this->tx_data['seller_enc_text']);
+		else {
+			for ($i=0; $i<5; $i++) {
+				$this->tx_data['arbitrator'.$i.'_enc_text'] = bin2hex($this->tx_data['arbitrator'.$i.'_enc_text']);
+				if ($this->tx_data['arbitrator'.$i.'_enc_text']==='00')
+					$this->tx_data['arbitrator'.$i.'_enc_text'] = '0';
+			}
+			$for_sign = "{$this->tx_data['type']},{$this->tx_data['time']},{$this->tx_data['user_id']},{$this->tx_data['order_id']}," . ($this->tx_data['arbitrator0_enc_text']) . "," . ($this->tx_data['arbitrator1_enc_text']) . "," . ($this->tx_data['arbitrator2_enc_text']) . "," . ($this->tx_data['arbitrator3_enc_text']) . "," . ($this->tx_data['arbitrator4_enc_text']) . "," . bin2hex($this->tx_data['seller_enc_text']);
+		}
+		debug_print( '$for_sign='.$for_sign, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+
 		$error = self::checkSign ($this->public_keys, $for_sign, $this->tx_data['sign']);
 		if ($error)
 			return  __LINE__.'#'.__METHOD__.'('.$error.')';

@@ -44,6 +44,10 @@
 		fc_navigate('change_money_back_time', {'order_id': id, 'days': $('#change_money_back_time_'+id).val()})
 	}
 
+	function decrypt_comment_0 (id) {
+		decrypt_comment_01 (id, 'arbitrator', <?php echo $tpl['miner_id']?>, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>);
+	}
+
 </script>
 <style>
 	th{text-align: center;}
@@ -59,7 +63,7 @@
 
 	<div id="main_data">
 
-			<h3>Заявки</h3>
+			<h3><?php echo $lng['requests']?></h3>
 			<table class="table" style="max-width: 600px">
 				<tr><th>ID</th><th><?php echo $lng['time']?></th><th><?php echo $lng['amount']?></th><th><?php echo $lng['buyer']?></th><th><?php echo $lng['contacts']?></th><th><?php echo $lng['extend_days']?></th><th><?php echo $lng['money_back']?></th></tr>
 				<?php
@@ -73,7 +77,7 @@
 						echo "<td><div style=\"width: 100px; overflow: auto\">{$data['comment']}</div></td>";
 					}
 					else {
-						echo "<td><div id=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment({$data['id']}, 'comments')\">{$lng['decrypt']}</button></div></td>";
+						echo "<td><div class=\"comment_{$data['id']}\"><input type=\"hidden\" id=\"encrypt_comment_{$data['id']}\" value=\"{$data['comment']}\"><button class=\"btn\" onclick=\"decrypt_comment_0({$data['id']})\">{$lng['decrypt']}</button></div></td>";
 					}
 					echo "<td><input type='text' class='form-control' style='width:100px; margin: 5px 0px' id='change_money_back_time_{$data['id']}'><button type='button' class='btn btn-outline btn-primary' onclick='change_money_back_time({$data['id']})'>OK</button></td>";
 					echo "<td><input type='text' class='form-control' style='width:100px; margin: 5px 0px' id='money_back_amount_{$data['id']}'><button type='button' class='btn btn-outline btn-primary' onclick='money_back({$data['id']})'>Money back</button></td>";
