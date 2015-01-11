@@ -58,8 +58,18 @@ else {
 }
 
 // идет загрузка блокчейна
-if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600*1000 && !empty($first_load_blockchain) ) {
-	$tpl_name = 'updating_blockchain';
+if ( isset($db) && $tpl_name!='install_step_0' && (time() - $block_time) > 3600*2 && !empty($first_load_blockchain) ) {
+	// исключение - админ пула
+	if (get_community_users($db)) {
+		$pool_admin_user_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
+				SELECT `pool_admin_user_id`
+				FROM `'.DB_PREFIX.'config`
+				', 'fetch_one');
+		if ($_SESSION['user_id'] != $pool_admin_user_id)
+			$tpl_name = 'updating_blockchain';
+	}
+	else
+		$tpl_name = 'updating_blockchain';
 }
 
 if (@$_REQUEST['parameters']['lang']=='42') {
