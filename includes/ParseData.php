@@ -9075,12 +9075,14 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				", 'fetch_one' );
 		// учитываем все текущие суммы холдбека
 		$hold_back_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(`hold_back_amount`)
-				FROM `".DB_PREFIX."orders`
-				WHERE `seller` = {$this->tx_data['from_user_id']} AND
-							 `currency_id` = {$this->tx_data['currency_id']} AND
-							 `refund` = 0 AND
-							 `end_time` > {$time}
+				SELECT sum(sum1)
+				FROM (
+						SELECT IF (hold_back_amount - refund - voluntary_refund <0, 0, hold_back_amount - refund - voluntary_refund) as sum1
+						FROM `".DB_PREFIX."orders`
+						WHERE `seller` = {$this->tx_data['from_user_id']} AND
+									 `currency_id` = {$this->tx_data['currency_id']} AND
+									 `end_time` > {$time}
+				) as t1
 				", 'fetch_one' );
 
 		debug_print('$forex_orders_amount='.$forex_orders_amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
@@ -14145,18 +14147,20 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."orders`
 				WHERE `id` = {$this->tx_data['order_id']} AND
 							 `status` = 'refund' AND
-								(
-									 (`arbitrator0` = {$this->tx_data['user_id']} OR `arbitrator1` = {$this->tx_data['user_id']} OR `arbitrator2` = {$this->tx_data['user_id']} OR `arbitrator3` = {$this->tx_data['user_id']} OR `arbitrator4` = {$this->tx_data['user_id']}) AND
-									 `refund` = 0 AND
-									  (`amount` - `voluntary_refund` - {$this->tx_data['amount']}) >= 0 AND
-									 `end_time` >= {$time}
-								)
-								OR (
-									 `seller` = {$this->tx_data['user_id']} AND
-									 `voluntary_refund` = 0 AND
-									  (`amount` - `refund` - {$this->tx_data['amount']}) >= 0 AND
-									 `end_time` >= {$time}
-								)
+							 (
+									(
+										 (`arbitrator0` = {$this->tx_data['user_id']} OR `arbitrator1` = {$this->tx_data['user_id']} OR `arbitrator2` = {$this->tx_data['user_id']} OR `arbitrator3` = {$this->tx_data['user_id']} OR `arbitrator4` = {$this->tx_data['user_id']}) AND
+										 `refund` = 0 AND
+										  (`amount` - `voluntary_refund` - {$this->tx_data['amount']}) >= 0 AND
+										 `end_time` >= {$time}
+									)
+									OR (
+										 `seller` = {$this->tx_data['user_id']} AND
+										 `voluntary_refund` = 0 AND
+										  (`amount` - `refund` - {$this->tx_data['amount']}) >= 0 AND
+										 `end_time` >= {$time}
+									)
+							)
 				LIMIT 1
 				", 'fetch_one' );
 		if ( !$order_id )
@@ -14216,19 +14220,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 							 `sell_currency_id` = {$this->tx_data['currency_id']} AND
 							 `del_block_id` = 0
 				", 'fetch_one' );
-		// учитываем все текущие суммы холдбека
-		$hold_back_amount = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
-				SELECT sum(`hold_back_amount`)
-				FROM `".DB_PREFIX."orders`
-				WHERE `seller` = {$this->tx_data['user_id']} AND
-							 `currency_id` = {$this->tx_data['currency_id']} AND
-							 `refund` = 0 AND
-							 `end_time` > {$this->block_data['time']}
-				", 'fetch_one' );
+		// НЕ учитываем все текущие суммы холдбека, т.к. кроме этой суммы у продавца может ничего и не быть
 		$cash_requests_amount = $cash_requests_amount?$cash_requests_amount:0;
 		$forex_orders_amount = $forex_orders_amount?$forex_orders_amount:0;
-		$hold_back_amount = $hold_back_amount?$hold_back_amount:0;
-		$all = floor(($TotalAmount - $cash_requests_amount - $forex_orders_amount - $hold_back_amount)*100)/100;
+		$all = floor(($TotalAmount - $cash_requests_amount - $forex_orders_amount)*100)/100;
 		if ( $all >= $this->tx_data['amount'] ) {
 			$amount = $this->tx_data['amount'];
 		}
@@ -14369,7 +14364,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				FROM `".DB_PREFIX."orders`
 				WHERE `id` = {$this->tx_data['order_id']} AND
 							 (`arbitrator0` = {$this->tx_data['user_id']} OR `arbitrator1` = {$this->tx_data['user_id']} OR `arbitrator2` = {$this->tx_data['user_id']} OR `arbitrator3` = {$this->tx_data['user_id']} OR `arbitrator4` = {$this->tx_data['user_id']}) AND
-							 `end_time_changed` = 0
+							 `end_time_changed` = 0 AND
+							 `status` = 'refund'
 				LIMIT 1
 				", 'fetch_one' );
 		if (!$order_id)

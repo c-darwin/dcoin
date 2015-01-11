@@ -21,7 +21,7 @@ var global_arbitrators_array = [];
 var global_arbitrators_commissions_array = [];
 var global_arbitrators_commissions_array2 = [];
 
-var currency_list = new Array()
+var currency_list = [];
 <?php
 foreach ($tpl['wallets'] as $id => $data)
 	echo "currency_list[{$data['currency_id']}] = '{$tpl['currency_list'][$data['currency_id']]}';\n";

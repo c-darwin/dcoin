@@ -31,7 +31,7 @@
 	});
 
 	function money_back(id) {
-		fc_navigate('money_back', {'id': id, 'amount': $('#money_back_amount_'+id).val()})
+		fc_navigate('money_back', {'order_id': id, 'amount': $('#money_back_amount_'+id).val()})
 	}
 
 	$('#generate_token').bind('click', function (e) {
