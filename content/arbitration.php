@@ -51,6 +51,8 @@ while ( $row = $db->fetchArray( $res ) ) {
 						 `".DB_PREFIX."orders`.`status` = 'refund' AND
 						 `end_time` > ".(time()-3600*24*30)." AND
 						 `end_time` < ".(time())." AND
+						 `voluntary_refund` = 0 AND
+						 `refund` = 0 AND
 						 `".DB_PREFIX."miners_data`.`status` = 'miner'
 			GROUP BY `user_id`
 			", 'fetch_one');
