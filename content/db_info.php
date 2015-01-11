@@ -30,7 +30,7 @@ while ($row = $db->fetchArray($res)) {
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT *
 		FROM `'.DB_PREFIX.'nodes_connection`
-		ORDER BY `user_id`
+		ORDER BY `ban_start`
 		');
 while ($row = $db->fetchArray($res)) {
 	$tpl['nodes_connection'][] = $row;
