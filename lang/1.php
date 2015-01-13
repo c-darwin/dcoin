@@ -681,6 +681,7 @@ $lng['add_arbitrator'] = 'Add arbitrator';
 $lng['add_arbitrators'] = 'Add arbitrators';
 $lng['arbitration_imposible'] = 'Arbitration imposible';
 $lng['requests'] = 'Requests';
+$lng['being_processed'] = 'Being processed';
 // tx_types
 $lng['tx_type'][1] = 'new_user';
 $lng['tx_type'][2] = 'new_miner';
