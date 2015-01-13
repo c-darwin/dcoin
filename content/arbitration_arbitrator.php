@@ -32,7 +32,7 @@ while ($row = $db->fetchArray($res)) {
 
 $tpl['currency_list'] = get_currency_list($db);
 
-$tpl['miner_id'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+$tpl['miner_id'] = (int) $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 		SELECT `miner_id`
 		FROM `".DB_PREFIX."miners_data`
 		WHERE `user_id` = {$user_id}
