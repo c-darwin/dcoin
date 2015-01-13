@@ -60,9 +60,9 @@
 				<span class="icon-bar"></span>
 			</button>
 			<a class="navbar-brand" href="<?php echo $tpl['cf_url']?>" style="display: block; /* or inline-block; I think IE would respect it since a link is an inline-element */
-	                   background: url(<?php echo $tpl['cf_url']?>img/logo.png) center left no-repeat;
+	                   background: url(<?php echo $tpl['cf_url']?>img/logo-small.png) center left no-repeat;
 	                   text-align: left;
-	                   background-size: 30px 30px;
+	                   background-size: 40px 40px;
 	                   padding-left: 40px; margin-left: 15px; margin-right: 0px; line-height: 12px"><nobr>Dcoin <span style="font-size: 12px">v<?php echo $tpl['ver']?></span></nobr><br><span style="font-size: 12px">All the projects are taken from Dcoin blockchain</span></a>
 		</div>
 		<!-- /.navbar-header -->

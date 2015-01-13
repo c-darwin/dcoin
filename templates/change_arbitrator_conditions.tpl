@@ -68,7 +68,7 @@ $('#send_to_net').bind('click', function () {
 
 	<?php require_once( ABSPATH . 'templates/alert_success.php' );?>
 
-	<div id="change_commission">
+	<div id="change_commission" style="<?php echo $tpl['pending_tx']?'display:none':'display:block'?>">
 
 		<table class="table" style="width: 600px;" id="conditions_div">
 
@@ -98,7 +98,14 @@ $('#send_to_net').bind('click', function () {
 		<input id='url' class='form-control' type='text' value="0"><Br>
 
 		<button class="btn btn-outline btn-primary" id="save"><?php echo $lng['send_to_net']?></button>
-<br><br>
+		<br><br>
+
+	</div>
+
+	<div id="pending" style="<?php echo !$tpl['pending_tx']?'display:none':'display:block'?>">
+		<div class="alert alert-success">
+			<?php echo $lng['being_processed']?>
+		</div>
 	</div>
 
 	<?php require_once( 'signatures.tpl' );?>

@@ -1,5 +1,6 @@
 <script>
 	var arbitration_trust_list = '';
+	var get_key_and_sign = 'null';
 
 	$('#next').bind('click', function () {
 
@@ -14,10 +15,11 @@
 			arbitration_trust_list = '[0]';
 
 		<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
-
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+arbitration_trust_list);
-		doSign();
-		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
+
+		get_key_and_sign = <?php echo !defined('SHOW_SIGN_DATA')?'"send_to_net"':'"sign"' ?>;
+		check_key_and_show_modal2();
+
 	});
 
 	$('#send_to_net').bind('click', function () {
@@ -90,7 +92,7 @@
 			</div>
 			<div id="pending" style="<?php echo !$tpl['pending_tx']?'display:none':'display:block'?>">
 				<div class="alert alert-success">
-					Идет обработка
+					<?php echo $lng['being_processed']?>
 				</div>
 			</div>
 		</div>

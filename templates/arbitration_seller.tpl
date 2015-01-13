@@ -1,14 +1,15 @@
 <script>
 
 	var tx_type = '';
+	var get_key_and_sign = 'null';
 
 	$('#next').bind('click', function () {
 
 		<?php echo !defined('SHOW_SIGN_DATA')?'':'$("#main_data").css("display", "none");	$("#sign").css("display", "block");' ?>
-
 		$("#for-signature").val( '<?php echo "{$tpl['data']['type_id']},{$tpl['data']['time']},{$tpl['data']['user_id']}"; ?>,'+$('#arbitration_days_refund').val()+','+$('#hold_back_pct').val());
-		doSign();
-		<?php echo !defined('SHOW_SIGN_DATA')?'$("#send_to_net").trigger("click");':'' ?>
+
+		get_key_and_sign = <?php echo !defined('SHOW_SIGN_DATA')?'"send_to_net"':'"sign"' ?>;
+		check_key_and_show_modal2();
 	});
 
 
@@ -94,12 +95,20 @@
 				?>
 			</table>
 
-		<strong><?php echo $lng['number_days_hold_back']?></strong><br>
-		<div class="form-inline"><input type="text" class="form-control" id="arbitration_days_refund" style="width: 100px; margin-right: 10px" value="<?php echo $tpl['hold_back']['arbitration_days_refund']?>"></div><br>
-		<strong><?php echo $lng['hold_back_pct']?></strong><br>
-		<div class="form-inline"><input type="text" class="form-control" id="hold_back_pct" style="width: 100px; display: inline-block" value="<?php echo  $tpl['hold_back']['seller_hold_back_pct']>0?$tpl['hold_back']['seller_hold_back_pct']:'0.01'?>"></div>
-		<button type="button" class="btn btn-outline btn-primary" id="next" style="margin-top: 15px"><?php echo $lng['send_to_net']?></button>
-		<br><br>
+		<div style="<?php echo $tpl['pending_tx']?'display:none':'display:block'?>">
+			<strong><?php echo $lng['number_days_hold_back']?></strong><br>
+			<div class="form-inline"><input type="text" class="form-control" id="arbitration_days_refund" style="width: 100px; margin-right: 10px" value="<?php echo $tpl['hold_back']['arbitration_days_refund']?>"></div><br>
+			<strong><?php echo $lng['hold_back_pct']?></strong><br>
+			<div class="form-inline"><input type="text" class="form-control" id="hold_back_pct" style="width: 100px; display: inline-block" value="<?php echo  $tpl['hold_back']['seller_hold_back_pct']>0?$tpl['hold_back']['seller_hold_back_pct']:'0.01'?>"></div>
+			<button type="button" class="btn btn-outline btn-primary" id="next" style="margin-top: 15px"><?php echo $lng['send_to_net']?></button>
+			<br><br>
+		</div>
+		<div id="pending" style="<?php echo !$tpl['pending_tx']?'display:none':'display:block'?>">
+			<div class="alert alert-success">
+				<?php echo $lng['being_processed']?>
+			</div>
+		</div>
+
 
 		<?php
 		if (empty($_SESSION['restricted'])) {

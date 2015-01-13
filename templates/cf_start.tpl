@@ -19,7 +19,7 @@
 			crossDomain: true,
 			success: function (ver) {
 				$( "#version" ).html( ver );
-				$("#exe").attr("href", 'https://github.com/c-darwin/dcoin/releases/download/'+ver+'/Dcoin.exe');
+				$("#exe").attr("href", 'https://dcoin.me/Dcoin.exe');
 			}
 		});
 	});

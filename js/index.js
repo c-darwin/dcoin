@@ -74,24 +74,42 @@ function login_ok (result) {
 
     if (result=='1') {
 
+        console.log('login_ok=1');
+
         $('#myModal').modal('hide');
         $('#myModalLogin').modal('hide');
         $('.modal-backdrop').remove();
         $('.modal-backdrop').css('display', 'none');
 
-        var tpl_name = $('#tpl_name').val();
-        if (!tpl_name || tpl_name=='install_step_0' || tpl_name=='install_step_6')
-            tpl_name = 'home';
+        if (typeof(get_key_and_sign)==='undefined' || get_key_and_sign=='null') {
 
-        $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
-           $( "#dc_content" ).load( "content.php", { tpl_name: tpl_name}, function() {
-                $.getScript("js/plugins/metisMenu/metisMenu.min.js", function() {
-                    $.getScript("js/sb-admin.js");
-                    $("#main-login").html('');
-                    $("#wrapper").spin(false);
+            var tpl_name = $('#tpl_name').val();
+            if (!tpl_name || tpl_name=='install_step_0' || tpl_name=='install_step_6')
+                tpl_name = 'home';
+
+            $( "#dc_menu" ).load( "ajax/menu.php", { }, function() {
+                $( "#dc_content" ).load( "content.php", { tpl_name: tpl_name}, function() {
+                    $.getScript("js/plugins/metisMenu/metisMenu.min.js", function() {
+                        $.getScript("js/sb-admin.js");
+                        $("#main-login").html('');
+                        $("#wrapper").spin(false);
+                    });
                 });
             });
-        });
+        }
+        else if (get_key_and_sign=='sign') {
+            console.log('get_key_and_sign=sign');
+            doSign('sign');
+            $("#main-login").html('');
+            $("#wrapper").spin(false);
+        }
+        else if (get_key_and_sign=='send_to_net') {
+            console.log('get_key_and_sign=send_to_net');
+            doSign('sign');
+            $("#send_to_net").trigger("click");
+            $("#main-login").html('');
+            $("#wrapper").spin(false);
+        }
 
     }
     else if (result=='not_available') {
@@ -243,6 +261,25 @@ function map_init (lat, lng, map_canvas, drag, clickmarker) {
 function check_key_and_show_modal() {
     if ( $('#key').text().length < 256 ) {
         $('#myModal').modal({ backdrop: 'static' });
+    }
+}
+
+function check_key_and_show_modal2() {
+    console.log('check_key_and_show_modal2');
+    if ( $('#key').text().length < 256 ) {
+        $('#myModal').modal({ backdrop: 'static' });
+    }
+    else {
+        if (typeof(get_key_and_sign)==='undefined' || get_key_and_sign=='null') {
+
+        }
+        else if (get_key_and_sign=='sign') {
+            doSign('sign');
+        }
+        else if (get_key_and_sign=='send_to_net') {
+            doSign('sign');
+            $("#send_to_net").trigger("click");
+        }
     }
 }
 
@@ -428,43 +465,7 @@ function doSign_(type, mcrypt_iv) {
     console.log('forsignature='+forsignature);
 
     if (forsignature) {
-        /*
-         console.log('pass='+pass);
-
-         // ключ может быть незашифрованным, но без BEGIN RSA PRIVATE KEY
-         if (key.substr(0,4) == 'MIIE')
-         var decrypt_PEM = '-----BEGIN RSA PRIVATE KEY-----'+key+'-----END RSA PRIVATE KEY-----';
-         else if (pass)
-         var decrypt_PEM = mcrypt.Decrypt(text, <?php print json_encode(utf8_encode(mcrypt_create_iv(mcrypt_get_iv_size('rijndael-128', MCRYPT_MODE_ECB), MCRYPT_RAND)))?>, hex_md5(pass), 'rijndael-128', 'ecb');
-         else
-         var decrypt_PEM = key;
-         console.log('decrypt_PEM='+decrypt_PEM);
-         if (decrypt_PEM.indexOf('RSA PRIVATE KEY')==-1) {
-         $("#wrapper").spin(false);
-         $("#modal_alert").html('<div id="alertModalPull" class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><p>'+$('#incorrect_key_or_password').val()+'</p></div>');
-         }
-         else {
-         var rsa = new RSAKey();
-         rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-         var a = rsa.readPrivateKeyFromPEMString(decrypt_PEM);
-         var modulus = a[1];
-         var exp = a[2];
-
-         //var hash = CryptoJS.SHA256(forsignature);
-         //var hSig = rsa.signString(forsignature, 'sha256');
-
-         console.log('forsignature='+forsignature);
-         console.log('hex_md5(pass)='+hex_md5(pass));
-
-         var hSig = rsa.signString(forsignature, 'sha1');
-
-         console.log('hSig='+hSig);
-
-         delete rsa;
-         }
-         */
         var e_n_sign = get_e_n_sign(key, pass, mcrypt_iv, forsignature, 'modal_alert');
-
 	}
 	if (SIGN_LOGIN || PASS_LOGIN) {
 
