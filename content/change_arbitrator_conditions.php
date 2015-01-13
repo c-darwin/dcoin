@@ -59,6 +59,11 @@ if (!$tpl['conditions']) {
 	$tpl['conditions'][23] = array('0.01', '0', '0.01', '0', '0.1');
 }
 
+$tpl['last_tx'] = get_last_tx($user_id, types_to_ids(array('change_arbitrator_conditions')), 3);
+if (!empty($tpl['last_tx']))
+	$tpl['last_tx_formatted'] = make_last_txs($tpl['last_tx']);
+$tpl['pending_tx'] = @$pending_tx[ParseData::findType('change_arbitrator_conditions')];
+
 require_once( ABSPATH . 'templates/change_arbitrator_conditions.tpl' );
 
 ?>
