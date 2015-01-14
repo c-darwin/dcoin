@@ -1084,12 +1084,16 @@ function get_user_public_key($db)
 			", 'fetch_one' );
 }
 
-function get_miner_private_key($db)
+function get_my_private_key($db, $pref='')
 {
+	if ($pref)
+		$my_pref = $pref;
+	else
+		$my_pref = MY_PREFIX;
 	return $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			SELECT `private_key`
-			FROM `".DB_PREFIX.MY_PREFIX."my_keys`
-			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX.MY_PREFIX."my_keys`)
+			FROM `".DB_PREFIX.$my_pref."my_keys`
+			WHERE `block_id` = (SELECT max(`block_id`) FROM `".DB_PREFIX.$my_pref."my_keys`)
 			LIMIT 1
 			", 'fetch_one' );
 }
