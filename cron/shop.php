@@ -19,7 +19,6 @@ if (get_my_block_id($db) > get_block_id($db))
 	die('get_my_block_id > get_block_id');
 
 $currency_list = get_currency_list($db);
-
 // нужно знать текущий блок, который есть у большинства нодов
 $block_id = get_confirmed_block_id($db);
 
@@ -30,12 +29,31 @@ $confirmations = 5;
 $community = get_community_users($db);
 for ($k=0; $k<sizeof($community); $k++) {
 
-	define('MY_PREFIX', $community[$k] . '_');
-	// наш приватный ключ нода, которым будем расшифровывать комменты
-	$private_key = get_node_private_key($db, MY_PREFIX);
+	$private_key = '';
+	$MY_PREFIX = $community[$k] . '_';
+	//print $MY_PREFIX."\n";
+
+	$table_exists = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+			SHOW TABLES LIKE '".DB_PREFIX."{$MY_PREFIX}my_keys'
+			", 'num_rows');
+	if (!$table_exists)
+		continue;
+
+	// проверим, майнер ли
+	$miner_id = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `miner_id`
+		FROM `".DB_PREFIX."miners_data`
+		WHERE `user_id` = {$community[$k]}
+		LIMIT 1
+		", 'fetch_one' );
+	if ($miner_id) {
+		// наш приватный ключ нода, которым будем расшифровывать комменты
+		$private_key = get_node_private_key($db, $MY_PREFIX);
+	}
 	// возможно, что комменты будут зашифрованы юзерским ключем
-	if (!$private_key)
-		$private_key = get_miner_private_key($db);
+	if (!$private_key) {
+		$private_key = get_my_private_key($db, $MY_PREFIX);
+	}
 	// если это еще не майнер и админ ноды не указал его приватный ключ в табле my_keys, то $private_key будет пуст
 	if (!$private_key)
 		continue;
@@ -43,22 +61,31 @@ for ($k=0; $k<sizeof($community); $k++) {
 	$my_data = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,"
 			SELECT `shop_secret_key`,
 						 `shop_callback_url`
-			FROM `".DB_PREFIX.MY_PREFIX."my_table`
+			FROM `".DB_PREFIX.$MY_PREFIX."my_table`
 			", 'fetch_array' );
 
 	// Получаем инфу о входящих переводах и начисляем их на счета юзеров
 	$res = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 			SELECT *
-			FROM `" . DB_PREFIX . MY_PREFIX . "my_dc_transactions`
+			FROM `".DB_PREFIX.$MY_PREFIX."my_dc_transactions`
 			WHERE `type` = 'from_user' AND
 						 `block_id` < " . ($block_id - $confirmations) . " AND
 						 `merchant_checked` = 0 AND
 						 `status` = 'approved'
 			ORDER BY `id` DESC
 			");
-	//print $db->printsql();
+	//print $db->printsql()."\n";
 	while ($row = $db->fetchArray($res)) {
 		//print_R($row);
+		if (!$my_data['shop_callback_url']) {
+			// отметим merchant_checked=1, чтобы больше не брать эту тр-ию
+			$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+					UPDATE `" . DB_PREFIX . $MY_PREFIX . "my_dc_transactions`
+					SET `merchant_checked` = 1
+					WHERE `id` = {$row['id']}
+					");
+			continue;
+		}
 		// вначале нужно проверить, точно ли есть такой перевод в блоке
 		$binary_data = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 				SELECT `data`
@@ -92,6 +119,9 @@ for ($k=0; $k<sizeof($community); $k++) {
 					$rsa->loadKey($private_key, CRYPT_RSA_PRIVATE_FORMAT_PKCS1);
 					$rsa->setEncryptionMode(CRYPT_RSA_ENCRYPTION_PKCS1);
 					$decrypted_comment = $rsa->decrypt(hextobin($row['comment']));
+					//echo '$private_key='.$private_key."\n";
+					//echo 'comment='.$row['comment']."\n";
+					//echo '$decrypted_comment='.$decrypted_comment."\n";
 					unset($rsa);
 
 					// запишем расшифрованный коммент, чтобы потом можно было найти перевод в ручном режиме
@@ -99,12 +129,13 @@ for ($k=0; $k<sizeof($community); $k++) {
 					$decrypted_comment = str_replace(array('\'', '"'), '', $decrypted_comment);
 					$decrypted_comment = $db->escape($decrypted_comment);
 					$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-						UPDATE `" . DB_PREFIX . MY_PREFIX . "my_dc_transactions`
+						UPDATE `" . DB_PREFIX . $MY_PREFIX . "my_dc_transactions`
 						SET  `comment` = '{$decrypted_comment}',
 								`comment_status` = 'decrypted'
 						WHERE `id` = {$row['id']}
 						");
-				} else {
+				}
+				else {
 					$decrypted_comment = $row['comment'];
 				}
 				// возможно, что чуть раньше было reduction, а это значит, что все тр-ии,
@@ -143,12 +174,12 @@ for ($k=0; $k<sizeof($community); $k++) {
 					//print $answer;
 					$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
 					curl_close($ch);
-					print $http_code;
+					//print '$http_code='.$http_code."\n";
 
 					if ($http_code == 200) {
 						// отметим merchant_checked=1, чтобы больше не брать эту тр-ию
 						$db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-								UPDATE `" . DB_PREFIX . MY_PREFIX . "my_dc_transactions`
+								UPDATE `" . DB_PREFIX . $MY_PREFIX . "my_dc_transactions`
 								SET `merchant_checked` = 1
 								WHERE `id` = {$row['id']}
 								");
