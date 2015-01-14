@@ -12,9 +12,13 @@ $('#save').bind('click', function () {
 
 				var pct = $('#pct_'+id).val();
 				var pct0 = pct.split(".");
-				if (pct0[1].length < 2)
-					var pct = $('#pct_'+id).val()+'0';
-
+				if (typeof(pct0[1])!=='undefined') {
+					if (pct0[1].length < 2)
+						var pct = $('#pct_' + id).val() + '0';
+				}
+				else {
+					var pct = $('#pct_' + id).val() + '.00';
+				}
 				data=data+'"'+id+'":';
 				data=data+'["'+$('#min_amount_'+id).val()+'",';
 				data=data+'"'+$('#max_amount_'+id).val()+'",';
