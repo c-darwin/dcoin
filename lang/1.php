@@ -299,7 +299,7 @@ $lng['send'] = 'Send';
 $lng['wallets'] = 'My account ';
 $lng['transactions'] = 'Transactions';
 $lng['type'] = 'Type';
-$lng['error_in_tx'] = 'The information in the table "transactions" may be wrong. Wallets balances are displayed without errors.';
+$lng['error_in_tx'] = 'The information in the table "Last operation" may be wrong. Wallets balances are displayed without errors.';
 $lng['balances'] = 'Balances';
 $lng['where_get_dc'] = 'Where can I get coins?';
 $lng['where_get_dc_text'] = 'You don\'t have coins. Coins can be purchased on the <a href="http://en.dcoinwiki.com/Exchange" target="_blank">exchange</a> or you can mine it by your own.';
