@@ -126,8 +126,8 @@ for ($k=0; $k<sizeof($community); $k++) {
 				// делаем запрос к callback скрипту
 				preg_match("/\s*#\s*([0-9]+)\s*/i", $decrypted_comment, $order);
 				$order_id = $order[1];
-				if ($order_id) {
-					$sign = hash('sha256', "{$row['amount']}:{$currency_list[$row['currency_id']]}:{$order_id}:{$row['block_id']}:{$tx_id}:{$my_data['shop_secret_key']}");
+				//if ($order_id) {
+					$sign = hash('sha256', "{$row['amount']}:{$currency_list[$row['currency_id']]}:{$order_id}:{$decrypted_comment}:{$tx_array[$i]['user_id']}:{$row['block_id']}:{$tx_id}:{$my_data['shop_secret_key']}");
 					$tx_id = $row['id'];
 					$url = $my_data['shop_callback_url'];
 					$ch = curl_init();
@@ -138,7 +138,7 @@ for ($k=0; $k<sizeof($community); $k++) {
 					curl_setopt($ch, CURLOPT_URL, $url);
 					curl_setopt($ch, CURLOPT_RETURNTRANSFER, 1);
 					curl_setopt($ch, CURLOPT_POST, 1);
-					curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array('amount' => $row['amount'], 'currency' => $currency_list[$row['currency_id']], 'order_id' => $order_id, 'block_id' => $row['block_id'], 'tx_id' => $tx_id, 'sign' => $sign)));
+					curl_setopt($ch, CURLOPT_POSTFIELDS, http_build_query(array('amount' => $row['amount'], 'currency' => $currency_list[$row['currency_id']], 'order_id' => $order_id,'message' => $decrypted_comment, 'user_id' => $tx_array[$i]['user_id'], 'block_id' => $row['block_id'], 'tx_id' => $tx_id, 'sign' => $sign)));
 					$answer = curl_exec($ch);
 					//print $answer;
 					$http_code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
@@ -153,7 +153,7 @@ for ($k=0; $k<sizeof($community); $k++) {
 								WHERE `id` = {$row['id']}
 								");
 					}
-				}
+				//}
 			}
 		}
 	}
