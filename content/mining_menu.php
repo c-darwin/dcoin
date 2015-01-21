@@ -29,7 +29,7 @@ else {
 					", 'fetch_one');
 
 	if (!$my_miner_id) {
-		// проверим, послали ли мы запрос в FC-сеть
+		// проверим, послали ли мы запрос в DC-сеть
 		$data = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
 			SELECT `node_voting_send_request`,
 						 `host`
@@ -38,27 +38,32 @@ else {
 			", 'fetch_array');
 		$node_voting_send_request = $data['node_voting_send_request'];
 		$host = $data['host'];
+		// если прошло менее 1 часа
+		if (time() - $node_voting_send_request < 3600) {
 
-		if ($node_voting_send_request > 0) {
+			$tpl['result'] = 'pending';
+		}
+		else if ($node_voting_send_request > 0) {
 
 			// голосование нодов
 			$node_votes_end = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-				SELECT `votes_end`
-				FROM `" . DB_PREFIX . "votes_miners`
-				WHERE `user_id` = {$user_id} AND
-				             `type` = 'node_voting'
-				 ORDER BY `id` DESC
-				 LIMIT 1
-				", 'fetch_one');
+					SELECT `votes_end`
+					FROM `" . DB_PREFIX . "votes_miners`
+					WHERE `user_id` = {$user_id} AND
+					             `type` = 'node_voting'
+					 ORDER BY `id` DESC
+					 LIMIT 1
+					", 'fetch_one');
 
 			if ($node_votes_end == '1') { // голосование нодов завершено
 
 				$user_votes_end = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
-				SELECT `votes_end`
-				FROM `" . DB_PREFIX . "votes_miners`
-				WHERE `user_id` = {$user_id} AND
-				             `type` = 'user_voting'
-				", 'fetch_one');
+						SELECT `votes_end`
+						FROM `" . DB_PREFIX . "votes_miners`
+						WHERE `user_id` = {$user_id} AND
+						             `type` = 'user_voting'
+						 ORDER BY `id` DESC
+						", 'fetch_one');
 
 				if ($user_votes_end == '1') { // юзерское голосование закончено
 
@@ -85,12 +90,13 @@ else {
 
 				$tpl['result'] = 'resend';
 
-			} else { // запрос в FC-сеть еще не дошел и голосования не начались
+			} else { // запрос в DC-сеть еще не дошел и голосования не начались
 
 				// если прошло менее 1 часа
 				if (time() - $node_voting_send_request < 3600) {
 
 					$tpl['result'] = 'pending';
+
 				} else { // где-то проблема и запрос не ушел.
 
 					$tpl['result'] = 'resend';
@@ -198,13 +204,14 @@ else if ($tpl['result'] == 'full_mining_menu') {
 }
 else {
 
-// сколько у нас осталось попыток стать майнером.
+	// сколько у нас осталось попыток стать майнером.
 	$count_attempt = ParseData::count_miner_attempt($db, $user_id, 'user_voting');
 	$variables = ParseData::get_variables($db,  array('miner_votes_attempt') );
 
 	$tpl['miner_votes_attempt'] = $variables['miner_votes_attempt'] - $count_attempt;
 
-// комментарии проголосовавших
+	// комментарии проголосовавших
+	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__,'SET NAMES latin1');
 	$res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, '
 		SELECT *
 		FROM `'.DB_PREFIX.MY_PREFIX.'my_comments`
