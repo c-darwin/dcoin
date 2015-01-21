@@ -64,6 +64,7 @@
 
 	<div id="main_data">
 		<div style="float:left; margin-right: 20px; max-width: 400px">
+
 			<h3><?php echo $lng['my_trust_list']?></h3>
 			<div id="my_trust_list" style="<?php echo $tpl['pending_tx']?'display:none':'display:block'?>">
 				<?php echo $lng['id_of_the_new_arbitrator']?><input type="text" class="form-control" id="new_arbitrator" style="display: inline-block; max-width: 50px; margin: 5px;"><button class="btn btn-default" id="add_arbitrator"  style="display: inline-block"><?php echo $lng['add']?></button>
@@ -100,8 +101,8 @@
 		<div style="float:left; padding-top: 75px; padding-left: 70px; overflow: auto">
 
 			<a type="button" class="btn btn-primary" href="#arbitration_buyer"><?php echo $lng['i_buyer']?></a><br><br>
-			<a type="button" class="btn btn-primary" href="#arbitration_seller"><?php echo $lng['i_seller']?></a><br><br>
-			<a type="button" class="btn btn-primary" href="#arbitration_arbitrator"><?php echo $lng['i_arbitrator']?></a><br><br>
+			<a type="button" class="btn btn-primary" href="#arbitration_seller"><?php echo $lng['i_seller']?></a><br><?php echo ($tpl['arbitration_days_refund'] && $tpl['arbitration_trust_list'])?"{$lng['you_seller']}":''?><br>
+			<a type="button" class="btn btn-primary" href="#arbitration_arbitrator"><?php echo $lng['i_arbitrator']?></a><br><?php echo $tpl['arbitrator']?"{$lng['you_arbitrator']}":''?><br>
 
 		</div>
 		<div class="clearfix"></div>

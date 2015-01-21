@@ -77,6 +77,24 @@ $tpl['my_trust_list'][] = array('arbitrator_user_id' => 256, 'url' =>'111', 'cou
 $tpl['my_trust_list'][] = array('arbitrator_user_id' => 9753, 'url' =>'111', 'count' => 122);
 */
 
+// арбитр ли наш юзер
+$tpl['arbitrator'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `conditions`
+		FROM `".DB_PREFIX."arbitrator_conditions`
+		WHERE `user_id` = {$user_id}
+		", 'fetch_one');
+// продавец ли
+$tpl['arbitration_days_refund'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `arbitration_days_refund`
+		FROM `".DB_PREFIX."users`
+		WHERE `user_id` = {$user_id}
+		", 'fetch_one');
+$tpl['arbitration_trust_list'] = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
+		SELECT `arbitrator_user_id`
+		FROM `".DB_PREFIX."arbitration_trust_list`
+		WHERE `user_id` = {$user_id}
+		", 'fetch_one');
+
 $tpl['currency_list'] = get_currency_list($db);
 
 $tpl['last_tx'] = get_last_tx($user_id, types_to_ids(array('change_arbitrator_conditions', 'change_seller_hold_back', 'change_arbitrator_list', 'money_back_request', 'money_back', 'change_money_back_time')), 3);
