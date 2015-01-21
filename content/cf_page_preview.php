@@ -11,7 +11,7 @@ if (isset($_REQUEST['parameters']['page']) && !preg_match('/^[a-z]{0,10}$/iD', $
 	die ('error page');
 
 $cf_currency_name = filter_var(@$_REQUEST['parameters']['only_cf_currency_name'], FILTER_SANITIZE_STRING);
-if (isset($cf_currency_name) && !preg_match('/^[a-z0-9]{7}$/iD', $cf_currency_name))
+if (!empty($cf_currency_name) && !preg_match('/^[a-z0-9]{7}$/iD', $cf_currency_name))
 	die ('error only_cf_currency_name');
 
 $tpl['page'] = filter_var(@$_REQUEST['parameters']['page'], FILTER_SANITIZE_STRING);
