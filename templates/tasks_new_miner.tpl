@@ -346,10 +346,13 @@ $('#send_to_net').bind('click', function () {
 		</div>
 		<div>
 			<?php
-			if ( $tpl['user_info']['video_url_id']!='null' )
-				echo '<iframe width="320" height="240" src="http://www.youtube.com/embed/'.$tpl['user_info']['video_url_id'].'" frameborder="0" allowfullscreen></iframe>';
-			else
-				echo '<video class="video-js vjs-default-skin" controls preload="none" width="320" height="240" data-setup="{}"><source src="'.$tpl['user_info']['host'].'public/user_video.mp4" type="video/mp4" /><source src="'.$tpl['user_info']['host'].'public/user_video.webm" type="video/webm" /><source src="'.$tpl['user_info']['host'].'public/user_video.ogv" type="video/ogg" /></video>';
+			if ( $tpl['user_info']['video_url_id']!='null' ) {
+				echo '<iframe width="320" height="240" src="http://www.youtube.com/embed/' . $tpl['user_info']['video_url_id'] . '" frameborder="0" allowfullscreen></iframe>';
+			}
+			else {
+				//echo '<video class="video-js vjs-default-skin" controls preload="none" width="320" height="240" data-setup="{}"><source src="'.$tpl['user_info']['host'].'public/'.$tpl['user_info']['user_id'].'_user_video.mp4" type="video/mp4" /><source src="'.$tpl['user_info']['host'].'public/'.$tpl['user_info']['user_id'].'_user_video.webm" type="video/webm" /><source src="'.$tpl['user_info']['host'].'public/'.$tpl['user_info']['user_id'].'_user_video.ogv" type="video/ogg" /></video>';
+				echo '<video class="video-js vjs-default-skin" controls preload="none" width="320" height="240" data-setup="{}"><source src="'.$tpl['user_info']['host'].'public/'.$tpl['user_info']['user_id'].'_user_video.mp4" type="video/mp4" /></video>';
+			}
 			?>
 
 		</div>
