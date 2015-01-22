@@ -127,7 +127,7 @@
 				if (empty($data['key']))
 					echo "<td>{$lng['key_has_been_changed']}</td>";
 				else
-					echo "<td style='font-size: 25px' class='ref'><a href='{$key_url}.png' target='_blank'><i class='fa fa-download'></i></a> <a href='{$key_url}.txt' target='_blank'><i class='fa fa-file-text-o'></i></a> <a href='https://www.facebook.com/sharer/sharer.php?u={$key_url}' target='_blank'><i class='fa fa-facebook-square'></i></a> <a href='https://twitter.com/home?status={$key_url}' target='_blank'><i class='fa fa-twitter-square'></i></a> <a href='http://vkontakte.ru/share.php?url={$key_url}' target='_blank'><i class='fa fa-vk'></i></a> <a href='mailto:?subject=Dcoin&amp;body={$key_url}' target='_blank'><i class='fa fa-envelope-o'></i></a></td></tr>";
+					echo "<td style='font-size: 25px' class='ref'><a href='{$key_url}.png' target='_blank'><i class='fa fa-download'></i></a> <a href='{$key_url}.txt' target='_blank'><i class='fa fa-file-text-o'></i></a> <a href='https://www.facebook.com/sharer/sharer.php?u={$key_url}.txt' target='_blank'><i class='fa fa-facebook-square'></i></a> <a href='https://twitter.com/home?status={$key_url}.txt' target='_blank'><i class='fa fa-twitter-square'></i></a> <a href='http://vkontakte.ru/share.php?url={$key_url}.txt' target='_blank'><i class='fa fa-vk'></i></a> <a href='mailto:?subject=Dcoin&amp;body={$key_url}.txt' target='_blank'><i class='fa fa-envelope-o'></i></a></td></tr>";
 			}
 			echo '</tbody>';
 			echo '</table>';
