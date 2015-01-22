@@ -259,6 +259,7 @@ $('#next, #cf_next').bind('click', function () {
 
 	function fill_cf_card(data)
 	{
+		$('#cf_tab').css('display', '');
 		console.log(data);
 		$('#blurb_img').attr('src', data.blurb_img);
 		$('#location').text(data.country+', '+data.city);
@@ -449,8 +450,8 @@ function foattoupper(x) {
 			<ul class="nav nav-tabs" id="myTab">
 				<li class="active"><a href="#wallets_list" data-toggle="tab"><?php echo $lng['send_to_wallet']?></a>
 				</li>
-				<!--<li class=""><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
-				</li>-->
+				<li class="" style="display:none" id="cf_tab"><a href="#send_to_cf" data-toggle="tab"><?php echo $lng['send_to_cf_project']?></a>
+				</li>
 				<li class=""><a href="#currency_exchange"><?php echo $lng['currency_exchange1']?></a>
 				</li>
 				<li class=""><a href="#credits"><?php echo $lng['credits']?></a>
@@ -607,6 +608,7 @@ function foattoupper(x) {
 									<tr><td><?php echo $lng['note']?></td><td><input class="form-control" type="text" id="cf_comment"></td></tr>
 								</table>
 								<button id="cf_next" class="btn btn-outline btn-primary" type="button"><?php echo $lng['send']?></button>
+								<!--
 								<div class="panel panel-success" style="margin-top: 20px; max-width: 400px">
 									<div class="panel-heading">
 										<?php echo $lng['where_get_dc']?>
@@ -615,6 +617,7 @@ function foattoupper(x) {
 										<p><?php echo $lng['where_get_dc_text']?></p>
 									</div>
 								</div>
+								-->
 							</div>
 
 						</div>
