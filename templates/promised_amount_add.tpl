@@ -43,14 +43,14 @@ $('#add_promised_amount').bind('click', function () {
 	if (!$('#amount').val()) {
 		$('#errors').html('<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><?php echo $lng['invalid_amount']?></div>');
 	}
-	else if (!video_url_id) {
-		$('#errors').html('<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><?php echo $lng['video_not_uploaded']?></div>');
-		//video_url_id='null';
-		//video_type='null';
-	}
 	else {
-
-		video_type = 'youtube';
+		if (!video_url_id) {
+			video_url_id='null';
+			video_type='null';
+		 }
+		else {
+			video_type = 'youtube';
+		}
 
 		var ps_id;
 		for (i = 1; i < 6; i++) {
@@ -251,7 +251,7 @@ $( "#currency_id" ).change(function () {
 
 				    </td></tr>
 			<?php
-			if (!defined('COMMUNITY')) {
+			//if (!defined('COMMUNITY')) {
 			?>
 			    <tr><td>
 					    <?php echo $lng['2_video_file']?>:<br>
@@ -280,7 +280,7 @@ $( "#currency_id" ).change(function () {
 
 				    </td></tr>
 			<?php
-			}
+			//}
 			?>
 		    </table>
 	    </div>
