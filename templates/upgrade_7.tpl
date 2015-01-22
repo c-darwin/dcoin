@@ -31,7 +31,7 @@
 					var my_alert = '<?php echo $lng['sent_to_the_net'] ?>';
 				else
 					var my_alert = data;
-				fc_navigate('upgrade', {'alert': my_alert});
+				fc_navigate('mining_menu', {'alert': my_alert});
 			});
 		}
 		else {

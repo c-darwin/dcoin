@@ -83,7 +83,7 @@
 	<?php echo $lng['upload_face_video_rules']?>
 	<?php echo $lng['upload_face_video_rules2']?>
 
-	<p><a href="#" id="from_webcam_show">С web-камеры</a> или <a href="#" id="from_file_show">из файла</a></p>
+	<p><a href="#" id="from_webcam_show"><?php echo $lng['from_webcam']?><?php echo $lng['from_file']?></a> <?php echo $lng['or']?> <a href="#" id="from_file_show"><?php echo $lng['from_file']?></a></p>
 	<div id="from_webcam">
 
 		<div id="widget"></div>
@@ -105,7 +105,6 @@
 
 				<tr><td>
 				or upload mp4/mov video:<br>
-
 					<table>
 						<tr>
 							<td>
