@@ -1640,7 +1640,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				SET `votes_end` = 1,
 					   `end_block_id` = {$this->block_data['block_id']}
 				WHERE `user_id` = {$this->tx_data['user_id']} AND
-				             `type` = 'node_voting'
+				             `type` = 'node_voting' AND
+				             `votes_end` = 0
 				");
 
 		// создаем новое голосование
@@ -1700,6 +1701,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 					   `end_block_id` = 0
 				WHERE `user_id` = {$this->tx_data['user_id']} AND
 				             `type` = 'node_voting' AND
+				             `votes_end` > 0 AND
 				             `end_block_id` = {$this->block_data['block_id']}
 				");
 
@@ -2727,13 +2729,13 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$id = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `id`
 				FROM `".DB_PREFIX."votes_miners`
-				WHERE `id` = '{$this->tx_data['vote_id']}' AND
+				WHERE `id` = {$this->tx_data['vote_id']} AND
 							 `type` = 'node_voting' AND
 							 `votes_end` = 0
 				LIMIT 1
 				", 'fetch_one' );
 		if ( !$id )
-			return 'voting is over';
+			return  __LINE__.'#'.__METHOD__.'(voting is over)';
 
 		// проверим, не повторное ли это голосование данного юзера
 		$num = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -5743,7 +5745,10 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				UPDATE `".DB_PREFIX."votes_miners`
 				SET `votes_end` = 0,
 					   `end_block_id` =  0
-				WHERE `end_block_id` = {$this->block_data['block_id']}
+				WHERE `user_id` = {$this->tx_data['user_id']} AND
+							 `type` = 'node_voting' AND
+							 `end_block_id` = {$this->block_data['block_id']} AND
+							 `votes_end` > 0
 				");
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -6857,7 +6862,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				", 'fetch_one' );
 		if ( !$id )
-			return 'voting is over';
+			return  __LINE__.'#'.__METHOD__.'(voting is over)';
 
 		// проверим, не повторное ли это голосование данного юзера
 		$num = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -7684,7 +7689,7 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 				LIMIT 1
 				", 'fetch_one' );
 		if ($status!='pending')
-			return 'voting is over';
+			return  __LINE__.'#'.__METHOD__.'(voting is over)';
 
 		// проверим, не повторное ли это голосование данного юзера
 		$num = $this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
