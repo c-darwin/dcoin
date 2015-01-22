@@ -86,7 +86,7 @@ $('#profileclose').bind('click', function () {
 
 
 	<?php echo $lng['enter_code']?><br>
-		<input type="text" id="code"><br>
+		<input type="text" id="code" class="form-control"><br>
 		<button id="next" class="btn btn-primary" type="button"><?php echo $lng['next']?></button>
 
 	</div>
