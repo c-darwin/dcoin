@@ -3484,15 +3484,15 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 			clear_incompatible_tx_sql ($db, 'new_miner', $user_id, $wait_error);
 
 		// не должно попадать в один блок смена нодовского ключа и тр-ии которые этим ключем подписываются
-		if ($type == ParseData::findType('change_node_key'))
+		if ($type == ParseData::findType('change_node_key') || $type == ParseData::findType('new_miner') )
 			clear_incompatible_tx_sql ($db, 'new_miner_update', $user_id, $wait_error);
-		if ($type == ParseData::findType('change_node_key'))
+		if ($type == ParseData::findType('change_node_key') || $type == ParseData::findType('new_miner') )
 			clear_incompatible_tx_sql ($db, 'new_pct', $user_id, $wait_error);
 		if ($type == ParseData::findType('new_miner_update'))
-			clear_incompatible_tx_sql ($db, 'change_node_key', $user_id, $wait_error);
+			clear_incompatible_tx_sql_set ($db, array('change_node_key', 'new_miner'), $user_id, $wait_error);
 		if ($type == ParseData::findType('new_pct'))
-			clear_incompatible_tx_sql ($db, 'change_node_key', $user_id, $wait_error);
-		if ($type == ParseData::findType('change_node_key'))
+			clear_incompatible_tx_sql_set ($db, array('change_node_key', 'new_miner'), $user_id, $wait_error);
+		if ($type == ParseData::findType('change_node_key') || $type == ParseData::findType('new_miner') )
 			clear_incompatible_tx_sql ($db, 'new_reduction', $user_id, $wait_error);
 
 		// восстановление ключа
@@ -3778,11 +3778,11 @@ function clear_incompatible_tx($binary_tx, $db, $my_tx)
 
 		// если пришло new_pct, то нужно откатить следующие тр-ии
 		if ($type == ParseData::findType('new_pct'))
-			rollback_incompatible_tx( array('new_reduction', 'change_node_key', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining', 'cf_send_dc', 'del_cf_project', 'new_forex_order', 'del_forex_order', 'for_repaid_fix', 'actualization_promised_amounts', 'del_cf_funding', 'admin_unban_miners', 'admin_ban_miners') );
+			rollback_incompatible_tx( array('new_reduction', 'change_node_key', 'new_miner', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining', 'cf_send_dc', 'del_cf_project', 'new_forex_order', 'del_forex_order', 'for_repaid_fix', 'actualization_promised_amounts', 'del_cf_funding', 'admin_unban_miners', 'admin_ban_miners') );
 
 		// если пришло new_reduction, то нужно откатить следующие тр-ии
 		if ($type == ParseData::findType('new_reduction'))
-			rollback_incompatible_tx( array('new_pct', 'change_node_key', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining', 'cf_send_dc', 'del_cf_project', 'new_forex_order', 'del_forex_order', 'for_repaid_fix', 'actualization_promised_amounts', 'del_cf_funding', 'admin_unban_miners', 'admin_ban_miners') );
+			rollback_incompatible_tx( array('new_pct', 'change_node_key', 'new_miner', 'votes_promised_amount', 'send_dc', 'cash_request_in', 'mining', 'cf_send_dc', 'del_cf_project', 'new_forex_order', 'del_forex_order', 'for_repaid_fix', 'actualization_promised_amounts', 'del_cf_funding', 'admin_unban_miners', 'admin_ban_miners') );
 
 		// временно запрещаем 2 тр-ии любого типа от одного юзера, а то затрахался уже.
 		$num = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
