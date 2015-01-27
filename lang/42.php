@@ -371,6 +371,7 @@ $lng['home_total_coins_personal'] = 'Это сумма [currency] которые
 $lng['home_coins_pct_y'] = 'С таким % создаются [currency] на остаток любого счета, кроме майнерского.';
 $lng['home_miners_text'] = 'Пользователи, участвующие в создании (эмиссии) dCoin';
 $lng['unless_reduction'] = 'Если не произойдет сокращение объема монет';
+$lng['home_after'] = 'Через';
 $lng['i_will'] = 'у меня';
 $lng['probably'] = 'возможно';
 $lng['be'] = 'будет';
