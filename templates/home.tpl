@@ -1334,7 +1334,7 @@ if ($tpl['show_map']) {
 		<option value='user'><?php echo $lng['status_user']?></option>
 	</select>
 	<br><br>
-	<?php echo $lng['after']?> <select id="calc_period" style="width: 100px; display: inline-block" class="form-control" >
+	<?php echo $lng['home_after']?> <select id="calc_period" style="width: 100px; display: inline-block" class="form-control" >
 		<option value='86400'><?php echo $lng['day']?></option>
 		<option value='604800'><?php echo $lng['week']?></option>
 		<option value='2592000' selected><?php echo $lng['month']?></option>
