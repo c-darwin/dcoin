@@ -176,6 +176,9 @@
 							<a href="#reduction"><?php echo $lng['reduction']?></a>
 						</li>-->
 						<li>
+							<a href="#statistic_voting"><?php echo $lng['voting']?></a>
+						</li>
+						<li>
 							<a href="#statistic"><?php echo $lng['statistic']?></a>
 						</li>
 						<li>
