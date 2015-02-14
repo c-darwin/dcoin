@@ -181,6 +181,15 @@ if (isset($tpl['currency_pct'])) {
 ?>
 
 
+<?php
+echo '<h3>count_users</h3>';
+echo '<table class="table table-bordered" style="width:600px">';
+echo "<tr><td>{$tpl['count_users']}</td></tr>";
+echo '</tbody>';
+echo '</table>';
+?>
+
+
 <h3><?php echo $lng['reduction_title']?> <span style="font-size:15px">(<a href="<?php echo $lng['reduction_wiki_link']?>" target="_blank">wki</a>)</span></h3>
 <?php
 if (isset($tpl['reduction'])) {
@@ -204,107 +213,3 @@ if (isset($tpl['reduction'])) {
 	echo '</table>';
 }
 ?>
-
-
-<?php
-echo '<h3>max_promised_amounts</h3>';
-echo '<table class="table table-bordered" style="width:600px">';
-echo "<thead><tr><th>currency</th><th>votes</th><th>result</th></tr></thead>";
-if (isset($tpl['max_promised_amount_votes'])) {
-	foreach ($tpl['max_promised_amount_votes'] as $currency_id => $data) {
-		echo "<tr>";
-		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
-		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
-		echo "<td>{$tpl['new_max_promised_amounts'][$currency_id]}</td>";
-		echo "</tr>";
-	}
-}
-echo '</tbody>';
-echo '</table>';
-?>
-
-
-<?php
-echo '<h3>max_other_currencies</h3>';
-echo '<table class="table table-bordered" style="width:600px">';
-echo "<thead><tr><th>currency</th><th>votes</th><th>result</th></tr></thead>";
-if (isset($tpl['max_other_currencies_votes'])) {
-	foreach ($tpl['max_other_currencies_votes'] as $currency_id => $data) {
-		echo "<tr>";
-		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
-		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
-		echo "<td>{$tpl['new_max_other_currencies'][$currency_id]}</td>";
-		echo "</tr>";
-	}
-}
-echo '</tbody>';
-echo '</table>';
-?>
-
-
-<?php
-echo '<h3>votes_reduction</h3>';
-echo '<table class="table table-bordered" style="width:600px">';
-echo "<thead><tr><th>currency</th><th>votes</th><th>need</th></tr></thead>";
-if (isset($tpl['votes_reduction'])) {
-	foreach ($tpl['votes_reduction'] as $currency_id => $data) {
-		echo "<tr>";
-		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
-		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
-		echo "<td>".($tpl['promised_amount'][$currency_id]/2)."</td>";
-		echo "</tr>";
-	}
-}
-echo '</tbody>';
-echo '</table>';
-?>
-
-
-<?php
-echo '<h3>votes_referral</h3>';
-echo '<table class="table table-bordered" style="width:600px">';
-echo "<thead><tr><th>currency</th><th>votes</th><th>result</th></tr></thead>";
-if (isset($tpl['votes_referral'])) {
-	foreach ($tpl['votes_referral'] as $level => $data) {
-		echo "<tr>";
-		echo "<td>{$level}</td>";
-		echo "<td><pre style='height:100px'>" . print_r($data, true) . "</pre></td>";
-		echo "<td>{$tpl['new_referral_pct'][$level]}</td>";
-		echo "</tr>";
-	}
-}
-echo '</tbody>';
-echo '</table>';
-?>
-
-
-
-<?php
-echo '<h3>votes_pct</h3>';
-echo '<table class="table table-bordered" style="width:600px">';
-echo "<thead><tr><th>currency</th><th>miner pct votes</th><th>result</th><th>user pct votes</th><th>result</th></tr></thead>";
-if (isset($tpl['pct_votes'])) {
-	foreach ($tpl['pct_votes'] as $currency_id => $data) {
-		echo "<tr>";
-		echo "<td>d{$tpl['currency_list'][$currency_id]}</td>";
-		echo "<td><pre style='height:100px'>" . print_r($data['miner_pct'], true) . "</pre></td>";
-		echo "<td>{$tpl['new_pct'][$currency_id]['miner_pct']}</td>";
-		echo "<td><pre style='height:100px'>" . print_r($data['user_pct'], true) . "</pre></td>";
-		echo "<td>{$tpl['new_pct'][$currency_id]['user_pct']}</td>";
-		echo "</tr>";
-	}
-}
-echo '</tbody>';
-echo '</table>';
-?>
-
-
-<?php
-echo '<h3>count_users</h3>';
-echo '<table class="table table-bordered" style="width:600px">';
-echo "<tr><td>{$tpl['count_users']}</td></tr>";
-echo '</tbody>';
-echo '</table>';
-?>
-
-

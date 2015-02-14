@@ -113,6 +113,7 @@ if ($tpl['user_info_id']) {
 /*
  * Голосование за размер обещанной суммы
  */
+/*
 $tpl['max_promised_amount_votes'] = array();
 // берем все голоса
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -137,6 +138,7 @@ foreach ( $tpl['max_promised_amount_votes'] as $currency_id => $amounts_and_vote
 /*
  * Голосование за кол-во валют в обещанных суммах
  */
+/*
 $tpl['max_other_currencies_votes'] = array();
 // берем все голоса
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -157,6 +159,7 @@ foreach ( $tpl['max_other_currencies_votes'] as $currency_id => $count_and_votes
 /*
  * Голосование за ручное сокращение объема монет
  * */
+/*
 // получаем кол-во обещанных сумм у разных юзеров по каждой валюте. start_time есть только у тех, у кого статус mining/repaid
 $tpl['promised_amount'] = array();
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -192,6 +195,7 @@ while ( $row = $db->fetchArray( $res ) ) {
 /*
  * Голосование за реф. бонусы
  * */
+/*
 $ref_levels = array('first', 'second', 'third');
 $tpl['new_referral_pct'] = array();
 $tpl['votes_referral'] = array();
@@ -212,6 +216,7 @@ for ($i=0; $i<sizeof($ref_levels); $i++) {
 /*
  * Голосоваие за майнеркие и юзерские %
  * */
+/*
 // берем все голоса miner_pct
 $res = $db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 				SELECT `currency_id`,
@@ -308,6 +313,7 @@ while ($row = $db->fetchArray($res)) {
 
 
 $tpl['currency_list'] = get_currency_list($db, 'full');
+
 require_once( ABSPATH . 'templates/statistic.tpl' );
 
 ?>
