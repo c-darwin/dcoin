@@ -227,6 +227,8 @@ $('#send_to_net').bind('click', function () {
 	
 } );
 
+check_key_and_show_modal();
+
 </script>
 <h1 class="page-header"><?php echo $lng['tasks_title_new_miner']?></h1>
 <ol class="breadcrumb">
