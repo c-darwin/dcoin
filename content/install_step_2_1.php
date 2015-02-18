@@ -133,6 +133,31 @@ if ( !isset($tpl['error']) ) {
 
 if (!isset($tpl['error'])) {
 
+	$pref = 'TEST';
+	$content = '11,11,11,11';
+	$file = tempnam(sys_get_temp_dir(), $pref);
+	if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN')
+		$file = str_replace('\\', '/', $file);
+	file_put_contents($file, $content);
+	chmod($file, 0644);
+
+	$mysqli_link = mysqli_connect(DB_HOST, DB_USER, DB_PASSWORD, DB_NAME, DB_PORT);
+	$query = "
+			LOAD DATA LOCAL INFILE  '{$file}' IGNORE INTO TABLE `" . DB_PREFIX . "block_chain`
+			FIELDS TERMINATED BY ','
+			(`id`, `hash`, `head_hash`, `data`)
+			";
+	mysqli_query($mysqli_link, $query);
+	if (mysqli_error($mysqli_link)) {
+		$tpl['error'][] = 'Error performing query (' . $query . ') Error message : ' . mysqli_error($mysqli_link);
+	}
+	else {
+		mysqli_query($mysqli_link, "TRUNCATE TABLE `" . DB_PREFIX . "block_chain`");
+	}
+}
+
+if (!isset($tpl['error'])) {
+
 	$db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
 			INSERT INTO
 			`".$tpl['mysql_prefix']."install` (
