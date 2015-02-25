@@ -28,5 +28,18 @@ else {
 	$tpl['block_time'] = ParseData::binary_dec_string_shift($last_block_bin, 4);
 	$tpl['block_id'] = $confirmed_block_id;
 }
+
+// для сингл-мода, кнопка включения и выключения демонов
+if ( !defined('COMMUNITY') ) {
+	$script_name = $db->query(__FILE__, __LINE__, __FUNCTION__, __CLASS__, __METHOD__, "
+		SELECT `script_name`
+		FROM `" . DB_PREFIX . "main_lock`
+		", 'fetch_one');
+	if ($script_name == 'my_lock')
+		$tpl['start_daemons'] = '<a href="#" id="start_daemons" style="color:#C90600">Start daemons</a>';
+	else
+		$tpl['start_daemons'] = '';
+}
+
 require_once( ABSPATH . 'templates/updating_blockchain.tpl' );
 ?>

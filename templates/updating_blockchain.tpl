@@ -315,6 +315,19 @@
 		background-image: none;
 	}
 </style>
+
+<script>
+	$('#start_daemons').bind('click', function () {
+		$.post( 'ajax/start_daemons.php', { } ,
+			function () {
+				$.post( 'ajax/clear_daemons_time.php', { } ,
+					function () {
+						$('#start_daemons_div').html('Please restart dcoin');
+					});
+			});
+	});
+</script>
+
 <script>
 	$(document).ready(function() 	{
 		var refreshId = setInterval( function() {
@@ -330,7 +343,7 @@
 						$('#block_time').text(d);
 						$('#cur_block_id').text(data.block_id);
 						console.log(d);
-						var pct = Math.round(data.block_id/210000*100);
+						var pct = Math.round(data.block_id/220000*100);
 						$('#meter').width(pct+'%');
 						$('#meter').text(pct+'%');
 
@@ -366,9 +379,12 @@
 			</div>
 		<!--<?php echo $lng['time_last_block']?>: <span id='block_time' class='unixtime'><?php echo $tpl['block_time']?></span><br>-->
 		<div class="meter1">
-			<span style="width: <?php echo round(($tpl['block_id']/210000)*100)?>%; height: 20px; color: #fff" id="meter"><?php echo round(($tpl['block_id']/210000)*100)?>%</span>
+			<span style="width: <?php echo round(($tpl['block_id']/220000)*100)?>%; height: 20px; color: #fff" id="meter"><?php echo round(($tpl['block_id']/220000)*100)?>%</span>
 		</div>
 	</div>
+
+	<div id="start_daemons_div"><?php echo $tpl['start_daemons']?></div>
+
 	<div id="check_time" style="margin-top: 50px"><?php
 		if (!get_community_users($db)) {
 			echo $lng['check_time']." ";
