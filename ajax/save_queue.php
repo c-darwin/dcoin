@@ -317,6 +317,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 							{$vote_id},
 							{$time}
 						)");
+			//print $db->printsql();
 		}
 
 		$data = dec_binary ($type, 1) .
@@ -412,6 +413,7 @@ $bin_signatures = ParseData::encode_length_plus_data($sign);
 							{$promised_amount_id},
 							{$time}
 						)");
+				//print $db->printsql();
 			}
 
 			$data = dec_binary ($type, 1) .

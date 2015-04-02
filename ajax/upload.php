@@ -55,7 +55,6 @@ else if ( $type == 'user_video') {
 	copy($_FILES['file']['tmp_name'], ABSPATH . $name);
 	$return_url = $name;
 }
-// в пул-моде пока не даем заливать видео
 else if ( substr_count($type, 'promised_amount')>0) {
 
 	$data = explode('-', $type);

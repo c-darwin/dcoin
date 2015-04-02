@@ -99,7 +99,9 @@ switch ($task_type) {
 							 `id` = {$tpl['user_info']['vote_id']} AND
 							 `time` > ".(time()-TASK_TIME)."
 				", 'fetch_one' );
+		//print '<!--'.$db->printsql()."\n".TASK_TIME."-->";
 		if ($repeated) {
+			//print "<!--repeated-->";
 			require_once( ABSPATH . 'templates/tasks.tpl');
 			break;
 		}
@@ -238,7 +240,9 @@ switch ($task_type) {
 							 `id` = {$tpl['data']['id']} AND
 							 `time` > ".(time()-TASK_TIME)."
 				", 'fetch_one' );
+		//print '<!--'.$db->printsql()."\n".TASK_TIME."-->";
 		if ($repeated) {
+			//print '<!--repeated-->';
 			require_once( ABSPATH . 'templates/tasks.tpl');
 			break;
 		}

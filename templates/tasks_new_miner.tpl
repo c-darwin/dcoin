@@ -222,9 +222,9 @@ $('#send_to_net').bind('click', function () {
 			'signature1': $('#signature1').val(),
 			'signature2': $('#signature2').val(),
 			'signature3': $('#signature3').val()
-			}, function () { } );
-	fc_navigate ('tasks', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
-	
+			}, function () {
+		fc_navigate ('tasks', {'alert': '<?php echo $lng['sent_to_the_net'] ?>'} );
+	} );
 } );
 
 check_key_and_show_modal();

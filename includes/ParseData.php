@@ -1410,8 +1410,12 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 
 		if ($currency_id>=1000) // >=1000 - это CF-валюты, которые не растут
 			$new_DC_sum = $wallet_data['amount'];
-		else
-			$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_ ( $wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'], $this->pct[$currency_id], $points_status ) - $amount - $commission;
+		else {
+			$new_DC_sum = $wallet_data['amount'] + $this->calc_profit_($wallet_data['amount'], $wallet_data['last_update'], $this->block_data['time'], $this->pct[$currency_id], $points_status) - $amount - $commission;
+			debug_print(  '$wallet_data[amount]='.$wallet_data['amount'], __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print(  '$amount='.$amount, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+			debug_print(  '$commission='.$commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		}
 		debug_print(  'user sender $new_DC_sum='.$new_DC_sum, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 
 		$this->db->query( __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__, "
@@ -9100,6 +9104,8 @@ CyQhCzB0CzyoC0i+C1S2C2CQC2xOC3fvC4N1C47gC5ow';
 		$forex_orders_amount = $forex_orders_amount?$forex_orders_amount:0;
 		$hold_back_amount = $hold_back_amount?$hold_back_amount:0;
 		$all = $TotalAmount - $this->WalletsBufferAmount - $cash_requests_amount - $forex_orders_amount - $hold_back_amount;
+		debug_print('$all='.$all, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
+		debug_print('amount_and_commission='.$this->amount_and_commission, __FILE__, __LINE__,  __FUNCTION__,  __CLASS__, __METHOD__);
 		if ( $all < $this->amount_and_commission ) {
 			// 0.06 < 0.06
 			//var_dump($all);

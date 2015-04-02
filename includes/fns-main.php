@@ -1819,6 +1819,22 @@ class testblock {
 
 		return $rez;
 	}
+	/*
+    new
+	static function get_block_generator_miner_id ($max_miner_id, $ctx)
+	{
+		$n = ceil( log($max_miner_id) / log(16) );
+		$hash = $ctx;
+		do {
+		  $hash = hash('sha256', $hash);
+		  $c = substr($hash, 0, $n);
+		  $level_0_miner_id = hexdec($c);
+		} while( $level_0_miner_id > $max_miner_id || !$level_0_miner_id );
+
+		return $level_0_miner_id;
+	}
+	*/
+
 	/**
 	 * Получаем уровни и диапазоны, начиная от начального $cur_miner_id.
 	 * Сгенирировать блок должен $cur_miner_id, но если он не смог,
