@@ -158,7 +158,7 @@ $lng['empty_wallets'] = 'On your wallets no DC';
 // tasks
 $lng['tasks_title'] = 'Assignments';
 $lng['tasks_title_new_miner'] = 'Checking new miner ';
-$lng['tasks_new_miner_spots'] = 'Check the location of points on the photo ';
+$lng['tasks_new_miner_spots'] = 'Check the location of points on the photo.  Person should be on the look more than 18 years.';
 $lng['tasks_new_miner_clones'] = 'Searching clones';
 $lng['tasks_new_miner_video'] = 'On the photo and the video should be identical to the person ';
 $lng['tasks_title_promised_amount'] = 'Verify the new promised amount';

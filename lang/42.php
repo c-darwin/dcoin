@@ -158,7 +158,7 @@ $lng['empty_wallets'] = 'На ваших кошельках нет DC';
 // tasks
 $lng['tasks_title'] = 'Задания';
 $lng['tasks_title_new_miner'] = 'Проверка претендента в майнеры';
-$lng['tasks_new_miner_spots'] = 'Проверьте расположение точек на фото';
+$lng['tasks_new_miner_spots'] = 'Проверьте расположение точек на фото. Человеку должно быть на вид более 18 лет.';
 $lng['tasks_new_miner_clones'] = 'Поиск клонов';
 $lng['tasks_new_miner_video'] = 'На фото и на видео должно быть идентичное лицо';
 $lng['tasks_title_promised_amount'] = 'Проверка новой обещанной суммы';
