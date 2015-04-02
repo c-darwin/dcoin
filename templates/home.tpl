@@ -394,87 +394,107 @@
 		console.log('counters='+counters);
 		console.log('pct_sec='+pct_sec);
 		console.log('start='+start);
-		if (typeof urls == 'undefined' )
+		if (typeof urls == 'undefined' || typeof urls[i] == 'undefined' )
 			return 0;
-		var image = new Image();
-		if (typeof urls[i] != 'undefined' && urls[i]!='' && urls[i]!='0') {
-			console.log('TRY '+urls[i]+"/public/"+user_id+"_user_face.jpg"+"\ni="+i);
-			image.src = urls[i]+"/public/"+user_id+"_user_face.jpg";
-			image.onload = function(){
-				console.log('OK '+urls[i]);
-				image=null;
-				//$('#img_'+user_id).css("background", "url('"+urls[i]+"/public/"+user_id+"_user_face.jpg')  50% 50%");
-				//$('#img_'+user_id).css("background-size", "100px Auto");
-				//infowindow = new google.maps.InfoWindow();
-				//infowindow.setContent('<div id="infowin_content" style="width:190px; overflow:none"><div id="img_'+user_id+'" style="width:100px; height:100px; background:  url('+urls[i]+'/public/'+user_id+'_user_face.jpg)  50% 50%; background-size: 100px Auto; border-radius:50%"></div>'+html+'</div>');
+		$.ajax({
+			url: urls[i] + "/ajax/public_img.php?img=" + user_id + "_user_face.jpg",
+			type: 'GET',
+			error:
+				function(){
+					console.log('==========error ' + urls[i] + "/ajax/public_img.php?img=" + user_id + "_user_face.jpg");
+					var bg = $('#img_' + user_id).css("background-image");
+					if (typeof bg == 'undefined' || bg.length < 10)
+						get_img_home(i + 1, user_id, urls, lnglat, html, counters, pct_sec, start);
+				},
+			success:
+				function(response) {
+					if (response=='ok') {
+						if (typeof urls[i] != 'undefined' && urls[i] != '' && urls[i] != '0') {
+							var image = new Image();
+							console.log('TRY ' + urls[i] + "/public/" + user_id + "_user_face.jpg" + "\ni=" + i);
+							image.src = urls[i] + "/public/" + user_id + "_user_face.jpg";
+							image.onload = function () {
+								console.log('OK ' + urls[i]);
+								image = null;
+								//$('#img_'+user_id).css("background", "url('"+urls[i]+"/public/"+user_id+"_user_face.jpg')  50% 50%");
+								//$('#img_'+user_id).css("background-size", "100px Auto");
+								//infowindow = new google.maps.InfoWindow();
+								//infowindow.setContent('<div id="infowin_content" style="width:190px; overflow:none"><div id="img_'+user_id+'" style="width:100px; height:100px; background:  url('+urls[i]+'/public/'+user_id+'_user_face.jpg)  50% 50%; background-size: 100px Auto; border-radius:50%"></div>'+html+'</div>');
 
-				//infowindow.setPosition(lnglat);
-				//infowindow.open(map);
+								//infowindow.setPosition(lnglat);
+								//infowindow.open(map);
 
-				console.log('===============>lnglat');
-				console.log(lnglat);
+								console.log('===============>lnglat');
+								console.log(lnglat);
 
-				infoBubble2 = new InfoBubble({
-					map: map,
-					content: '<div class="profile_main_div"><div class="profile_div"></div><div class="panel-img"><div id="img_'+user_id+'" style="width:80px; height:80px; background:  url('+urls[i]+'/public/'+user_id+'_user_face.jpg)  50% 50%; background-size: 80px Auto; border-radius:50%"></div></div><div class="profile_text">'+html+'</div></div>',
-					position: new google.maps.LatLng(lnglat.lat,lnglat.lng),
-					shadowStyle: 1,
-					padding: 0,
-					backgroundColor: 'rgb(0,0,0,0)',
-					borderRadius: 4,
-					arrowSize: 10,
-					borderWidth: 1,
-					borderColor: '#ccc',
-					disableAutoPan: true,
-					hideCloseButton: false,
-					arrowPosition: 50,
-					backgroundClassName: 'phoney',
-					arrowStyle: 2
-				});
-				infoBubble2.open();
+								infoBubble2 = new InfoBubble({
+									map: map,
+									content: '<div class="profile_main_div"><div class="profile_div"></div><div class="panel-img"><div id="img_' + user_id + '" style="width:80px; height:80px; background:  url(' + urls[i] + '/public/' + user_id + '_user_face.jpg)  50% 50%; background-size: 80px Auto; border-radius:50%"></div></div><div class="profile_text">' + html + '</div></div>',
+									position: new google.maps.LatLng(lnglat.lat, lnglat.lng),
+									shadowStyle: 1,
+									padding: 0,
+									backgroundColor: 'rgb(0,0,0,0)',
+									borderRadius: 4,
+									arrowSize: 10,
+									borderWidth: 1,
+									borderColor: '#ccc',
+									disableAutoPan: true,
+									hideCloseButton: false,
+									arrowPosition: 50,
+									backgroundClassName: 'phoney',
+									arrowStyle: 2
+								});
+								infoBubble2.open();
 
-				if (start==1)
-					var lat = lnglat.lat+3;
-				else
-					var lat = lnglat.lat;
-				var center = new google.maps.LatLng(lat,lnglat.lng);
-				map.panTo(center);
+								if (start == 1)
+									var lat = lnglat.lat + 3;
+								else
+									var lat = lnglat.lat;
+								var center = new google.maps.LatLng(lat, lnglat.lng);
+								map.panTo(center);
 
 
-
-				//console.log(i+'/'+user_id+'/'+urls);
-				$('#map_canvas').spin(false);
-				for (var k=0; k<counters.length; k++) {
-					dc_counter(0, pct_sec, counters[k], 8);
-				}
-			};
-			// handle failure
-			image.onerror = function(){
-				image=null;
-				console.log('error '+urls[i]);
-				var bg = $('#img_'+user_id).css("background-image");
-				if (typeof bg == 'undefined' || bg.length<10)
-					get_img_home (i+1, user_id, urls, lnglat, html, counters, pct_sec, start);
-			};
-			setTimeout
-			(
-				function()
-				{
-					if ( image!=null && (!image.complete || !image.naturalWidth) )
-					{
-						var bg = $('#img_'+user_id).css("background-image");
-						image = null;
-						console.log('error');
-						if (typeof bg == 'undefined' || bg.length<10)
-							get_img_home (i+1, user_id, urls, lnglat, html, counters, pct_sec, start);
+								//console.log(i+'/'+user_id+'/'+urls);
+								$('#map_canvas').spin(false);
+								for (var k = 0; k < counters.length; k++) {
+									dc_counter(0, pct_sec, counters[k], 8);
+								}
+							};
+							// handle failure
+							image.onerror = function () {
+								image = null;
+								console.log('error ' + urls[i]);
+								var bg = $('#img_' + user_id).css("background-image");
+								if (typeof bg == 'undefined' || bg.length < 10)
+									get_img_home(i + 1, user_id, urls, lnglat, html, counters, pct_sec, start);
+							};
+							setTimeout
+							(
+								function () {
+									if (image != null && (!image.complete || !image.naturalWidth)) {
+										var bg = $('#img_' + user_id).css("background-image");
+										image = null;
+										console.log('error');
+										if (typeof bg == 'undefined' || bg.length < 10)
+											get_img_home(i + 1, user_id, urls, lnglat, html, counters, pct_sec, start);
+									}
+								},
+								2000
+							);
+						}
+						else {
+							$('#map_canvas').spin(false);
+						}
+					}
+					else {
+						console.log('response='+response+'==========error 2 ' + urls[i] + "/ajax/public_img.php?img=" + user_id + "_user_face.jpg");
+						var bg = $('#img_' + user_id).css("background-image");
+						if (typeof bg == 'undefined' || bg.length < 10)
+							get_img_home(i + 1, user_id, urls, lnglat, html, counters, pct_sec, start);
 					}
 				},
-				2000
-			);
-		}
-		else {
-			$('#map_canvas').spin(false);
-		}
+				timeout: 3000
+		});
 	}
 
 
