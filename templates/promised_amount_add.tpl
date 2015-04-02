@@ -40,7 +40,7 @@ $('#add_promised_amount').bind('click', function () {
 		}
 	}
 
-	if (!$('#amount').val()) {
+	if (!$('#amount').val() || $('#amount').val()=='0') {
 		$('#errors').html('<div class="alert alert-danger alert-dismissable"><button type="button" class="close" data-dismiss="alert" aria-hidden="true">×</button><?php echo $lng['invalid_amount']?></div>');
 	}
 	else {
