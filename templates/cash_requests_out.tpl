@@ -28,11 +28,12 @@ $('#next').bind('click', function () {
 	var error_message='';
 	to_user_id = $("#to_user_id").text();
 	comment = $("#comment").val();
+	console.log('to_user_id='+to_user_id);
 
 	if ( comment.length<10 ) {
 		error_message = '<?php echo $lng['invalid_contacts']?>';
 	}
-	if ( !to_user_id ) {
+	if ( !to_user_id || to_user_id=='0') {
 		error_message = '<?php echo $lng['user_not_selected']?>';
 	}
 	if (error_message!='') {
