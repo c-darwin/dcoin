@@ -1,1 +1,1 @@
-http://https://github.com/c-darwin/dcoin-go
+https://github.com/c-darwin/dcoin-go
